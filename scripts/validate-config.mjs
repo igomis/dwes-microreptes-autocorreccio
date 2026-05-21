@@ -63,6 +63,41 @@ async function validateGlobalFiles(errors) {
   }
 }
 
+async function validateActiveChallenges(knownChallengeIds, errors) {
+  const configPath = path.join(courseDir, 'active-challenges.json');
+  if (!(await pathExists(configPath))) {
+    return;
+  }
+
+  let config;
+  try {
+    config = await readJson(configPath);
+  } catch (error) {
+    errors.push(`course/active-challenges.json invalid (${error.message})`);
+    return;
+  }
+
+  for (const [group, assignment] of Object.entries(config.groups || {})) {
+    if (!assignment?.challenge_id) {
+      errors.push(`course/active-challenges.json: el grup ${group} no te challenge_id`);
+      continue;
+    }
+    if (!knownChallengeIds.has(assignment.challenge_id)) {
+      errors.push(`course/active-challenges.json: el grup ${group} referencia un challenge_id inexistent (${assignment.challenge_id})`);
+    }
+  }
+
+  for (const [student, assignment] of Object.entries(config.students || {})) {
+    if (!assignment?.challenge_id) {
+      errors.push(`course/active-challenges.json: l'alumne ${student} no te challenge_id`);
+      continue;
+    }
+    if (!knownChallengeIds.has(assignment.challenge_id)) {
+      errors.push(`course/active-challenges.json: l'alumne ${student} referencia un challenge_id inexistent (${assignment.challenge_id})`);
+    }
+  }
+}
+
 async function validateChallenge(challengeName, errors) {
   const challengeDir = path.join(microreptesDir, challengeName);
   const challengePath = path.join(challengeDir, 'challenge.json');
@@ -129,6 +164,8 @@ async function main() {
       validChallenges.push(result);
     }
   }
+
+  await validateActiveChallenges(new Set(validChallenges.map((challenge) => challenge.id)), errors);
 
   if (errors.length > 0) {
     console.error('Validacio fallida:');

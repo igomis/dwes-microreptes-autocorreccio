@@ -11,6 +11,10 @@ on:
         description: "Grup docent"
         required: true
         default: "2DAW-A"
+      repo:
+        description: "Repositori de l'alumne"
+        required: true
+        default: "cipfpbatoi/dwes-ana-marti"
 
 permissions:
   contents: read
@@ -44,9 +48,20 @@ jobs:
       - name: List challenges
         run: npm run list:challenges
 
+      - name: Build evaluation payload
+        run: |
+          node scripts/build-evaluation-payload.mjs \
+            --student "${{ inputs.student }}" \
+            --group "${{ inputs.group }}" \
+            --repo "${{ inputs.repo }}" \
+            --commit dry-run
+          echo "payload_path=tmp/evaluation-payload.json"
+
       - name: Dry run summary
         run: |
           echo "student=${{ inputs.student }}"
           echo "group=${{ inputs.group }}"
+          echo "repo=${{ inputs.repo }}"
           echo "challenge=${{ steps.resolve.outputs.challenge_id }}"
+          echo "payload=tmp/evaluation-payload.json"
           echo "Dry run completat. Encara no es fan crides a OpenAI."

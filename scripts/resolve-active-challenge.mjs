@@ -21,21 +21,21 @@ function parseArgs(argv) {
 async function main() {
   const { student, group } = parseArgs(process.argv.slice(2));
 
-  if (!student || !group) {
-    console.error('Ús: node scripts/resolve-active-challenge.mjs --student <repo-o-id> --group <grup>');
+  if (!student && !group) {
+    console.error('Ús: node scripts/resolve-active-challenge.mjs [--student <repo-o-id>] [--group <grup>]');
     process.exit(1);
   }
 
   const configPath = path.join(process.cwd(), 'course', 'active-challenges.json');
   const config = JSON.parse(await readFile(configPath, 'utf8'));
 
-  const studentAssignment = config.students?.[student];
+  const studentAssignment = student ? config.students?.[student] : null;
   if (studentAssignment?.challenge_id) {
     console.log(studentAssignment.challenge_id);
     return;
   }
 
-  const groupAssignment = config.groups?.[group];
+  const groupAssignment = group ? config.groups?.[group] : null;
   if (groupAssignment?.challenge_id) {
     console.log(groupAssignment.challenge_id);
     return;
