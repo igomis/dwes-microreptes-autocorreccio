@@ -1,0 +1,25 @@
+{
+  "challenge_id": "mr03-validacio-errors",
+  "title": "Validació i errors",
+  "summary": "Validar dades d'entrada i retornar errors comprensibles sense trencar el flux de l'aplicació.",
+  "pedagogical_goal": "Treballar validació defensiva, missatges d'error i separació entre cas correcte i cas invàlid.",
+  "relevant_paths": [
+    "src/",
+    "public/",
+    "README.md",
+    "evidence/"
+  ],
+  "required_evidence": [
+    "Regles de validació implementades",
+    "Resposta davant dades invàlides",
+    "Prova d'almenys un cas vàlid i un cas invàlid"
+  ],
+  "ai_log_required": true,
+  "expected_signals": [
+    "Validació explícita de dades d'entrada",
+    "Missatges d'error comprensibles",
+    "El cas invàlid no provoca error fatal",
+    "Prova de cas vàlid i cas invàlid"
+  ],
+  "recommended_test_strategy": "Executar un cas amb dades vàlides i un altre amb dades invàlides, comprovant resposta, missatge i absència d'error fatal."
+}

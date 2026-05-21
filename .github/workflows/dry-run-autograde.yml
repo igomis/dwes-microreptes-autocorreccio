@@ -1,0 +1,33 @@
+name: Dry run autograde
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: List challenges
+        run: npm run list:challenges
+
+      - name: Validate configuration
+        run: npm run validate
+
+      - name: Dry run message
+        run: echo "Dry run completat. Encara no es fan crides a OpenAI."
