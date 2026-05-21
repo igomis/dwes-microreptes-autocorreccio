@@ -1,0 +1,25 @@
+{
+  "challenge_id": "mr02-formularis-estat",
+  "title": "Formularis i estat",
+  "summary": "Processar dades d'un formulari i mantindre una resposta coherent segons l'estat enviat.",
+  "pedagogical_goal": "Practicar recepció de dades, persistència mínima d'estat i resposta del servidor sense lligar-se a un framework.",
+  "relevant_paths": [
+    "src/",
+    "public/",
+    "README.md",
+    "evidence/"
+  ],
+  "required_evidence": [
+    "Formulari o equivalent HTTP documentat",
+    "Gestió d'estat o dades enviades",
+    "Prova manual o automatitzada del flux"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "Entrada de dades per formulari o petició HTTP",
+    "Resposta diferent segons les dades enviades",
+    "Control mínim del flux d'estat",
+    "Evidència de prova amb almenys un cas vàlid"
+  ],
+  "recommended_test_strategy": "Enviar una petició amb dades representatives i comprovar que la resposta reflecteix correctament l'estat processat."
+}

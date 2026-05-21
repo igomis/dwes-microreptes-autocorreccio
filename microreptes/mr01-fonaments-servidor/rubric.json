@@ -1,0 +1,48 @@
+{
+  "rubric_id": "rubric-mr01-fonaments-servidor",
+  "challenge_id": "mr01-fonaments-servidor",
+  "max_score": 10,
+  "dimensions": [
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.35,
+      "must_check": "La resposta de servidor funciona i retorna informació coherent."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.2,
+      "must_check": "Inclou prova, captura, log o instrucció reproduïble."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.1,
+      "must_check": "Els canvis són localitzables i relacionats amb el microrepte."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.15,
+      "must_check": "El README explica execució i verificació mínima."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si declara ús d'IA, és coherent i no substitueix l'evidència tècnica."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat del codi",
+      "weight": 0.15,
+      "must_check": "Codi simple, llegible i sense dependències innecessàries."
+    }
+  ],
+  "hard_rules": [
+    "Sense evidència de prova, la puntuació màxima recomanada és 6.",
+    "Si el codi no es pot localitzar, cal revisió docent.",
+    "Si no hi ha README, aplica la penalització global configurada."
+  ]
+}
