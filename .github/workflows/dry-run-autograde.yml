@@ -61,6 +61,9 @@ jobs:
       - name: Mock autograde
         run: node scripts/mock-autograde.mjs --input tmp/evaluation-payload.json
 
+      - name: Validate autograde result
+        run: node scripts/validate-autograde-result.mjs --input tmp/autograde-result.json
+
       - name: Dry run summary
         run: |
           echo "student=${{ inputs.student }}"
@@ -69,4 +72,5 @@ jobs:
           echo "challenge=${{ steps.resolve.outputs.challenge_id }}"
           echo "payload=${{ steps.payload.outputs.payload_path }}"
           echo "result=tmp/autograde-result.json"
-          echo "Dry run completat. Encara no es fan crides a OpenAI."
+          echo "result_validated=true"
+          echo "Dry run completat amb resultat validat. Encara no es fan crides a OpenAI."

@@ -9,7 +9,8 @@
     "list:challenges": "node scripts/list-challenges.mjs",
     "resolve:challenge": "node scripts/resolve-active-challenge.mjs",
     "build:payload": "node scripts/build-evaluation-payload.mjs",
-    "mock:autograde": "node scripts/mock-autograde.mjs"
+    "mock:autograde": "node scripts/mock-autograde.mjs",
+    "validate:autograde": "node scripts/validate-autograde-result.mjs"
   },
   "engines": {
     "node": ">=20"
