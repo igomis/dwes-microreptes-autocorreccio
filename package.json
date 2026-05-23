@@ -8,7 +8,8 @@
     "validate": "node scripts/validate-config.mjs",
     "list:challenges": "node scripts/list-challenges.mjs",
     "resolve:challenge": "node scripts/resolve-active-challenge.mjs",
-    "build:payload": "node scripts/build-evaluation-payload.mjs"
+    "build:payload": "node scripts/build-evaluation-payload.mjs",
+    "mock:autograde": "node scripts/mock-autograde.mjs"
   },
   "engines": {
     "node": ">=20"

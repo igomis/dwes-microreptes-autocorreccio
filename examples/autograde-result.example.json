@@ -1,0 +1,56 @@
+{
+  "challenge_id": "mr03-validacio-errors",
+  "student": "cipfpbatoi/dwes-ana-marti",
+  "commit": "abc1234def5678",
+  "final_score_over_10": 7.9,
+  "provisional": true,
+  "dimension_scores": [
+    {
+      "id": "functional_resolution",
+      "score": 2.46,
+      "max_score": 3,
+      "reason": "Valor simulat a partir de la rubrica: La validacio diferencia correctament casos valids i invalids."
+    },
+    {
+      "id": "verification",
+      "score": 1.85,
+      "max_score": 2.5,
+      "reason": "Valor simulat a partir de la rubrica: Inclou prova de cas valid i cas invalid."
+    },
+    {
+      "id": "traceability",
+      "score": 0.82,
+      "max_score": 1,
+      "reason": "Valor simulat a partir de la rubrica: Les regles de validacio son localitzables."
+    },
+    {
+      "id": "documentation",
+      "score": 0.74,
+      "max_score": 1,
+      "reason": "Valor simulat a partir de la rubrica: Documenta regles, execucio i prova minima."
+    },
+    {
+      "id": "ai_usage",
+      "score": 0.82,
+      "max_score": 1,
+      "reason": "Valor simulat a partir de la rubrica: Inclou registre d'us d'IA si la politica del microrepte ho requerix."
+    },
+    {
+      "id": "code_quality",
+      "score": 1.11,
+      "max_score": 1.5,
+      "reason": "Valor simulat a partir de la rubrica: Codi simple, llegible i sense dependencies innecessaries."
+    }
+  ],
+  "strengths": [
+    "Payload d_avaluacio llegit correctament.",
+    "La rubrica permet generar una estimacio inicial coherent."
+  ],
+  "weaknesses": [
+    "Resultat simulat: encara no revisa codi real ni executa proves del repositori de l_alumne."
+  ],
+  "blocking_flags": [],
+  "teacher_review_required": false,
+  "confidence": 0.78,
+  "short_feedback_md": "### Feedback provisional\n\nAutograding simulat sense OpenAI. La qualificacio es basa en les dimensions de la rubrica i ha de ser revisada abans de considerar-la definitiva."
+}

@@ -49,13 +49,17 @@ jobs:
         run: npm run list:challenges
 
       - name: Build evaluation payload
+        id: payload
         run: |
           node scripts/build-evaluation-payload.mjs \
             --student "${{ inputs.student }}" \
             --group "${{ inputs.group }}" \
             --repo "${{ inputs.repo }}" \
             --commit dry-run
-          echo "payload_path=tmp/evaluation-payload.json"
+          echo "payload_path=tmp/evaluation-payload.json" >> "$GITHUB_OUTPUT"
+
+      - name: Mock autograde
+        run: node scripts/mock-autograde.mjs --input tmp/evaluation-payload.json
 
       - name: Dry run summary
         run: |
@@ -63,5 +67,6 @@ jobs:
           echo "group=${{ inputs.group }}"
           echo "repo=${{ inputs.repo }}"
           echo "challenge=${{ steps.resolve.outputs.challenge_id }}"
-          echo "payload=tmp/evaluation-payload.json"
+          echo "payload=${{ steps.payload.outputs.payload_path }}"
+          echo "result=tmp/autograde-result.json"
           echo "Dry run completat. Encara no es fan crides a OpenAI."
