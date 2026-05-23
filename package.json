@@ -10,7 +10,11 @@
     "resolve:challenge": "node scripts/resolve-active-challenge.mjs",
     "build:payload": "node scripts/build-evaluation-payload.mjs",
     "mock:autograde": "node scripts/mock-autograde.mjs",
+    "openai:autograde": "node scripts/openai-autograde.mjs",
     "validate:autograde": "node scripts/validate-autograde-result.mjs"
+  },
+  "dependencies": {
+    "openai": "^4.x"
   },
   "engines": {
     "node": ">=20"
