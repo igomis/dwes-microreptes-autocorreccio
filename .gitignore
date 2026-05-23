@@ -10,3 +10,4 @@ tmp/*
 !tmp/.gitkeep
 .idea/
 .vscode/
+*.log
