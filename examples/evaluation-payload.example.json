@@ -1,17 +1,17 @@
 {
   "student": "cipfpbatoi/dwes-ana-marti",
-  "group": "2DAW-A",
+  "group": "2DAW-C",
   "repo": "cipfpbatoi/dwes-ana-marti",
-  "challenge_id": "mr03-validacio-errors",
+  "challenge_id": "r1-mp3-punt-entrada-backend",
   "commit": "abc1234def5678",
   "changed_files": [
-    "src/Validator.php",
+    "public/index.php",
     "README.md",
-    "evidence/validacio.md"
+    "evidence/punt-entrada.md"
   ],
   "repo_signals": {
     "readme_present": true,
-    "ai_log_present": true,
+    "ai_log_present": false,
     "declared_runtime": "php",
     "framework_detected": null
   },
@@ -21,5 +21,5 @@
     "passed": 0,
     "failed": 0
   },
-  "rubric_id": "rubric-mr03-validacio-errors"
+  "rubric_id": "rubric-r1-mp3-punt-entrada-backend"
 }

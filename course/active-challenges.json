@@ -1,22 +1,25 @@
 {
   "groups": {
     "2DAW-A": {
-      "challenge_id": "mr02-formularis-estat"
+      "challenge_id": "r1-mp1-model-client-servidor-stack"
     },
     "2DAW-B": {
-      "challenge_id": "mr01-fonaments-servidor"
+      "challenge_id": "r1-mp2-entorn-docker-php-servidor"
     },
     "2DAW-C": {
-      "challenge_id": "mr03-validacio-errors"
+      "challenge_id": "r1-mp3-punt-entrada-backend"
+    },
+    "2DAW-D": {
+      "challenge_id": "r1-mp4-documentacio-verificacio-checkpoint"
     }
   },
   "students": {
     "cipfpbatoi/dwes-ana-marti": {
-      "challenge_id": "mr03-validacio-errors",
+      "challenge_id": "r1-mp3-punt-entrada-backend",
       "reason": "Adaptació individual per recuperació"
     },
     "cipfpbatoi/dwes-joan-ferrer": {
-      "challenge_id": "mr01-fonaments-servidor",
+      "challenge_id": "r1-mp1-model-client-servidor-stack",
       "reason": "Incorporació tardana al grup"
     }
   }

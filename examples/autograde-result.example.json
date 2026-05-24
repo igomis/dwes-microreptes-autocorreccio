@@ -1,5 +1,5 @@
 {
-  "challenge_id": "mr03-validacio-errors",
+  "challenge_id": "r1-mp3-punt-entrada-backend",
   "student": "cipfpbatoi/dwes-ana-marti",
   "commit": "abc1234def5678",
   "final_score_over_10": 7.9,
@@ -9,37 +9,37 @@
       "id": "functional_resolution",
       "score": 2.46,
       "max_score": 3,
-      "reason": "Valor simulat a partir de la rubrica: La validacio diferencia correctament casos valids i invalids."
+      "reason": "Valor simulat a partir de la rubrica: Hi ha una ruta o endpoint que respon des del backend."
     },
     {
       "id": "verification",
       "score": 1.85,
       "max_score": 2.5,
-      "reason": "Valor simulat a partir de la rubrica: Inclou prova de cas valid i cas invalid."
+      "reason": "Valor simulat a partir de la rubrica: Inclou URL, captura, log o instruccio reproduible."
     },
     {
       "id": "traceability",
       "score": 0.82,
       "max_score": 1,
-      "reason": "Valor simulat a partir de la rubrica: Les regles de validacio son localitzables."
+      "reason": "Valor simulat a partir de la rubrica: El canvi del punt d'entrada es pot localitzar."
     },
     {
       "id": "documentation",
       "score": 0.74,
       "max_score": 1,
-      "reason": "Valor simulat a partir de la rubrica: Documenta regles, execucio i prova minima."
+      "reason": "Valor simulat a partir de la rubrica: El README indica com provar la ruta."
     },
     {
       "id": "ai_usage",
       "score": 0.82,
       "max_score": 1,
-      "reason": "Valor simulat a partir de la rubrica: Inclou registre d'us d'IA si la politica del microrepte ho requerix."
+      "reason": "Valor simulat a partir de la rubrica: Si usa IA, el codi esta provat i adaptat."
     },
     {
       "id": "code_quality",
       "score": 1.11,
       "max_score": 1.5,
-      "reason": "Valor simulat a partir de la rubrica: Codi simple, llegible i sense dependencies innecessaries."
+      "reason": "Valor simulat a partir de la rubrica: Implementacio minima, clara i coherent amb el producte."
     }
   ],
   "strengths": [

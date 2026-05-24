@@ -47,7 +47,7 @@ Això permet canviar el repte actiu de forma centralitzada, sense commits als re
 
 Base inicial del repositori:
 
-- tres microreptes d'exemple;
+- quatre microreptes del Repte 1;
 - rúbriques inicials;
 - polítiques globals;
 - resolució centralitzada de microrepte actiu;

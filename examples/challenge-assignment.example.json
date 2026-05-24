@@ -1,10 +1,16 @@
 {
   "groups": {
     "2DAW-A": {
-      "active_challenge_id": "mr02-formularis-estat"
+      "active_challenge_id": "r1-mp1-model-client-servidor-stack"
     },
     "2DAW-B": {
-      "active_challenge_id": "mr01-fonaments-servidor"
+      "active_challenge_id": "r1-mp2-entorn-docker-php-servidor"
+    },
+    "2DAW-C": {
+      "active_challenge_id": "r1-mp3-punt-entrada-backend"
+    },
+    "2DAW-D": {
+      "active_challenge_id": "r1-mp4-documentacio-verificacio-checkpoint"
     }
   },
   "students": {
@@ -13,7 +19,7 @@
     },
     "cipfpbatoi/dwes-joan-ferrer": {
       "inherits_group_challenge": false,
-      "active_challenge_id": "mr03-validacio-errors",
+      "active_challenge_id": "r1-mp1-model-client-servidor-stack",
       "reason": "Adaptació temporal del calendari individual"
     },
     "cipfpbatoi/dwes-laura-soler": {

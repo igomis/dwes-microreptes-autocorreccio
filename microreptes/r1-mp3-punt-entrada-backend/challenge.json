@@ -1,0 +1,40 @@
+{
+  "challenge_id": "r1-mp3-punt-entrada-backend",
+  "repte_id": "r1-kickoff-backend",
+  "microrepte_code": "MP3",
+  "title": "Primer punt d'entrada funcional del backend",
+  "summary": "Crear una primera ruta, vista, endpoint, landing mínima o healthcheck que responga des del backend i siga coherent amb el producte.",
+  "pedagogical_goal": "Comprovar que l'alumne transforma la infraestructura inicial en una resposta funcional simple, executable, documentada i defensable.",
+  "relevant_paths": [
+    "public/",
+    "src/",
+    "app/",
+    "routes/",
+    "README.md",
+    "docs/",
+    "documentacio/",
+    "evidence/",
+    "ai-log.md"
+  ],
+  "required_evidence": [
+    "Ruta, vista, endpoint, landing mínima o healthcheck funcional",
+    "Demo, captura, log o URL de comprovació",
+    "README actualitzat amb el punt d'entrada i com provar-lo",
+    "Commit o traçabilitat associada a la funcionalitat",
+    "Explicació del flux petició, execució en servidor i resposta"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "Hi ha una URL, ruta o endpoint que respon en execució",
+    "La resposta està connectada amb el producte o el seu estat inicial",
+    "El punt d'entrada no és només una maqueta estàtica desconnectada del backend",
+    "La resposta canvia amb un microcanvi controlat",
+    "L'alumne pot identificar el fitxer o peça que respon a la petició"
+  ],
+  "recommended_test_strategy": "Arrancar l'entorn, obrir la ruta documentada, comprovar la resposta, fer o revisar un microcanvi en viu i verificar que el README explica la prova.",
+  "source_alignment": [
+    "Repte 1 MP3",
+    "Programació d'aula R1 MP3",
+    "Pes orientatiu dins del repte: 25%"
+  ]
+}
