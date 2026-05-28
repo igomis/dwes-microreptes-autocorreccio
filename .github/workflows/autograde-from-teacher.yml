@@ -1,0 +1,108 @@
+name: Autograde from teacher repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      student:
+        description: "Repositori o identificador de l'alumne"
+        required: true
+      group:
+        description: "Grup docent"
+        required: true
+      mode:
+        description: "Motor d'autograding"
+        required: true
+        default: "mock"
+        type: choice
+        options:
+          - mock
+          - openai
+      teacher_repository:
+        description: "Repositori del professor amb la configuracio d'autograding"
+        required: true
+        default: "igomis/dwes-microreptes-autocorreccio"
+      teacher_ref:
+        description: "Branca, tag o SHA del repositori del professor"
+        required: true
+        default: "main"
+
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  autograde:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout student repository
+        uses: actions/checkout@v4
+
+      - name: Checkout teacher repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.teacher_repository || 'igomis/dwes-microreptes-autocorreccio' }}
+          ref: ${{ inputs.teacher_ref || 'main' }}
+          path: _teacher_repo
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: _teacher_repo/package-lock.json
+
+      - name: Install teacher dependencies
+        working-directory: _teacher_repo
+        run: npm ci
+
+      - name: Resolve active challenge
+        id: resolve
+        # Els scripts del professor usen rutes relatives i necessiten executar-se des del seu propi repositori.
+        working-directory: _teacher_repo
+        run: |
+          CHALLENGE_ID="$(node scripts/resolve-active-challenge.mjs --student "${{ inputs.student || github.repository }}" --group "${{ inputs.group || vars.AUTOGRADE_GROUP }}")"
+          echo "challenge_id=${CHALLENGE_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Build evaluation payload
+        id: payload
+        working-directory: _teacher_repo
+        run: |
+          node scripts/build-evaluation-payload.mjs \
+            --student "${{ inputs.student || github.repository }}" \
+            --group "${{ inputs.group || vars.AUTOGRADE_GROUP }}" \
+            --repo "${{ github.repository }}" \
+            --commit "${{ github.sha }}"
+          echo "payload_path=tmp/evaluation-payload.json" >> "$GITHUB_OUTPUT"
+
+      - name: Mock autograde
+        if: ${{ (inputs.mode || 'mock') == 'mock' }}
+        working-directory: _teacher_repo
+        run: node scripts/mock-autograde.mjs --input tmp/evaluation-payload.json
+
+      - name: OpenAI autograde
+        if: ${{ inputs.mode == 'openai' }}
+        working-directory: _teacher_repo
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: node scripts/openai-autograde.mjs --input tmp/evaluation-payload.json
+
+      - name: Validate autograde result
+        working-directory: _teacher_repo
+        run: node scripts/validate-autograde-result.mjs --input tmp/autograde-result.json
+
+      - name: Copy artifacts to student repository
+        run: |
+          mkdir -p _artifacts
+          cp _teacher_repo/tmp/evaluation-payload.json _artifacts/
+          cp _teacher_repo/tmp/autograde-result.json _artifacts/
+
+      - name: Upload autograde artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: autograde-result
+          path: _artifacts/

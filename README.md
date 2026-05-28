@@ -64,3 +64,7 @@ Base inicial del repositori:
 - Afegir tests o oracles reals per microrepte.
 - Connectar el payload del professor amb l’anàlisi real del codi i evidències del repo de l’alumne.
 - Calibrar rúbriques, flags i llindars de revisió docent.
+
+# TOKEN
+
+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
