@@ -11,7 +11,10 @@
     "build:payload": "node scripts/build-evaluation-payload.mjs",
     "mock:autograde": "node scripts/mock-autograde.mjs",
     "openai:autograde": "node scripts/openai-autograde.mjs",
-    "validate:autograde": "node scripts/validate-autograde-result.mjs"
+    "validate:autograde": "node scripts/validate-autograde-result.mjs",
+    "grades:append": "node scripts/append-grade-result.mjs",
+    "grades:import": "node scripts/import-autograde-result.mjs",
+    "grades:list": "node scripts/list-grades.mjs"
   },
   "dependencies": {
     "openai": "^4.x"

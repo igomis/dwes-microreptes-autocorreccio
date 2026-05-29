@@ -133,17 +133,22 @@ jobs:
           test -f scripts/openai-autograde.mjs
           test -f scripts/validate-autograde-result.mjs
 
-      # Els scripts del professor usen rutes relatives i necessiten executar-se des del seu propi repositori.
+      # L'script usa process.cwd(), per aixo cal executar-lo des de _teacher_repo.
       - name: Resolve active challenge
         id: resolve
         working-directory: _teacher_repo
         shell: bash
+        env:
+          RESOLVED_STUDENT: ${{ steps.config.outputs.student }}
+          RESOLVED_GROUP: ${{ steps.config.outputs.group }}
         run: |
           set -euo pipefail
-          challenge_id="$(node scripts/resolve-active-challenge.mjs \
-            --student "${{ steps.config.outputs.student }}" \
-            --group "${{ steps.config.outputs.group }}")"
+          challenge_id="$(
+            node scripts/resolve-active-challenge.mjs --student "${RESOLVED_STUDENT}" --group "${RESOLVED_GROUP}"
+          )"
           echo "challenge_id=$challenge_id" >> "$GITHUB_OUTPUT"
+          mkdir -p ../_artifacts
+          CHALLENGE_ID="$challenge_id" node -e "const fs = require('fs'); fs.writeFileSync('../_artifacts/active-challenge.json', JSON.stringify({ challenge_id: process.env.CHALLENGE_ID }, null, 2) + '\n');"
 
       - name: Build evaluation payload
         id: payload

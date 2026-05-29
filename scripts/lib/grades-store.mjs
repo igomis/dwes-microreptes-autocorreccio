@@ -1,0 +1,79 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+export const gradeFields = [
+  'student',
+  'repo',
+  'group',
+  'challenge_id',
+  'score',
+  'confidence',
+  'teacher_review_required',
+  'provisional',
+  'commit',
+  'timestamp',
+  'source'
+];
+
+export const csvHeader = `${gradeFields.join(',')}\n`;
+
+export function getGradesPaths(rootDir = process.cwd()) {
+  const gradesDir = path.join(rootDir, 'grades');
+
+  return {
+    gradesDir,
+    jsonPath: path.join(gradesDir, 'latest-grades.json'),
+    csvPath: path.join(gradesDir, 'latest-grades.csv')
+  };
+}
+
+export async function readGrades(rootDir = process.cwd()) {
+  const { jsonPath } = getGradesPaths(rootDir);
+
+  try {
+    const content = await readFile(jsonPath, 'utf8');
+    const grades = JSON.parse(content);
+
+    if (!Array.isArray(grades)) {
+      throw new Error('grades/latest-grades.json ha de contindre un array JSON');
+    }
+
+    return grades;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+function csvEscape(value) {
+  const text = value === null || value === undefined ? '' : String(value);
+
+  if (/[",\n\r]/.test(text)) {
+    return `"${text.replaceAll('"', '""')}"`;
+  }
+
+  return text;
+}
+
+export function gradeToCsvLine(grade) {
+  return `${gradeFields.map((field) => csvEscape(grade[field])).join(',')}\n`;
+}
+
+export async function writeGrades(grades, rootDir = process.cwd()) {
+  const { gradesDir, jsonPath, csvPath } = getGradesPaths(rootDir);
+
+  await mkdir(gradesDir, { recursive: true });
+  await writeFile(jsonPath, `${JSON.stringify(grades, null, 2)}\n`, 'utf8');
+  await writeFile(csvPath, `${csvHeader}${grades.map(gradeToCsvLine).join('')}`, 'utf8');
+}
+
+export async function appendGrade(grade, rootDir = process.cwd()) {
+  const grades = await readGrades(rootDir);
+  grades.push(grade);
+  await writeGrades(grades, rootDir);
+
+  return grade;
+}
