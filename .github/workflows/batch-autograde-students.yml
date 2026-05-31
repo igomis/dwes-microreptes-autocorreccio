@@ -7,10 +7,21 @@ on:
         description: "Repositoris d'alumnes per sobreescriure el fitxer, separats per salts de línia, comes o espais"
         required: false
         default: ""
-      repositories_file:
-        description: "Fitxer amb repositoris d'alumnes"
+      target_group:
+        description: "Grup a corregir"
         required: true
-        default: "course/student-repositories.txt"
+        default: "all"
+        type: choice
+        options:
+          - all
+          - 2DAW-A
+          - 2DAW-B
+          - 2DAW-C
+          - 2DAW-D
+      repositories_file:
+        description: "Fitxer opcional per sobreescriure target_group"
+        required: false
+        default: ""
       group:
         description: "Grup per defecte si el fitxer o l'input no especifiquen grup"
         required: false
@@ -65,6 +76,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           INPUT_REPOSITORIES: ${{ inputs.repositories }}
+          INPUT_TARGET_GROUP: ${{ inputs.target_group }}
           INPUT_REPOSITORIES_FILE: ${{ inputs.repositories_file }}
           INPUT_GROUP: ${{ inputs.group }}
           INPUT_MODE: ${{ inputs.mode }}
@@ -83,6 +95,31 @@ jobs:
             exit 1
           fi
 
+          selected_repositories_file="$INPUT_REPOSITORIES_FILE"
+          if [ -z "$selected_repositories_file" ]; then
+            case "$INPUT_TARGET_GROUP" in
+              all)
+                selected_repositories_file="course/student-repositories.txt"
+                ;;
+              2DAW-A)
+                selected_repositories_file="course/student-repositories-2dawa.txt"
+                ;;
+              2DAW-B)
+                selected_repositories_file="course/student-repositories-2dawb.txt"
+                ;;
+              2DAW-C)
+                selected_repositories_file="course/student-repositories-2dawc.txt"
+                ;;
+              2DAW-D)
+                selected_repositories_file="course/student-repositories-2dawd.txt"
+                ;;
+              *)
+                echo "target_group no valid: $INPUT_TARGET_GROUP"
+                exit 1
+                ;;
+            esac
+          fi
+
           tmp_repos="$(mktemp)"
           if [ -n "$INPUT_REPOSITORIES" ]; then
             printf '%s\n' "$INPUT_REPOSITORIES" \
@@ -91,12 +128,12 @@ jobs:
               | sort -u \
               | awk -v default_group="$INPUT_GROUP" '{ repo=$1; group=($2 != "" ? $2 : default_group); print repo " " group; }' > "$tmp_repos"
           else
-            if [ ! -f "$INPUT_REPOSITORIES_FILE" ]; then
-              echo "No s'ha trobat el fitxer de repositoris: $INPUT_REPOSITORIES_FILE"
+            if [ ! -f "$selected_repositories_file" ]; then
+              echo "No s'ha trobat el fitxer de repositoris: $selected_repositories_file"
               exit 1
             fi
 
-            sed 's/#.*$//' "$INPUT_REPOSITORIES_FILE" \
+            sed 's/#.*$//' "$selected_repositories_file" \
               | tr ',;' '\n' \
               | sed '/^[[:space:]]*$/d' \
               | sort -u \
@@ -114,9 +151,10 @@ jobs:
 
           echo "# Correcció massiva d'alumnes" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Grup seleccionat: \`$INPUT_TARGET_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Grup per defecte: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Mode: \`$INPUT_MODE\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Fitxer repositoris: \`$INPUT_REPOSITORIES_FILE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Fitxer repositoris: \`$selected_repositories_file\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Branca alumne: \`$INPUT_STUDENT_REF\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Publicació en repo alumne: \`$INPUT_PUBLISH_TO_STUDENT_REPO\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Total repositoris: **$total**" >> "$GITHUB_STEP_SUMMARY"

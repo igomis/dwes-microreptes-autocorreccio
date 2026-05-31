@@ -32,7 +32,8 @@ El token ha de poder clonar i fer `push` als repositoris d'alumnes. Si no existe
 2. Ves a `Actions`.
 3. Obri `Batch autograde student repositories`.
 4. Prem `Run workflow`.
-5. Deixa buit `repositories` per usar el fitxer indicat en `repositories_file`, o escriu repositoris per a una tanda puntual:
+5. Tria `target_group`: `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`.
+6. Deixa buit `repositories` per usar la llista del grup seleccionat, o escriu repositoris per a una tanda puntual:
 
 ```text
 cipfpbatoi/microreptes-i-igomis
@@ -40,9 +41,9 @@ cipfpbatoi/microreptes-ana-marti
 cipfpbatoi/microreptes-joan-ferrer
 ```
 
-6. Indica el grup per defecte, per exemple `2DAW-A`. Només s'usa si una línia no porta grup.
-7. Selecciona `mode = openai` per usar IA.
-8. Mantin `publish_to_student_repo = true` si vols que l'alumne veja la correccio en el seu repositori.
+7. Indica el grup per defecte, per exemple `2DAW-A`. Només s'usa si una línia no porta grup.
+8. Selecciona `mode = openai` per usar IA.
+9. Mantin `publish_to_student_repo = true` si vols que l'alumne veja la correccio en el seu repositori.
 
 El workflow clona cada repositori d'alumne, recull evidencies, construeix el payload, executa el motor d'autograding i publica el resultat.
 
@@ -63,11 +64,17 @@ course/student-repositories-2dawc.txt
 course/student-repositories-2dawd.txt
 ```
 
-Per corregir només un grup, canvia l'input `repositories_file` del workflow. Per exemple:
+Per corregir només un grup, usa l'input `target_group`. El workflow selecciona automàticament:
 
 ```text
-repositories_file = course/student-repositories-2dawa.txt
+target_group = 2DAW-A -> course/student-repositories-2dawa.txt
+target_group = 2DAW-B -> course/student-repositories-2dawb.txt
+target_group = 2DAW-C -> course/student-repositories-2dawc.txt
+target_group = 2DAW-D -> course/student-repositories-2dawd.txt
+target_group = all    -> course/student-repositories.txt
 ```
+
+L'input `repositories_file` queda com a opció avançada per usar un fitxer especial.
 
 Format:
 
