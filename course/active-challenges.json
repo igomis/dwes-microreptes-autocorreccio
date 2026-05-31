@@ -21,6 +21,10 @@
     "cipfpbatoi/dwes-joan-ferrer": {
       "challenge_id": "r1-s01-model-client-servidor-stack",
       "reason": "Incorporació tardana al grup"
+    },
+    "cipfpbatoi/microreptes-i-igomis": {
+      "challenge_id": "r1-s01-model-client-servidor-stack",
+      "reason": "Repositori de prova generat amb GitHub Classroom"
     }
   }
 }
