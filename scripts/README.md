@@ -21,6 +21,13 @@ npm run list:challenges
 npm run resolve:challenge -- --student cipfpbatoi/dwes-ana-marti --group 2DAW-A
 node scripts/resolve-active-challenge.mjs --student cipfpbatoi/dwes-pau-garcia --group 2DAW-B
 npm run build:payload -- --student cipfpbatoi/dwes-ana-marti --group 2DAW-A --repo cipfpbatoi/dwes-ana-marti --commit abc1234
+npm run build:payload -- \
+  --student cipfpbatoi/dwes-ana-marti \
+  --group 2DAW-A \
+  --repo cipfpbatoi/dwes-ana-marti \
+  --commit abc1234 \
+  --repo-signals ../_artifacts/repo-signals.json \
+  --evidence-summary ../_artifacts/evidence-summary.json
 npm run mock:autograde -- --input tmp/evaluation-payload.json
 OPENAI_API_KEY=... npm run openai:autograde -- --input tmp/evaluation-payload.json
 npm run validate:autograde -- --input tmp/autograde-result.json
@@ -41,6 +48,8 @@ node scripts/list-grades.mjs
 El resolver imprimeix només el `challenge_id` quan tot va bé. Si no troba assignació específica d'alumne ni assignació de grup, mostra un error i ix amb codi `1`.
 
 El builder de payload resol l'autocorrecció activa, carrega polítiques, challenge i rúbrica, imprimeix el JSON formatat i el guarda en `tmp/evaluation-payload.json`.
+
+Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. Estos fitxers els genera el workflow del repositori d'alumne i permeten afegir al payload senyals del repositori i fragments revisables de `README.md`, `docs/`, `evidence/`, `tests/` i `src/`.
 
 El mock d'autograding llig el payload, aplica regles simples sense OpenAI, imprimeix el JSON formatat i el guarda en `tmp/autograde-result.json`.
 

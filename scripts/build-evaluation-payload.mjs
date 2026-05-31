@@ -4,7 +4,14 @@ import process from 'node:process';
 
 function parseArgs(argv) {
   const args = {};
-  const allowed = new Set(['--student', '--group', '--repo', '--commit']);
+  const allowed = new Set([
+    '--student',
+    '--group',
+    '--repo',
+    '--commit',
+    '--repo-signals',
+    '--evidence-summary'
+  ]);
 
   for (let index = 0; index < argv.length; index += 1) {
     const key = argv[index];
@@ -21,6 +28,21 @@ function parseArgs(argv) {
 
 async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, 'utf8'));
+}
+
+async function readOptionalJson(rootDir, filePath) {
+  if (!filePath) {
+    return null;
+  }
+
+  try {
+    return await readJson(path.resolve(rootDir, filePath));
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
 }
 
 async function resolveChallengeId(rootDir, student, group) {
@@ -59,6 +81,10 @@ async function main() {
     readJson(path.join(challengeDir, 'challenge.json')),
     readJson(path.join(challengeDir, 'rubric.json'))
   ]);
+  const [repoSignals, evidenceSummary] = await Promise.all([
+    readOptionalJson(rootDir, args['repo-signals']),
+    readOptionalJson(rootDir, args['evidence-summary'])
+  ]);
 
   const payload = {
     student: args.student,
@@ -71,7 +97,11 @@ async function main() {
     policies_version: policies.version,
     expected_signals: challenge.expected_signals,
     required_evidence: challenge.required_evidence,
-    dimensions: rubric.dimensions
+    dimensions: rubric.dimensions,
+    student_repository_evidence: {
+      repo_signals: repoSignals,
+      evidence_summary: evidenceSummary
+    }
   };
 
   const outputDir = path.join(rootDir, 'tmp');
