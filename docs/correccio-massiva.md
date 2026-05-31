@@ -32,7 +32,7 @@ El token ha de poder clonar i fer `push` als repositoris d'alumnes. Si no existe
 2. Ves a `Actions`.
 3. Obri `Batch autograde student repositories`.
 4. Prem `Run workflow`.
-5. Deixa buit `repositories` per usar el fitxer `course/student-repositories.txt`, o escriu repositoris per a una tanda puntual:
+5. Deixa buit `repositories` per usar el fitxer indicat en `repositories_file`, o escriu repositoris per a una tanda puntual:
 
 ```text
 cipfpbatoi/microreptes-i-igomis
@@ -48,10 +48,25 @@ El workflow clona cada repositori d'alumne, recull evidencies, construeix el pay
 
 ## Fitxer de repositoris
 
-La llista estable de repositoris està en:
+La llista general de repositoris està en:
 
 ```text
 course/student-repositories.txt
+```
+
+També hi ha fitxers per grup:
+
+```text
+course/student-repositories-2dawa.txt
+course/student-repositories-2dawb.txt
+course/student-repositories-2dawc.txt
+course/student-repositories-2dawd.txt
+```
+
+Per corregir només un grup, canvia l'input `repositories_file` del workflow. Per exemple:
+
+```text
+repositories_file = course/student-repositories-2dawa.txt
 ```
 
 Format:
