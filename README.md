@@ -41,6 +41,17 @@ El workflow `Batch autograde student repositories` permet llançar autocorreccio
 
 El mode automàtic en cada `push` continua sent `mock`, sense consum d'OpenAI. Per a una tanda real, executa el workflow massiu amb `mode = openai`. La clau `OPENAI_API_KEY` es configura en este repositori del professor i el resultat es publica en cada repo d'alumne com `autograde/latest.md` i `autograde/latest.json`.
 
+Els repositoris que es corregeixen s'indiquen en l'input `repositories` del workflow, un per línia o separats per comes/espais. El microrepte no s'escriu manualment: es resol des de `course/active-challenges.json`, primer per assignació específica d'alumne i després per grup.
+
+Configuració activa inicial:
+
+| Grup | Autocorrecció |
+|---|---|
+| `2DAW-A` | `r1-s01-model-client-servidor-stack` |
+| `2DAW-B` | `r1-s02-entorn-executable` |
+| `2DAW-C` | `r1-s03-punt-entrada-documentacio-checkpoint` |
+| `2DAW-D` | `r1-s03-punt-entrada-documentacio-checkpoint` |
+
 Vegeu [docs/correccio-massiva.md](docs/correccio-massiva.md).
 
 ## Com afegir una nova autocorrecció
@@ -64,7 +75,8 @@ Base inicial del repositori:
 - construcció del payload d’avaluació;
 - autocorrecció en mode mock;
 - validació del resultat del corrector;
-- connector inicial amb OpenAI implementat, pendent de configuració amb credencials i de proves reals controlades.
+- correcció centralitzada amb OpenAI des del repositori del professor;
+- publicació del resultat en el repositori de l'alumne com `autograde/latest.md` i `autograde/latest.json`.
 
 ## Pròxims passos
 

@@ -46,6 +46,24 @@ cipfpbatoi/microreptes-joan-ferrer
 
 El workflow clona cada repositori d'alumne, recull evidencies, construeix el payload, executa el motor d'autograding i publica el resultat.
 
+## Quin microrepte corregeix
+
+El workflow no demana el microrepte directament. Es resol amb `course/active-challenges.json`:
+
+1. Si el repositori de l'alumne té una assignació específica en `students`, s'usa eixa.
+2. Si no, s'usa l'assignació del `group` indicat en el workflow.
+
+Configuració activa inicial:
+
+| Grup | Autocorrecció |
+|---|---|
+| `2DAW-A` | `r1-s01-model-client-servidor-stack` |
+| `2DAW-B` | `r1-s02-entorn-executable` |
+| `2DAW-C` | `r1-s03-punt-entrada-documentacio-checkpoint` |
+| `2DAW-D` | `r1-s03-punt-entrada-documentacio-checkpoint` |
+
+Per canviar el microrepte actiu d'un grup o d'un alumne concret, modifica `course/active-challenges.json` i fes commit.
+
 ## Que veu l'alumne
 
 Despres de la correccio massiva, cada repositori d'alumne rep un commit amb:
