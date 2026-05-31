@@ -1,0 +1,96 @@
+name: Batch autograde student repositories
+
+on:
+  workflow_dispatch:
+    inputs:
+      repositories:
+        description: "Repositoris d'alumnes, separats per salts de línia, comes o espais"
+        required: true
+        default: "cipfpbatoi/microreptes-i-igomis"
+      group:
+        description: "Grup docent que s'enviarà al workflow de cada alumne"
+        required: true
+        default: "2DAW-A"
+      mode:
+        description: "Motor d'autograding"
+        required: true
+        default: "openai"
+        type: choice
+        options:
+          - mock
+          - openai
+      teacher_repository:
+        description: "Repositori del professor amb la configuració d'autograding"
+        required: true
+        default: "igomis/dwes-microreptes-autocorreccio"
+      teacher_ref:
+        description: "Branca, tag o SHA del repositori del professor"
+        required: true
+        default: "main"
+      student_ref:
+        description: "Branca del repositori de l'alumne"
+        required: true
+        default: "master"
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    name: Dispatch student autogrades
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dispatch workflows
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN || github.token }}
+          INPUT_REPOSITORIES: ${{ inputs.repositories }}
+          INPUT_GROUP: ${{ inputs.group }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_TEACHER_REPOSITORY: ${{ inputs.teacher_repository }}
+          INPUT_TEACHER_REF: ${{ inputs.teacher_ref }}
+          INPUT_STUDENT_REF: ${{ inputs.student_ref }}
+        run: |
+          set -euo pipefail
+
+          tmp_repos="$(mktemp)"
+          printf '%s\n' "$INPUT_REPOSITORIES" \
+            | tr ',; ' '\n' \
+            | sed '/^[[:space:]]*$/d' \
+            | sort -u > "$tmp_repos"
+
+          total="$(wc -l < "$tmp_repos" | tr -d ' ')"
+          if [ "$total" -eq 0 ]; then
+            echo "No s'ha indicat cap repositori d'alumne."
+            exit 1
+          fi
+
+          echo "# Llançament massiu d'autocorreccions" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Grup: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mode: \`$INPUT_MODE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Repositor professor: \`$INPUT_TEACHER_REPOSITORY@$INPUT_TEACHER_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branca alumne: \`$INPUT_STUDENT_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Total repositoris: **$total**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Repositori | Estat |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+
+          while IFS= read -r repo; do
+            echo "Dispatch $repo"
+            gh workflow run autograde-from-teacher.yml \
+              --repo "$repo" \
+              --ref "$INPUT_STUDENT_REF" \
+              -f student="$repo" \
+              -f group="$INPUT_GROUP" \
+              -f mode="$INPUT_MODE" \
+              -f teacher_repository="$INPUT_TEACHER_REPOSITORY" \
+              -f teacher_ref="$INPUT_TEACHER_REF"
+
+            echo "| \`$repo\` | Llançat |" >> "$GITHUB_STEP_SUMMARY"
+          done < "$tmp_repos"
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Revisa les execucions en la pestanya Actions de cada repositori d'alumne." >> "$GITHUB_STEP_SUMMARY"

@@ -35,6 +35,14 @@ L'autocorrecció activa es resol des d'este repositori del professor. Primer es 
 
 Això permet canviar el repte actiu de forma centralitzada, sense commits als repositoris individuals de l'alumnat.
 
+## Correcció massiva
+
+El workflow `Batch autograde student repositories` permet llançar autocorreccions en molts repositoris d'alumnes des d'una única execució manual.
+
+El mode automàtic en cada `push` continua sent `mock`, sense consum d'OpenAI. Per a una tanda real, executa el workflow massiu amb `mode = openai`.
+
+Vegeu [docs/correccio-massiva.md](docs/correccio-massiva.md).
+
 ## Com afegir una nova autocorrecció
 
 1. Crea una carpeta en `microreptes/` amb un identificador estable de sessió, per exemple `r2-s04-sessions`.
@@ -65,7 +73,3 @@ Base inicial del repositori:
 - Afegir tests o oracles reals per autocorrecció de sessió.
 - Connectar el payload del professor amb l’anàlisi real del codi i evidències del repo de l’alumne.
 - Calibrar rúbriques, flags i llindars de revisió docent.
-
-# TOKEN
-
-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
