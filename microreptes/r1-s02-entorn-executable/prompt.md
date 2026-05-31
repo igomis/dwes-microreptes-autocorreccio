@@ -1,6 +1,6 @@
 # Prompt base del corrector
 
-Avalua el microrepte `r1-mp2-entorn-docker-php-servidor` només amb les evidències disponibles al repositori de l'alumne.
+Avalua la sessió d'autocorrecció `r1-s02-entorn-executable` només amb les evidències disponibles al repositori de l'alumne.
 
 Este microrepte correspon al `MP2` del `Repte 1`: base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin.
 

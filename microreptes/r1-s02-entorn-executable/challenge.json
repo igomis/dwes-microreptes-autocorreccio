@@ -1,7 +1,9 @@
 {
-  "challenge_id": "r1-mp2-entorn-docker-php-servidor",
+  "challenge_id": "r1-s02-entorn-executable",
   "repte_id": "r1-kickoff-backend",
+  "session_code": "R1-S02",
   "microrepte_code": "MP2",
+  "microreptes_covered": ["MP2"],
   "title": "Base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin",
   "summary": "Configurar una base executable pròpia amb Docker, PHP, servidor web, base de dades i phpMyAdmin, adaptada al producte i documentada amb un README inicial.",
   "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, adapta el model docent al seu projecte i deixa una arrencada reproduïble.",
@@ -36,7 +38,7 @@
   "recommended_test_strategy": "Executar o revisar `docker compose up`, obrir la URL del servei web, comprovar phpMyAdmin o el servei de BBDD, llegir el README buscant passos ocults i demanar una explicació de cada servei.",
   "source_alignment": [
     "Repte 1 MP2",
-    "Programació d'aula R1 MP2",
+    "Programació d'aula R1 S02",
     "Pes orientatiu dins del repte: 35%"
   ]
 }

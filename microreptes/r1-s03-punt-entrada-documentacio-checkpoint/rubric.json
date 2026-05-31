@@ -1,0 +1,51 @@
+{
+  "rubric_id": "rubric-r1-s03-punt-entrada-documentacio-checkpoint",
+  "challenge_id": "r1-s03-punt-entrada-documentacio-checkpoint",
+  "max_score": 10,
+  "dimensions": [
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.35,
+      "must_check": "Hi ha una ruta, vista, endpoint, landing mínima o healthcheck que respon des del backend i el repo queda defensable per continuar cap a R2."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.2,
+      "must_check": "Inclou URL, captura, log, demo o instrucció reproduïble per comprovar la resposta, l'arrencada i el checkpoint final."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.1,
+      "must_check": "Hi ha commit, canvi localitzable o registre associat al punt d'entrada, la documentació, les decisions i el resultat final."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.15,
+      "must_check": "El README és executable, hi ha documentació localitzable i un índex o pàgina visible enllaça fitxes, decisions i proves."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si usa IA, el codi i la documentació estan provats, adaptats i l'alumne pot explicar què ha acceptat o modificat."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat tècnica",
+      "weight": 0.15,
+      "must_check": "La implementació és mínima, clara i coherent amb el producte, i la justificació tècnica connecta amb el pas a R2 sense obrir fluxos de R2 sense necessitat."
+    }
+  ],
+  "hard_rules": [
+    "Sense punt d'entrada funcional localitzable, la puntuació màxima recomanada és 5.",
+    "Si no hi ha evidència de prova, captura, log o URL reproduïble, la puntuació màxima recomanada és 6.",
+    "Sense README executable o comprovable, la puntuació màxima recomanada és 6.",
+    "Sense documentació localitzable dins del repositori, la puntuació màxima recomanada és 6.",
+    "Si és només una pàgina estàtica sense relació amb el backend, cal revisar manualment.",
+    "Si la defensa o justificació no correspon al sistema real, cal revisió docent."
+  ]
+}

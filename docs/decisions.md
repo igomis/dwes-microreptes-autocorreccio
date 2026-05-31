@@ -5,7 +5,7 @@ Este fitxer registra decisions tècniques i docents rellevants.
 | Decisio | Estat | Motiu |
 | --- | --- | --- |
 | Repositori centralitzat | Acceptada | Facilita mantindre microreptes, rúbriques i polítiques en una font única. |
-| Microrepte actiu controlat pel professor | Acceptada | Permet coordinar grups i excepcions individuals sense modificar repositoris d'alumnes. |
+| Autocorrecció activa controlada pel professor | Acceptada | Permet coordinar grups i excepcions individuals sense modificar repositoris d'alumnes. |
 | Nota provisional automàtica | Acceptada | L'autocorrecció pot orientar, però no ha de tancar tots els casos sense supervisio. |
 | Revisio docent amb baixa confiança o flags | Acceptada | Protegeix l'avaluacio en casos amb evidències insuficients, sospites o ambigüitat. |
 

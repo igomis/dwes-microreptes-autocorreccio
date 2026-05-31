@@ -41,11 +41,11 @@ async function main() {
     return;
   }
 
-  console.error(`No s'ha trobat microrepte actiu per a student=${student} group=${group}`);
+  console.error(`No s'ha trobat autocorrecció activa per a student=${student} group=${group}`);
   process.exit(1);
 }
 
 main().catch((error) => {
-  console.error(`No s'ha pogut resoldre el microrepte actiu: ${error.message}`);
+  console.error(`No s'ha pogut resoldre l'autocorrecció activa: ${error.message}`);
   process.exit(1);
 });

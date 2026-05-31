@@ -1,16 +1,16 @@
 {
   "groups": {
     "2DAW-A": {
-      "active_challenge_id": "r1-mp1-model-client-servidor-stack"
+      "active_challenge_id": "r1-s01-model-client-servidor-stack"
     },
     "2DAW-B": {
-      "active_challenge_id": "r1-mp2-entorn-docker-php-servidor"
+      "active_challenge_id": "r1-s02-entorn-executable"
     },
     "2DAW-C": {
-      "active_challenge_id": "r1-mp3-punt-entrada-backend"
+      "active_challenge_id": "r1-s03-punt-entrada-documentacio-checkpoint"
     },
     "2DAW-D": {
-      "active_challenge_id": "r1-mp4-documentacio-verificacio-checkpoint"
+      "active_challenge_id": "r1-s03-punt-entrada-documentacio-checkpoint"
     }
   },
   "students": {
@@ -19,7 +19,7 @@
     },
     "cipfpbatoi/dwes-joan-ferrer": {
       "inherits_group_challenge": false,
-      "active_challenge_id": "r1-mp1-model-client-servidor-stack",
+      "active_challenge_id": "r1-s01-model-client-servidor-stack",
       "reason": "Adaptació temporal del calendari individual"
     },
     "cipfpbatoi/dwes-laura-soler": {

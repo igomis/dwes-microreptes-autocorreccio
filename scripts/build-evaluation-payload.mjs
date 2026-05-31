@@ -36,7 +36,7 @@ async function resolveChallengeId(rootDir, student, group) {
     return groupAssignment.challenge_id;
   }
 
-  throw new Error(`No s'ha trobat microrepte actiu per a student=${student || '(sense)'} group=${group || '(sense)'}`);
+  throw new Error(`No s'ha trobat autocorrecció activa per a student=${student || '(sense)'} group=${group || '(sense)'}`);
 }
 
 function requireArgs(args) {

@@ -1,6 +1,6 @@
 # Prompt base del corrector
 
-Avalua el microrepte `r1-mp1-model-client-servidor-stack` només amb les evidències disponibles al repositori de l'alumne.
+Avalua la sessió d'autocorrecció `r1-s01-model-client-servidor-stack` només amb les evidències disponibles al repositori de l'alumne.
 
 Este microrepte correspon al `MP1` del `Repte 1`: model client/servidor i elecció guiada de stack.
 

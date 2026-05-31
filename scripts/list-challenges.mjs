@@ -17,7 +17,7 @@ async function main() {
     .map((entry) => entry.name)
     .sort();
 
-  console.log('Microreptes disponibles:');
+  console.log('Autocorreccions disponibles:');
 
   for (const challengeDir of challengeDirs) {
     const challenge = await readChallenge(challengeDir);

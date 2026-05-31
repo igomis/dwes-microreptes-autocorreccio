@@ -176,7 +176,7 @@ async function main() {
   }
 
   console.log('Configuracio valida.');
-  console.log(`Microreptes validats: ${validChallenges.length}`);
+  console.log(`Autocorreccions validades: ${validChallenges.length}`);
   for (const challenge of validChallenges) {
     console.log(`- ${challenge.id}: ${challenge.title}`);
   }

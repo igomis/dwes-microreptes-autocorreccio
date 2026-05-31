@@ -1,7 +1,9 @@
 {
-  "challenge_id": "r1-mp1-model-client-servidor-stack",
+  "challenge_id": "r1-s01-model-client-servidor-stack",
   "repte_id": "r1-kickoff-backend",
+  "session_code": "R1-S01",
   "microrepte_code": "MP1",
+  "microreptes_covered": ["MP1"],
   "title": "Model client/servidor i elecció guiada de stack",
   "summary": "Entendre el model client/servidor del producte, diferenciar l'execució en client i servidor, i justificar una primera decisió tècnica orientativa.",
   "pedagogical_goal": "Comprovar que l'alumne sap explicar el paper del backend, caracteritza els mecanismes d'execució web i pren una decisió tècnica inicial coherent amb el marc del curs.",
@@ -32,7 +34,7 @@
   "recommended_test_strategy": "Revisar la fitxa i la documentació entregada, i contrastar-la amb preguntes sobre client, servidor, runtime, valor del backend dinàmic i alternatives descartades.",
   "source_alignment": [
     "Repte 1 MP1",
-    "Programació d'aula R1 MP1",
+    "Programació d'aula R1 S01",
     "Pes orientatiu dins del repte: 20%"
   ]
 }
