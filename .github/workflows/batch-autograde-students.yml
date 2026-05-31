@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       repositories:
-        description: "Repositoris d'alumnes, separats per salts de línia, comes o espais"
+        description: "Repositoris d'alumnes per sobreescriure el fitxer, separats per salts de línia, comes o espais"
+        required: false
+        default: ""
+      repositories_file:
+        description: "Fitxer amb repositoris d'alumnes"
         required: true
-        default: "cipfpbatoi/microreptes-i-igomis"
+        default: "course/student-repositories.txt"
       group:
         description: "Grup docent que s'usarà per resoldre l'autocorrecció activa"
         required: true
@@ -61,6 +65,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           INPUT_REPOSITORIES: ${{ inputs.repositories }}
+          INPUT_REPOSITORIES_FILE: ${{ inputs.repositories_file }}
           INPUT_GROUP: ${{ inputs.group }}
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_STUDENT_REF: ${{ inputs.student_ref }}
@@ -79,10 +84,22 @@ jobs:
           fi
 
           tmp_repos="$(mktemp)"
-          printf '%s\n' "$INPUT_REPOSITORIES" \
-            | tr ',; ' '\n' \
-            | sed '/^[[:space:]]*$/d' \
-            | sort -u > "$tmp_repos"
+          if [ -n "$INPUT_REPOSITORIES" ]; then
+            printf '%s\n' "$INPUT_REPOSITORIES" \
+              | tr ',; ' '\n' \
+              | sed '/^[[:space:]]*$/d' \
+              | sort -u > "$tmp_repos"
+          else
+            if [ ! -f "$INPUT_REPOSITORIES_FILE" ]; then
+              echo "No s'ha trobat el fitxer de repositoris: $INPUT_REPOSITORIES_FILE"
+              exit 1
+            fi
+
+            sed 's/#.*$//' "$INPUT_REPOSITORIES_FILE" \
+              | tr ',; ' '\n' \
+              | sed '/^[[:space:]]*$/d' \
+              | sort -u > "$tmp_repos"
+          fi
 
           total="$(wc -l < "$tmp_repos" | tr -d ' ')"
           if [ "$total" -eq 0 ]; then
@@ -97,6 +114,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "- Grup: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Mode: \`$INPUT_MODE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Fitxer repositoris: \`$INPUT_REPOSITORIES_FILE\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Branca alumne: \`$INPUT_STUDENT_REF\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Publicació en repo alumne: \`$INPUT_PUBLISH_TO_STUDENT_REPO\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Total repositoris: **$total**" >> "$GITHUB_STEP_SUMMARY"

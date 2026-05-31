@@ -32,7 +32,7 @@ El token ha de poder clonar i fer `push` als repositoris d'alumnes. Si no existe
 2. Ves a `Actions`.
 3. Obri `Batch autograde student repositories`.
 4. Prem `Run workflow`.
-5. Escriu els repositoris d'alumnes, per exemple:
+5. Deixa buit `repositories` per usar el fitxer `course/student-repositories.txt`, o escriu repositoris per a una tanda puntual:
 
 ```text
 cipfpbatoi/microreptes-i-igomis
@@ -45,6 +45,24 @@ cipfpbatoi/microreptes-joan-ferrer
 8. Mantin `publish_to_student_repo = true` si vols que l'alumne veja la correccio en el seu repositori.
 
 El workflow clona cada repositori d'alumne, recull evidencies, construeix el payload, executa el motor d'autograding i publica el resultat.
+
+## Fitxer de repositoris
+
+La llista estable de repositoris està en:
+
+```text
+course/student-repositories.txt
+```
+
+Format:
+
+```text
+# comentaris permesos
+cipfpbatoi/microreptes-i-igomis
+cipfpbatoi/microreptes-ana-marti
+```
+
+Les linies buides i els comentaris amb `#` s'ignoren. Si l'input `repositories` del workflow està buit, s'usa aquest fitxer.
 
 ## Quin microrepte corregeix
 

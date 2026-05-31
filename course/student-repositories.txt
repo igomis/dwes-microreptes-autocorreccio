@@ -1,0 +1,7 @@
+# Repositoris d'alumnes per a correccio massiva.
+# Un repositori per linia. Les linies buides i les que comencen per # s'ignoren.
+#
+# Exemple:
+# cipfpbatoi/microreptes-nom-cognom
+
+cipfpbatoi/microreptes-i-igomis
