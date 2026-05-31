@@ -40,7 +40,7 @@ cipfpbatoi/microreptes-ana-marti
 cipfpbatoi/microreptes-joan-ferrer
 ```
 
-6. Indica el grup, per exemple `2DAW-A`.
+6. Indica el grup per defecte, per exemple `2DAW-A`. Només s'usa si una línia no porta grup.
 7. Selecciona `mode = openai` per usar IA.
 8. Mantin `publish_to_student_repo = true` si vols que l'alumne veja la correccio en el seu repositori.
 
@@ -58,18 +58,19 @@ Format:
 
 ```text
 # comentaris permesos
-cipfpbatoi/microreptes-i-igomis
-cipfpbatoi/microreptes-ana-marti
+cipfpbatoi/microreptes-i-igomis 2DAW-A
+cipfpbatoi/microreptes-ana-marti 2DAW-B
 ```
 
-Les linies buides i els comentaris amb `#` s'ignoren. Si l'input `repositories` del workflow està buit, s'usa aquest fitxer.
+Les linies buides i els comentaris amb `#` s'ignoren. Si una línia no porta grup, s'usa el grup per defecte indicat en el workflow. Si l'input `repositories` del workflow està buit, s'usa aquest fitxer.
 
 ## Quin microrepte corregeix
 
 El workflow no demana el microrepte directament. Es resol amb `course/active-challenges.json`:
 
 1. Si el repositori de l'alumne té una assignació específica en `students`, s'usa eixa.
-2. Si no, s'usa l'assignació del `group` indicat en el workflow.
+2. Si no, s'usa l'assignació del grup indicat en la línia del repositori.
+3. Si la línia no té grup, s'usa el grup per defecte indicat en el workflow.
 
 Configuració activa inicial:
 

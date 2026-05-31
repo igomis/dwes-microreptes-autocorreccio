@@ -12,8 +12,8 @@ on:
         required: true
         default: "course/student-repositories.txt"
       group:
-        description: "Grup docent que s'usarà per resoldre l'autocorrecció activa"
-        required: true
+        description: "Grup per defecte si el fitxer o l'input no especifiquen grup"
+        required: false
         default: "2DAW-A"
       mode:
         description: "Motor d'autograding"
@@ -86,9 +86,10 @@ jobs:
           tmp_repos="$(mktemp)"
           if [ -n "$INPUT_REPOSITORIES" ]; then
             printf '%s\n' "$INPUT_REPOSITORIES" \
-              | tr ',; ' '\n' \
+              | tr ',;' '\n' \
               | sed '/^[[:space:]]*$/d' \
-              | sort -u > "$tmp_repos"
+              | sort -u \
+              | awk -v default_group="$INPUT_GROUP" '{ repo=$1; group=($2 != "" ? $2 : default_group); print repo " " group; }' > "$tmp_repos"
           else
             if [ ! -f "$INPUT_REPOSITORIES_FILE" ]; then
               echo "No s'ha trobat el fitxer de repositoris: $INPUT_REPOSITORIES_FILE"
@@ -96,9 +97,10 @@ jobs:
             fi
 
             sed 's/#.*$//' "$INPUT_REPOSITORIES_FILE" \
-              | tr ',; ' '\n' \
+              | tr ',;' '\n' \
               | sed '/^[[:space:]]*$/d' \
-              | sort -u > "$tmp_repos"
+              | sort -u \
+              | awk -v default_group="$INPUT_GROUP" '{ repo=$1; group=($2 != "" ? $2 : default_group); print repo " " group; }' > "$tmp_repos"
           fi
 
           total="$(wc -l < "$tmp_repos" | tr -d ' ')"
@@ -112,21 +114,21 @@ jobs:
 
           echo "# Correcció massiva d'alumnes" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Grup: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Grup per defecte: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Mode: \`$INPUT_MODE\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Fitxer repositoris: \`$INPUT_REPOSITORIES_FILE\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Branca alumne: \`$INPUT_STUDENT_REF\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Publicació en repo alumne: \`$INPUT_PUBLISH_TO_STUDENT_REPO\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Total repositoris: **$total**" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Repositori | Nota | Revisió docent | Publicació |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---:|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Repositori | Grup | Nota | Revisió docent | Publicació |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---:|---|---|" >> "$GITHUB_STEP_SUMMARY"
 
           work_root="$RUNNER_TEMP/batch-autograde"
           rm -rf "$work_root"
           mkdir -p "$work_root"
 
-          while IFS= read -r repo; do
+          while read -r repo repo_group; do
             echo "Autograde $repo"
             safe_repo="${repo//\//__}"
             student_dir="$work_root/$safe_repo/repo"
@@ -145,7 +147,7 @@ jobs:
 
             node scripts/build-evaluation-payload.mjs \
               --student "$repo" \
-              --group "$INPUT_GROUP" \
+              --group "$repo_group" \
               --repo "$repo" \
               --commit "$commit_sha" \
               --repo-signals "$result_dir/repo-signals.json" \
@@ -167,7 +169,7 @@ jobs:
               --input "$result_dir/autograde-result.json" \
               --output "$result_dir/latest.md" \
               --repo "$repo" \
-              --group "$INPUT_GROUP" \
+              --group "$repo_group" \
               --source "$INPUT_MODE"
 
             score="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(String(r.final_score_over_10 ?? 'n/d'))")"
@@ -189,7 +191,7 @@ jobs:
               fi
             fi
 
-            echo "| \`$repo\` | $score | $review | $published |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| \`$repo\` | \`$repo_group\` | $score | $review | $published |" >> "$GITHUB_STEP_SUMMARY"
           done < "$tmp_repos"
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
