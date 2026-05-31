@@ -57,6 +57,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN || github.token }}
+          STUDENT_WRITE_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           INPUT_REPOSITORIES: ${{ inputs.repositories }}
@@ -69,6 +70,11 @@ jobs:
 
           if [ "$INPUT_MODE" = "openai" ] && [ -z "${OPENAI_API_KEY:-}" ]; then
             echo "Falta el secret OPENAI_API_KEY en el repositori del professor."
+            exit 1
+          fi
+
+          if [ "$INPUT_PUBLISH_TO_STUDENT_REPO" = "true" ] && [ -z "${STUDENT_WRITE_TOKEN:-}" ]; then
+            echo "Falta CLASSROOM_AUTOGRADE_TOKEN o TEACHER_REPO_TOKEN amb permís d'escriptura sobre els repositoris d'alumnes."
             exit 1
           fi
 
