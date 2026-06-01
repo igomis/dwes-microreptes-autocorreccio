@@ -5,11 +5,17 @@ La carpeta `grades/` conte registres provisionals d'autograding agregats manualm
 Hi ha tres nivells diferents:
 
 - Resultat brut d'una execucio: el fitxer `autograde-result.json` generat en un repositori d'alumne per una execucio concreta del workflow.
-- Agregacio central: els fitxers `latest-grades.json` i `latest-grades.csv`, que acumulen registres importats al repositori del professor.
+- Agregacio central: els fitxers `latest-grades.json` i `latest-grades.csv`, que mantenen l'últim registre per parella `repo + challenge_id`.
 - Historial per tanda: la carpeta `grades/history/`, amb una subcarpeta per cada execucio massiva i cada repositori corregit.
 - Validacio docent posterior: la revisio final feta pel professorat abans de considerar una nota com a definitiva.
 
 Les notes d'esta carpeta son provisionals. Servixen per centralitzar resultats i facilitar el seguiment, pero no substituixen la revisio docent ni la qualificacio validada.
+
+## Duplicats
+
+`latest-grades.json` i `latest-grades.csv` no acumulen duplicats del mateix repositori i autocorreccio. Si una entrega es corregeix de nou, la fila vigent se substitueix.
+
+L'historial complet no es perd: cada execucio massiva queda guardada en `grades/history/`.
 
 ## Historial
 

@@ -72,10 +72,23 @@ export async function writeGrades(grades, rootDir = process.cwd()) {
   await writeFile(csvPath, `${csvHeader}${grades.map(gradeToCsvLine).join('')}`, 'utf8');
 }
 
+function gradeKey(grade) {
+  return [
+    grade.repo || grade.student || '',
+    grade.challenge_id || ''
+  ].join('\u0000');
+}
+
 export async function appendGrade(grade, rootDir = process.cwd()) {
   const grades = await readGrades(rootDir);
-  grades.push(grade);
-  await writeGrades(grades, rootDir);
+  const nextGrades = grades.filter((currentGrade) => gradeKey(currentGrade) !== gradeKey(grade));
+  nextGrades.push(grade);
+  nextGrades.sort((left, right) => {
+    const leftTime = left.timestamp || '';
+    const rightTime = right.timestamp || '';
+    return leftTime.localeCompare(rightTime);
+  });
+  await writeGrades(nextGrades, rootDir);
 
   return grade;
 }

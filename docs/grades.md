@@ -51,7 +51,7 @@ Els registres s'afigen a:
 - `grades/latest-grades.json`
 - `grades/latest-grades.csv`
 
-No hi ha deduplicacio encara. Si importes dues vegades el mateix `autograde-result.json`, apareixeran dos registres.
+Els fitxers `latest-grades.json` i `latest-grades.csv` mantenen un únic registre vigent per parella `repo + challenge_id`. Si importes dues vegades la mateixa parella, la segona substitueix la primera.
 
 Per revisar les notes agregades:
 

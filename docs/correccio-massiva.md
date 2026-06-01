@@ -146,7 +146,9 @@ grades/latest-grades.json
 grades/latest-grades.csv
 ```
 
-Els fitxers `latest-grades.*` acumulen registres provisionals. Si una mateixa entrega es corregeix més d'una vegada, apareixeran diverses files amb timestamps diferents.
+Els fitxers `latest-grades.*` mantenen només l'últim registre per parella `repo + challenge_id`. Si una mateixa entrega es corregeix més d'una vegada, la fila vigent se substitueix.
+
+Les execucions anteriors continuen disponibles en `grades/history/`.
 
 El dashboard local també mostra els últims resultats llegint `grades/latest-grades.json`.
 
