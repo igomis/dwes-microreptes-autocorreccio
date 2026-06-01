@@ -35,6 +35,7 @@ http://localhost:4173
 - Veure els repositoris del fitxer associat.
 - Veure quin microrepte correspon a cada repositori.
 - Llançar el workflow massiu en mode `mock` o `openai`.
+- Consultar els últims resultats guardats en `grades/latest-grades.json`.
 - Obrir ràpidament la pàgina d'Actions del workflow.
 
 El dashboard no substitueix el workflow. Només és una capa més còmoda damunt de GitHub Actions.

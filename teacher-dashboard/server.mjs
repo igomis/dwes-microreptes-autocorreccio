@@ -167,6 +167,18 @@ async function buildConfigPayload() {
   };
 }
 
+async function readLatestGrades() {
+  try {
+    const grades = await readJson('grades/latest-grades.json');
+    return Array.isArray(grades) ? grades.slice().reverse() : [];
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return [];
+    }
+    throw error;
+  }
+}
+
 function pageHtml() {
   return `<!doctype html>
 <html lang="ca">
@@ -276,6 +288,13 @@ function pageHtml() {
       color: var(--muted);
       font-size: 14px;
     }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
     .error { color: var(--danger); }
     .ok { color: var(--accent-dark); }
     @media (max-width: 820px) {
@@ -336,6 +355,17 @@ function pageHtml() {
     </section>
 
     <section>
+      <div class="toolbar">
+        <h2>Últims resultats</h2>
+        <button id="refreshGrades" type="button">Actualitzar</button>
+      </div>
+      <table>
+        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Nota</th><th>Mode</th><th>Historial</th></tr></thead>
+        <tbody id="gradeRows"></tbody>
+      </table>
+    </section>
+
+    <section>
       <h2>Configuració</h2>
       <p class="status" id="githubStatus"></p>
     </section>
@@ -370,6 +400,17 @@ function pageHtml() {
       refreshTable();
     }
 
+    async function loadGrades() {
+      const response = await fetch('/api/grades');
+      const payload = await response.json();
+      const grades = payload.grades || [];
+      const rows = grades.slice(0, 50).map((grade) => {
+        const history = grade.history_dir ? '<code>' + grade.history_dir + '</code>' : '';
+        return '<tr><td>' + (grade.timestamp || '') + '</td><td><code>' + (grade.repo || grade.student || '') + '</code></td><td>' + (grade.group || '') + '</td><td><code>' + (grade.challenge_id || '') + '</code></td><td>' + (grade.score ?? '') + '</td><td>' + (grade.source || '') + '</td><td>' + history + '</td></tr>';
+      });
+      document.querySelector('#gradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7">Encara no hi ha resultats guardats.</td></tr>';
+    }
+
     async function runWorkflow() {
       const button = document.querySelector('#runButton');
       const status = document.querySelector('#runStatus');
@@ -392,6 +433,7 @@ function pageHtml() {
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || 'Error desconegut');
         status.innerHTML = '<span class="ok">Workflow llançat.</span> <a href="' + result.actions_url + '" target="_blank" rel="noreferrer">Obrir Actions</a>';
+        await loadGrades();
       } catch (error) {
         status.innerHTML = '<span class="error">' + error.message + '</span>';
       } finally {
@@ -401,9 +443,11 @@ function pageHtml() {
 
     document.querySelector('#targetGroup').addEventListener('change', refreshTable);
     document.querySelector('#runButton').addEventListener('click', runWorkflow);
+    document.querySelector('#refreshGrades').addEventListener('click', loadGrades);
     loadConfig().catch((error) => {
       document.querySelector('#runStatus').innerHTML = '<span class="error">' + error.message + '</span>';
     });
+    loadGrades().catch(() => {});
   </script>
 </body>
 </html>`;
@@ -420,6 +464,11 @@ async function handleRequest(request, response) {
 
     if (request.method === 'GET' && url.pathname === '/api/config') {
       sendJson(response, 200, await buildConfigPayload());
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/grades') {
+      sendJson(response, 200, { grades: await readLatestGrades() });
       return;
     }
 

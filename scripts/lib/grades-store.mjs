@@ -12,7 +12,9 @@ export const gradeFields = [
   'provisional',
   'commit',
   'timestamp',
-  'source'
+  'source',
+  'batch_id',
+  'history_dir'
 ];
 
 export const csvHeader = `${gradeFields.join(',')}\n`;

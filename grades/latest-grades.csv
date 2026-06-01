@@ -1,1 +1,1 @@
-student,repo,group,challenge_id,score,confidence,teacher_review_required,provisional,commit,timestamp,source
+student,repo,group,challenge_id,score,confidence,teacher_review_required,provisional,commit,timestamp,source,batch_id,history_dir

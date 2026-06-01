@@ -45,7 +45,7 @@ on:
         type: boolean
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   autograde:
@@ -148,9 +148,11 @@ jobs:
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          batch_id="$(date -u +'%Y-%m-%dT%H-%M-%SZ')-${INPUT_TARGET_GROUP}-${INPUT_MODE}"
 
           echo "# Correcció massiva d'alumnes" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Batch: \`$batch_id\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Grup seleccionat: \`$INPUT_TARGET_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Grup per defecte: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Mode: \`$INPUT_MODE\`" >> "$GITHUB_STEP_SUMMARY"
@@ -210,6 +212,15 @@ jobs:
               --group "$repo_group" \
               --source "$INPUT_MODE"
 
+            node scripts/store-batch-autograde-result.mjs \
+              --result "$result_dir/autograde-result.json" \
+              --markdown "$result_dir/latest.md" \
+              --payload "$result_dir/evaluation-payload.json" \
+              --repo "$repo" \
+              --group "$repo_group" \
+              --source "$INPUT_MODE" \
+              --batch-id "$batch_id"
+
             score="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(String(r.final_score_over_10 ?? 'n/d'))")"
             review="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(r.teacher_review_required ? 'Sí' : 'No')")"
             published="No"
@@ -233,7 +244,21 @@ jobs:
           done < "$tmp_repos"
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Els resultats complets també queden publicats com a artifact d'aquest workflow del professor." >> "$GITHUB_STEP_SUMMARY"
+          echo "Els resultats complets queden guardats en \`grades/history/$batch_id\` i publicats com a artifact d'aquest workflow." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit teacher-side grade history
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git add grades/latest-grades.json grades/latest-grades.csv grades/history/
+          if git diff --cached --quiet; then
+            echo "No hi ha canvis de notes per commitejar."
+            exit 0
+          fi
+
+          git commit -m "Guarda resultats d'autocorreccio massiva"
+          git push
 
       - name: Upload teacher-side autograde artifacts
         if: ${{ always() }}
