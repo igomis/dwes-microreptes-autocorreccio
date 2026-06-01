@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "student": "cipfpbatoi/microreptes-i-igomis",
+    "repo": "cipfpbatoi/microreptes-i-igomis",
+    "group": "2DAW-A",
+    "challenge_id": "r1-s01-model-client-servidor-stack",
+    "score": 7.8,
+    "confidence": 0.78,
+    "teacher_review_required": false,
+    "provisional": true,
+    "commit": "d477cc9c2071dce3095f7cfe16b36d3bf714a4cd",
+    "timestamp": "2026-06-01T09:36:50.945Z",
+    "source": "mock",
+    "batch_id": "2026-06-01T09-36-50Z-2DAW-A-mock",
+    "history_dir": "grades/history/2026-06-01T09-36-50Z-2DAW-A-mock/cipfpbatoi__microreptes-i-igomis"
+  }
+]

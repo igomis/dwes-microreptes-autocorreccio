@@ -1,0 +1,158 @@
+{
+  "student": "cipfpbatoi/microreptes-i-igomis",
+  "group": "2DAW-A",
+  "repo": "cipfpbatoi/microreptes-i-igomis",
+  "commit": "d477cc9c2071dce3095f7cfe16b36d3bf714a4cd",
+  "challenge_id": "r1-s01-model-client-servidor-stack",
+  "challenge_title": "Model client/servidor i elecció guiada de stack",
+  "rubric_id": "rubric-r1-s01-model-client-servidor-stack",
+  "policies_version": "0.1.0",
+  "expected_signals": [
+    "Diferencia què s'executa al navegador i què s'executa al servidor",
+    "Relaciona el model client/servidor amb exemples del producte propi",
+    "Identifica navegador, servidor web, runtime, backend i tecnologies de client i servidor",
+    "Compara de manera acotada opcions com PHP, Laravel, Symfony o NestJS",
+    "Tanca una opció preferent, una alternativa descartada i un dubte pendent"
+  ],
+  "required_evidence": [
+    "Fitxa breu d'exploració tècnica inicial",
+    "Explicació del model d'execució client vs servidor aplicada al producte",
+    "Primera decisió tècnica orientativa amb justificació",
+    "Alternativa descartada i dubte o límit tècnic real",
+    "Referència a fonts o ús d'IA si n'hi ha"
+  ],
+  "dimensions": [
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.35,
+      "must_check": "La fitxa resol el model client/servidor del producte i formula una decisió tècnica orientativa coherent."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.2,
+      "must_check": "Inclou evidència revisable de la fitxa, fonts o contrast utilitzat, i punts que es poden defensar oralment."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.1,
+      "must_check": "Els documents i decisions del microrepte són localitzables al repositori i no queden només en converses externes."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.15,
+      "must_check": "El README o la documentació enllaça la fitxa, resumeix la decisió i deixa clars els dubtes oberts."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si usa IA, el resultat mostra contrast i comprensió pròpia; les captures o respostes d'IA no substitueixen la fitxa."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat tècnica",
+      "weight": 0.15,
+      "must_check": "La comparació de tecnologies és acotada, realista i alineada amb el recorregut del curs."
+    }
+  ],
+  "student_repository_evidence": {
+    "repo_signals": {
+      "generated_at": "2026-06-01T09:36:50.744Z",
+      "repository": "cipfpbatoi/microreptes-i-igomis",
+      "commit": "d477cc9c2071dce3095f7cfe16b36d3bf714a4cd",
+      "files": {
+        "readme": true,
+        "ai_log": true,
+        "student_meta": true
+      },
+      "folders": {
+        "src": true,
+        "tests": true,
+        "evidence": true,
+        "docs": true
+      },
+      "counts": {
+        "tracked_files": 20,
+        "src_files": 1,
+        "test_files": 1,
+        "evidence_files": 2,
+        "docs_files": 4
+      }
+    },
+    "evidence_summary": {
+      "generated_at": "2026-06-01T09:36:50.746Z",
+      "readme": {
+        "path": "README.md",
+        "bytes": 2139,
+        "lines": 54,
+        "excerpt": "# Microrepte DWES\n\nRepositori individual de treball de l'alumne per als microreptes de DWES.\n\n## Objectiu del treball\n\nEste repositori resol de manera inicial el `MP1` del Repte 1: model client/servidor i elecció guiada de stack.\n\nEl resultat principal és una fitxa breu d'exploració tècnica inicial on s'explica:\n\n- què fa el client i què fa el servidor en el producte proposat;\n- què s'executa al navegador i què s'executa al servidor;\n- quin valor aporta un backend dinàmic;\n- quines tecnologies de client i servidor s'identifiquen;\n- quina primera decisió tècnica es pren i quina alternativa es descarta.\n\n## Com executar-lo\n\nEste microrepte encara no demana una aplicació executable. És una entrega documental.\n\nLa fitxa principal està en:\n\n- `docs/fitxa-exploracio-tecnica-inicial.md`\n\n## Com verificar-lo\n\nLa verificació és manual. Cal revisar que la fitxa cobreix els punts mínims del microrepte:\n\n- diferenciació entre client i servidor;\n- execució al navegador i al servidor;\n- identificació de navegador, servidor web, runtime, backend i base de dades;\n- comparació acotada de PHP, Laravel, Symfony i NestJS;\n- decisió tècnica orientativa, alternativa descartada i dubtes oberts.\n\n## Decisions tècniques\n\nRegistra les decisions importants preses durant el microrepte.\n\n- Decisió: usar PHP amb Laravel com a stack orientatiu per als microreptes següents.\n- Motiu: és coherent amb DWES i dona estructura per a rutes, controladors, validació, vistes i persistència.\n- Alternatives descartades: NestJS com a primera opció, perquè introdueix un ecosistema diferent i s'allunya del recorregut PHP del curs.\n- Dubtes pendents: decidir si el primer backend retornarà vistes HTML o API JSON, i concretar l'entorn Docker de MP2.\n\n## Evidències\n\n- `docs/`: documentació del treball i registre d'ús d'IA si correspon.\n- `evidence/`: captures textuals, logs, comprovacions o altres evidències.\n- `tests/`: proves automàtiques o fitxers relacionats amb la verificació.\n- `src/` o `app/`: codi font quan el microrepte ho demane.\n\n## Estat actual\n\nMP1 resolt de manera mínima amb documentació revisable.\n"
+      },
+      "ai_log": {
+        "path": "docs/ai-log.md",
+        "bytes": 749,
+        "lines": 12,
+        "excerpt": "# AI log\n\nOmpli este fitxer quan el microrepte exigisca registre d'ús d'IA o quan l'ús siga rellevant per entendre el treball.\n\n## Consulta 1\n\n- Objectiu de la consulta: localitzar l'enunciat actiu del microrepte i preparar una entrega mínima revisable.\n- Resum del suggeriment: crear una fitxa d'exploració tècnica inicial amb model client/servidor, tecnologies, decisió de stack, alternativa descartada i dubtes.\n- Què s'ha acceptat: l'estructura de la fitxa i la decisió orientativa PHP amb Laravel.\n- Què s'ha rebutjat o modificat: no s'ha creat cap backend executable perquè MP1 només demana evidència documental.\n- Com s'ha verificat: s'ha contrastat la fitxa amb els punts esperats del microrepte i s'ha enllaçat des del README.\n"
+      },
+      "docs_files": [
+        {
+          "path": "docs/README.md",
+          "bytes": 138,
+          "lines": 4,
+          "excerpt": "# Documentació\n\nGuarda ací la documentació del microrepte: fitxes, decisions tècniques, notes de verificació o registres de treball.\n"
+        },
+        {
+          "path": "docs/ai-log.md",
+          "bytes": 749,
+          "lines": 12,
+          "excerpt": "# AI log\n\nOmpli este fitxer quan el microrepte exigisca registre d'ús d'IA o quan l'ús siga rellevant per entendre el treball.\n\n## Consulta 1\n\n- Objectiu de la consulta: localitzar l'enunciat actiu del microrepte i preparar una entrega mínima revisable.\n- Resum del suggeriment: crear una fitxa d'exploració tècnica inicial amb model client/servidor, tecnologies, decisió de stack, alternativa descartada i dubtes.\n- Què s'ha acceptat: l'estructura de la fitxa i la decisió orientativa PHP amb Laravel.\n- Què s'ha rebutjat o modificat: no s'ha creat cap backend executable perquè MP1 només demana evidència documental.\n- Com s'ha verificat: s'ha contrastat la fitxa amb els punts esperats del microrepte i s'ha enllaçat des del README.\n"
+        },
+        {
+          "path": "docs/autograde.md",
+          "bytes": 2367,
+          "lines": 53,
+          "excerpt": "# Autograding des del repositori del professor\n\nEste template inclou el workflow `.github/workflows/autograde-from-teacher.yml`.\nEl workflow connecta el repositori individual de l'alumne amb el repositori central del professor i usa eixe repositori com a font de veritat per resoldre el microrepte actiu i executar l'autograding.\n\n## Configuració necessària\n\nEn el repositori de l'alumne cal definir estos secrets o variables:\n\n- `TEACHER_REPO_REF`: branca o tag del repositori del professor. Per defecte, `main`.\n- `TEACHER_REPO_TOKEN`: token opcional si el repositori del professor és privat.\n\nLa clau `OPENAI_API_KEY` no cal configurar-la en cada repositori d'alumne. La correcció real amb IA es llança des del repositori del professor amb el workflow massiu `Batch autograde student repositories`.\n\n## Modes d'execució\n\n- `mock`: mode per defecte en cada `push`. No necessita credencials d'OpenAI.\n- `openai`: mode manual compatible, però el flux recomanat és executar-lo des del repositori del professor.\n\n## Grup i alumne\n\nEl workflow necessita resoldre el grup docent. Es pot indicar manualment en `workflow_dispatch` amb l'input `group`.\n\nTambé es pot crear un fitxer opcional `student-meta.json` a l'arrel del repositori:\n\n```json\n{\n  \"student\": \"cipfpbatoi/dwes-nom-cognom\",\n  \"group\": \"2DAW-A\"\n}\n```\n\nSi no hi ha grup, el workflow només continua si disposa d'un identificador d'alumne o repositori que permeta al repositori del professor resoldre el microrepte actiu.\n\n## Artefactes generats\n\nDurant l'execució, el workflow genera fitxers dins de `_artifacts/`:\n\n- `repo-signals.json`\n- `evidence-summary.json`\n- `evaluation-payload.json`\n- `autograde-result.json`\n- `openai-raw-response.json`, només si aplica\n\nEl payload que rep el corrector inclou els senyals bàsics del repositori i fragments dels fitxers principals de `README.md`, `docs/`, `evidence/`, `tests/` i `src/`. Això permet que el mode `openai` valore evidències reals del repositori, no només la rúbrica i el nom del microrepte.\n\nQuan el professorat executa la correcció massiva amb IA, el resultat es publica en el repositori de l'alumne:\n\n- `autograde/latest.md`: resum llegible per a l'alumne.\n- `autograde/latest.json`: resultat estructurat per a revisió o importació.\n\nEl resultat del workflow local del repo d'alumne es veu en el log i en el GitHub Step Summary.\n"
+        },
+        {
+          "path": "docs/fitxa-exploracio-tecnica-inicial.md",
+          "bytes": 3878,
+          "lines": 78,
+          "excerpt": "# Fitxa d'exploracio tecnica inicial\n\n## Microrepte\n\n- Repte: Repte 1\n- Microrepte: MP1 - Model client/servidor i eleccio guiada de stack\n- Producte inicial: aplicacio web per gestionar microreptes i entregues de DWES.\n\n## Model client/servidor aplicat al producte\n\nEl producte sera una aplicacio web. El client sera el navegador de l'usuari, on es mostraran les pantalles, formularis i resultats. El servidor rebra les peticions HTTP, aplicara les regles de negoci, accedira a les dades i retornara una resposta.\n\nEn el navegador s'executara:\n\n- HTML i CSS per presentar la informacio.\n- JavaScript basic per validar camps senzills o millorar la interaccio.\n- Peticions HTTP cap al servidor quan l'usuari consulte, cree o modifique dades.\n\nEn el servidor s'executara:\n\n- El codi backend que valida les dades importants.\n- La gestio de rutes i controladors.\n- L'acces a base de dades.\n- La preparacio de respostes HTML o JSON.\n- Les comprovacions de permisos quan el producte tinga usuaris autenticats.\n\n## Valor del backend dinamic\n\nUn backend dinamic aporta valor perque permet guardar entregues, consultar l'estat dels microreptes i generar respostes diferents segons l'usuari o les dades disponibles. Una pagina estatica no seria suficient si cal registrar informacio, validar permisos o mantindre un historial de treball.\n\n## Tecnologies identificades\n\n- Client: navegador, HTML, CSS i JavaScript.\n- Servidor web: Apache o Nginx en un entorn local o contenidoritzat.\n- Runtime de servidor: PHP.\n- Backend: PHP amb Laravel com a opcio principal.\n- Base de dades probable: MySQL o MariaDB.\n- Eines d'entorn: Docker i Composer quan avance el repte.\n\n## Comparacio acotada d'opcions\n\n| Opcio | Avantatges | Limits per a este projecte |\n| --- | --- | --- |\n| PHP sense framework | Senzill per entendre el cicle peticio-resposta i començar rapid. | Pot acabar desordenat si creixen rutes, validacions i acces a dades. |\n| Laravel | Dona estructura clara amb rutes, controladors, vistes, validacio i ORM. Esta alineat amb el recorregut de DWES. | Necessita aprendre convencions i preparar millor l'entorn. |\n| Symfony | Framework robust i molt modular. | Pot ser massa extens per a una primera versio menuda. |\n| NestJS | Arquitectura moderna sobre Node.js i TypeScript. | S'allunya del stack PHP previst per al curs. |\n\n## Decisio tecnica orientativa\n\nLa primera opcio triada es PHP amb Laravel. La decisio es coherent amb el curs i amb un producte que pot necessitar rutes, formularis, validacions, autenticacio i persistencia de dades. Laravel tambe facilita separar responsabilitats entre rutes, controladors, models i vistes.\n\nPer al primer prototip encara no cal implementar el servidor. La decisio nomes fixa una direccio tecnica per als microreptes seguents.\n\n## Alternativa descartada\n\nEs descarta NestJS com a primera opcio. Encara que es una alternativa potent, introdueix TypeScript i un ecosistema diferent. Per al context actual es preferible reforcar PHP i el model backend treballat a DWES.\n\n## Dubtes i limits oberts\n\n- Cal decidir si el primer backend retornara vistes HTML o una API JSON.\n- Cal concretar quines entitats tindra el producte: microrepte, entrega, alumne i estat podrien ser candidates.\n- Cal comprovar quin entorn Docker es demanara en MP2 abans de fixar versions definitives.\n\n## Verificacio manual\n\nPer revisar esta fitxa cal comprovar que:\n\n- diferencia que s'executa al navegador i que s'executa al servidor;\n- aplica el model client/servidor al producte propi;\n- identifica navegador, servidor web, runtime, backend i base de dades;\n- compara opcions de manera breu;\n- tanca una decisio, una alternativa descartada i dubtes pendents.\n\n## Fonts i us d'IA\n\nS'ha usat IA com a suport per estructurar la fitxa i contrastar que els punts de la rubrica quedaven coberts. El contingut final s'ha adaptat al repositori i al context del microrepte.\n"
+        }
+      ],
+      "evidence_files": [
+        {
+          "path": "evidence/README.md",
+          "bytes": 145,
+          "lines": 4,
+          "excerpt": "# Evidències\n\nGuarda ací captures textuals, logs, resultats de proves manuals o qualsevol evidència reproduïble que demostre el treball fet.\n"
+        },
+        {
+          "path": "evidence/verificacio-mp1.md",
+          "bytes": 572,
+          "lines": 18,
+          "excerpt": "# Verificacio MP1\n\n## Revisio de criteris\n\n- Fitxa d'exploracio tecnica inicial: `docs/fitxa-exploracio-tecnica-inicial.md`.\n- Model client/servidor aplicat al producte: inclos.\n- Diferencia entre navegador i servidor: inclosa.\n- Tecnologies de client i servidor: incloses.\n- Comparacio acotada de stack: inclosa.\n- Decisio tecnica orientativa: PHP amb Laravel.\n- Alternativa descartada: NestJS com a primera opcio.\n- Dubtes oberts: inclosos.\n- Us d'IA: registrat en `docs/ai-log.md`.\n\n## Resultat\n\nL'entrega es pot revisar manualment des del README i la fitxa principal.\n"
+        }
+      ],
+      "test_files": [
+        {
+          "path": "tests/README.md",
+          "bytes": 101,
+          "lines": 4,
+          "excerpt": "# Tests\n\nGuarda ací proves automàtiques o instruccions específiques de verificació del projecte.\n"
+        }
+      ],
+      "source_files": [
+        {
+          "path": "src/.gitkeep",
+          "bytes": 1,
+          "lines": 0,
+          "excerpt": null
+        }
+      ]
+    }
+  }
+}
