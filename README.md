@@ -54,6 +54,16 @@ Configuració activa inicial:
 
 Vegeu [docs/correccio-massiva.md](docs/correccio-massiva.md).
 
+## Dashboard del professor
+
+El dashboard local permet veure els grups, repositoris i autocorreccions, i llançar el workflow massiu sense navegar per GitHub Actions.
+
+```bash
+npm run dashboard
+```
+
+Vegeu [docs/dashboard.md](docs/dashboard.md).
+
 ## Com afegir una nova autocorrecció
 
 1. Crea una carpeta en `microreptes/` amb un identificador estable de sessió, per exemple `r2-s04-sessions`.

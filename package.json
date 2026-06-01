@@ -14,6 +14,7 @@
     "validate:autograde": "node scripts/validate-autograde-result.mjs",
     "collect:repo-evidence": "node scripts/collect-repo-evidence.mjs",
     "render:autograde": "node scripts/render-autograde-markdown.mjs",
+    "dashboard": "node teacher-dashboard/server.mjs",
     "grades:append": "node scripts/append-grade-result.mjs",
     "grades:import": "node scripts/import-autograde-result.mjs",
     "grades:list": "node scripts/list-grades.mjs"
