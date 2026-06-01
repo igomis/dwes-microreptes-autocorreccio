@@ -11,6 +11,7 @@ Scripts Node.js per mantindre el repositori central.
 - `validate-autograde-result.mjs`: valida un resultat d'autograding contra `global/grading-schema.json`.
 - `append-grade-result.mjs`: registra un `autograde-result.json` en l'agregacio central de notes provisionals en `grades/latest-grades.json` i `grades/latest-grades.csv`.
 - `import-autograde-result.mjs`: alias explicit per a imports manuals de resultats descarregats d'artifacts.
+- `compact-latest-grades.mjs`: compacta `latest-grades.*` deixant només l'últim registre per parella `repo + challenge_id`.
 - `list-grades.mjs`: mostra les notes provisionals agregades en format llegible.
 
 Execució recomanada:
