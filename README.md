@@ -54,6 +54,8 @@ Configuració activa inicial:
 
 Vegeu [docs/correccio-massiva.md](docs/correccio-massiva.md).
 
+Per treballar des del terminal amb `gh`, vegeu [docs/terminal.md](docs/terminal.md).
+
 ## Dashboard del professor
 
 El dashboard local permet veure els grups, repositoris i autocorreccions, i llançar el workflow massiu sense navegar per GitHub Actions.

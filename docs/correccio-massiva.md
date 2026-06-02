@@ -28,6 +28,8 @@ El token ha de poder clonar i fer `push` als repositoris d'alumnes. Si no existe
 
 ## Execucio
 
+Des del terminal, consulta [terminal.md](terminal.md).
+
 1. Entra en el repositori del professor.
 2. Ves a `Actions`.
 3. Obri `Batch autograde student repositories`.
