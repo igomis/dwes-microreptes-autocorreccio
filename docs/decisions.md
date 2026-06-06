@@ -8,6 +8,8 @@ Este fitxer registra decisions tècniques i docents rellevants.
 | Autocorrecció activa controlada pel professor | Acceptada | Permet coordinar grups i excepcions individuals sense modificar repositoris d'alumnes. |
 | Nota provisional automàtica | Acceptada | L'autocorrecció pot orientar, però no ha de tancar tots els casos sense supervisio. |
 | Revisio docent amb baixa confiança o flags | Acceptada | Protegeix l'avaluacio en casos amb evidències insuficients, sospites o ambigüitat. |
+| Repte 1 compactat en 2 sessions | Acceptada | `R1-S02` cobreix `MP2+MP3+MP4` i substitueix l'antiga `R1-S03` per mantindre coherència amb la programació d'aula. |
+| R2-S01 amb validació bàsica | Acceptada | La primera validació de formulari no exigeix arrays d'errors ni validació acumulada; això queda per a ampliació o microreptes posteriors. |
 
 ## Format de noves decisions
 

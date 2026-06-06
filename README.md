@@ -49,8 +49,8 @@ Configuració activa inicial:
 |---|---|
 | `2DAW-A` | `r1-s01-model-client-servidor-stack` |
 | `2DAW-B` | `r1-s02-entorn-executable` |
-| `2DAW-C` | `r1-s03-punt-entrada-documentacio-checkpoint` |
-| `2DAW-D` | `r1-s03-punt-entrada-documentacio-checkpoint` |
+| `2DAW-C` | `r1-s02-entorn-executable` |
+| `2DAW-D` | `r1-s02-entorn-executable` |
 
 Vegeu [docs/correccio-massiva.md](docs/correccio-massiva.md).
 
@@ -78,8 +78,9 @@ Vegeu [docs/dashboard.md](docs/dashboard.md).
 
 Base inicial del repositori:
 
-- tres autocorreccions de sessió del Repte 1;
-- la sessió `R1-S03` agrupa `MP3 + MP4` perquè el checkpoint i la documentació tanquen el punt d'entrada funcional;
+- dues autocorreccions de sessió del Repte 1;
+- la sessió `R1-S02` agrupa `MP2 + MP3 + MP4` perquè el Repte 1 queda compactat en dues sessions;
+- una autocorrecció inicial de `R2-S01` per a entrada de dades i validació bàsica;
 - rúbriques inicials;
 - polítiques globals;
 - resolució centralitzada de l'autocorrecció activa;

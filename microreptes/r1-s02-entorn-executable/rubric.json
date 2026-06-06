@@ -7,43 +7,46 @@
       "id": "functional_resolution",
       "label": "Resolució funcional",
       "weight": 0.35,
-      "must_check": "L'entorn està definit i arranca amb Docker o equivalent, o mostra un error real documentat amb hipòtesi i pròxima acció."
+      "must_check": "L'entorn està definit i arranca amb Docker o equivalent, i hi ha una ruta, vista, endpoint, landing mínima o healthcheck que respon des del backend."
     },
     {
       "id": "verification",
       "label": "Verificació",
       "weight": 0.2,
-      "must_check": "Inclou prova d'arrencada, URL o log, i comprovació del servei web, base de dades i phpMyAdmin quan corresponga."
+      "must_check": "Inclou prova d'arrencada, URL, captura o log, i comprovació reproduïble del servei web, BBDD/phpMyAdmin quan corresponga i punt d'entrada funcional."
     },
     {
       "id": "traceability",
       "label": "Traçabilitat",
       "weight": 0.1,
-      "must_check": "Hi ha issue mare, microtasques, commits o registre de decisions vinculats a l'arrencada de l'entorn."
+      "must_check": "Hi ha issue mare, microtasques, commits o registre de decisions vinculats a l'entorn, al punt d'entrada, la documentació i el tancament de R1."
     },
     {
       "id": "documentation",
       "label": "Documentació",
       "weight": 0.15,
-      "must_check": "El README inicial indica requisits, arrencada, parada, ports, URL i comprovacions sense passos ocults."
+      "must_check": "El README és executable, indica requisits, arrencada, parada, ports, URL i comprovacions, i la documentació del repte és localitzable dins del repositori."
     },
     {
       "id": "ai_usage",
       "label": "Ús d'IA",
       "weight": 0.05,
-      "must_check": "Si usa IA per configurar o depurar, registra les consultes rellevants i la verificació posterior."
+      "must_check": "Si usa IA per configurar, depurar o documentar, registra les consultes rellevants i verifica que el resultat correspon al sistema real."
     },
     {
       "id": "code_quality",
       "label": "Qualitat tècnica",
       "weight": 0.15,
-      "must_check": "La configuració és simple, adaptada al projecte i explicable; no és una còpia opaca impossible de defensar."
+      "must_check": "La configuració i el punt d'entrada són simples, adaptats al projecte i explicables; no són una còpia opaca impossible de defensar."
     }
   ],
   "hard_rules": [
     "Sense configuració d'entorn executable o error documentat, la puntuació màxima recomanada és 5.",
-    "Si no hi ha README d'arrencada, aplica la penalització global configurada i la puntuació màxima recomanada és 7.",
-    "Si el projecte és una còpia plana no adaptada ni explicable, cal revisió docent.",
-    "Si no hi ha cap evidència de prova o log, la puntuació màxima recomanada és 6."
+    "Sense punt d'entrada funcional localitzable, la puntuació màxima recomanada és 6.",
+    "Si no hi ha evidència de prova, captura, log o URL reproduïble, la puntuació màxima recomanada és 6.",
+    "Sense README executable o comprovable, la puntuació màxima recomanada és 6.",
+    "Sense documentació localitzable dins del repositori, la puntuació màxima recomanada és 7.",
+    "Si és només una pàgina estàtica sense relació amb el backend, cal revisar manualment.",
+    "Si el projecte és una còpia plana no adaptada ni explicable, cal revisió docent."
   ]
 }

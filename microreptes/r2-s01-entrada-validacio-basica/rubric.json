@@ -1,0 +1,51 @@
+{
+  "rubric_id": "rubric-r2-s01-entrada-validacio-basica",
+  "challenge_id": "r2-s01-entrada-validacio-basica",
+  "max_score": 10,
+  "dimensions": [
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.35,
+      "must_check": "Hi ha un formulari o entrada equivalent amb text, opció tancada i checkbox, i el servidor rep les dades."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.2,
+      "must_check": "Inclou prova d'un cas incorrecte amb error visible i reenviament corregit amb resposta correcta."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.1,
+      "must_check": "Hi ha commit, issue o registre associat al formulari, la recepció de dades i la validació bàsica."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.15,
+      "must_check": "El README, issue o registre explica com provar un cas correcte i almenys un cas incorrecte."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si usa IA, l'alumne registra què ha acceptat o modificat i verifica que la condició de servidor funciona."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat tècnica",
+      "weight": 0.15,
+      "must_check": "La validació és simple, explicable i coherent amb el nivell inicial; no introdueix arrays d'errors ni complexitat que l'alumne no ha treballat encara."
+    }
+  ],
+  "hard_rules": [
+    "Sense formulari o entrada real enviada al servidor, la puntuació màxima recomanada és 5.",
+    "Sense recepció de dades en servidor, la puntuació màxima recomanada és 5.",
+    "Si la validació només és de client, la puntuació màxima recomanada és 6.",
+    "Sense error visible generat per una condició real de servidor, la puntuació màxima recomanada és 7.",
+    "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
+    "No penalitzes l'absència d'arrays d'errors, fitxers o checkbox múltiple en esta sessió."
+  ]
+}

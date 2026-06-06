@@ -2,11 +2,11 @@
   "challenge_id": "r1-s02-entorn-executable",
   "repte_id": "r1-kickoff-backend",
   "session_code": "R1-S02",
-  "microrepte_code": "MP2",
-  "microreptes_covered": ["MP2"],
-  "title": "Base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin",
-  "summary": "Configurar una base executable pròpia amb Docker, PHP, servidor web, base de dades i phpMyAdmin, adaptada al producte i documentada amb un README inicial.",
-  "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, adapta el model docent al seu projecte i deixa una arrencada reproduïble.",
+  "microrepte_code": "MP2+MP3+MP4",
+  "microreptes_covered": ["MP2", "MP3", "MP4"],
+  "title": "Entorn executable, punt d'entrada i tancament de R1",
+  "summary": "Configurar una base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin, crear un primer punt d'entrada funcional del backend i tancar R1 amb documentació verificable.",
+  "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, transforma la infraestructura en una resposta funcional simple i deixa el kickoff executable, documentat i defensable abans de passar a R2.",
   "relevant_paths": [
     "docker-compose.yml",
     "compose.yaml",
@@ -14,31 +14,45 @@
     "public/",
     "src/",
     "app/",
+    "routes/",
     "README.md",
     "docs/",
     "documentacio/",
     "evidence/",
+    "ADR.md",
+    "decisions/",
     "ai-log.md"
   ],
   "required_evidence": [
-    "Repositori amb estructura mínima, issue mare o microtasques i commits significatius",
-    "Configuració Docker o equivalent amb PHP, servidor web, BBDD i phpMyAdmin",
-    "README inicial amb requisits, arrencada, parada i comprovacions",
-    "Prova d'arrencada o log d'error amb hipòtesi i pla de correcció",
-    "Incidència, dubte o decisió tècnica registrada"
+    "Configuració Docker o equivalent amb PHP, servidor web, BBDD i phpMyAdmin, o error real documentat amb hipòtesi i pla de correcció",
+    "README executable amb requisits, arrencada, parada, serveis, ports, URL i resultat esperat",
+    "Ruta, vista, endpoint, landing mínima o healthcheck funcional servit pel backend",
+    "Demo, captura, log o URL de comprovació de l'entorn i del punt d'entrada",
+    "Documentació localitzable dins del repositori",
+    "Justificació tècnica curta, decisió o ADR inicial",
+    "Registre d'incidències, verificacions i pendent de pas a R2",
+    "Commit o traçabilitat associada a l'entorn i al punt d'entrada",
+    "Explicació del flux petició, execució en servidor i resposta",
+    "AI log si hi ha ús rellevant d'IA"
   ],
   "ai_log_required": false,
   "expected_signals": [
     "docker compose up o equivalent arranca els serveis definits, o hi ha error documentat amb pla concret",
     "El projecte està adaptat: nom, ports, estructura o resposta inicial no són una còpia plana",
-    "El README permet repetir l'arrencada i comprovar servei web, BBDD i phpMyAdmin",
-    "L'alumne identifica què fa cada servei i què ha canviat respecte del model docent",
-    "Hi ha traçabilitat mínima amb issues, commits o registre de decisions"
+    "El README permet repetir l'arrencada i comprovar servei web, BBDD i phpMyAdmin quan corresponga",
+    "Hi ha una URL, ruta o endpoint que respon en execució",
+    "La resposta està connectada amb el producte o el seu estat inicial",
+    "El punt d'entrada no és només una maqueta estàtica desconnectada del backend",
+    "L'alumne identifica què fa cada servei i quin fitxer o peça respon a la petició",
+    "La documentació del repte està dins del repositori i és accessible des d'un índex o ubicació clara",
+    "El tancament explica què queda pendent i quin és el primer pas cap a R2"
   ],
-  "recommended_test_strategy": "Executar o revisar `docker compose up`, obrir la URL del servei web, comprovar phpMyAdmin o el servei de BBDD, llegir el README buscant passos ocults i demanar una explicació de cada servei.",
+  "recommended_test_strategy": "Arrancar l'entorn seguint només el README, obrir la ruta documentada, comprovar la resposta, revisar documentació i decisions, contrastar-les amb commits i fer preguntes breus de defensa.",
   "source_alignment": [
     "Repte 1 MP2",
+    "Repte 1 MP3",
+    "Repte 1 MP4",
     "Programació d'aula R1 S02",
-    "Pes orientatiu dins del repte: 35%"
+    "Repte 1 compactat en 2 sessions"
   ]
 }

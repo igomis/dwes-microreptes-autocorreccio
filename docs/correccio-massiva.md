@@ -110,8 +110,8 @@ Configuració activa inicial:
 |---|---|
 | `2DAW-A` | `r1-s01-model-client-servidor-stack` |
 | `2DAW-B` | `r1-s02-entorn-executable` |
-| `2DAW-C` | `r1-s03-punt-entrada-documentacio-checkpoint` |
-| `2DAW-D` | `r1-s03-punt-entrada-documentacio-checkpoint` |
+| `2DAW-C` | `r1-s02-entorn-executable` |
+| `2DAW-D` | `r1-s02-entorn-executable` |
 
 Per canviar el microrepte actiu d'un grup o d'un alumne concret, modifica `course/active-challenges.json` i fes commit.
 

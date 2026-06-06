@@ -7,15 +7,15 @@
       "challenge_id": "r1-s02-entorn-executable"
     },
     "2DAW-C": {
-      "challenge_id": "r1-s03-punt-entrada-documentacio-checkpoint"
+      "challenge_id": "r1-s02-entorn-executable"
     },
     "2DAW-D": {
-      "challenge_id": "r1-s03-punt-entrada-documentacio-checkpoint"
+      "challenge_id": "r1-s02-entorn-executable"
     }
   },
   "students": {
     "cipfpbatoi/dwes-ana-marti": {
-      "challenge_id": "r1-s03-punt-entrada-documentacio-checkpoint",
+      "challenge_id": "r1-s02-entorn-executable",
       "reason": "Adaptació individual per recuperació"
     },
     "cipfpbatoi/dwes-joan-ferrer": {
