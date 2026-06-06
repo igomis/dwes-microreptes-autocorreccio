@@ -1,0 +1,55 @@
+{
+  "challenge_id": "r2-s02-processament-reintent-conservacio-dades",
+  "repte_id": "r2-processament-estat-autenticacio",
+  "session_code": "R2-S02",
+  "microrepte_code": "R2M2",
+  "microreptes_covered": ["R2M2"],
+  "title": "Processament, reintent i guardat funcional",
+  "summary": "Millorar el flux del formulari perquè el servidor conserve dades aprofitables quan hi ha error i, quan l'entrada és correcta, la processe i la guarde funcionalment amb un mecanisme simple.",
+  "pedagogical_goal": "Comprovar que l'alumne entén com el servidor reconstrueix una resposta de formulari després d'un error i com guarda funcionalment una entrada correcta abans d'introduir persistència formal, arrays d'errors, estat o autenticació.",
+  "relevant_paths": [
+    "public/",
+    "src/",
+    "app/",
+    "routes/",
+    "views/",
+    "templates/",
+    "README.md",
+    "docs/",
+    "evidence/",
+    "ai-log.md"
+  ],
+  "required_evidence": [
+    "Flux que parteix del formulari o entrada equivalent de R2M1",
+    "Recepció de dades enviades en servidor amb `$_POST` o mecanisme equivalent",
+    "Error visible generat per una condició de servidor",
+    "Formulari regenerat després de l'error amb dades aprofitables conservades",
+    "Conservació d'almenys un camp de text i una opció tancada",
+    "Comprovació del comportament d'un checkbox simple i conservació si té sentit",
+    "Reenviament corregit amb resposta correcta",
+    "Processament i guardat funcional simple del cas correcte",
+    "Pantalla, llista, resum o resposta posterior on la dada correcta es mostra o recupera",
+    "README, issue o registre que explique com provar l'error i el reintent",
+    "Commit o traçabilitat associada al processament del reintent i al guardat funcional",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "El formulari no torna buit després d'un error",
+    "Els valors conservats venen de dades enviades realment, no de literals fixos",
+    "El codi prepara valors per a `value`, `selected`, `checked` o equivalents",
+    "La validació continua sent de servidor i no només de client",
+    "El reintent permet corregir només la dada errònia",
+    "El cas corregit es pot reenviar i genera una resposta correcta",
+    "El cas correcte es processa i queda guardat funcionalment amb un mecanisme explicable",
+    "L'alumne diferencia conservar dades en el reintent de guardar funcionalment un cas correcte",
+    "No es demanen encara base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers ni checkbox múltiples com a mínim"
+  ],
+  "recommended_test_strategy": "Enviar un cas incorrecte, comprovar l'error visible, verificar que el formulari torna amb text i opció tancada conservats, revisar el checkbox simple, corregir només la dada errònia, reenviar, comprovar que el cas correcte queda guardat funcionalment i revisar el fragment de codi que prepara valors i guarda la dada correcta.",
+  "source_alignment": [
+    "Repte 2 R2M2",
+    "Programació d'aula R2S2",
+    "Documentació d'alumnat del Repte 2",
+    "Reintent amb dades conservades i guardat funcional simple abans de persistència formal, arrays d'errors, estat i autenticació"
+  ]
+}
