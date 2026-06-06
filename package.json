@@ -22,6 +22,7 @@
     "grades:list": "node scripts/list-grades.mjs"
   },
   "dependencies": {
+    "better-sqlite3": "^9.x",
     "openai": "^4.x"
   },
   "engines": {

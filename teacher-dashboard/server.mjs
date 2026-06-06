@@ -4,6 +4,19 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import {
+  initDb,
+  getDb,
+  closeDb,
+  upsertStudent,
+  getStudents,
+  upsertChallenge,
+  getChallenges,
+  getLatestGrades,
+  getStudentGrades,
+  getStatistics,
+  migrateFromJson
+} from './db.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
@@ -167,16 +180,8 @@ async function buildConfigPayload() {
   };
 }
 
-async function readLatestGrades() {
-  try {
-    const grades = await readJson('grades/latest-grades.json');
-    return Array.isArray(grades) ? grades.slice().reverse() : [];
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return [];
-    }
-    throw error;
-  }
+async function readLatestGrades(filters = {}) {
+  return getLatestGrades(200, filters);
 }
 
 function pageHtml() {
@@ -297,6 +302,25 @@ function pageHtml() {
     }
     .error { color: var(--danger); }
     .ok { color: var(--accent-dark); }
+    .filters {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 14px;
+      align-items: end;
+    }
+    .filters button {
+      grid-column: 3;
+    }
+    table tbody tr:hover {
+      background: #f9fafb;
+    }
+    tr.review-required {
+      background: #fff3cd;
+    }
+    .score-low { color: #b42318; font-weight: 600; }
+    .score-medium { color: #f97316; font-weight: 600; }
+    .score-high { color: #22c55e; font-weight: 600; }
     @media (max-width: 820px) {
       main { padding: 14px; }
       .grid { grid-template-columns: 1fr; }
@@ -359,10 +383,31 @@ function pageHtml() {
         <h2>Últims resultats</h2>
         <button id="refreshGrades" type="button">Actualitzar</button>
       </div>
+      <div class="filters">
+        <label>Filtre per grup
+          <select id="filterGroup">
+            <option value="">Tots</option>
+            <option value="2DAW-A">2DAW-A</option>
+            <option value="2DAW-B">2DAW-B</option>
+            <option value="2DAW-C">2DAW-C</option>
+            <option value="2DAW-D">2DAW-D</option>
+          </select>
+        </label>
+        <label>Filtre per repte
+          <select id="filterChallenge">
+            <option value="">Tots</option>
+          </select>
+        </label>
+        <label>Filtre per repositori
+          <input id="filterRepo" type="text" placeholder="Buscar repositori...">
+        </label>
+        <button id="applyFilters" type="button">Aplicar filtres</button>
+      </div>
       <table>
-        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Nota</th><th>Mode</th><th>Historial</th></tr></thead>
+        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Nota</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
         <tbody id="gradeRows"></tbody>
       </table>
+      <div id="gradesInfo" class="status"></div>
     </section>
 
     <section>
@@ -372,12 +417,24 @@ function pageHtml() {
   </main>
   <script>
     let config = null;
+    let allChallenges = [];
 
     function challengeFor(repo, group) {
       const student = config.active_challenges.students[repo];
       if (student && student.challenge_id) return student.challenge_id;
       const groupConfig = config.active_challenges.groups[group];
       return groupConfig && groupConfig.challenge_id ? groupConfig.challenge_id : 'sense assignació';
+    }
+
+    function getScoreClass(score) {
+      if (score >= 7) return 'score-high';
+      if (score >= 5) return 'score-medium';
+      return 'score-low';
+    }
+
+    function formatTimestamp(ts) {
+      if (!ts) return '';
+      return new Date(ts).toLocaleString('ca-ES');
     }
 
     function refreshTable() {
@@ -400,15 +457,54 @@ function pageHtml() {
       refreshTable();
     }
 
+    async function loadChallenges() {
+      try {
+        const response = await fetch('/api/challenges');
+        const data = await response.json();
+        allChallenges = data.challenges || [];
+        const select = document.querySelector('#filterChallenge');
+        const current = select.value;
+        select.innerHTML = '<option value="">Tots</option>' + 
+          allChallenges.map(c => '<option value="' + c.challenge_id + '">' + c.challenge_id + '</option>').join('');
+        select.value = current;
+      } catch (error) {
+        console.error('Error cargando reptes:', error);
+      }
+    }
+
     async function loadGrades() {
-      const response = await fetch('/api/grades');
-      const payload = await response.json();
-      const grades = payload.grades || [];
-      const rows = grades.slice(0, 50).map((grade) => {
-        const history = grade.history_dir ? '<code>' + grade.history_dir + '</code>' : '';
-        return '<tr><td>' + (grade.timestamp || '') + '</td><td><code>' + (grade.repo || grade.student || '') + '</code></td><td>' + (grade.group || '') + '</td><td><code>' + (grade.challenge_id || '') + '</code></td><td>' + (grade.score ?? '') + '</td><td>' + (grade.source || '') + '</td><td>' + history + '</td></tr>';
-      });
-      document.querySelector('#gradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7">Encara no hi ha resultats guardats.</td></tr>';
+      const group = document.querySelector('#filterGroup').value;
+      const challenge = document.querySelector('#filterChallenge').value;
+      const repo = document.querySelector('#filterRepo').value;
+
+      const params = new URLSearchParams();
+      if (group) params.append('group', group);
+      if (challenge) params.append('challenge', challenge);
+      if (repo) params.append('repo', repo);
+
+      try {
+        const response = await fetch('/api/grades?' + params.toString());
+        const payload = await response.json();
+        const grades = payload.grades || [];
+        const rows = grades.slice(0, 100).map((grade) => {
+          const scoreClass = getScoreClass(grade.score || 0);
+          const reviewClass = grade.teacher_review_required ? 'review-required' : '';
+          return '<tr class="' + reviewClass + '">' +
+            '<td>' + formatTimestamp(grade.timestamp) + '</td>' +
+            '<td><code>' + (grade.repo || '') + '</code></td>' +
+            '<td>' + (grade.group_name || '') + '</td>' +
+            '<td><code>' + (grade.challenge_id || '') + '</code></td>' +
+            '<td class="' + scoreClass + '">' + (grade.score ?? '-') + '</td>' +
+            '<td>' + Math.round((grade.confidence || 0) * 100) + '%</td>' +
+            '<td>' + (grade.source || '') + '</td>' +
+            '<td>' + (grade.teacher_review_required ? '⚠️ Revisió' : '') + '</td>' +
+            '</tr>';
+        });
+        document.querySelector('#gradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha resultats.</td></tr>';
+        document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
+      } catch (error) {
+        document.querySelector('#gradesInfo').textContent = 'Error: ' + error.message;
+      }
     }
 
     async function runWorkflow() {
@@ -443,10 +539,16 @@ function pageHtml() {
 
     document.querySelector('#targetGroup').addEventListener('change', refreshTable);
     document.querySelector('#runButton').addEventListener('click', runWorkflow);
-    document.querySelector('#refreshGrades').addEventListener('click', loadGrades);
+    document.querySelector('#refreshGrades').addEventListener('click', () => loadGrades());
+    document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
+    document.querySelector('#filterGroup').addEventListener('change', () => {
+      document.querySelector('#filterChallenge').value = '';
+    });
+
     loadConfig().catch((error) => {
       document.querySelector('#runStatus').innerHTML = '<span class="error">' + error.message + '</span>';
     });
+    loadChallenges().catch(() => {});
     loadGrades().catch(() => {});
   </script>
 </body>
@@ -468,7 +570,31 @@ async function handleRequest(request, response) {
     }
 
     if (request.method === 'GET' && url.pathname === '/api/grades') {
-      sendJson(response, 200, { grades: await readLatestGrades() });
+      const filters = {};
+      if (url.searchParams.has('group')) filters.group_name = url.searchParams.get('group');
+      if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
+      if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
+      sendJson(response, 200, { grades: await readLatestGrades(filters) });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/students') {
+      const group = url.searchParams.get('group') || null;
+      const students = getStudents(group);
+      sendJson(response, 200, { students });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/challenges') {
+      const challenges = getChallenges();
+      sendJson(response, 200, { challenges });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/statistics') {
+      const group = url.searchParams.get('group') || null;
+      const stats = getStatistics(group);
+      sendJson(response, 200, { statistics: stats });
       return;
     }
 
@@ -488,6 +614,29 @@ async function handleRequest(request, response) {
 
 await loadDotEnv();
 
+// Inicialitzar BD i migrar dades si és la primera vegada
+console.log('Inicialitzant BD...');
+initDb();
+
+// Migrar dades de JSON si existeix i la BD està buida
+try {
+  const grades = getLatestGrades(1);
+  if (grades.length === 0) {
+    console.log('Migrant dades de JSON a BD...');
+    try {
+      const jsonGrades = await readJson('grades/latest-grades.json');
+      if (jsonGrades.length > 0) {
+        migrateFromJson(jsonGrades);
+        console.log(`Migrades ${jsonGrades.length} notes de JSON a BD`);
+      }
+    } catch (readError) {
+      console.log('Archivo JSON no existe o no se puede leer, BD inicializada vacía');
+    }
+  }
+} catch (error) {
+  console.warn('No s\'han pogut migrar les dades:', error.message);
+}
+
 const port = Number(process.env.DASHBOARD_PORT || defaultPort);
 const host = process.env.DASHBOARD_HOST || '127.0.0.1';
 const server = createServer((request, response) => {
@@ -496,4 +645,11 @@ const server = createServer((request, response) => {
 
 server.listen(port, host, () => {
   console.log(`Dashboard disponible en http://${host}:${port}`);
+});
+
+// Tancar BD al finalitzar
+process.on('SIGINT', () => {
+  console.log('\nTancant BD...');
+  closeDb();
+  process.exit(0);
 });

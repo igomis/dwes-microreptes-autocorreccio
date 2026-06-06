@@ -1,0 +1,312 @@
+import Database from 'better-sqlite3';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '..', 'grades', 'dashboard.db');
+
+let db = null;
+
+export function initDb() {
+  db = new Database(DB_PATH);
+  db.pragma('journal_mode = WAL');
+
+  // Taula d'alumnes/repositoris
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS students (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      repo TEXT UNIQUE NOT NULL,
+      group_name TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Taula de microreptes
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS challenges (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      challenge_id TEXT UNIQUE NOT NULL,
+      title TEXT,
+      description TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Taula de resultats d'autocorrecció
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS grades (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      student_id INTEGER NOT NULL,
+      challenge_id INTEGER NOT NULL,
+      score REAL,
+      confidence REAL,
+      feedback TEXT,
+      teacher_review_required BOOLEAN,
+      provisional BOOLEAN,
+      commit_hash TEXT,
+      source TEXT,
+      batch_id TEXT,
+      timestamp DATETIME,
+      history_dir TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (student_id) REFERENCES students(id),
+      FOREIGN KEY (challenge_id) REFERENCES challenges(id),
+      UNIQUE(student_id, challenge_id, commit_hash)
+    )
+  `);
+
+  // Taula de criteris avaluació (per a desglossar la nota)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS grade_criteria (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      grade_id INTEGER NOT NULL,
+      criterion_name TEXT,
+      criterion_score REAL,
+      criterion_feedback TEXT,
+      FOREIGN KEY (grade_id) REFERENCES grades(id)
+    )
+  `);
+
+  // Índexs per rendiment
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_grades_student ON grades(student_id);
+    CREATE INDEX IF NOT EXISTS idx_grades_challenge ON grades(challenge_id);
+    CREATE INDEX IF NOT EXISTS idx_grades_timestamp ON grades(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_students_group ON students(group_name);
+  `);
+
+  return db;
+}
+
+export function getDb() {
+  if (!db) {
+    initDb();
+  }
+  return db;
+}
+
+export function closeDb() {
+  if (db) {
+    db.close();
+    db = null;
+  }
+}
+
+// Operacions d'alumnes
+export function upsertStudent(repo, groupName) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT INTO students (repo, group_name) 
+    VALUES (?, ?)
+    ON CONFLICT(repo) DO UPDATE SET group_name = excluded.group_name
+  `);
+  return stmt.run(repo, groupName);
+}
+
+export function getStudents(groupName = null) {
+  const db = getDb();
+  if (groupName) {
+    const stmt = db.prepare('SELECT * FROM students WHERE group_name = ? ORDER BY repo');
+    return stmt.all(groupName);
+  }
+  const stmt = db.prepare('SELECT * FROM students ORDER BY group_name, repo');
+  return stmt.all();
+}
+
+// Operacions de microreptes
+export function upsertChallenge(challengeId, title = null, description = null) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT INTO challenges (challenge_id, title, description)
+    VALUES (?, ?, ?)
+    ON CONFLICT(challenge_id) DO UPDATE SET 
+      title = COALESCE(excluded.title, title),
+      description = COALESCE(excluded.description, description)
+  `);
+  return stmt.run(challengeId, title, description);
+}
+
+export function getChallenges() {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM challenges ORDER BY challenge_id');
+  return stmt.all();
+}
+
+// Operacions de notes
+export function insertGrade(gradeData) {
+  const db = getDb();
+  const {
+    student_id,
+    challenge_id,
+    score,
+    confidence,
+    feedback,
+    teacher_review_required,
+    provisional,
+    commit_hash,
+    source,
+    batch_id,
+    timestamp,
+    history_dir
+  } = gradeData;
+
+  const stmt = db.prepare(`
+    INSERT INTO grades (
+      student_id, challenge_id, score, confidence, feedback,
+      teacher_review_required, provisional, commit_hash, source,
+      batch_id, timestamp, history_dir
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  return stmt.run(
+    student_id, challenge_id, score, confidence, feedback,
+    teacher_review_required ? 1 : 0, provisional ? 1 : 0, commit_hash, source,
+    batch_id, timestamp, history_dir
+  );
+}
+
+export function getLatestGrades(limit = 100, filters = {}) {
+  const db = getDb();
+  let query = `
+    SELECT 
+      g.id,
+      s.repo,
+      s.group_name,
+      c.challenge_id,
+      g.score,
+      g.confidence,
+      g.feedback,
+      g.teacher_review_required,
+      g.provisional,
+      g.commit_hash,
+      g.source,
+      g.batch_id,
+      g.timestamp,
+      g.history_dir,
+      g.created_at
+    FROM grades g
+    JOIN students s ON g.student_id = s.id
+    JOIN challenges c ON g.challenge_id = c.id
+    WHERE 1=1
+  `;
+
+  const params = [];
+
+  if (filters.group_name) {
+    query += ' AND s.group_name = ?';
+    params.push(filters.group_name);
+  }
+
+  if (filters.challenge_id) {
+    query += ' AND c.challenge_id = ?';
+    params.push(filters.challenge_id);
+  }
+
+  if (filters.repo) {
+    query += ' AND s.repo LIKE ?';
+    params.push(`%${filters.repo}%`);
+  }
+
+  if (filters.from_date) {
+    query += ' AND g.timestamp >= ?';
+    params.push(filters.from_date);
+  }
+
+  if (filters.to_date) {
+    query += ' AND g.timestamp <= ?';
+    params.push(filters.to_date);
+  }
+
+  query += ' ORDER BY g.timestamp DESC LIMIT ?';
+  params.push(limit);
+
+  const stmt = db.prepare(query);
+  return stmt.all(...params);
+}
+
+export function getStudentGrades(studentId) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    SELECT 
+      g.*,
+      c.challenge_id,
+      s.repo
+    FROM grades g
+    JOIN challenges c ON g.challenge_id = c.id
+    JOIN students s ON g.student_id = s.id
+    WHERE g.student_id = ?
+    ORDER BY g.timestamp DESC
+  `);
+  return stmt.all(studentId);
+}
+
+export function getStatistics(groupName = null) {
+  const db = getDb();
+  let query = `
+    SELECT 
+      s.group_name,
+      COUNT(DISTINCT g.student_id) as student_count,
+      COUNT(g.id) as total_grades,
+      AVG(g.score) as avg_score,
+      MIN(g.score) as min_score,
+      MAX(g.score) as max_score,
+      SUM(CASE WHEN g.teacher_review_required = 1 THEN 1 ELSE 0 END) as review_required_count
+    FROM grades g
+    JOIN students s ON g.student_id = s.id
+    WHERE 1=1
+  `;
+
+  const params = [];
+
+  if (groupName) {
+    query += ' AND s.group_name = ?';
+    params.push(groupName);
+  }
+
+  query += ' GROUP BY s.group_name';
+
+  const stmt = db.prepare(query);
+  return stmt.all(...params);
+}
+
+export function migrateFromJson(jsonGrades) {
+  const db = getDb();
+
+  for (const grade of jsonGrades) {
+    // Upsert student
+    const studentRes = db.prepare(`
+      INSERT OR IGNORE INTO students (repo, group_name) VALUES (?, ?)
+    `).run(grade.repo || grade.student, grade.group);
+    
+    const studentId = db.prepare('SELECT id FROM students WHERE repo = ?')
+      .get(grade.repo || grade.student).id;
+
+    // Upsert challenge
+    db.prepare(`
+      INSERT OR IGNORE INTO challenges (challenge_id) VALUES (?)
+    `).run(grade.challenge_id);
+
+    const challengeId = db.prepare('SELECT id FROM challenges WHERE challenge_id = ?')
+      .get(grade.challenge_id).id;
+
+    // Insert grade
+    db.prepare(`
+      INSERT OR IGNORE INTO grades (
+        student_id, challenge_id, score, confidence, teacher_review_required,
+        provisional, commit_hash, source, batch_id, timestamp, history_dir
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      studentId,
+      challengeId,
+      grade.score,
+      grade.confidence,
+      grade.teacher_review_required ? 1 : 0,
+      grade.provisional ? 1 : 0,
+      grade.commit,
+      grade.source,
+      grade.batch_id,
+      grade.timestamp,
+      grade.history_dir
+    );
+  }
+}
