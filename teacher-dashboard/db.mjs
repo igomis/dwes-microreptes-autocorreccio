@@ -15,11 +15,17 @@ export function initDb() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS students (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      student_name TEXT,
       repo TEXT UNIQUE NOT NULL,
       group_name TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  const studentColumns = db.prepare('PRAGMA table_info(students)').all().map((column) => column.name);
+  if (!studentColumns.includes('student_name')) {
+    db.exec('ALTER TABLE students ADD COLUMN student_name TEXT');
+  }
 
   // Taula de microreptes
   db.exec(`
@@ -93,24 +99,96 @@ export function closeDb() {
 }
 
 // Operacions d'alumnes
-export function upsertStudent(repo, groupName) {
+export function upsertStudent(repo, groupName, studentName = null) {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO students (repo, group_name) 
-    VALUES (?, ?)
-    ON CONFLICT(repo) DO UPDATE SET group_name = excluded.group_name
+    INSERT INTO students (repo, group_name, student_name) 
+    VALUES (?, ?, ?)
+    ON CONFLICT(repo) DO UPDATE SET
+      group_name = excluded.group_name,
+      student_name = excluded.student_name
   `);
-  return stmt.run(repo, groupName);
+  return stmt.run(repo, groupName, studentName);
 }
 
-export function getStudents(groupName = null) {
+export function getStudents(filters = {}) {
   const db = getDb();
-  if (groupName) {
-    const stmt = db.prepare('SELECT * FROM students WHERE group_name = ? ORDER BY repo');
-    return stmt.all(groupName);
+  let query = `
+    SELECT
+      s.*,
+      COUNT(g.id) AS grade_count
+    FROM students s
+    LEFT JOIN grades g ON g.student_id = s.id
+    WHERE 1=1
+  `;
+  const params = [];
+
+  if (typeof filters === 'string') {
+    filters = { group_name: filters };
   }
-  const stmt = db.prepare('SELECT * FROM students ORDER BY group_name, repo');
-  return stmt.all();
+
+  if (filters.group_name) {
+    query += ' AND s.group_name = ?';
+    params.push(filters.group_name);
+  }
+
+  if (filters.search) {
+    query += ' AND (s.repo LIKE ? OR s.student_name LIKE ?)';
+    params.push(`%${filters.search}%`, `%${filters.search}%`);
+  }
+
+  query += ' GROUP BY s.id ORDER BY s.group_name, s.student_name, s.repo';
+
+  const stmt = db.prepare(query);
+  return stmt.all(...params);
+}
+
+export function getStudentById(studentId) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    SELECT
+      s.*,
+      COUNT(g.id) AS grade_count
+    FROM students s
+    LEFT JOIN grades g ON g.student_id = s.id
+    WHERE s.id = ?
+    GROUP BY s.id
+  `);
+  return stmt.get(studentId);
+}
+
+export function updateStudent(studentId, studentData) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    UPDATE students
+    SET
+      repo = ?,
+      group_name = ?,
+      student_name = ?
+    WHERE id = ?
+  `);
+  return stmt.run(
+    studentData.repo,
+    studentData.group_name,
+    studentData.student_name,
+    studentId
+  );
+}
+
+export function deleteStudent(studentId) {
+  const db = getDb();
+  const student = getStudentById(studentId);
+
+  if (!student) {
+    return { changes: 0 };
+  }
+
+  if (student.grade_count > 0) {
+    throw new Error('No es pot eliminar un alumne amb resultats associats.');
+  }
+
+  const stmt = db.prepare('DELETE FROM students WHERE id = ?');
+  return stmt.run(studentId);
 }
 
 // Operacions de microreptes
@@ -224,6 +302,33 @@ export function getLatestGrades(limit = 100, filters = {}) {
   return stmt.all(...params);
 }
 
+export function getGradeById(gradeId) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    SELECT 
+      g.id,
+      s.repo,
+      s.group_name,
+      c.challenge_id,
+      g.score,
+      g.confidence,
+      g.feedback,
+      g.teacher_review_required,
+      g.provisional,
+      g.commit_hash,
+      g.source,
+      g.batch_id,
+      g.timestamp,
+      g.history_dir,
+      g.created_at
+    FROM grades g
+    JOIN students s ON g.student_id = s.id
+    JOIN challenges c ON g.challenge_id = c.id
+    WHERE g.id = ?
+  `);
+  return stmt.get(gradeId);
+}
+
 export function getStudentGrades(studentId) {
   const db = getDb();
   const stmt = db.prepare(`
@@ -274,9 +379,9 @@ export function migrateFromJson(jsonGrades) {
 
   for (const grade of jsonGrades) {
     // Upsert student
-    const studentRes = db.prepare(`
-      INSERT OR IGNORE INTO students (repo, group_name) VALUES (?, ?)
-    `).run(grade.repo || grade.student, grade.group);
+    db.prepare(`
+      INSERT OR IGNORE INTO students (repo, group_name, student_name) VALUES (?, ?, ?)
+    `).run(grade.repo || grade.student, grade.group, grade.student_name || null);
     
     const studentId = db.prepare('SELECT id FROM students WHERE repo = ?')
       .get(grade.repo || grade.student).id;
