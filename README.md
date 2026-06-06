@@ -81,6 +81,7 @@ Base inicial del repositori:
 - dues autocorreccions de sessió del Repte 1;
 - la sessió `R1-S02` agrupa `MP2 + MP3 + MP4` perquè el Repte 1 queda compactat en dues sessions;
 - una autocorrecció inicial de `R2-S01` per a entrada de dades i validació bàsica;
+- una autocorrecció de `R2-S02` per a processament, guardat funcional i reutilització de dades correctes;
 - rúbriques inicials;
 - polítiques globals;
 - resolució centralitzada de l'autocorrecció activa;

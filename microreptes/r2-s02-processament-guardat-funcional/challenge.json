@@ -1,0 +1,53 @@
+{
+  "challenge_id": "r2-s02-processament-guardat-funcional",
+  "repte_id": "r2-processament-estat-autenticacio",
+  "session_code": "R2-S02",
+  "microrepte_code": "R2M2",
+  "microreptes_covered": ["R2M2"],
+  "title": "Processament i guardat funcional",
+  "summary": "Processar una dada ja validada en R2M1, generar una resposta de servidor, guardar la informació correcta amb un mecanisme simple i reutilitzar-la dins del projecte.",
+  "pedagogical_goal": "Comprovar que l'alumne entén què passa amb la informació correcta després de la validació inicial: variables, operadors, resposta generada, guardat funcional i reutilització visible abans d'introduir arrays, funcions, estat o autenticació com a focus principal.",
+  "relevant_paths": [
+    "public/",
+    "src/",
+    "app/",
+    "routes/",
+    "views/",
+    "templates/",
+    "storage/",
+    "data/",
+    "README.md",
+    "docs/",
+    "evidence/",
+    "ai-log.md"
+  ],
+  "required_evidence": [
+    "Flux que reutilitza una dada validada o validable de R2M1",
+    "Codi de servidor que processa la dada amb variables, operadors o sentències simples",
+    "Resposta generada a partir de la dada rebuda, no una eixida fixa",
+    "Mecanisme simple i controlat de guardat funcional de la informació correcta",
+    "Evidència que les dades invàlides no es guarden com si foren correctes",
+    "Pantalla, llista, resum o resposta posterior on la informació guardada es reutilitza",
+    "README, issue o registre que explique com provar el cas complet",
+    "Commit o traçabilitat associada al processament, guardat i reutilització",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "El treball parteix d'un formulari o entrada equivalent ja connectada al servidor",
+    "Hi ha una dada correcta que passa de recepció a processament",
+    "El codi diferencia mínimament dada rebuda, dada neta o preparada i resultat generat",
+    "La resposta del servidor canvia si canvia la dada d'entrada",
+    "El guardat només s'executa després d'una validació o comprovació suficient",
+    "La informació guardada torna a aparéixer o s'usa en un punt posterior del projecte",
+    "El mecanisme de guardat és simple però explicable i coherent amb R2",
+    "No es demanen encara sessió, login, rols, MVC, base de dades completa, arrays d'errors ni arquitectura formal com a mínim"
+  ],
+  "recommended_test_strategy": "Executar un cas vàlid complet des del formulari, comprovar la resposta generada, localitzar el processament en codi, verificar on es guarda la informació, tornar a carregar o obrir la pantalla on es reutilitza, i provar un cas invàlid per comprovar que no es guarda com a correcte.",
+  "source_alignment": [
+    "Repte 2 R2M2",
+    "Programació d'aula R2S2",
+    "Documentació d'alumnat del Repte 2",
+    "Processament i guardat funcional abans d'arrays, funcions, estat i autenticació"
+  ]
+}

@@ -1,6 +1,7 @@
 {
   "challenge_id": "r1-s02-entorn-executable",
   "repte_id": "r1-kickoff-backend",
+  "repte_weight": 0.75,
   "session_code": "R1-S02",
   "microrepte_code": "MP2+MP3+MP4",
   "microreptes_covered": ["MP2", "MP3", "MP4"],
@@ -53,6 +54,7 @@
     "Repte 1 MP3",
     "Repte 1 MP4",
     "Programació d'aula R1 S02",
-    "Repte 1 compactat en 2 sessions"
+    "Repte 1 compactat en 2 sessions",
+    "Pes orientatiu dins del repte: 75%"
   ]
 }

@@ -1,6 +1,7 @@
 {
   "challenge_id": "r1-s01-model-client-servidor-stack",
   "repte_id": "r1-kickoff-backend",
+  "repte_weight": 0.25,
   "session_code": "R1-S01",
   "microrepte_code": "MP1",
   "microreptes_covered": ["MP1"],
@@ -35,6 +36,6 @@
   "source_alignment": [
     "Repte 1 MP1",
     "Programació d'aula R1 S01",
-    "Pes orientatiu dins del repte: 20%"
+    "Pes orientatiu dins del repte: 25%"
   ]
 }
