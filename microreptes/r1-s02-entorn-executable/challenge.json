@@ -3,8 +3,8 @@
   "repte_id": "r1-kickoff-backend",
   "repte_weight": 0.75,
   "session_code": "R1-S02",
-  "microrepte_code": "MP2+MP3+MP4",
-  "microreptes_covered": ["MP2", "MP3", "MP4"],
+  "microrepte_code": "R1M2",
+  "microreptes_covered": ["R1M2"],
   "title": "Entorn executable, punt d'entrada i tancament de R1",
   "summary": "Configurar una base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin, crear un primer punt d'entrada funcional del backend i tancar R1 amb documentació verificable.",
   "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, transforma la infraestructura en una resposta funcional simple i deixa el kickoff executable, documentat i defensable abans de passar a R2.",
@@ -50,11 +50,9 @@
   ],
   "recommended_test_strategy": "Arrancar l'entorn seguint només el README, obrir la ruta documentada, comprovar la resposta, revisar documentació i decisions, contrastar-les amb commits i fer preguntes breus de defensa.",
   "source_alignment": [
-    "Repte 1 MP2",
-    "Repte 1 MP3",
-    "Repte 1 MP4",
+    "Repte 1 R1M2",
     "Programació d'aula R1 S02",
-    "Repte 1 compactat en 2 sessions",
+    "Repte 1 organitzat en 2 microreptes",
     "Pes orientatiu dins del repte: 75%"
   ]
 }

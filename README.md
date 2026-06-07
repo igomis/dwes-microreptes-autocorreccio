@@ -79,7 +79,7 @@ Vegeu [docs/dashboard.md](docs/dashboard.md).
 Base inicial del repositori:
 
 - dues autocorreccions de sessió del Repte 1;
-- la sessió `R1-S02` agrupa `MP2 + MP3 + MP4` perquè el Repte 1 queda compactat en dues sessions;
+- la sessió `R1-S02` correspon a `R1M2`, que integra entorn executable, punt d'entrada funcional, documentació i checkpoint perquè el Repte 1 queda en dues sessions;
 - una autocorrecció inicial de `R2-S01` per a entrada de dades i validació bàsica;
 - una autocorrecció de `R2-S02` per a processament del reintent, conservació de dades del formulari després d'un error i guardat funcional del cas correcte;
 - rúbriques inicials;

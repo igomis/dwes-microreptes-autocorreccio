@@ -2,7 +2,7 @@
 
 Avalua la sessió d'autocorrecció `r1-s02-entorn-executable` només amb les evidències disponibles al repositori de l'alumne.
 
-Esta autocorrecció correspon a la sessió `R1-S02` del `Repte 1` compactat en dues sessions i cobreix `MP2 + MP3 + MP4`: entorn executable, primer punt d'entrada funcional del backend, documentació tècnica, verificació i checkpoint de pas a R2.
+Esta autocorrecció correspon a la sessió `R1-S02` i al microrepte `R1M2` del `Repte 1`: entorn executable, primer punt d'entrada funcional del backend, documentació tècnica, verificació i checkpoint de pas a R2.
 
 Comprova si el repositori inclou una base tècnica adaptada al producte:
 
@@ -25,7 +25,7 @@ Comprova també si hi ha una resposta mínima però real del backend:
 Comprova finalment si el repte queda tancat i defensable:
 
 - documentació dins del repositori;
-- fitxa de `MP1`, decisió tècnica, incidències i comprovacions incorporades al repo;
+- fitxa de `R1M1`, decisió tècnica, incidències i comprovacions incorporades al repo;
 - índex, apartat del `README` o pàgina visible que permeta localitzar eixa documentació;
 - justificació tècnica curta o ADR inicial;
 - evidència de verificació de l'entorn i del punt d'entrada;
