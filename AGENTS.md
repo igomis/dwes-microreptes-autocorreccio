@@ -20,6 +20,53 @@ La coherència mínima ha d'incloure:
 - `dwes-microreptes-autocorreccio`: definició executable de les autocorreccions: `challenge.json`, `rubric.json`, prompts, evidències esperades i proves de revisió.
 - `dwes-microreptes-alumnes`: base o plantilla de treball de l'alumnat; ha de reflectir el que es demana en la documentació i el que després es podrà autocorregir.
 
+## Fonts de veritat
+
+Cada repositori té una responsabilitat principal i no ha de contradir les altres fonts:
+
+- La seqüència didàctica, els RA/CA, la programació d'aula i les decisions metodològiques es decideixen en `dwes-restructuracio-modul`.
+- L'enunciat, les instruccions i el llenguatge final per a l'alumnat es decideixen en `dwes-documentacio-alumnat`.
+- Les evidències autocorregibles, rúbriques tècniques, prompts i regles dures es decideixen en `dwes-microreptes-autocorreccio`.
+- L'estructura inicial de treball i les plantilles base per a l'alumnat es decideixen en `dwes-microreptes-alumnes`.
+
+Si hi ha conflicte entre repositoris, no s'ha de resoldre duplicant criteris diferents. Cal ajustar la font corresponent i propagar el canvi.
+
+## Mínim, ampliació i fora d'abast
+
+Cada microrepte ha d'indicar explícitament:
+
+- mínim obligatori;
+- ampliació possible;
+- continguts o pràctiques que queden fora de moment.
+
+Cap ampliació ha de convertir-se en requisit d'autocorrecció o rúbrica si no està declarada com a mínim en la documentació d'alumnat i en la programació d'aula.
+
+## Coherència d'avaluació
+
+No pot aparéixer en una rúbrica, checklist o autocorrecció cap requisit que no estiga demanat en la documentació d'alumnat i previst en la programació d'aula.
+
+També s'ha de complir la regla inversa: si una evidència és obligatòria per a l'alumnat, ha d'estar contemplada en la rúbrica, checklist o autocorrecció corresponent.
+
+## Convenció de nomenclatura
+
+- `R2S2` identifica la sessió.
+- `R2M2` identifica el microrepte.
+- En programació d'aula, el títol ha de seguir el patró `R2S2. Nom de la sessió`.
+- En documentació d'alumnat, el títol ha de seguir el patró `R2M2. Nom del microrepte` quan es treballe a nivell de microrepte.
+- En autocorrecció, l'identificador ha de seguir el patró `r2-s02-nom-curt`.
+
+La nomenclatura ha de ser estable i coherent en `mkdocs.yml`, títols, enllaços, carpetes i fitxers d'autocorrecció.
+
+## Criteri de sessió acabada
+
+Una sessió ordinària amb microrepte no es considera acabada fins que s'han creat o revisat les tres peces:
+
+- programació d'aula en `dwes-restructuracio-modul`;
+- documentació d'alumnat en `dwes-documentacio-alumnat`;
+- autocorrecció o rúbrica/checklist equivalent en `dwes-microreptes-autocorreccio`.
+
+Les sessions de presentació o tancament dels reptes `2`, `3`, `4` i `5` poden no tindre microrepte ni autocorrecció, però han d'estar identificades explícitament com a sessions sense microrepte propi.
+
 ## Estructura esperada de `dwes-documentacio-alumnat`
 
 La documentació d'alumnat ha de diferenciar clarament tres blocs:
