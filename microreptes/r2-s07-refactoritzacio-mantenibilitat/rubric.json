@@ -1,0 +1,20 @@
+{
+  "rubric_id": "rubric-r2-s07-refactoritzacio-mantenibilitat",
+  "challenge_id": "r2-s07-refactoritzacio-mantenibilitat",
+  "max_score": 10,
+  "dimensions": [
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.3, "must_check": "Hi ha refactoritzacio acotada sobre flux provat i prova de no regressio."},
+    {"id": "verification", "label": "Verificació", "weight": 0.2, "must_check": "Inclou execucio de casos clau després del canvi."},
+    {"id": "traceability", "label": "Traçabilitat", "weight": 0.1, "must_check": "Hi ha commit, diff o registre de la refactoritzacio."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.15, "must_check": "Documenta abans/després, responsabilitat millorada i pendents per a R3."},
+    {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra proposta acceptada i verificacio pròpia."},
+    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "La millora redueix duplicacio, noms confusos o barreja de responsabilitats sense obrir arquitectura completa obligatoria."}
+  ],
+  "hard_rules": [
+    "Sense prova de no regressio, la puntuacio maxima recomanada és 7.",
+    "Si només mou codi sense millora explicable, la puntuacio maxima recomanada és 7.",
+    "Si trenca el flux complet, la puntuacio maxima recomanada és 6.",
+    "No exigisques MVC, ORM, POO extensa ni reescriptura en framework.",
+    "Si el canvi és massa avançat i l'alumne no el pot explicar, cal revisio docent."
+  ]
+}

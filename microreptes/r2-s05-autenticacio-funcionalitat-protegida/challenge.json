@@ -1,0 +1,35 @@
+{
+  "challenge_id": "r2-s05-autenticacio-funcionalitat-protegida",
+  "repte_id": "r2-processament-estat-autenticacio",
+  "session_code": "R2-S05",
+  "microrepte_code": "R2M5",
+  "microreptes_covered": ["R2M5"],
+  "title": "Autenticacio i funcionalitat protegida",
+  "summary": "Implementar autenticacio funcional mínima i protegir una operacio real del domini amb cas autoritzat i cas denegat.",
+  "pedagogical_goal": "Comprovar que l'alumne diferencia identificacio, autenticacio i autoritzacio bàsica, i que la restriccio afecta una operacio real del producte.",
+  "relevant_paths": ["public/", "src/", "app/", "routes/", "views/", "templates/", "README.md", "docs/", "evidence/", "ai-log.md"],
+  "required_evidence": [
+    "Formulari o mecanisme de login funcional",
+    "Comprovacio de credencials en servidor",
+    "Usuari autenticat guardat en sessio o equivalent",
+    "Logout o invalidacio de sessio",
+    "Operacio real del domini protegida",
+    "Cas no autenticat denegat",
+    "Cas autenticat permés",
+    "Cas no autoritzat si el projecte ja té rol, propietat o restriccio simple",
+    "README, issue o registre amb usuaris de prova i passos",
+    "Commit o traçabilitat associada",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "El login no és només visual",
+    "La proteccio es fa en servidor abans d'executar l'operacio",
+    "L'operacio protegida té valor dins del projecte",
+    "Cridar directament la ruta protegida no salta el control",
+    "Hi ha cas permés i cas denegat reproduïbles",
+    "L'alumne pot explicar autenticacio i autoritzacio"
+  ],
+  "recommended_test_strategy": "Intentar executar l'operacio protegida sense sessio, iniciar sessio amb credencials vàlides, executar-la correctament, fer logout i repetir l'intent. Revisar el punt de codi on es comprova la restriccio.",
+  "source_alignment": ["Repte 2 R2M5", "Programacio d'aula R2S5", "Documentacio d'alumnat del Repte 2"]
+}

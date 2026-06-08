@@ -1,0 +1,20 @@
+{
+  "rubric_id": "rubric-r2-s05-autenticacio-funcionalitat-protegida",
+  "challenge_id": "r2-s05-autenticacio-funcionalitat-protegida",
+  "max_score": 10,
+  "dimensions": [
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.3, "must_check": "Login funcional, sessio autenticada i operacio real protegida amb cas permés i denegat."},
+    {"id": "verification", "label": "Verificació", "weight": 0.2, "must_check": "Inclou prova no autenticada, autenticada, logout i accés directe a l'operacio protegida."},
+    {"id": "traceability", "label": "Traçabilitat", "weight": 0.1, "must_check": "Hi ha commit, issue o registre associat a login i proteccio."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.15, "must_check": "Documenta usuaris de prova, operacio protegida i casos permés/denegat."},
+    {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra què ha acceptat i verifica els casos manualment."},
+    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "El control està en servidor, és explicable i no es limita a ocultar interfície."}
+  ],
+  "hard_rules": [
+    "Sense autenticacio funcional, la puntuacio maxima recomanada és 5.",
+    "Sense operacio real protegida, la puntuacio maxima recomanada és 6.",
+    "Si només s'oculta un botó però la ruta executa igual, la puntuacio maxima recomanada és 6.",
+    "Sense cas denegat, la puntuacio maxima recomanada és 7.",
+    "No exigisques rols avançats, registre públic, OAuth, JWT ni hashing complet com a mínim."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "challenge_id": "r2-s04-estat-sessio-cookies",
+  "repte_id": "r2-processament-estat-autenticacio",
+  "session_code": "R2-S04",
+  "microrepte_code": "R2M4",
+  "microreptes_covered": ["R2M4"],
+  "title": "Estat, sessio i cookies",
+  "summary": "Mantindre una dada temporal entre peticions amb sessio, cookie o mecanisme equivalent, recuperar-la en el flux i invalidar-la de manera controlada.",
+  "pedagogical_goal": "Comprovar que l'alumne diferencia estat temporal, sessio, cookie i guardat funcional abans d'introduir autenticacio i autoritzacio.",
+  "relevant_paths": ["public/", "src/", "app/", "routes/", "views/", "templates/", "README.md", "docs/", "evidence/", "ai-log.md"],
+  "required_evidence": [
+    "Flux que parteix del treball de R2M1-R2M3",
+    "Dada temporal amb sentit dins del producte",
+    "Codi d'escriptura en sessio, cookie o mecanisme equivalent",
+    "Lectura de la dada en una peticio posterior",
+    "Demo o documentacio de recuperacio del flux",
+    "Accio de neteja, reinici o invalidacio controlada",
+    "Explicacio de què queda en client, què queda en servidor i què no és persistencia",
+    "README, issue o registre amb passos abans/després",
+    "Commit o traçabilitat associada",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "La dada temporal no és decorativa",
+    "La informacio es recupera en una peticio diferent",
+    "La invalidacio canvia el comportament posterior",
+    "No es confon sessio amb persistencia formal",
+    "No es guarden dades sensibles en cookies sense criteri",
+    "L'alumne pot explicar client, servidor i cookie de sessio"
+  ],
+  "recommended_test_strategy": "Executar el flux, guardar la dada temporal, obrir una peticio posterior que la recupere, inspeccionar cookie o estat si aplica, invalidar i repetir la peticio per comprovar que la dada ja no afecta el flux.",
+  "source_alignment": ["Repte 2 R2M4", "Programacio d'aula R2S4", "Documentacio d'alumnat del Repte 2"]
+}
