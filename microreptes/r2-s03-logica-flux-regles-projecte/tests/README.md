@@ -9,7 +9,9 @@ Prova minima recomanada:
 3. Comprovar que la resposta mostra el resultat esperat.
 4. Enviar un segon cas que active un resultat diferent.
 5. Comprovar que la resposta canvia.
-6. Revisar el codi de la funcio i l'array o estructura usada.
-7. Canviar temporalment una condicio o valor del cataleg i comprovar que l'alumne pot predir l'efecte.
+6. Revisar el fitxer de llibreria pròpia on viu la funcio.
+7. Revisar el `require_once`, `include_once` o equivalent que carrega eixe fitxer.
+8. Revisar el codi de la funcio i l'array o estructura usada.
+9. Canviar temporalment una condicio, valor del cataleg o retorn de la funcio i comprovar que l'alumne pot predir l'efecte.
 
 No cal exigir encara proves automatitzades, autenticacio, sessio ni base de dades.

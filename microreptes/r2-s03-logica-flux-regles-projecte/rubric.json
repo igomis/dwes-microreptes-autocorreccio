@@ -7,25 +7,25 @@
       "id": "functional_resolution",
       "label": "Resolució funcional",
       "weight": 0.3,
-      "must_check": "Hi ha una regla del projecte implementada en servidor amb decisio observable, dades reals del flux, array o estructura útil, funcio clara i dos resultats visibles diferents."
+      "must_check": "Hi ha una regla del projecte implementada en servidor amb decisio observable, dades reals del flux, array o estructura útil, funcio clara en una llibreria pròpia importada i dos resultats visibles diferents."
     },
     {
       "id": "verification",
       "label": "Verificació",
       "weight": 0.2,
-      "must_check": "Inclou prova de dos casos que activen resultats diferents i comprovacio que la regla no trenca el flux previ de validacio, reintent i guardat funcional."
+      "must_check": "Inclou prova de dos casos que activen resultats diferents i comprovacio que la regla, la funcio i l'import de la llibreria pròpia no trenquen el flux previ de validacio, reintent i guardat funcional."
     },
     {
       "id": "traceability",
       "label": "Traçabilitat",
       "weight": 0.1,
-      "must_check": "Hi ha commit, issue o registre associat a la regla, a la funcio i a l'array o estructura usada."
+      "must_check": "Hi ha commit, issue o registre associat a la regla, a la funcio, al fitxer de llibreria pròpia, a l'import i a l'array o estructura usada."
     },
     {
       "id": "documentation",
       "label": "Documentació",
       "weight": 0.15,
-      "must_check": "El README, issue o registre explica la regla en llenguatge natural, quines dades usa, quins dos casos cal provar i quin resultat s'espera en cada cas."
+      "must_check": "El README, issue o registre explica la regla en llenguatge natural, quines dades usa, quin fitxer de llibreria pròpia conté la funcio, on s'importa, quins dos casos cal provar i quin resultat s'espera en cada cas."
     },
     {
       "id": "ai_usage",
@@ -37,7 +37,7 @@
       "id": "code_quality",
       "label": "Qualitat tècnica",
       "weight": 0.2,
-      "must_check": "El codi és explicable: noms clars, funcio amb responsabilitat real, array o estructura consultada amb sentit i logica acotada al nivell de R2M3."
+      "must_check": "El codi és explicable: noms clars, llibreria pròpia mínima importada amb `require_once`, `include_once` o equivalent, funcio amb responsabilitat real, array o estructura consultada amb sentit i logica acotada al nivell de R2M3."
     }
   ],
   "hard_rules": [
@@ -46,6 +46,8 @@
     "Sense dos casos amb resultats visibles diferents, la puntuacio maxima recomanada és 7.",
     "Sense array o estructura equivalent usada amb sentit, la puntuacio maxima recomanada és 8.",
     "Sense funcio útil amb responsabilitat recognoscible, la puntuacio maxima recomanada és 8.",
+    "Sense fitxer separat de llibreria pròpia importat pel flux, la puntuacio maxima recomanada és 8.",
+    "Si hi ha `include` o `require` però el fitxer importat no s'usa realment, la puntuacio maxima recomanada és 8.",
     "Si el resultat depén de literals fixos i no de dades reals del flux, la puntuacio maxima recomanada és 7.",
     "No penalitzes l'absencia de sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal o base de dades obligatoria en esta sessio.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisio docent."
