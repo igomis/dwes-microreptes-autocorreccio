@@ -1,0 +1,53 @@
+{
+  "rubric_id": "rubric-r2-s03-logica-flux-regles-projecte",
+  "challenge_id": "r2-s03-logica-flux-regles-projecte",
+  "max_score": 10,
+  "dimensions": [
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.3,
+      "must_check": "Hi ha una regla del projecte implementada en servidor amb decisio observable, dades reals del flux, array o estructura útil, funcio clara i dos resultats visibles diferents."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.2,
+      "must_check": "Inclou prova de dos casos que activen resultats diferents i comprovacio que la regla no trenca el flux previ de validacio, reintent i guardat funcional."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.1,
+      "must_check": "Hi ha commit, issue o registre associat a la regla, a la funcio i a l'array o estructura usada."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.15,
+      "must_check": "El README, issue o registre explica la regla en llenguatge natural, quines dades usa, quins dos casos cal provar i quin resultat s'espera en cada cas."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si usa IA, l'alumne registra què ha acceptat o modificat i verifica almenys un cas propi no limitat al suggeriment generat."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat tècnica",
+      "weight": 0.2,
+      "must_check": "El codi és explicable: noms clars, funcio amb responsabilitat real, array o estructura consultada amb sentit i logica acotada al nivell de R2M3."
+    }
+  ],
+  "hard_rules": [
+    "Sense flux executable que vinga de formulari, reintent o guardat funcional, la puntuacio maxima recomanada és 5.",
+    "Sense regla del projecte connectada al domini, la puntuacio maxima recomanada és 6.",
+    "Sense dos casos amb resultats visibles diferents, la puntuacio maxima recomanada és 7.",
+    "Sense array o estructura equivalent usada amb sentit, la puntuacio maxima recomanada és 8.",
+    "Sense funcio útil amb responsabilitat recognoscible, la puntuacio maxima recomanada és 8.",
+    "Si el resultat depén de literals fixos i no de dades reals del flux, la puntuacio maxima recomanada és 7.",
+    "No penalitzes l'absencia de sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal o base de dades obligatoria en esta sessio.",
+    "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisio docent."
+  ]
+}
