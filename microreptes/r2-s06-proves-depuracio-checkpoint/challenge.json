@@ -5,8 +5,8 @@
   "microrepte_code": "R2M6",
   "microreptes_covered": ["R2M6"],
   "title": "Proves, depuracio i checkpoint tecnic",
-  "summary": "Executar una bateria mínima de proves del flux complet, registrar incidencies, corregir bloquejos i actualitzar la documentacio de reproduccio.",
-  "pedagogical_goal": "Comprovar que l'alumne pot verificar i explicar el comportament real del flux abans de refactoritzar.",
+  "summary": "Executar una bateria mínima de proves del flux complet, afegir una prova automàtica lleugera de flux, registrar incidencies, corregir bloquejos i actualitzar la documentacio de reproduccio.",
+  "pedagogical_goal": "Comprovar que l'alumne pot verificar i explicar el comportament real del flux abans de refactoritzar, introduint automatitzacio lleugera sense exigir encara proves unitàries.",
   "relevant_paths": ["README.md", "docs/", "evidence/", "tests/", "public/", "src/", "app/", "routes/", "views/", "templates/", "ai-log.md"],
   "required_evidence": [
     "Checklist o taula de proves amb entrada, passos, resultat esperat i resultat real",
@@ -18,6 +18,8 @@
     "Accés no autenticat denegat",
     "Accés autenticat permés",
     "Logout o invalidacio i nou intent denegat",
+    "Almenys una prova automàtica lleugera de flux amb `curl`, script `.sh`, script PHP senzill, col·leccio de peticions o equivalent",
+    "Instruccions per executar la prova automàtica",
     "Incidencies detectades o confirmacio explícita que no n'hi ha",
     "README o guia de reproduccio actualitzada",
     "AI log si hi ha ús rellevant d'IA"
@@ -25,11 +27,13 @@
   "ai_log_required": false,
   "expected_signals": [
     "No es prova només el camí feliç",
+    "Hi ha almenys una comprovacio executable de caixa negra o de flux",
+    "No es presenten proves unitàries com a requisit obligatori de R2M6",
     "Els resultats documentats coincideixen amb el comportament real",
     "Hi ha rastre d'eina o entorn de prova",
     "Les incidencies bloquejants estan corregides o documentades",
     "Hi ha una zona candidata a refactoritzar en R2M7"
   ],
-  "recommended_test_strategy": "Revisar la taula de proves, triar un cas documentat, executar-lo i contrastar resultat real, README i codi. Revisar incidencies i correccions.",
+  "recommended_test_strategy": "Revisar la taula de proves, triar un cas documentat, executar-lo i contrastar resultat real, README i codi. Després executar o revisar la prova automàtica lleugera i comprovar que valida un comportament observable del flux. Revisar incidencies i correccions.",
   "source_alignment": ["Repte 2 R2M6", "Programacio d'aula R2S6", "Documentacio d'alumnat del Repte 2"]
 }

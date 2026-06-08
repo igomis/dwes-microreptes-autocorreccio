@@ -13,3 +13,22 @@ Casos mínims:
 - autenticat;
 - logout i nou intent.
 
+Prova automàtica mínima:
+
+- una comanda `curl` documentada;
+- o un script `.sh` en `tests/`;
+- o un script PHP senzill;
+- o una col·leccio de peticions documentada.
+
+Exemples acceptables:
+
+```bash
+curl -i http://localhost:8000/protegida.php
+```
+
+```bash
+curl -c cookies.txt -d "email=a@a.com&password=secret" http://localhost:8000/login.php
+curl -b cookies.txt http://localhost:8000/protegida.php
+```
+
+No cal exigir `PHPUnit` ni proves unitàries en este microrepte.
