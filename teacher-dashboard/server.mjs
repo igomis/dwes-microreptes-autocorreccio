@@ -20,7 +20,9 @@ import {
   getGradeById,
   getStudentGrades,
   getStatistics,
-  migrateFromJson
+  migrateFromJson,
+  getClassroomSessionNotes,
+  insertClassroomSessionNote
 } from './db.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -226,6 +228,21 @@ function extractInlineField(markdown, label) {
   return match ? match[1].replaceAll('`', '').trim() : '';
 }
 
+function extractSessionDuration(markdown) {
+  return extractInlineField(markdown, 'Duració orientativa') ||
+    extractInlineField(markdown, 'Duracio orientativa') ||
+    extractInlineField(markdown, 'Durada orientativa') ||
+    '3 hores';
+}
+
+function resolveClassroomProgrammingPath(relativeFile) {
+  const absolutePath = path.resolve(rootDir, relativeFile);
+  if (!absolutePath.startsWith(classroomProgrammingDir + path.sep)) {
+    throw new Error('Ruta de programació d’aula no permesa.');
+  }
+  return absolutePath;
+}
+
 async function readClassroomProgramming() {
   if (!existsSync(classroomProgrammingDir)) {
     return [];
@@ -250,7 +267,7 @@ async function readClassroomProgramming() {
       session_code: sessionCode,
       title,
       microrepte: extractInlineField(markdown, 'Microrepte'),
-      duration: extractInlineField(markdown, 'Duració orientativa'),
+      duration: extractSessionDuration(markdown),
       focus: extractInlineField(markdown, 'Focus'),
       file: path.relative(rootDir, absolutePath),
       markdown
@@ -264,6 +281,22 @@ async function readClassroomProgramming() {
   });
 
   return sessions;
+}
+
+async function readClassroomSession(sessionId) {
+  const sessions = await readClassroomProgramming();
+  return sessions.find((session) => session.id === sessionId || session.session_code === sessionId) || null;
+}
+
+async function updateClassroomSessionMarkdown(sessionId, markdown) {
+  const session = await readClassroomSession(sessionId);
+  if (!session) {
+    throw new Error('Sessió de programació no trobada.');
+  }
+
+  const normalizedMarkdown = String(markdown || '').trimEnd() + '\n';
+  await writeFile(resolveClassroomProgrammingPath(session.file), normalizedMarkdown, 'utf8');
+  return readClassroomSession(sessionId);
 }
 
 function normalizeTextList(value, fieldName) {
@@ -1159,11 +1192,10 @@ function pageHtml() {
         <label>Repte
           <select id="programacioFilterRepte"></select>
         </label>
-        <button id="applyProgramacioFilter" type="button">Generar programació</button>
       </div>
       <div id="programacioInfo" class="status"></div>
       <div id="programacioViewer" class="viewer">
-        <div class="viewer-empty">Selecciona un repte per generar la programació d'aula a partir dels JSON.</div>
+        <div class="viewer-empty">Selecciona un repte per consultar la programació d'aula.</div>
       </div>
     </section>
 
@@ -1300,6 +1332,28 @@ function pageHtml() {
       '</table>';
     }
 
+    function renderInlineMarkdown(value) {
+      const source = String(value || '');
+      const segments = [];
+      const tick = String.fromCharCode(96);
+      const pattern = new RegExp('(\\\\*\\\\*[^*]+\\\\*\\\\*|' + tick + '[^' + tick + ']+' + tick + ')', 'g');
+      let cursor = 0;
+
+      for (const match of source.matchAll(pattern)) {
+        segments.push(escapeHtml(source.slice(cursor, match.index)));
+        const token = match[0];
+        if (token.startsWith('**')) {
+          segments.push('<strong>' + escapeHtml(token.slice(2, -2)) + '</strong>');
+        } else {
+          segments.push('<code>' + escapeHtml(token.slice(1, -1)) + '</code>');
+        }
+        cursor = match.index + token.length;
+      }
+
+      segments.push(escapeHtml(source.slice(cursor)));
+      return segments.join('');
+    }
+
     function renderMarkdown(markdown) {
       const lines = String(markdown || '').split('\\n');
       const html = [];
@@ -1318,7 +1372,7 @@ function pageHtml() {
         const renderedRows = rows.map((line, index) => {
           const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
           const tag = index === 0 ? 'th' : 'td';
-          return '<tr>' + cells.map((cell) => '<' + tag + '>' + escapeHtml(cell) + '</' + tag + '>').join('') + '</tr>';
+          return '<tr>' + cells.map((cell) => '<' + tag + '>' + renderInlineMarkdown(cell) + '</' + tag + '>').join('') + '</tr>';
         });
         html.push('<table>' + renderedRows.join('') + '</table>');
         tableLines = [];
@@ -1350,11 +1404,11 @@ function pageHtml() {
             html.push('<ul>');
             listOpen = true;
           }
-          html.push('<li>' + escapeHtml(bullet[1]) + '</li>');
+          html.push('<li>' + renderInlineMarkdown(bullet[1]) + '</li>');
           continue;
         }
         closeList();
-        html.push('<p>' + escapeHtml(trimmed) + '</p>');
+        html.push('<p>' + renderInlineMarkdown(trimmed) + '</p>');
       }
       closeList();
       flushTable();
@@ -1569,13 +1623,102 @@ function pageHtml() {
       const session = classroomProgramming.find((item) => item.id === sessionId);
       const target = document.querySelector('#programacioSessionViewer');
       if (!session || !target) return;
+      const today = new Date().toISOString().slice(0, 10);
 
       target.innerHTML =
         '<div class="toolbar"><h3>' + escapeHtml(session.title) + '</h3><span class="file-note">' + escapeHtml(session.file) + '</span></div>' +
         '<div class="feedback-grid">' +
           '<div><h4>Vista docent</h4><div class="markdown-rendered">' + renderMarkdown(session.markdown) + '</div></div>' +
-          '<div><h4>Markdown reutilitzable</h4><div class="markdown-preview">' + escapeHtml(session.markdown) + '</div></div>' +
+          '<div><h4>Edició del Markdown font</h4>' +
+            '<textarea id="programacioMarkdownEditor" data-session-id="' + escapeHtml(session.id) + '">' + escapeHtml(session.markdown) + '</textarea>' +
+            '<div class="actions"><button id="saveProgramacioMarkdown" type="button">Guardar Markdown</button><span id="programacioMarkdownStatus" class="status"></span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="feedback-box">' +
+          '<h4>Comentari docent de la sessió</h4>' +
+          '<div class="grid">' +
+            '<label>Dia de realització<input id="programacioNoteDate" type="date" value="' + escapeHtml(today) + '"></label>' +
+            '<label>Comentari<textarea id="programacioNoteComment" placeholder="Com ha anat la sessió, ajustos, incidències, ritme, acords o canvis per a la pròxima vegada."></textarea></label>' +
+          '</div>' +
+          '<div class="actions"><button id="saveProgramacioNote" type="button">Guardar comentari</button><span id="programacioNoteStatus" class="status"></span></div>' +
+          '<div id="programacioNotes" class="markdown-rendered"><p class="status">Carregant comentaris...</p></div>' +
         '</div>';
+      document.querySelector('#saveProgramacioMarkdown').addEventListener('click', saveProgramacioMarkdown);
+      document.querySelector('#saveProgramacioNote').addEventListener('click', saveProgramacioNote);
+      loadProgramacioNotes(session.id);
+    }
+
+    async function saveProgramacioMarkdown() {
+      const editor = document.querySelector('#programacioMarkdownEditor');
+      const status = document.querySelector('#programacioMarkdownStatus');
+      const sessionId = editor?.dataset.sessionId;
+      if (!editor || !sessionId) return;
+      status.textContent = 'Guardant...';
+
+      try {
+        const response = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId), {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ markdown: editor.value })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut guardar el Markdown.');
+        const index = classroomProgramming.findIndex((item) => item.id === sessionId);
+        if (index >= 0) classroomProgramming[index] = payload.session;
+        renderProgramacioSession(sessionId);
+        document.querySelector('#programacioInfo').innerHTML = '<span class="ok">Markdown guardat en el fitxer font.</span>';
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      }
+    }
+
+    async function loadProgramacioNotes(sessionId) {
+      const target = document.querySelector('#programacioNotes');
+      if (!target) return;
+
+      try {
+        const response = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId) + '/notes');
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar els comentaris.');
+        const notes = payload.notes || [];
+        if (notes.length === 0) {
+          target.innerHTML = '<p class="status">Encara no hi ha comentaris guardats per a esta sessió.</p>';
+          return;
+        }
+        target.innerHTML = notes.map((note) => (
+          '<div class="feedback-box">' +
+            '<p><strong>' + escapeHtml(note.session_date) + '</strong> <span class="status">' + escapeHtml(formatTimestamp(note.created_at)) + '</span></p>' +
+            '<p>' + escapeHtml(note.comment) + '</p>' +
+          '</div>'
+        )).join('');
+      } catch (error) {
+        target.innerHTML = '<p class="error">' + escapeHtml(error.message) + '</p>';
+      }
+    }
+
+    async function saveProgramacioNote() {
+      const editor = document.querySelector('#programacioMarkdownEditor');
+      const date = document.querySelector('#programacioNoteDate');
+      const comment = document.querySelector('#programacioNoteComment');
+      const status = document.querySelector('#programacioNoteStatus');
+      const sessionId = editor?.dataset.sessionId;
+      if (!sessionId || !date || !comment) return;
+      status.textContent = 'Guardant...';
+
+      try {
+        const response = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId) + '/notes', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ session_date: date.value, comment: comment.value })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut guardar el comentari.');
+        comment.value = '';
+        status.innerHTML = '<span class="ok">Comentari guardat.</span>';
+        await loadProgramacioNotes(sessionId);
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      }
     }
 
     async function loadProgramacio() {
@@ -2147,7 +2290,6 @@ function pageHtml() {
     document.querySelector('#applyMicrorepteFilters').addEventListener('click', renderMicrorepteRows);
     document.querySelector('#clearMicrorepteViewer').addEventListener('click', clearMicrorepteViewer);
     document.querySelector('#refreshProgramacio').addEventListener('click', loadProgramacio);
-    document.querySelector('#applyProgramacioFilter').addEventListener('click', renderProgramacio);
     document.querySelector('#programacioFilterRepte').addEventListener('change', renderProgramacio);
     document.querySelector('#filterGroup').addEventListener('change', () => {
       document.querySelector('#filterChallenge').value = '';
@@ -2198,6 +2340,44 @@ async function handleRequest(request, response) {
       sendJson(response, 200, {
         sessions: repte ? sessions.filter((session) => session.repte_id === repte) : sessions
       });
+      return;
+    }
+
+    const classroomSessionMatch = url.pathname.match(/^\/api\/programacio-aula\/([^/]+)$/);
+    if (request.method === 'PUT' && classroomSessionMatch) {
+      const body = await readRequestJson(request);
+      const markdown = String(body.markdown || '');
+      if (!markdown.trim()) {
+        sendJson(response, 400, { error: 'El Markdown no pot estar buit.' });
+        return;
+      }
+      const session = await updateClassroomSessionMarkdown(decodeURIComponent(classroomSessionMatch[1]), markdown);
+      sendJson(response, 200, { session });
+      return;
+    }
+
+    const classroomNotesMatch = url.pathname.match(/^\/api\/programacio-aula\/([^/]+)\/notes$/);
+    if (request.method === 'GET' && classroomNotesMatch) {
+      const sessionId = decodeURIComponent(classroomNotesMatch[1]);
+      sendJson(response, 200, { notes: getClassroomSessionNotes(sessionId) });
+      return;
+    }
+
+    if (request.method === 'POST' && classroomNotesMatch) {
+      const sessionId = decodeURIComponent(classroomNotesMatch[1]);
+      const body = await readRequestJson(request);
+      const sessionDate = String(body.session_date || '').trim();
+      const comment = String(body.comment || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)) {
+        sendJson(response, 400, { error: 'La data ha de tindre format YYYY-MM-DD.' });
+        return;
+      }
+      if (!comment) {
+        sendJson(response, 400, { error: 'El comentari no pot estar buit.' });
+        return;
+      }
+      insertClassroomSessionNote(sessionId, sessionDate, comment);
+      sendJson(response, 200, { notes: getClassroomSessionNotes(sessionId) });
       return;
     }
 

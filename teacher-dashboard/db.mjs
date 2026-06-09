@@ -73,12 +73,24 @@ export function initDb() {
     )
   `);
 
+  // Registre docent de com ha anat cada sessió de programació d'aula.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS classroom_session_notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      session_date TEXT NOT NULL,
+      comment TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Índexs per rendiment
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_grades_student ON grades(student_id);
     CREATE INDEX IF NOT EXISTS idx_grades_challenge ON grades(challenge_id);
     CREATE INDEX IF NOT EXISTS idx_grades_timestamp ON grades(timestamp);
     CREATE INDEX IF NOT EXISTS idx_students_group ON students(group_name);
+    CREATE INDEX IF NOT EXISTS idx_classroom_session_notes_session ON classroom_session_notes(session_id);
   `);
 
   return db;
@@ -208,6 +220,26 @@ export function getChallenges() {
   const db = getDb();
   const stmt = db.prepare('SELECT * FROM challenges ORDER BY challenge_id');
   return stmt.all();
+}
+
+export function getClassroomSessionNotes(sessionId) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    SELECT *
+    FROM classroom_session_notes
+    WHERE session_id = ?
+    ORDER BY session_date DESC, created_at DESC
+  `);
+  return stmt.all(sessionId);
+}
+
+export function insertClassroomSessionNote(sessionId, sessionDate, comment) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT INTO classroom_session_notes (session_id, session_date, comment)
+    VALUES (?, ?, ?)
+  `);
+  return stmt.run(sessionId, sessionDate, comment);
 }
 
 // Operacions de notes

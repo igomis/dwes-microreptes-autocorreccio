@@ -37,7 +37,7 @@ El dashboard està separat en aquestes vistes:
 - `Resultats`: últimes notes i visor del resultat complet.
 - `Alumnes`: manteniment de nom, repositori i grup.
 - `Microreptes`: taula de microreptes, visor de `challenge.json`, `rubric.json`, `prompt.md` i validació de pesos.
-- `Programació`: consulta de la programació d'aula per sessions llegida des de `dwes-restructuracio-modul/docs/01_programacio_modul`.
+- `Programació`: consulta i edició de la programació d'aula per sessions llegida des de `dwes-restructuracio-modul/docs/01_programacio_modul`.
 
 - Triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`.
 - Veure els repositoris del fitxer associat.
@@ -51,7 +51,7 @@ El dashboard està separat en aquestes vistes:
 - Consultar microreptes per repte, sessió, codi, pes dins del repte, dimensions de rúbrica i criteris que comprova cada dimensió.
 - Editar microreptes de forma guiada: títol, resum, objectiu, pes dins del repte, evidències, senyals esperats, regles dures i dimensions de rúbrica.
 - Validar abans de guardar que els pesos de la rúbrica sumen `1`; si la validació general falla, es restauren els JSON originals.
-- Consultar la programació d'aula real d'un repte agrupada per sessions, amb vista docent renderitzada i Markdown reutilitzable.
+- Consultar la programació d'aula real d'un repte agrupada per sessions, amb vista docent renderitzada, edició directa del Markdown font i comentaris docents amb data sobre com ha anat cada sessió.
 - Obrir ràpidament la pàgina d'Actions del workflow.
 
 El dashboard no substitueix el workflow. Només és una capa més còmoda damunt de GitHub Actions.
