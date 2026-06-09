@@ -891,6 +891,7 @@ function pageHtml() {
         <button class="nav-button" type="button" data-nav-view="results">Resultats</button>
         <button class="nav-button" type="button" data-nav-view="students">Alumnes</button>
         <button class="nav-button" type="button" data-nav-view="microreptes">Microreptes</button>
+        <button class="nav-button" type="button" data-nav-view="programacio">Programació</button>
       </nav>
     </div>
   </header>
@@ -1066,6 +1067,23 @@ function pageHtml() {
       </div>
     </section>
 
+    <section class="view-panel hidden" data-view="programacio">
+      <div class="toolbar">
+        <h2>Programació d'aula</h2>
+        <button id="refreshProgramacio" type="button">Actualitzar</button>
+      </div>
+      <div class="filters">
+        <label>Repte
+          <select id="programacioFilterRepte"></select>
+        </label>
+        <button id="applyProgramacioFilter" type="button">Generar programació</button>
+      </div>
+      <div id="programacioInfo" class="status"></div>
+      <div id="programacioViewer" class="viewer">
+        <div class="viewer-empty">Selecciona un repte per generar la programació d'aula a partir dels JSON.</div>
+      </div>
+    </section>
+
     <section class="view-panel" data-view="correction">
       <h2>Configuració</h2>
       <p class="status" id="githubStatus"></p>
@@ -1090,6 +1108,7 @@ function pageHtml() {
       if (view === 'results') loadGrades();
       if (view === 'students') loadStudents();
       if (view === 'microreptes') loadMicroreptes();
+      if (view === 'programacio') loadProgramacio();
     }
 
     function challengeFor(repo, group) {
@@ -1195,6 +1214,156 @@ function pageHtml() {
         '<thead><tr><th>ID</th><th>Criteri</th><th>Pes</th><th>Què comprova</th></tr></thead>' +
         '<tbody>' + rows.join('') + '</tbody>' +
       '</table>';
+    }
+
+    function compareMicrorepteOrder(a, b) {
+      return [
+        a.session_code || '',
+        a.microrepte_code || '',
+        a.id || ''
+      ].join(' ').localeCompare([
+        b.session_code || '',
+        b.microrepte_code || '',
+        b.id || ''
+      ].join(' '), 'ca', { numeric: true, sensitivity: 'base' });
+    }
+
+    function refreshProgramacioRepteFilter() {
+      const select = document.querySelector('#programacioFilterRepte');
+      const current = select.value;
+      const reptes = [...new Set(microreptes.map((microrepte) => microrepte.repte_id).filter(Boolean))].sort();
+      select.innerHTML = reptes.map((repte) => (
+        '<option value="' + escapeHtml(repte) + '">' + escapeHtml(repte) + '</option>'
+      )).join('');
+      select.value = reptes.includes(current) ? current : (reptes[0] || '');
+    }
+
+    function markdownBulletList(items, fallback) {
+      if (!Array.isArray(items) || items.length === 0) {
+        return '- ' + fallback;
+      }
+
+      return items.map((item) => '- ' + String(item)).join('\\n');
+    }
+
+    function renderProgramacioMarkdown(repte, items) {
+      const totalWeight = items.reduce((sum, microrepte) => sum + (Number(microrepte.repte_weight) || 0), 0);
+      const lines = [
+        '# Programació d’aula ' + repte,
+        '',
+        '- Microreptes: ' + items.length,
+        '- Pes total documentat: ' + formatPercent(totalWeight),
+        '',
+        '## Seqüència de sessions'
+      ];
+
+      for (const microrepte of items) {
+        const challenge = microrepte.challenge || {};
+        const rubric = microrepte.rubric || {};
+        const dimensions = Array.isArray(rubric.dimensions) ? rubric.dimensions : [];
+        lines.push(
+          '',
+          '### ' + (challenge.session_code || microrepte.session_code || '') + ' · ' + (challenge.microrepte_code || microrepte.microrepte_code || '') + ' · ' + (challenge.title || microrepte.title || ''),
+          '',
+          '- Pes dins del repte: ' + formatPercent(microrepte.repte_weight),
+          '- Finalitat: ' + (challenge.summary || 'No documentada.'),
+          '- Objectiu pedagògic: ' + (challenge.pedagogical_goal || 'No documentat.'),
+          '- Verificació recomanada: ' + (challenge.recommended_test_strategy || 'No documentada.'),
+          '',
+          '**Evidències mínimes**',
+          markdownBulletList(challenge.required_evidence, 'Sense evidències requerides documentades.'),
+          '',
+          '**Senyals esperats**',
+          markdownBulletList(challenge.expected_signals, 'Sense senyals esperats documentats.'),
+          '',
+          '**Criteris de rúbrica**',
+          markdownBulletList(dimensions.map((dimension) => (
+            (dimension.label || dimension.id || 'Dimensió') + ' (' + formatPercent(dimension.weight) + '): ' + (dimension.must_check || 'Sense comprovació documentada.')
+          )), 'Sense dimensions de rúbrica documentades.'),
+          '',
+          '**Regles dures**',
+          markdownBulletList(rubric.hard_rules, 'Sense regles dures documentades.')
+        );
+      }
+
+      return lines.join('\\n');
+    }
+
+    function renderProgramacio() {
+      const repte = document.querySelector('#programacioFilterRepte').value;
+      const viewer = document.querySelector('#programacioViewer');
+      const items = microreptes
+        .filter((microrepte) => microrepte.repte_id === repte)
+        .sort(compareMicrorepteOrder);
+
+      if (!repte || items.length === 0) {
+        viewer.innerHTML = '<div class="viewer-empty">No hi ha microreptes amb JSON per a aquest repte.</div>';
+        document.querySelector('#programacioInfo').textContent = '';
+        return;
+      }
+
+      const totalWeight = items.reduce((sum, microrepte) => sum + (Number(microrepte.repte_weight) || 0), 0);
+      const dimensionCount = items.reduce((sum, microrepte) => sum + (Number(microrepte.dimension_count) || 0), 0);
+      const rows = items.map((microrepte) => {
+        const challenge = microrepte.challenge || {};
+        const rubric = microrepte.rubric || {};
+        const dimensions = Array.isArray(rubric.dimensions) ? rubric.dimensions : [];
+        const criteria = dimensions.map((dimension) => (
+          (dimension.label || dimension.id || '') + ' (' + formatPercent(dimension.weight) + ')'
+        ));
+
+        return '<tr>' +
+          '<td><code>' + escapeHtml(challenge.session_code || microrepte.session_code || '') + '</code></td>' +
+          '<td><code>' + escapeHtml(challenge.microrepte_code || microrepte.microrepte_code || '') + '</code></td>' +
+          '<td>' + escapeHtml(challenge.title || microrepte.title || '') + '<p class="status">' + escapeHtml(challenge.summary || '') + '</p></td>' +
+          '<td>' + formatPercent(microrepte.repte_weight) + '</td>' +
+          '<td>' + renderMicrorepteList(challenge.required_evidence, 'Sense evidències.') + '</td>' +
+          '<td>' + renderMicrorepteList(criteria, 'Sense criteris.') + '</td>' +
+        '</tr>';
+      });
+      const detailBlocks = items.map((microrepte) => {
+        const challenge = microrepte.challenge || {};
+        const rubric = microrepte.rubric || {};
+        return '<div class="feedback-box">' +
+          '<h3>' + escapeHtml((challenge.session_code || microrepte.session_code || '') + ' · ' + (challenge.microrepte_code || microrepte.microrepte_code || '') + ' · ' + (challenge.title || microrepte.title || '')) + '</h3>' +
+          '<p><strong>Objectiu pedagògic:</strong> ' + escapeHtml(challenge.pedagogical_goal || 'No documentat.') + '</p>' +
+          '<p><strong>Verificació recomanada:</strong> ' + escapeHtml(challenge.recommended_test_strategy || 'No documentada.') + '</p>' +
+          '<div class="feedback-grid">' +
+            '<div><h4>Senyals esperats</h4>' + renderMicrorepteList(challenge.expected_signals, 'Sense senyals esperats.') + '</div>' +
+            '<div><h4>Regles dures</h4>' + renderMicrorepteList(rubric.hard_rules, 'Sense regles dures.') + '</div>' +
+          '</div>' +
+          '<div><h4>Dimensions de rúbrica</h4>' + renderRubricDimensions(rubric.dimensions) + '</div>' +
+          '<div><h4>Alineació d’origen</h4>' + renderMicrorepteList(challenge.source_alignment, 'Sense alineació documentada.') + '</div>' +
+        '</div>';
+      });
+      const markdown = renderProgramacioMarkdown(repte, items);
+
+      document.querySelector('#programacioInfo').textContent = 'Programació generada des de challenge.json i rubric.json: ' + items.length + ' microreptes';
+      viewer.innerHTML =
+        '<div class="result-header">' +
+          '<div class="metric"><span>Repte</span><strong><code>' + escapeHtml(repte) + '</code></strong></div>' +
+          '<div class="metric"><span>Microreptes</span><strong>' + escapeHtml(items.length) + '</strong></div>' +
+          '<div class="metric"><span>Pes documentat</span><strong>' + formatPercent(totalWeight) + '</strong></div>' +
+          '<div class="metric"><span>Dimensions</span><strong>' + escapeHtml(dimensionCount) + '</strong></div>' +
+        '</div>' +
+        '<div class="feedback-box"><h3>Seqüència d’aula</h3>' +
+          '<table><thead><tr><th>Sessió</th><th>MP</th><th>Finalitat</th><th>Pes</th><th>Evidències</th><th>Criteris</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+        '</div>' +
+        '<div class="feedback-grid">' + detailBlocks.join('') + '</div>' +
+        '<div><h3>Markdown generat</h3><div class="markdown-preview">' + escapeHtml(markdown) + '</div></div>';
+    }
+
+    async function loadProgramacio() {
+      try {
+        const response = await fetch('/api/microreptes');
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar els microreptes.');
+        microreptes = payload.microreptes || [];
+        refreshProgramacioRepteFilter();
+        renderProgramacio();
+      } catch (error) {
+        document.querySelector('#programacioInfo').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      }
     }
 
     function clearMicrorepteViewer() {
@@ -1752,6 +1921,9 @@ function pageHtml() {
     document.querySelector('#refreshMicroreptes').addEventListener('click', loadMicroreptes);
     document.querySelector('#applyMicrorepteFilters').addEventListener('click', renderMicrorepteRows);
     document.querySelector('#clearMicrorepteViewer').addEventListener('click', clearMicrorepteViewer);
+    document.querySelector('#refreshProgramacio').addEventListener('click', loadProgramacio);
+    document.querySelector('#applyProgramacioFilter').addEventListener('click', renderProgramacio);
+    document.querySelector('#programacioFilterRepte').addEventListener('change', renderProgramacio);
     document.querySelector('#filterGroup').addEventListener('change', () => {
       document.querySelector('#filterChallenge').value = '';
     });

@@ -31,12 +31,13 @@ http://localhost:4173
 
 ## Què permet fer
 
-El dashboard està separat en tres vistes:
+El dashboard està separat en aquestes vistes:
 
 - `Correcció`: llançament de workflows i repositoris seleccionats.
 - `Resultats`: últimes notes i visor del resultat complet.
 - `Alumnes`: manteniment de nom, repositori i grup.
 - `Microreptes`: taula de microreptes, visor de `challenge.json`, `rubric.json`, `prompt.md` i validació de pesos.
+- `Programació`: generació d'una programació d'aula per repte a partir dels camps de `challenge.json` i `rubric.json`.
 
 - Triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`.
 - Veure els repositoris del fitxer associat.
@@ -50,6 +51,7 @@ El dashboard està separat en tres vistes:
 - Consultar microreptes per repte, sessió, codi, pes dins del repte, dimensions de rúbrica i criteris que comprova cada dimensió.
 - Editar microreptes de forma guiada: títol, resum, objectiu, pes dins del repte, evidències, senyals esperats, regles dures i dimensions de rúbrica.
 - Validar abans de guardar que els pesos de la rúbrica sumen `1`; si la validació general falla, es restauren els JSON originals.
+- Generar la programació d'aula d'un repte amb seqüència de sessions, finalitat, objectiu pedagògic, evidències, criteris, regles dures, verificació recomanada i Markdown reutilitzable.
 - Obrir ràpidament la pàgina d'Actions del workflow.
 
 El dashboard no substitueix el workflow. Només és una capa més còmoda damunt de GitHub Actions.
