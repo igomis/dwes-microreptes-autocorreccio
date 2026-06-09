@@ -18,6 +18,7 @@
     "Si la classe només conté HTML, accés directe a superglobals o codi buit, la puntuacio maxima recomanada és 7.",
     "Si trenca el flux complet, la puntuacio maxima recomanada és 6.",
     "No exigisques MVC, ORM, framework, API externa ni POO extensa.",
-    "Si el canvi és massa avançat i l'alumne no el pot explicar, cal revisio docent."
+    "Si el canvi és massa avançat i l'alumne no el pot explicar, cal revisio docent.",
+    "La via 9→10 només es pot considerar si el nucli obligatori està complet, funcional i verificat; una ampliació no compensa mancances del mínim ni s'ha d'exigir com a requisit d'esta rúbrica."
   ]
 }

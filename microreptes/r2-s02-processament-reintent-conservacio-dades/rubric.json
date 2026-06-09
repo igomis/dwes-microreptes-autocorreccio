@@ -48,6 +48,7 @@
     "Sense reenviament corregit verificable, la puntuació màxima recomanada és 8.",
     "Sense guardat funcional del cas correcte, la puntuació màxima recomanada és 8.",
     "No penalitzes l'absència de persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples en esta sessió.",
-    "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent."
+    "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
+    "La via 9→10 només es pot considerar si el nucli obligatori està complet, funcional i verificat; una ampliació no compensa mancances del mínim ni s'ha d'exigir com a requisit d'esta rúbrica."
   ]
 }
