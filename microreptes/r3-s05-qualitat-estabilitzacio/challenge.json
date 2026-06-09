@@ -1,0 +1,33 @@
+{
+  "challenge_id": "r3-s05-qualitat-estabilitzacio",
+  "repte_id": "r3-framework-persistencia",
+  "session_code": "R3-S05",
+  "microrepte_code": "R3M5",
+  "microreptes_covered": ["R3M5"],
+  "title": "Qualitat i estabilitzacio",
+  "summary": "Estabilitzar els dos fluxos de R3 amb proves, errors, validacio, revisio de responsabilitats i comprovacio de migrations/seeders.",
+  "pedagogical_goal": "Comprovar que la base en framework és reproduïble, verificable i mantenible, no només una demo puntual.",
+  "relevant_paths": ["README.md", "docs/", "tests/", "evidence/", "routes/", "controllers/", "src/", "app/", "database/", "ai-log.md"],
+  "required_evidence": [
+    "Checklist o proves dels dos fluxos",
+    "Cas positiu i negatiu",
+    "Tractament visible d'errors",
+    "Validacio reforçada quan calga",
+    "Revisio de responsabilitats en rutes/controladors/serveis/models",
+    "Comprovacio de migrations i seeders",
+    "Incidencies detectades i corregides",
+    "Commits i registre de temps aproximat",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "Els dos fluxos continuen funcionant",
+    "Les proves no són només text inventat",
+    "Hi ha errors observables controlats",
+    "La BBDD es pot reconstruir",
+    "L'estructura és explicable"
+  ],
+  "recommended_test_strategy": "Executar els dos fluxos, provar cas positiu i negatiu, provocar un error, executar o revisar proves/checklist, comprovar migrations/seeders i revisar una millora o justificacio de responsabilitats.",
+  "source_alignment": ["Repte 3 R3M5", "Programacio d'aula R3S5", "Documentacio d'alumnat del Repte 3", "Pes orientatiu dins del repte: 15%"],
+  "repte_weight": 0.15
+}

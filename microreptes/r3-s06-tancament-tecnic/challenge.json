@@ -1,0 +1,34 @@
+{
+  "challenge_id": "r3-s06-tancament-tecnic",
+  "repte_id": "r3-framework-persistencia",
+  "session_code": "R3-S06",
+  "microrepte_code": "R3M6",
+  "microreptes_covered": ["R3M6"],
+  "title": "Tancament tecnic",
+  "summary": "Tancar R3 amb README reproduïble, documentacio de BBDD, dos fluxos, decisions, demo i backlog cap a R4.",
+  "pedagogical_goal": "Comprovar que el projecte en framework és comprensible, reproduïble i defensable abans d'obrir API en R4.",
+  "relevant_paths": ["README.md", "docs/", "evidence/", "tests/", "database/", "routes/", "src/", "app/", "ai-log.md"],
+  "required_evidence": [
+    "README tecnic actualitzat",
+    "Instruccions d'arrencada",
+    "Instruccions de BBDD, migrations i seeders",
+    "Resum dels dos casos d'us implementats",
+    "Decisions tecniques breus",
+    "Demo final o guio de demo",
+    "Backlog del que queda per migrar",
+    "Identificacio de possible recurs o endpoint per a R4",
+    "Commits i registre de temps aproximat",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "Una altra persona pot arrancar el projecte",
+    "El README coincideix amb el codi real",
+    "Els dos fluxos són demostrables",
+    "Queda clar què s'ha migrat i què queda fora",
+    "El pas a R4 està justificat"
+  ],
+  "recommended_test_strategy": "Seguir el README per arrancar, crear BBDD, carregar dades, executar dos fluxos, revisar decisions i backlog, i comprovar quin recurs podria passar a API en R4.",
+  "source_alignment": ["Repte 3 R3M6", "Programacio d'aula R3S6", "Documentacio d'alumnat del Repte 3", "Pes orientatiu dins del repte: 15%"],
+  "repte_weight": 0.15
+}
