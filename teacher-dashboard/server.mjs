@@ -215,7 +215,7 @@ function extractSessionCode(value) {
 }
 
 function extractRepteId(value) {
-  const match = String(value || '').match(/\b(R\d+)\b/i);
+  const match = String(value || '').match(/\b(R\d+)(?:S(?:\d+|X))?\b/i);
   return match ? match[1].toUpperCase() : '';
 }
 
