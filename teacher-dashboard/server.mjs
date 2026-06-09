@@ -25,6 +25,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
+const classroomProgrammingDir = path.resolve(rootDir, '../dwes-restructuracio-modul/docs/01_programacio_modul');
 const execFileAsync = promisify(execFile);
 const workflowFile = 'batch-autograde-students.yml';
 const defaultPort = 4173;
@@ -201,6 +202,68 @@ async function readMicroreptes() {
 async function readMicrorepteDetail(challengeId) {
   const microreptes = await readMicroreptes();
   return microreptes.find((microrepte) => microrepte.id === challengeId || microrepte.dir === challengeId) || null;
+}
+
+function extractFirstMarkdownHeading(markdown) {
+  const match = String(markdown || '').match(/^#\s+(.+)$/m);
+  return match ? match[1].trim() : '';
+}
+
+function extractSessionCode(value) {
+  const match = String(value || '').match(/\b(R\d+S(?:\d+|X))\b/i);
+  return match ? match[1].toUpperCase() : '';
+}
+
+function extractRepteId(value) {
+  const match = String(value || '').match(/\b(R\d+)\b/i);
+  return match ? match[1].toUpperCase() : '';
+}
+
+function extractInlineField(markdown, label) {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`^- \\*\\*${escapedLabel}\\*\\*:\\s*(.+)$`, 'mi');
+  const match = String(markdown || '').match(regex);
+  return match ? match[1].replaceAll('`', '').trim() : '';
+}
+
+async function readClassroomProgramming() {
+  if (!existsSync(classroomProgrammingDir)) {
+    return [];
+  }
+
+  const entries = await readdir(classroomProgrammingDir, { withFileTypes: true });
+  const files = entries
+    .filter((entry) => entry.isFile() && /^programacio_aula_r\d+s(?:\d+|x)_.*\.md$/i.test(entry.name))
+    .map((entry) => entry.name);
+
+  const sessions = [];
+  for (const fileName of files) {
+    const absolutePath = path.join(classroomProgrammingDir, fileName);
+    const markdown = await readFile(absolutePath, 'utf8');
+    const title = extractFirstMarkdownHeading(markdown) || fileName.replace(/\.md$/, '');
+    const sessionCode = extractSessionCode(title) || extractSessionCode(fileName);
+    const repteId = extractRepteId(sessionCode) || extractRepteId(title);
+
+    sessions.push({
+      id: sessionCode || fileName.replace(/\.md$/, ''),
+      repte_id: repteId,
+      session_code: sessionCode,
+      title,
+      microrepte: extractInlineField(markdown, 'Microrepte'),
+      duration: extractInlineField(markdown, 'Duració orientativa'),
+      focus: extractInlineField(markdown, 'Focus'),
+      file: path.relative(rootDir, absolutePath),
+      markdown
+    });
+  }
+
+  sessions.sort((left, right) => {
+    const leftKey = [left.repte_id, left.session_code, left.title].join('\u0000');
+    const rightKey = [right.repte_id, right.session_code, right.title].join('\u0000');
+    return leftKey.localeCompare(rightKey, 'ca', { numeric: true, sensitivity: 'base' });
+  });
+
+  return sessions;
 }
 
 function normalizeTextList(value, fieldName) {
@@ -849,6 +912,26 @@ function pageHtml() {
       overflow: auto;
       max-height: 360px;
     }
+    .markdown-rendered {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.55;
+      max-height: 720px;
+      overflow: auto;
+    }
+    .markdown-rendered h2,
+    .markdown-rendered h3,
+    .markdown-rendered h4,
+    .markdown-rendered h5 {
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    .markdown-rendered p {
+      margin: 8px 0;
+    }
     .json-preview {
       white-space: pre-wrap;
       border: 1px solid var(--border);
@@ -1094,6 +1177,7 @@ function pageHtml() {
     let allChallenges = [];
     let students = [];
     let microreptes = [];
+    let classroomProgramming = [];
     let currentMicrorepte = null;
     let editingStudentId = null;
 
@@ -1216,6 +1300,67 @@ function pageHtml() {
       '</table>';
     }
 
+    function renderMarkdown(markdown) {
+      const lines = String(markdown || '').split('\\n');
+      const html = [];
+      let listOpen = false;
+      let tableLines = [];
+
+      const closeList = () => {
+        if (listOpen) {
+          html.push('</ul>');
+          listOpen = false;
+        }
+      };
+      const flushTable = () => {
+        if (tableLines.length === 0) return;
+        const rows = tableLines.filter((line) => !/^\\|\\s*-/.test(line));
+        const renderedRows = rows.map((line, index) => {
+          const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
+          const tag = index === 0 ? 'th' : 'td';
+          return '<tr>' + cells.map((cell) => '<' + tag + '>' + escapeHtml(cell) + '</' + tag + '>').join('') + '</tr>';
+        });
+        html.push('<table>' + renderedRows.join('') + '</table>');
+        tableLines = [];
+      };
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+          closeList();
+          tableLines.push(trimmed);
+          continue;
+        }
+        flushTable();
+
+        if (!trimmed) {
+          closeList();
+          continue;
+        }
+        const heading = trimmed.match(/^(#{1,4})\\s+(.+)$/);
+        if (heading) {
+          closeList();
+          const level = Math.min(heading[1].length + 1, 5);
+          html.push('<h' + level + '>' + escapeHtml(heading[2]) + '</h' + level + '>');
+          continue;
+        }
+        const bullet = trimmed.match(/^-\\s+(.+)$/);
+        if (bullet) {
+          if (!listOpen) {
+            html.push('<ul>');
+            listOpen = true;
+          }
+          html.push('<li>' + escapeHtml(bullet[1]) + '</li>');
+          continue;
+        }
+        closeList();
+        html.push('<p>' + escapeHtml(trimmed) + '</p>');
+      }
+      closeList();
+      flushTable();
+      return html.join('');
+    }
+
     function compareMicrorepteOrder(a, b) {
       return [
         a.session_code || '',
@@ -1231,7 +1376,7 @@ function pageHtml() {
     function refreshProgramacioRepteFilter() {
       const select = document.querySelector('#programacioFilterRepte');
       const current = select.value;
-      const reptes = [...new Set(microreptes.map((microrepte) => microrepte.repte_id).filter(Boolean))].sort();
+      const reptes = [...new Set(classroomProgramming.map((session) => session.repte_id).filter(Boolean))].sort();
       select.innerHTML = reptes.map((repte) => (
         '<option value="' + escapeHtml(repte) + '">' + escapeHtml(repte) + '</option>'
       )).join('');
@@ -1381,77 +1526,64 @@ function pageHtml() {
     function renderProgramacio() {
       const repte = document.querySelector('#programacioFilterRepte').value;
       const viewer = document.querySelector('#programacioViewer');
-      const items = microreptes
-        .filter((microrepte) => microrepte.repte_id === repte)
-        .sort(compareMicrorepteOrder);
-      const sessions = groupProgramacioSessions(items);
+      const sessions = classroomProgramming
+        .filter((session) => session.repte_id === repte)
+        .sort((left, right) => (left.session_code || left.title).localeCompare(right.session_code || right.title, 'ca', { numeric: true, sensitivity: 'base' }));
 
-      if (!repte || items.length === 0) {
-        viewer.innerHTML = '<div class="viewer-empty">No hi ha sessions amb JSON per a aquest repte.</div>';
+      if (!repte || sessions.length === 0) {
+        viewer.innerHTML = '<div class="viewer-empty">No hi ha programacions d’aula Markdown per a aquest repte.</div>';
         document.querySelector('#programacioInfo').textContent = '';
         return;
       }
 
-      const totalWeight = sessions.reduce((sum, session) => sum + (Number(session.weight) || 0), 0);
-      const dimensionCount = sessions.reduce((sum, session) => sum + session.dimensions.length, 0);
       const rows = sessions.map((session) => {
-        const criteria = session.dimensions.map((dimension) => (
-          (dimension.label || dimension.id || '') + ' (' + formatPercent(dimension.weight) + ')'
-        ));
-
         return '<tr>' +
-          '<td><code>' + escapeHtml(session.code) + '</code></td>' +
-          '<td>' + escapeHtml(session.title) + '<p class="status">' + escapeHtml(session.summary) + '</p></td>' +
-          '<td>' + formatPercent(session.weight) + '</td>' +
-          '<td>' + renderMicrorepteList(session.goals, 'Sense objectius.') + '</td>' +
-          '<td>' + renderMicrorepteList(session.evidences, 'Sense evidències.') + '</td>' +
-          '<td>' + renderMicrorepteList(criteria, 'Sense criteris.') + '</td>' +
+          '<td><code>' + escapeHtml(session.session_code) + '</code></td>' +
+          '<td>' + escapeHtml(session.title) + '<p class="status">' + escapeHtml(session.focus || '') + '</p></td>' +
+          '<td>' + escapeHtml(session.microrepte || 'Sessió sense microrepte específic') + '</td>' +
+          '<td>' + escapeHtml(session.duration || 'n/d') + '</td>' +
+          '<td><button class="secondary" type="button" data-programacio-session="' + escapeHtml(session.id) + '">Veure</button></td>' +
         '</tr>';
       });
-      const detailBlocks = sessions.map((session) => {
-        return '<div class="feedback-box">' +
-          '<h3>' + escapeHtml(session.code + ' · ' + session.title) + '</h3>' +
-          '<p><strong>Finalitat de la sessió:</strong> ' + escapeHtml(session.summary || 'No documentada.') + '</p>' +
-          '<p><strong>Verificació recomanada:</strong> ' + escapeHtml(session.testStrategies.join(' / ') || 'No documentada.') + '</p>' +
-          '<div><h4>Seqüència d’aula</h4>' + renderSessionActivityTable(session) + '</div>' +
-          '<div class="feedback-grid">' +
-            '<div><h4>Objectius de sessió</h4>' + renderMicrorepteList(session.goals, 'Sense objectius.') + '</div>' +
-            '<div><h4>Treball associat</h4>' + renderMicrorepteList(session.associatedWork, 'Sense treball associat.') + '</div>' +
-          '</div>' +
-          '<div class="feedback-grid">' +
-            '<div><h4>Evidències mínimes</h4>' + renderMicrorepteList(session.evidences, 'Sense evidències.') + '</div>' +
-            '<div><h4>Senyals esperats</h4>' + renderMicrorepteList(session.signals, 'Sense senyals esperats.') + '</div>' +
-          '</div>' +
-          '<div><h4>Criteris i comprovació</h4>' + renderSessionCriteria(session.dimensions) + '</div>' +
-          '<div class="feedback-grid">' +
-            '<div><h4>Regles dures</h4>' + renderMicrorepteList(session.hardRules, 'Sense regles dures.') + '</div>' +
-            '<div><h4>Alineació d’origen</h4>' + renderMicrorepteList(session.sourceAlignment, 'Sense alineació documentada.') + '</div>' +
-          '</div>' +
-        '</div>';
-      });
-      const markdown = renderProgramacioMarkdown(repte, sessions);
 
-      document.querySelector('#programacioInfo').textContent = 'Programació per sessions generada des de challenge.json i rubric.json: ' + sessions.length + ' sessions';
+      document.querySelector('#programacioInfo').textContent = 'Programació d’aula llegida des de dwes-restructuracio-modul: ' + sessions.length + ' sessions';
       viewer.innerHTML =
         '<div class="result-header">' +
           '<div class="metric"><span>Repte</span><strong><code>' + escapeHtml(repte) + '</code></strong></div>' +
           '<div class="metric"><span>Sessions</span><strong>' + escapeHtml(sessions.length) + '</strong></div>' +
-          '<div class="metric"><span>Pes documentat</span><strong>' + formatPercent(totalWeight) + '</strong></div>' +
-          '<div class="metric"><span>Dimensions</span><strong>' + escapeHtml(dimensionCount) + '</strong></div>' +
+          '<div class="metric"><span>Font</span><strong>Programació d’aula</strong></div>' +
+          '<div class="metric"><span>Format</span><strong>Markdown</strong></div>' +
         '</div>' +
         '<div class="feedback-box"><h3>Mapa de sessions</h3>' +
-          '<table><thead><tr><th>Sessió</th><th>Finalitat</th><th>Pes</th><th>Objectius</th><th>Evidències</th><th>Criteris</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+          '<table><thead><tr><th>Sessió</th><th>Programació</th><th>Microrepte</th><th>Duració</th><th>Accions</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
         '</div>' +
-        detailBlocks.join('') +
-        '<div><h3>Markdown generat</h3><div class="markdown-preview">' + escapeHtml(markdown) + '</div></div>';
+        '<div id="programacioSessionViewer" class="feedback-box"><div class="viewer-empty">Selecciona una sessió amb el botó Veure.</div></div>';
+
+      document.querySelectorAll('[data-programacio-session]').forEach((button) => {
+        button.addEventListener('click', () => renderProgramacioSession(button.dataset.programacioSession));
+      });
+      renderProgramacioSession(sessions[0].id);
+    }
+
+    function renderProgramacioSession(sessionId) {
+      const session = classroomProgramming.find((item) => item.id === sessionId);
+      const target = document.querySelector('#programacioSessionViewer');
+      if (!session || !target) return;
+
+      target.innerHTML =
+        '<div class="toolbar"><h3>' + escapeHtml(session.title) + '</h3><span class="file-note">' + escapeHtml(session.file) + '</span></div>' +
+        '<div class="feedback-grid">' +
+          '<div><h4>Vista docent</h4><div class="markdown-rendered">' + renderMarkdown(session.markdown) + '</div></div>' +
+          '<div><h4>Markdown reutilitzable</h4><div class="markdown-preview">' + escapeHtml(session.markdown) + '</div></div>' +
+        '</div>';
     }
 
     async function loadProgramacio() {
       try {
-        const response = await fetch('/api/microreptes');
+        const response = await fetch('/api/programacio-aula');
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar els microreptes.');
-        microreptes = payload.microreptes || [];
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut carregar la programació d’aula.');
+        classroomProgramming = payload.sessions || [];
         refreshProgramacioRepteFilter();
         renderProgramacio();
       } catch (error) {
@@ -2057,6 +2189,15 @@ async function handleRequest(request, response) {
     if (request.method === 'GET' && url.pathname === '/api/microreptes') {
       const microreptes = await readMicroreptes();
       sendJson(response, 200, { microreptes });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/programacio-aula') {
+      const sessions = await readClassroomProgramming();
+      const repte = url.searchParams.get('repte');
+      sendJson(response, 200, {
+        sessions: repte ? sessions.filter((session) => session.repte_id === repte) : sessions
+      });
       return;
     }
 
