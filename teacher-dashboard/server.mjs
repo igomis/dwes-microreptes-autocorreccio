@@ -1246,43 +1246,132 @@ function pageHtml() {
       return items.map((item) => '- ' + String(item)).join('\\n');
     }
 
-    function renderProgramacioMarkdown(repte, items) {
-      const totalWeight = items.reduce((sum, microrepte) => sum + (Number(microrepte.repte_weight) || 0), 0);
-      const lines = [
-        '# Programació d’aula ' + repte,
-        '',
-        '- Microreptes: ' + items.length,
-        '- Pes total documentat: ' + formatPercent(totalWeight),
-        '',
-        '## Seqüència de sessions'
-      ];
+    function uniqueList(items) {
+      return [...new Set(items.filter(Boolean).map((item) => String(item).trim()).filter(Boolean))];
+    }
 
+    function groupProgramacioSessions(items) {
+      const groups = new Map();
       for (const microrepte of items) {
         const challenge = microrepte.challenge || {};
         const rubric = microrepte.rubric || {};
-        const dimensions = Array.isArray(rubric.dimensions) ? rubric.dimensions : [];
+        const sessionCode = challenge.session_code || microrepte.session_code || 'Sense sessió';
+        const current = groups.get(sessionCode) || {
+          code: sessionCode,
+          titles: [],
+          summaries: [],
+          goals: [],
+          associatedWork: [],
+          evidences: [],
+          signals: [],
+          hardRules: [],
+          testStrategies: [],
+          sourceAlignment: [],
+          dimensions: [],
+          weight: 0
+        };
+
+        current.titles.push(challenge.title || microrepte.title || '');
+        current.summaries.push(challenge.summary || '');
+        current.goals.push(challenge.pedagogical_goal || '');
+        current.associatedWork.push((challenge.microrepte_code || microrepte.microrepte_code || microrepte.id || '') + ': ' + (challenge.title || microrepte.title || ''));
+        current.evidences.push(...(Array.isArray(challenge.required_evidence) ? challenge.required_evidence : []));
+        current.signals.push(...(Array.isArray(challenge.expected_signals) ? challenge.expected_signals : []));
+        current.hardRules.push(...(Array.isArray(rubric.hard_rules) ? rubric.hard_rules : []));
+        current.testStrategies.push(challenge.recommended_test_strategy || '');
+        current.sourceAlignment.push(...(Array.isArray(challenge.source_alignment) ? challenge.source_alignment : []));
+        current.dimensions.push(...(Array.isArray(rubric.dimensions) ? rubric.dimensions : []));
+        current.weight += Number(microrepte.repte_weight) || 0;
+        groups.set(sessionCode, current);
+      }
+
+      return [...groups.values()].map((session) => ({
+        ...session,
+        title: uniqueList(session.titles).join(' / ') || session.code,
+        summary: uniqueList(session.summaries).join(' '),
+        goals: uniqueList(session.goals),
+        associatedWork: uniqueList(session.associatedWork),
+        evidences: uniqueList(session.evidences),
+        signals: uniqueList(session.signals),
+        hardRules: uniqueList(session.hardRules),
+        testStrategies: uniqueList(session.testStrategies),
+        sourceAlignment: uniqueList(session.sourceAlignment)
+      })).sort((a, b) => a.code.localeCompare(b.code, 'ca', { numeric: true, sensitivity: 'base' }));
+    }
+
+    function renderSessionActivityTable(session) {
+      const firstGoal = session.goals[0] || session.summary || 'objectiu de la sessió';
+      return '<table>' +
+        '<thead><tr><th>Moment</th><th>Treball d’aula</th><th>Paper docent</th><th>Evidència o control</th></tr></thead>' +
+        '<tbody>' +
+          '<tr><td>Arrencada</td><td>Situar el propòsit: ' + escapeHtml(firstGoal) + '</td><td>Explicitar criteris, límits i producte esperat.</td><td>Dubtes inicials i criteris compartits.</td></tr>' +
+          '<tr><td>Desenvolupament</td><td>Construcció del treball associat a la sessió.</td><td>Acompanyar decisions, revisar bloquejos i demanar justificació tècnica.</td><td>' + renderMicrorepteList(session.evidences.slice(0, 3), 'Evidència de progrés observable.') + '</td></tr>' +
+          '<tr><td>Tancament</td><td>Comprovació, revisió de qualitat i registre de decisions.</td><td>Contrastar evidències amb rúbrica i marcar següents passos.</td><td>' + renderMicrorepteList(session.signals.slice(0, 3), 'Senyals de sessió assolida.') + '</td></tr>' +
+        '</tbody>' +
+      '</table>';
+    }
+
+    function renderSessionCriteria(dimensions) {
+      if (!Array.isArray(dimensions) || dimensions.length === 0) {
+        return '<p class="status">Sense criteris de rúbrica documentats.</p>';
+      }
+
+      const rows = dimensions.map((dimension) => (
+        '<tr>' +
+          '<td>' + escapeHtml(dimension.label || dimension.id || '') + '</td>' +
+          '<td>' + formatPercent(dimension.weight) + '</td>' +
+          '<td>' + escapeHtml(dimension.must_check || '') + '</td>' +
+        '</tr>'
+      ));
+      return '<table><thead><tr><th>Criteri</th><th>Pes</th><th>Comprovació</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
+    }
+
+    function renderProgramacioMarkdown(repte, sessions) {
+      const totalWeight = sessions.reduce((sum, session) => sum + (Number(session.weight) || 0), 0);
+      const lines = [
+        '# Programació d’aula ' + repte,
+        '',
+        '- Sessions: ' + sessions.length,
+        '- Pes total documentat: ' + formatPercent(totalWeight),
+        '',
+        '## Sessions'
+      ];
+
+      for (const session of sessions) {
         lines.push(
           '',
-          '### ' + (challenge.session_code || microrepte.session_code || '') + ' · ' + (challenge.microrepte_code || microrepte.microrepte_code || '') + ' · ' + (challenge.title || microrepte.title || ''),
+          '### ' + session.code + ' · ' + session.title,
           '',
-          '- Pes dins del repte: ' + formatPercent(microrepte.repte_weight),
-          '- Finalitat: ' + (challenge.summary || 'No documentada.'),
-          '- Objectiu pedagògic: ' + (challenge.pedagogical_goal || 'No documentat.'),
-          '- Verificació recomanada: ' + (challenge.recommended_test_strategy || 'No documentada.'),
+          '- Pes dins del repte: ' + formatPercent(session.weight),
+          '- Finalitat de la sessió: ' + (session.summary || 'No documentada.'),
+          '- Verificació recomanada: ' + (session.testStrategies.join(' / ') || 'No documentada.'),
+          '',
+          '**Objectius de sessió**',
+          markdownBulletList(session.goals, 'Sense objectius documentats.'),
+          '',
+          '**Seqüència d’aula**',
+          '| Moment | Treball d’aula | Evidència |',
+          '| --- | --- | --- |',
+          '| Arrencada | Presentació del propòsit, criteris i producte esperat. | Criteris compartits i dubtes inicials. |',
+          '| Desenvolupament | Construcció del treball associat amb seguiment docent. | Evidències parcials del treball. |',
+          '| Tancament | Comprovació, registre de decisions i següents passos. | Senyals d’assoliment i incidències. |',
           '',
           '**Evidències mínimes**',
-          markdownBulletList(challenge.required_evidence, 'Sense evidències requerides documentades.'),
+          markdownBulletList(session.evidences, 'Sense evidències requerides documentades.'),
           '',
           '**Senyals esperats**',
-          markdownBulletList(challenge.expected_signals, 'Sense senyals esperats documentats.'),
+          markdownBulletList(session.signals, 'Sense senyals esperats documentats.'),
           '',
           '**Criteris de rúbrica**',
-          markdownBulletList(dimensions.map((dimension) => (
+          markdownBulletList(session.dimensions.map((dimension) => (
             (dimension.label || dimension.id || 'Dimensió') + ' (' + formatPercent(dimension.weight) + '): ' + (dimension.must_check || 'Sense comprovació documentada.')
           )), 'Sense dimensions de rúbrica documentades.'),
           '',
           '**Regles dures**',
-          markdownBulletList(rubric.hard_rules, 'Sense regles dures documentades.')
+          markdownBulletList(session.hardRules, 'Sense regles dures documentades.'),
+          '',
+          '**Treball associat que alimenta la sessió**',
+          markdownBulletList(session.associatedWork, 'Sense treball associat documentat.')
         );
       }
 
@@ -1295,61 +1384,65 @@ function pageHtml() {
       const items = microreptes
         .filter((microrepte) => microrepte.repte_id === repte)
         .sort(compareMicrorepteOrder);
+      const sessions = groupProgramacioSessions(items);
 
       if (!repte || items.length === 0) {
-        viewer.innerHTML = '<div class="viewer-empty">No hi ha microreptes amb JSON per a aquest repte.</div>';
+        viewer.innerHTML = '<div class="viewer-empty">No hi ha sessions amb JSON per a aquest repte.</div>';
         document.querySelector('#programacioInfo').textContent = '';
         return;
       }
 
-      const totalWeight = items.reduce((sum, microrepte) => sum + (Number(microrepte.repte_weight) || 0), 0);
-      const dimensionCount = items.reduce((sum, microrepte) => sum + (Number(microrepte.dimension_count) || 0), 0);
-      const rows = items.map((microrepte) => {
-        const challenge = microrepte.challenge || {};
-        const rubric = microrepte.rubric || {};
-        const dimensions = Array.isArray(rubric.dimensions) ? rubric.dimensions : [];
-        const criteria = dimensions.map((dimension) => (
+      const totalWeight = sessions.reduce((sum, session) => sum + (Number(session.weight) || 0), 0);
+      const dimensionCount = sessions.reduce((sum, session) => sum + session.dimensions.length, 0);
+      const rows = sessions.map((session) => {
+        const criteria = session.dimensions.map((dimension) => (
           (dimension.label || dimension.id || '') + ' (' + formatPercent(dimension.weight) + ')'
         ));
 
         return '<tr>' +
-          '<td><code>' + escapeHtml(challenge.session_code || microrepte.session_code || '') + '</code></td>' +
-          '<td><code>' + escapeHtml(challenge.microrepte_code || microrepte.microrepte_code || '') + '</code></td>' +
-          '<td>' + escapeHtml(challenge.title || microrepte.title || '') + '<p class="status">' + escapeHtml(challenge.summary || '') + '</p></td>' +
-          '<td>' + formatPercent(microrepte.repte_weight) + '</td>' +
-          '<td>' + renderMicrorepteList(challenge.required_evidence, 'Sense evidències.') + '</td>' +
+          '<td><code>' + escapeHtml(session.code) + '</code></td>' +
+          '<td>' + escapeHtml(session.title) + '<p class="status">' + escapeHtml(session.summary) + '</p></td>' +
+          '<td>' + formatPercent(session.weight) + '</td>' +
+          '<td>' + renderMicrorepteList(session.goals, 'Sense objectius.') + '</td>' +
+          '<td>' + renderMicrorepteList(session.evidences, 'Sense evidències.') + '</td>' +
           '<td>' + renderMicrorepteList(criteria, 'Sense criteris.') + '</td>' +
         '</tr>';
       });
-      const detailBlocks = items.map((microrepte) => {
-        const challenge = microrepte.challenge || {};
-        const rubric = microrepte.rubric || {};
+      const detailBlocks = sessions.map((session) => {
         return '<div class="feedback-box">' +
-          '<h3>' + escapeHtml((challenge.session_code || microrepte.session_code || '') + ' · ' + (challenge.microrepte_code || microrepte.microrepte_code || '') + ' · ' + (challenge.title || microrepte.title || '')) + '</h3>' +
-          '<p><strong>Objectiu pedagògic:</strong> ' + escapeHtml(challenge.pedagogical_goal || 'No documentat.') + '</p>' +
-          '<p><strong>Verificació recomanada:</strong> ' + escapeHtml(challenge.recommended_test_strategy || 'No documentada.') + '</p>' +
+          '<h3>' + escapeHtml(session.code + ' · ' + session.title) + '</h3>' +
+          '<p><strong>Finalitat de la sessió:</strong> ' + escapeHtml(session.summary || 'No documentada.') + '</p>' +
+          '<p><strong>Verificació recomanada:</strong> ' + escapeHtml(session.testStrategies.join(' / ') || 'No documentada.') + '</p>' +
+          '<div><h4>Seqüència d’aula</h4>' + renderSessionActivityTable(session) + '</div>' +
           '<div class="feedback-grid">' +
-            '<div><h4>Senyals esperats</h4>' + renderMicrorepteList(challenge.expected_signals, 'Sense senyals esperats.') + '</div>' +
-            '<div><h4>Regles dures</h4>' + renderMicrorepteList(rubric.hard_rules, 'Sense regles dures.') + '</div>' +
+            '<div><h4>Objectius de sessió</h4>' + renderMicrorepteList(session.goals, 'Sense objectius.') + '</div>' +
+            '<div><h4>Treball associat</h4>' + renderMicrorepteList(session.associatedWork, 'Sense treball associat.') + '</div>' +
           '</div>' +
-          '<div><h4>Dimensions de rúbrica</h4>' + renderRubricDimensions(rubric.dimensions) + '</div>' +
-          '<div><h4>Alineació d’origen</h4>' + renderMicrorepteList(challenge.source_alignment, 'Sense alineació documentada.') + '</div>' +
+          '<div class="feedback-grid">' +
+            '<div><h4>Evidències mínimes</h4>' + renderMicrorepteList(session.evidences, 'Sense evidències.') + '</div>' +
+            '<div><h4>Senyals esperats</h4>' + renderMicrorepteList(session.signals, 'Sense senyals esperats.') + '</div>' +
+          '</div>' +
+          '<div><h4>Criteris i comprovació</h4>' + renderSessionCriteria(session.dimensions) + '</div>' +
+          '<div class="feedback-grid">' +
+            '<div><h4>Regles dures</h4>' + renderMicrorepteList(session.hardRules, 'Sense regles dures.') + '</div>' +
+            '<div><h4>Alineació d’origen</h4>' + renderMicrorepteList(session.sourceAlignment, 'Sense alineació documentada.') + '</div>' +
+          '</div>' +
         '</div>';
       });
-      const markdown = renderProgramacioMarkdown(repte, items);
+      const markdown = renderProgramacioMarkdown(repte, sessions);
 
-      document.querySelector('#programacioInfo').textContent = 'Programació generada des de challenge.json i rubric.json: ' + items.length + ' microreptes';
+      document.querySelector('#programacioInfo').textContent = 'Programació per sessions generada des de challenge.json i rubric.json: ' + sessions.length + ' sessions';
       viewer.innerHTML =
         '<div class="result-header">' +
           '<div class="metric"><span>Repte</span><strong><code>' + escapeHtml(repte) + '</code></strong></div>' +
-          '<div class="metric"><span>Microreptes</span><strong>' + escapeHtml(items.length) + '</strong></div>' +
+          '<div class="metric"><span>Sessions</span><strong>' + escapeHtml(sessions.length) + '</strong></div>' +
           '<div class="metric"><span>Pes documentat</span><strong>' + formatPercent(totalWeight) + '</strong></div>' +
           '<div class="metric"><span>Dimensions</span><strong>' + escapeHtml(dimensionCount) + '</strong></div>' +
         '</div>' +
-        '<div class="feedback-box"><h3>Seqüència d’aula</h3>' +
-          '<table><thead><tr><th>Sessió</th><th>MP</th><th>Finalitat</th><th>Pes</th><th>Evidències</th><th>Criteris</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+        '<div class="feedback-box"><h3>Mapa de sessions</h3>' +
+          '<table><thead><tr><th>Sessió</th><th>Finalitat</th><th>Pes</th><th>Objectius</th><th>Evidències</th><th>Criteris</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
         '</div>' +
-        '<div class="feedback-grid">' + detailBlocks.join('') + '</div>' +
+        detailBlocks.join('') +
         '<div><h3>Markdown generat</h3><div class="markdown-preview">' + escapeHtml(markdown) + '</div></div>';
     }
 
