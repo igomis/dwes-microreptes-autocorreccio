@@ -37,5 +37,6 @@
     "L'alumne pot explicar autenticacio i autoritzacio"
   ],
   "recommended_test_strategy": "Registrar o localitzar un usuari amb contrasenya hashejada, comprovar que no hi ha contrasenya en clar, provar login incorrecte, iniciar sessio amb credencials vàlides, intentar executar l'operacio protegida sense sessio, executar-la correctament amb sessio, fer logout i repetir l'intent. Revisar el punt de codi on es verifica el hash i on es comprova la restriccio.",
-  "source_alignment": ["Repte 2 R2M5", "Programacio d'aula R2S5", "Documentacio d'alumnat del Repte 2"]
+  "source_alignment": ["Repte 2 R2M5", "Programacio d'aula R2S5", "Documentacio d'alumnat del Repte 2", "Pes orientatiu dins del repte: 20%"],
+  "repte_weight": 0.2
 }

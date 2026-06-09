@@ -35,5 +35,6 @@
     "Hi ha una regla o comprovacio candidata a convertir-se en classe testable en R2M7"
   ],
   "recommended_test_strategy": "Revisar la taula de proves, triar un cas documentat, executar-lo i contrastar resultat real, README i codi. Després executar o revisar la prova automàtica lleugera i comprovar que valida un comportament observable del flux. Revisar incidencies i correccions.",
-  "source_alignment": ["Repte 2 R2M6", "Programacio d'aula R2S6", "Documentacio d'alumnat del Repte 2"]
+  "source_alignment": ["Repte 2 R2M6", "Programacio d'aula R2S6", "Documentacio d'alumnat del Repte 2", "Pes orientatiu dins del repte: 10%"],
+  "repte_weight": 0.1
 }

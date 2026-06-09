@@ -3,7 +3,9 @@
   "repte_id": "r2-processament-estat-autenticacio",
   "session_code": "R2-S01",
   "microrepte_code": "R2M1",
-  "microreptes_covered": ["R2M1"],
+  "microreptes_covered": [
+    "R2M1"
+  ],
   "title": "Entrada de dades i validació bàsica",
   "summary": "Crear un formulari mínim amb text, llista o opció tancada i checkbox, recuperar les dades en PHP i aplicar una validació bàsica de servidor amb error visible i reenviament corregit.",
   "pedagogical_goal": "Comprovar que l'alumne entén el recorregut bàsic d'una petició de formulari abans d'introduir arrays, acumulació d'errors, fitxers, estat o autenticació.",
@@ -45,6 +47,8 @@
   "source_alignment": [
     "Repte 2 R2M1",
     "Programació d'aula R2S1",
-    "Validació inicial bàsica abans d'arrays i validació acumulada"
-  ]
+    "Validació inicial bàsica abans d'arrays i validació acumulada",
+    "Pes orientatiu dins del repte: 15%"
+  ],
+  "repte_weight": 0.15
 }

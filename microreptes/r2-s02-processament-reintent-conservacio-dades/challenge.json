@@ -50,6 +50,8 @@
     "Repte 2 R2M2",
     "Programació d'aula R2S2",
     "Documentació d'alumnat del Repte 2",
-    "Reintent amb dades conservades i guardat funcional simple abans de persistència formal, arrays d'errors, estat i autenticació"
-  ]
+    "Reintent amb dades conservades i guardat funcional simple abans de persistència formal, arrays d'errors, estat i autenticació",
+    "Pes orientatiu dins del repte: 15%"
+  ],
+  "repte_weight": 0.15
 }

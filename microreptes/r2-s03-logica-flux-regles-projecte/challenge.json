@@ -52,6 +52,8 @@
     "Repte 2 R2M3",
     "Programacio d'aula R2S3",
     "Documentacio d'alumnat del Repte 2",
-    "Decisions, arrays, funcions i llibreria pròpia mínima aplicades al flux abans d'estat, sessio i autenticacio"
-  ]
+    "Decisions, arrays, funcions i llibreria pròpia mínima aplicades al flux abans d'estat, sessio i autenticacio",
+    "Pes orientatiu dins del repte: 15%"
+  ],
+  "repte_weight": 0.15
 }

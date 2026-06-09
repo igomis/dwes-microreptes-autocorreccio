@@ -30,5 +30,6 @@
     "L'alumne pot explicar la diferència entre prova unitària i prova de flux"
   ],
   "recommended_test_strategy": "Executar la prova unitària, revisar composer.json i autoload, comprovar que la classe no depén d'entrada web directa i repetir un cas clau del flux de R2M6.",
-  "source_alignment": ["Repte 2 R2M7", "Programacio d'aula R2S7", "Documentacio d'alumnat del Repte 2"]
+  "source_alignment": ["Repte 2 R2M7", "Programacio d'aula R2S7", "Documentacio d'alumnat del Repte 2", "Pes orientatiu dins del repte: 10%"],
+  "repte_weight": 0.1
 }

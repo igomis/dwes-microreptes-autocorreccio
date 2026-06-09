@@ -37,5 +37,6 @@
     "L'alumne pot explicar client, servidor i cookie de sessio"
   ],
   "recommended_test_strategy": "Executar el flux, guardar la dada de sessio i la cookie, obrir una peticio posterior que recupere les dues, inspeccionar la cookie en client, revisar l'ús acotat de `$_SERVER`, revisar el fitxer de ruta base i un include que la use, invalidar i repetir la peticio per comprovar que les dades temporals ja no afecten el flux.",
-  "source_alignment": ["Repte 2 R2M4", "Programacio d'aula R2S4", "Documentacio d'alumnat del Repte 2"]
+  "source_alignment": ["Repte 2 R2M4", "Programacio d'aula R2S4", "Documentacio d'alumnat del Repte 2", "Pes orientatiu dins del repte: 15%"],
+  "repte_weight": 0.15
 }
