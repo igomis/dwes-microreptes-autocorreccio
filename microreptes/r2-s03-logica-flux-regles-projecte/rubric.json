@@ -51,6 +51,6 @@
     "Si el resultat depén de literals fixos i no de dades reals del flux, la puntuacio maxima recomanada és 7.",
     "No penalitzes l'absencia de sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal o base de dades obligatoria en esta sessio.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisio docent.",
-    "La via 9→10 només es pot considerar si el nucli obligatori està complet, funcional i verificat; una ampliació no compensa mancances del mínim ni s'ha d'exigir com a requisit d'esta rúbrica."
+    "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }
