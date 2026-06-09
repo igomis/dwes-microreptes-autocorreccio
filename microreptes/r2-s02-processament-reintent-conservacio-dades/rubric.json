@@ -19,7 +19,7 @@
       "id": "traceability",
       "label": "Traçabilitat",
       "weight": 0.1,
-      "must_check": "Hi ha commit, issue o registre associat al processament del reintent, la conservació de dades en el formulari i el guardat funcional del cas correcte."
+      "must_check": "Hi ha traçabilitat del procés: idealment tres commits útils o registre equivalent associat a inici, progrés i prova/tancament del reintent, la conservació de dades i el guardat funcional, amb temps aproximat si s'ha demanat."
     },
     {
       "id": "documentation",

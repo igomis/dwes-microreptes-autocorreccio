@@ -19,7 +19,7 @@
       "id": "traceability",
       "label": "Traçabilitat",
       "weight": 0.1,
-      "must_check": "Hi ha commit, issue o registre associat al formulari, la recepció de dades i la validació bàsica."
+      "must_check": "Hi ha traçabilitat del procés: idealment tres commits útils o registre equivalent associat a inici, progrés i prova/tancament del formulari, la recepció de dades i la validació bàsica, amb temps aproximat si s'ha demanat."
     },
     {
       "id": "documentation",

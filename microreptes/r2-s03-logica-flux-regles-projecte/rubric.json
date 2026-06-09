@@ -19,7 +19,7 @@
       "id": "traceability",
       "label": "Traçabilitat",
       "weight": 0.1,
-      "must_check": "Hi ha commit, issue o registre associat a la regla, a la funcio, al fitxer de llibreria pròpia, a l'import i a l'array o estructura usada."
+      "must_check": "Hi ha traçabilitat del procés: idealment tres commits útils o registre equivalent associat a inici, progrés i prova/tancament de la regla, la funcio, la llibreria pròpia, l'import i l'array o estructura usada, amb temps aproximat si s'ha demanat."
     },
     {
       "id": "documentation",
