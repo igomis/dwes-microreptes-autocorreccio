@@ -1,0 +1,31 @@
+{
+  "challenge_id": "r4-s05-documentacio-prova-servei",
+  "repte_id": "r4-api-consum",
+  "session_code": "R4-S05",
+  "microrepte_code": "R4M5",
+  "microreptes_covered": ["R4M5"],
+  "title": "Documentació i prova del servei",
+  "summary": "Tancar R4 amb documentacio d'endpoints, proves reproduïbles, incidencies i mini defensa de contracte i consum.",
+  "pedagogical_goal": "Comprovar que una altra persona pot entendre, provar i consumir el servei abans d'obrir R5.",
+  "relevant_paths": ["README.md", "docs/", "evidence/", "tests/", "api/", "openapi.yaml", "postman/", "insomnia/", "scripts/", "ai-log.md"],
+  "required_evidence": [
+    "Documentacio d'endpoints",
+    "Exemples de request i response",
+    "Requisits d'autenticacio",
+    "Casos de prova minims",
+    "Errors principals",
+    "Incidencies i correccions",
+    "Possible pas a R5",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "La documentacio coincideix amb el servei real",
+    "Les proves són reproduïbles",
+    "Hi ha cas correcte i cas d'error",
+    "El pas a R5 està justificat"
+  ],
+  "recommended_test_strategy": "Seguir la documentacio com a tercer, executar cas correcte i cas d'error, revisar incidencies i comprovar que el servei podria alimentar una integracio de R5.",
+  "source_alignment": ["Repte 4 R4M5", "Programacio d'aula R4S5", "Documentacio d'alumnat del Repte 4", "Pes orientatiu dins del repte: 25%"],
+  "repte_weight": 0.25
+}
