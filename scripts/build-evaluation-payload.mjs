@@ -7,6 +7,7 @@ function parseArgs(argv) {
   const allowed = new Set([
     '--student',
     '--group',
+    '--challenge-id',
     '--repo',
     '--commit',
     '--repo-signals',
@@ -45,7 +46,11 @@ async function readOptionalJson(rootDir, filePath) {
   }
 }
 
-async function resolveChallengeId(rootDir, student, group) {
+async function resolveChallengeId(rootDir, student, group, challengeIdOverride = '') {
+  if (challengeIdOverride) {
+    return challengeIdOverride;
+  }
+
   const config = await readJson(path.join(rootDir, 'course', 'active-challenges.json'));
   const studentAssignment = student ? config.students?.[student] : null;
 
@@ -73,7 +78,7 @@ async function main() {
   requireArgs(args);
 
   const rootDir = process.cwd();
-  const challengeId = await resolveChallengeId(rootDir, args.student, args.group);
+  const challengeId = await resolveChallengeId(rootDir, args.student, args.group, args['challenge-id']);
   const challengeDir = path.join(rootDir, 'microreptes', challengeId);
 
   const [policies, challenge, rubric] = await Promise.all([
@@ -92,7 +97,11 @@ async function main() {
     repo: args.repo,
     commit: args.commit,
     challenge_id: challengeId,
+    microrepte_code: challenge.microrepte_code,
     challenge_title: challenge.title,
+    primary_ra: challenge.primary_ra,
+    assessed_ca: challenge.assessed_ca,
+    context_ra: challenge.context_ra,
     rubric_id: rubric.rubric_id,
     policies_version: policies.version,
     expected_signals: challenge.expected_signals,

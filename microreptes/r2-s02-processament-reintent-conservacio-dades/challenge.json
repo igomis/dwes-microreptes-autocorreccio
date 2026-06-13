@@ -3,7 +3,9 @@
   "repte_id": "r2-processament-estat-autenticacio",
   "session_code": "R2-S02",
   "microrepte_code": "R2M2",
-  "microreptes_covered": ["R2M2"],
+  "microreptes_covered": [
+    "R2M2"
+  ],
   "title": "Processament, reintent i guardat funcional",
   "summary": "Millorar el flux del formulari perquè el servidor conserve dades aprofitables quan hi ha error i, quan l'entrada és correcta, la processe i la guarde funcionalment amb un mecanisme simple.",
   "pedagogical_goal": "Comprovar que l'alumne entén com el servidor reconstrueix una resposta de formulari després d'un error i com guarda funcionalment una entrada correcta abans d'introduir persistència formal, arrays d'errors, estat o autenticació.",
@@ -53,5 +55,22 @@
     "Reintent amb dades conservades i guardat funcional simple abans de persistència formal, arrays d'errors, estat i autenticació",
     "Pes orientatiu dins del repte: 15%"
   ],
-  "repte_weight": 0.15
+  "repte_weight": 0.15,
+  "primary_ra": "RA2",
+  "assessed_ca": [
+    "RA2.a",
+    "RA2.b",
+    "RA2.c",
+    "RA2.d",
+    "RA2.e",
+    "RA2.f",
+    "RA2.g",
+    "RA2.h"
+  ],
+  "context_ra": [
+    "RA3.e",
+    "RA3.f",
+    "RA3.g"
+  ],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

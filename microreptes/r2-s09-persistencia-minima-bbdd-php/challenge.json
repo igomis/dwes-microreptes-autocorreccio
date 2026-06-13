@@ -1,0 +1,73 @@
+{
+  "challenge_id": "r2-s09-persistencia-minima-bbdd-php",
+  "repte_id": "r2-processament-estat-autenticacio",
+  "session_code": "R2-S09",
+  "microrepte_code": "R2M9",
+  "microreptes_covered": [
+    "R2M9"
+  ],
+  "title": "Persistència mínima amb BBDD en PHP",
+  "summary": "Afegir una persistència mínima real al flux de R2 amb PHP pur: connexió, taula, alta, lectura i consultes preparades, sense entrar encara en ORM ni framework.",
+  "pedagogical_goal": "Introduir l'accés a BBDD des de PHP abans de R3, de manera acotada i vinculada a una dada significativa del projecte.",
+  "relevant_paths": [
+    "README.md",
+    "docs/",
+    "evidence/",
+    "database/",
+    "config/",
+    "public/",
+    "src/",
+    "app/",
+    "routes/",
+    "views/",
+    "templates/",
+    "tests/",
+    "ai-log.md"
+  ],
+  "required_evidence": [
+    "Dada significativa del projecte triada i justificada",
+    "Taula, schema.sql o instruccions reproduïbles de creació",
+    "Configuració de connexió separada del codi principal",
+    "Absència de secrets reals al repositori",
+    "Connexió a BBDD amb PDO o mecanisme equivalent justificat",
+    "Alta funcional amb dades ja validades pel flux",
+    "Lectura, llistat o detall funcional de dades persistides",
+    "Ús de consultes preparades quan entren dades d'usuari",
+    "Tractament bàsic d'errors de connexió o consulta",
+    "README amb instruccions per crear la BBDD i provar alta/lectura",
+    "Comprovació que el flux principal continua funcionant",
+    "Nota sobre què queda per professionalitzar en R3",
+    "Commit o traçabilitat associada",
+    "AI log si hi ha ús rellevant d'IA"
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "La dada persistida té sentit dins del domini del projecte",
+    "La connexió està centralitzada o clarament localitzable",
+    "Les credencials reals no apareixen en fitxers versionats",
+    "Hi ha una operació d'escriptura i una de lectura",
+    "Les dades d'usuari no es concatenen directament en SQL",
+    "L'alumne pot explicar la diferència entre sessió, cookie, fitxer provisional i BBDD"
+  ],
+  "recommended_test_strategy": "Revisar configuració i schema, executar o demanar evidència d'una alta, comprovar una lectura posterior, inspeccionar consultes preparades i verificar que no s'han pujat secrets reals.",
+  "source_alignment": [
+    "Repte 2 R2M9",
+    "Programacio d'aula R2S9",
+    "Documentacio d'alumnat del Repte 2",
+    "Pes orientatiu dins del repte: 10%"
+  ],
+  "repte_weight": 0.1,
+  "primary_ra": "RA6",
+  "assessed_ca": [
+    "RA6.a",
+    "RA6.b",
+    "RA6.c",
+    "RA6.d",
+    "RA6.f"
+  ],
+  "context_ra": [
+    "RA3",
+    "RA4"
+  ],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
+}

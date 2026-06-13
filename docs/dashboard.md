@@ -33,15 +33,18 @@ http://localhost:4173
 
 El dashboard està separat en aquestes vistes:
 
-- `Correcció`: llançament de workflows i repositoris seleccionats.
+- `Correcció`: previsualització del que es corregirà, llançament de workflows i repositoris seleccionats.
 - `Resultats`: últimes notes i visor del resultat complet.
 - `Alumnes`: manteniment de nom, repositori i grup.
 - `Microreptes`: taula de microreptes, visor de `challenge.json`, `rubric.json`, `prompt.md` i validació de pesos.
 - `Programació`: consulta i edició de la programació d'aula per sessions llegida des de `dwes-restructuracio-modul/docs/01_programacio_modul`.
 
 - Triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`.
-- Veure els repositoris del fitxer associat.
-- Veure quin microrepte correspon a cada repositori.
+- Triar un **Alumne concret** per llançar una correcció individual sense editar fitxers ni escriure repositoris a mà.
+- Veure els repositoris del fitxer associat o els repositoris puntuals escrits manualment.
+- Triar un **Microrepte a corregir** per a una execució puntual, o deixar `Configuració activa` per usar `course/active-challenges.json`.
+- Veure abans de llançar la correcció: branca, microrepte resolt, RA avaluat i origen de l'assignació.
+- Aplicar el criteri ordinari de branca corregible `main`; les branques alternatives només s'usen en recuperacions o incidències pactades.
 - Llançar el workflow massiu en mode `mock` o `openai`.
 - Consultar els últims resultats guardats en `grades/latest-grades.json`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.

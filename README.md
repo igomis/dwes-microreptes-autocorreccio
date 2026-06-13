@@ -41,7 +41,9 @@ El workflow `Batch autograde student repositories` permet llançar autocorreccio
 
 El mode automàtic en cada `push` continua sent `mock`, sense consum d'OpenAI. Per a una tanda real, executa el workflow massiu amb `mode = openai`. La clau `OPENAI_API_KEY` es configura en este repositori del professor i el resultat es publica en cada repo d'alumne com `autograde/latest.md` i `autograde/latest.json`. També es guarda una còpia central en `grades/history/` i s'actualitzen `grades/latest-grades.json` i `grades/latest-grades.csv`.
 
-Els repositoris que es corregeixen es mantenen en fitxers `course/student-repositories*.txt`, amb format `repositori grup`. El workflow té un input `target_group` per triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`; amb això selecciona automàticament el fitxer corresponent. També es pot usar l'input `repositories` per sobreescriure la llista en una execució puntual. El microrepte no s'escriu manualment: es resol des de `course/active-challenges.json`, primer per assignació específica d'alumne i després pel grup indicat en la línia del repositori.
+Els repositoris que es corregeixen es mantenen en fitxers `course/student-repositories*.txt`, amb format `repositori grup`. El workflow té un input `target_group` per triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`; amb això selecciona automàticament el fitxer corresponent. També es pot usar l'input `repositories` per sobreescriure la llista en una execució puntual, incloent-hi la correcció d'un sol alumne.
+
+El microrepte ordinari es resol des de `course/active-challenges.json`, primer per assignació específica d'alumne i després pel grup indicat en la línia del repositori. Per a una correcció puntual, el workflow i el dashboard permeten indicar `challenge_id` sense modificar `active-challenges.json`. La branca ordinària corregible és `main`; si l'alumnat treballa en una branca de microrepte, ha d'integrar-la en `main` abans de la correcció. El camp `student_ref` només s'ha de canviar per una recuperació o incidència pactada.
 
 Configuració activa inicial:
 

@@ -1,8 +1,4 @@
 # Repositoris de tots els grups per a correccio massiva.
 # Format: repositori grup
-# Les linies buides i les que comencen per # s'ignoren.
-#
-# Exemple:
-# cipfpbatoi/microreptes-nom-cognom 2DAW-A
 
 cipfpbatoi/microreptes-i-igomis 2DAW-A

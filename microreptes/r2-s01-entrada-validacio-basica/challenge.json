@@ -50,5 +50,18 @@
     "Validació inicial bàsica abans d'arrays i validació acumulada",
     "Pes orientatiu dins del repte: 15%"
   ],
-  "repte_weight": 0.15
+  "repte_weight": 0.15,
+  "primary_ra": "RA2",
+  "assessed_ca": [
+    "RA2.a",
+    "RA2.b",
+    "RA2.c",
+    "RA2.d"
+  ],
+  "context_ra": [
+    "RA3.e",
+    "RA3.f",
+    "RA3.g"
+  ],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

@@ -44,6 +44,39 @@ function validateRubricDimensions(rubric, challengeDir, errors) {
   }
 }
 
+function criterionRaPrefix(criterion) {
+  const match = String(criterion || '').match(/^(RA\d+)/i);
+  return match ? match[1].toUpperCase() : null;
+}
+
+function validateRaAssessment(challenge, challengeDir, errors) {
+  const microrepteCode = String(challenge?.microrepte_code || '');
+
+  if (!/^R\d+M\d+$/i.test(microrepteCode)) {
+    return;
+  }
+
+  if (!challenge.primary_ra || !/^RA\d+$/i.test(String(challenge.primary_ra))) {
+    errors.push(`${challengeDir}: falta primary_ra únic per al microrepte`);
+  }
+
+  if (!Array.isArray(challenge.assessed_ca) || challenge.assessed_ca.length === 0) {
+    errors.push(`${challengeDir}: falta assessed_ca amb els CA qualificables del RA avaluat`);
+    return;
+  }
+
+  const primaryRa = String(challenge.primary_ra || '').toUpperCase();
+  for (const criterion of challenge.assessed_ca) {
+    if (criterionRaPrefix(criterion) !== primaryRa) {
+      errors.push(`${challengeDir}: assessed_ca ${criterion} no pertany a ${primaryRa}`);
+    }
+  }
+
+  if ('context_ra' in challenge && !Array.isArray(challenge.context_ra)) {
+    errors.push(`${challengeDir}: context_ra ha de ser array si està definit`);
+  }
+}
+
 async function validateGlobalFiles(errors) {
   const requiredGlobalFiles = [
     'policies.json',
@@ -138,6 +171,7 @@ async function validateChallenge(challengeName, errors) {
     errors.push(`${challengeName}: challenge_id no coincideix entre challenge.json i rubric.json`);
   }
 
+  validateRaAssessment(challenge, challengeName, errors);
   validateRubricDimensions(rubric, challengeName, errors);
 
   return {

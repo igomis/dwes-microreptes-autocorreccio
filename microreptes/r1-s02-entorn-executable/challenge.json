@@ -4,7 +4,9 @@
   "repte_weight": 0.75,
   "session_code": "R1-S02",
   "microrepte_code": "R1M2",
-  "microreptes_covered": ["R1M2"],
+  "microreptes_covered": [
+    "R1M2"
+  ],
   "title": "Entorn executable, punt d'entrada i tancament de R1",
   "summary": "Configurar una base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin, crear un primer punt d'entrada funcional del backend i tancar R1 amb documentació verificable.",
   "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, transforma la infraestructura en una resposta funcional simple i deixa el kickoff executable, documentat i defensable abans de passar a R2.",
@@ -54,5 +56,16 @@
     "Programació d'aula R1 S02",
     "Repte 1 organitzat en 2 microreptes",
     "Pes orientatiu dins del repte: 75%"
-  ]
+  ],
+  "primary_ra": "RA1",
+  "assessed_ca": [
+    "RA1b",
+    "RA1c",
+    "RA1d",
+    "RA1e",
+    "RA1f",
+    "RA1g"
+  ],
+  "context_ra": [],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

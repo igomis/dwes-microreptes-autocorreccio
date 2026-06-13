@@ -3,7 +3,9 @@
   "repte_id": "r2-processament-estat-autenticacio",
   "session_code": "R2-S03",
   "microrepte_code": "R2M3",
-  "microreptes_covered": ["R2M3"],
+  "microreptes_covered": [
+    "R2M3"
+  ],
   "title": "Logica del flux i regles del projecte",
   "summary": "Ampliar el flux de R2M2 perquè el backend aplique una regla recognoscible del projecte amb una decisio, array o estructura equivalent, funcio útil en una llibreria pròpia importada i dos casos amb resultat visible diferent.",
   "pedagogical_goal": "Comprovar que l'alumne sap convertir dades reals del flux en comportament de servidor: decisions, estructures, funcions pròpies i separacio mínima en fitxers abans d'introduir estat, sessio, autenticacio o arquitectura completa.",
@@ -55,5 +57,14 @@
     "Decisions, arrays, funcions i llibreria pròpia mínima aplicades al flux abans d'estat, sessio i autenticacio",
     "Pes orientatiu dins del repte: 15%"
   ],
-  "repte_weight": 0.15
+  "repte_weight": 0.15,
+  "primary_ra": "RA3",
+  "assessed_ca": [
+    "RA3.a",
+    "RA3.b",
+    "RA3.c",
+    "RA3.d"
+  ],
+  "context_ra": [],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

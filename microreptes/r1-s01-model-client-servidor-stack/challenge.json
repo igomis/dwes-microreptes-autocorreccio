@@ -4,7 +4,9 @@
   "repte_weight": 0.25,
   "session_code": "R1-S01",
   "microrepte_code": "R1M1",
-  "microreptes_covered": ["R1M1"],
+  "microreptes_covered": [
+    "R1M1"
+  ],
   "title": "Model client/servidor i elecció guiada de stack",
   "summary": "Entendre el model client/servidor del producte, diferenciar l'execució en client i servidor, i justificar una primera decisió tècnica orientativa.",
   "pedagogical_goal": "Comprovar que l'alumne sap explicar el paper del backend, caracteritza els mecanismes d'execució web i pren una decisió tècnica inicial coherent amb el marc del curs.",
@@ -37,5 +39,14 @@
     "Repte 1 R1M1",
     "Programació d'aula R1 S01",
     "Pes orientatiu dins del repte: 25%"
-  ]
+  ],
+  "primary_ra": "RA1",
+  "assessed_ca": [
+    "RA1a",
+    "RA1b",
+    "RA1c",
+    "RA1g"
+  ],
+  "context_ra": [],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

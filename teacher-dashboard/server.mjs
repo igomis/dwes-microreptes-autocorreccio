@@ -107,6 +107,11 @@ function extractRepteWeight(challenge) {
   return null;
 }
 
+function criterionRaPrefix(criterion) {
+  const match = String(criterion || '').match(/^(RA\d+)/i);
+  return match ? match[1].toUpperCase() : null;
+}
+
 function validateMicrorepte(challenge, rubric, prompt) {
   const issues = [];
   const dimensionWeightSum = Array.isArray(rubric?.dimensions)
@@ -136,6 +141,23 @@ function validateMicrorepte(challenge, rubric, prompt) {
 
   if (challenge && repteWeight === null) {
     issues.push('No hi ha pes estructurat del microrepte dins del repte.');
+  }
+
+  if (challenge && /^R\d+M\d+$/i.test(String(challenge.microrepte_code || ''))) {
+    const primaryRa = String(challenge.primary_ra || '').toUpperCase();
+    if (!/^RA\d+$/.test(primaryRa)) {
+      issues.push('Falta RA avaluat únic (`primary_ra`).');
+    }
+
+    if (!Array.isArray(challenge.assessed_ca) || challenge.assessed_ca.length === 0) {
+      issues.push('Falten CA avaluats (`assessed_ca`).');
+    } else {
+      for (const criterion of challenge.assessed_ca) {
+        if (criterionRaPrefix(criterion) !== primaryRa) {
+          issues.push(`El CA ${criterion} no pertany al RA avaluat ${primaryRa || '(sense RA)'}.`);
+        }
+      }
+    }
   }
 
   return {
@@ -613,8 +635,9 @@ function resolveWorkflowInputs(body) {
   const targetGroup = body.target_group || 'all';
   const repositories = body.repositories || '';
   const repositoriesFile = body.repositories_file || '';
+  const challengeId = String(body.challenge_id || '').trim();
   const mode = body.mode || 'mock';
-  const studentRef = body.student_ref || 'master';
+  const studentRef = body.student_ref || 'main';
   const publishToStudentRepo = String(body.publish_to_student_repo ?? false);
   const defaultGroup = body.group || (targetGroup === 'all' ? '2DAW-A' : targetGroup);
 
@@ -630,6 +653,7 @@ function resolveWorkflowInputs(body) {
     repositories,
     target_group: targetGroup,
     repositories_file: repositoriesFile,
+    challenge_id: challengeId,
     group: defaultGroup,
     mode,
     student_ref: studentRef,
@@ -698,6 +722,73 @@ async function buildConfigPayload() {
 
 async function readLatestGrades(filters = {}) {
   return getLatestGrades(200, filters);
+}
+
+async function readRaGrades(filters = {}) {
+  const [grades, microreptes] = await Promise.all([
+    readLatestGrades(filters),
+    readMicroreptes()
+  ]);
+  const challengeMap = new Map(microreptes.map((microrepte) => [microrepte.id, microrepte]));
+  const latestByRepoChallenge = new Map();
+
+  for (const grade of grades) {
+    const key = `${grade.repo || ''}\u0000${grade.challenge_id || ''}`;
+    if (!latestByRepoChallenge.has(key)) {
+      latestByRepoChallenge.set(key, grade);
+    }
+  }
+
+  const groups = new Map();
+  for (const grade of latestByRepoChallenge.values()) {
+    const microrepte = challengeMap.get(grade.challenge_id);
+    const primaryRa = microrepte?.challenge?.primary_ra;
+
+    if (!primaryRa) {
+      continue;
+    }
+
+    const weight = Number.isFinite(microrepte.repte_weight) && microrepte.repte_weight > 0
+      ? microrepte.repte_weight
+      : 1;
+    const groupKey = [
+      grade.repo || '',
+      grade.group_name || '',
+      microrepte.repte_id || '',
+      primaryRa
+    ].join('\u0000');
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, {
+        repo: grade.repo || '',
+        group_name: grade.group_name || '',
+        repte_id: microrepte.repte_id || '',
+        primary_ra: primaryRa,
+        weighted_score: 0,
+        weight_sum: 0,
+        microreptes: []
+      });
+    }
+
+    const group = groups.get(groupKey);
+    group.weighted_score += Number(grade.score || 0) * weight;
+    group.weight_sum += weight;
+    group.microreptes.push({
+      challenge_id: grade.challenge_id,
+      microrepte_code: microrepte.microrepte_code,
+      score: grade.score,
+      weight
+    });
+  }
+
+  return [...groups.values()]
+    .map((group) => ({
+      ...group,
+      score: group.weight_sum > 0 ? Number((group.weighted_score / group.weight_sum).toFixed(2)) : null,
+      weight_sum: Number(group.weight_sum.toFixed(3))
+    }))
+    .sort((left, right) => [left.group_name, left.repo, left.repte_id, left.primary_ra].join('\u0000')
+      .localeCompare([right.group_name, right.repo, right.repte_id, right.primary_ra].join('\u0000'), 'ca', { numeric: true }));
 }
 
 function pageHtml() {
@@ -1031,7 +1122,17 @@ function pageHtml() {
           </select>
         </label>
         <label>Branca alumne
-          <input id="studentRef" value="master">
+          <input id="studentRef" value="main">
+        </label>
+        <label>Microrepte a corregir
+          <select id="correctionChallenge">
+            <option value="">Configuració activa</option>
+          </select>
+        </label>
+        <label>Alumne concret
+          <select id="correctionStudent">
+            <option value="">Tot el grup seleccionat</option>
+          </select>
         </label>
         <label>Publicar en repo alumne
           <select id="publish">
@@ -1040,7 +1141,7 @@ function pageHtml() {
           </select>
         </label>
       </div>
-      <p class="status" id="selectedFile"></p>
+      <div id="correctionPreview" class="feedback-box"></div>
       <label>Repositoris puntuals
         <textarea id="repositories" placeholder="Opcional. Si ho deixes buit, s'usa el fitxer del grup seleccionat."></textarea>
       </label>
@@ -1053,7 +1154,7 @@ function pageHtml() {
     <section class="view-panel" data-view="correction">
       <h2>Repositoris seleccionats</h2>
       <table>
-        <thead><tr><th>Repositori</th><th>Grup</th><th>Autocorrecció</th></tr></thead>
+        <thead><tr><th>Repositori</th><th>Grup</th><th>Branca</th><th>Microrepte que es corregirà</th><th>RA</th><th>Origen</th></tr></thead>
         <tbody id="repoRows"></tbody>
       </table>
     </section>
@@ -1088,6 +1189,11 @@ function pageHtml() {
         <tbody id="gradeRows"></tbody>
       </table>
       <div id="gradesInfo" class="status"></div>
+      <h3>Notes orientatives per RA</h3>
+      <table>
+        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>RA</th><th>Nota RA</th><th>Microreptes computats</th></tr></thead>
+        <tbody id="raGradeRows"></tbody>
+      </table>
     </section>
 
     <section class="view-panel hidden" data-view="results">
@@ -1167,7 +1273,7 @@ function pageHtml() {
         <button id="applyMicrorepteFilters" type="button">Aplicar filtres</button>
       </div>
       <table>
-        <thead><tr><th>Repte</th><th>Sessió</th><th>MP</th><th>Títol</th><th>Pes repte</th><th>Rúbrica</th><th>Estat</th><th>Accions</th></tr></thead>
+        <thead><tr><th>Repte</th><th>Sessió</th><th>MP</th><th>RA</th><th>Títol</th><th>Pes repte</th><th>Rúbrica</th><th>Estat</th><th>Accions</th></tr></thead>
         <tbody id="microrepteRows"></tbody>
       </table>
       <div id="microreptesInfo" class="status"></div>
@@ -1228,10 +1334,68 @@ function pageHtml() {
     }
 
     function challengeFor(repo, group) {
+      const override = document.querySelector('#correctionChallenge')?.value || '';
+      if (override) return override;
+
       const student = config.active_challenges.students[repo];
       if (student && student.challenge_id) return student.challenge_id;
       const groupConfig = config.active_challenges.groups[group];
       return groupConfig && groupConfig.challenge_id ? groupConfig.challenge_id : 'sense assignació';
+    }
+
+    function challengeOriginFor(repo, group) {
+      const override = document.querySelector('#correctionChallenge')?.value || '';
+      if (override) return 'selecció manual per a esta execució';
+
+      const student = config.active_challenges.students[repo];
+      if (student && student.challenge_id) return 'assignació individual';
+      const groupConfig = config.active_challenges.groups[group];
+      if (groupConfig && groupConfig.challenge_id) return 'grup ' + group;
+      return 'sense assignació';
+    }
+
+    function microrepteLabel(challengeId) {
+      const microrepte = microreptes.find((item) => item.id === challengeId);
+      if (!microrepte) return '<code>' + escapeHtml(challengeId || 'sense assignació') + '</code>';
+      const code = microrepte.microrepte_code || microrepte.challenge?.microrepte_code || '';
+      return '<code>' + escapeHtml(code || challengeId) + '</code> · ' + escapeHtml(microrepte.title || challengeId);
+    }
+
+    function microrepteRa(challengeId) {
+      const microrepte = microreptes.find((item) => item.id === challengeId);
+      return microrepte?.challenge?.primary_ra || '';
+    }
+
+    function refreshCorrectionChallengeSelect() {
+      const select = document.querySelector('#correctionChallenge');
+      if (!select) return;
+
+      const current = select.value;
+      const options = microreptes.map((microrepte) => {
+        const code = microrepte.microrepte_code || microrepte.challenge?.microrepte_code || microrepte.id;
+        const ra = microrepte.challenge?.primary_ra || microrepte.challenge?.assessment_role || '';
+        const label = code + (ra ? ' · ' + ra : '') + ' · ' + (microrepte.title || microrepte.id);
+        return '<option value="' + escapeHtml(microrepte.id) + '">' + escapeHtml(label) + '</option>';
+      }).join('');
+
+      select.innerHTML = '<option value="">Configuració activa per grup/alumne</option>' + options;
+      select.value = microreptes.some((microrepte) => microrepte.id === current) ? current : '';
+    }
+
+    function refreshCorrectionStudentSelect() {
+      const select = document.querySelector('#correctionStudent');
+      if (!select || !config) return;
+
+      const current = select.value;
+      const repositories = config.repositories_by_target.all?.repositories || [];
+      const options = repositories.map((item) => {
+        const labelParts = [item.repo, item.group].filter(Boolean);
+        if (item.name) labelParts.push(item.name);
+        return '<option value="' + escapeHtml(item.repo) + '">' + escapeHtml(labelParts.join(' · ')) + '</option>';
+      }).join('');
+
+      select.innerHTML = '<option value="">Tot el grup seleccionat</option>' + options;
+      select.value = repositories.some((item) => item.repo === current) ? current : '';
     }
 
     function getScoreClass(score) {
@@ -1862,6 +2026,7 @@ function pageHtml() {
         '<div class="result-header">' +
           '<div class="metric"><span>Microrepte</span><strong><code>' + escapeHtml(microrepte.id) + '</code></strong><p class="status">' + escapeHtml(microrepte.title || '') + '</p></div>' +
           '<div class="metric"><span>Repte</span><strong>' + escapeHtml(microrepte.repte_id || 'n/d') + '</strong></div>' +
+          '<div class="metric"><span>RA avaluat</span><strong><code>' + escapeHtml(challenge.primary_ra || 'n/d') + '</code></strong></div>' +
           '<div class="metric"><span>Pes dins repte</span><strong>' + formatPercent(microrepte.repte_weight) + '</strong></div>' +
           '<div class="metric"><span>Pes rúbrica</span><strong>' + escapeHtml(validation.dimension_weight_sum ?? 'n/d') + '</strong></div>' +
         '</div>' +
@@ -1869,8 +2034,14 @@ function pageHtml() {
           '<div class="feedback-box"><h3>Dades generals</h3>' +
             '<p><strong>Sessió:</strong> ' + escapeHtml(challenge.session_code || '') + '</p>' +
             '<p><strong>Codi:</strong> ' + escapeHtml(challenge.microrepte_code || '') + '</p>' +
+            '<p><strong>Model d’avaluació:</strong> ' + escapeHtml(challenge.assessment_model || challenge.assessment_role || '') + '</p>' +
             '<p><strong>Resum:</strong> ' + escapeHtml(challenge.summary || '') + '</p>' +
             '<p><strong>Objectiu:</strong> ' + escapeHtml(challenge.pedagogical_goal || '') + '</p>' +
+          '</div>' +
+          '<div class="feedback-box"><h3>RA i CA qualificables</h3>' +
+            '<p><strong>RA avaluat:</strong> <code>' + escapeHtml(challenge.primary_ra || '') + '</code></p>' +
+            '<h4>CA avaluats</h4>' + renderMicrorepteList(challenge.assessed_ca, 'Sense CA avaluats.') +
+            '<h4>RA de context</h4>' + renderMicrorepteList(challenge.context_ra, 'Sense RA de context.') +
           '</div>' +
           '<div class="feedback-box"><h3>Validació</h3>' +
             renderList(issues, 'Sense avisos de validació.') +
@@ -2136,6 +2307,7 @@ function pageHtml() {
           '<td><code>' + escapeHtml(microrepte.repte_id || '') + '</code></td>' +
           '<td>' + escapeHtml(microrepte.session_code || '') + '</td>' +
           '<td>' + escapeHtml(microrepte.microrepte_code || '') + '</td>' +
+          '<td><code>' + escapeHtml(microrepte.challenge?.primary_ra || '') + '</code></td>' +
           '<td>' + escapeHtml(microrepte.title || '') + '</td>' +
           '<td>' + formatPercent(microrepte.repte_weight) + '</td>' +
           '<td>' + escapeHtml(microrepte.dimension_count) + ' dims · ' + escapeHtml(microrepte.dimension_weight_sum) + '</td>' +
@@ -2147,7 +2319,7 @@ function pageHtml() {
         '</tr>'
       ));
 
-      document.querySelector('#microrepteRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha microreptes.</td></tr>';
+      document.querySelector('#microrepteRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="9">No hi ha microreptes.</td></tr>';
       document.querySelectorAll('[data-microrepte-id]').forEach((button) => {
         button.addEventListener('click', () => showMicrorepteDetail(button.dataset.microrepteId));
       });
@@ -2163,6 +2335,7 @@ function pageHtml() {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar els microreptes.');
         microreptes = payload.microreptes || [];
+        refreshCorrectionChallengeSelect();
         refreshMicrorepteRepteFilter();
         renderMicrorepteRows();
       } catch (error) {
@@ -2170,20 +2343,100 @@ function pageHtml() {
       }
     }
 
-    function refreshTable() {
+    function parseManualRepositoriesInput() {
       const target = document.querySelector('#targetGroup').value;
+      const defaultGroup = target === 'all' ? '2DAW-A' : target;
+      const raw = document.querySelector('#repositories').value.trim();
+
+      if (!raw) {
+        return null;
+      }
+
+      return raw
+        .split(/[\\s,;]+/)
+        .filter(Boolean)
+        .reduce((items, token, index, tokens) => {
+          if (!token.includes('/')) {
+            return items;
+          }
+          const next = tokens[index + 1];
+          const group = /^2DAW-[A-D]$/.test(next || '') ? next : defaultGroup;
+          items.push({ repo: token, group, name: '' });
+          return items;
+        }, []);
+    }
+
+    function selectedRepositories() {
+      const target = document.querySelector('#targetGroup').value;
+      const selectedStudent = document.querySelector('#correctionStudent')?.value || '';
+      if (selectedStudent) {
+        const allRepositories = config.repositories_by_target.all?.repositories || [];
+        const student = allRepositories.find((item) => item.repo === selectedStudent) || {
+          repo: selectedStudent,
+          group: target === 'all' ? '2DAW-A' : target,
+          name: ''
+        };
+
+        return {
+          source_type: 'student',
+          source: 'Alumne concret seleccionat',
+          repositories: [student]
+        };
+      }
+
+      const manual = parseManualRepositoriesInput();
+      if (manual) {
+        return {
+          source_type: 'manual',
+          source: 'Repositoris puntuals escrits manualment',
+          repositories: manual
+        };
+      }
+
       const entry = config.repositories_by_target[target];
-      document.querySelector('#selectedFile').textContent = 'Fitxer: ' + entry.file;
-      const rows = entry.repositories.map((item) => {
+      return {
+        source_type: 'file',
+        source: 'Fitxer: ' + entry.file,
+        repositories: entry.repositories
+      };
+    }
+
+    function refreshTable() {
+      const selected = selectedRepositories();
+      const target = document.querySelector('#targetGroup').value;
+      const branch = document.querySelector('#studentRef').value.trim() || 'main';
+      const selectedChallenge = document.querySelector('#correctionChallenge')?.value || '';
+      const rows = selected.repositories.map((item) => {
         const group = item.group || (target === 'all' ? '' : target);
-        return '<tr><td><code>' + escapeHtml(item.repo) + '</code></td><td>' + escapeHtml(group || 'n/d') + '</td><td><code>' + escapeHtml(challengeFor(item.repo, group)) + '</code></td></tr>';
+        const challengeId = challengeFor(item.repo, group);
+        return '<tr>' +
+          '<td><code>' + escapeHtml(item.repo) + '</code></td>' +
+          '<td>' + escapeHtml(group || 'n/d') + '</td>' +
+          '<td><code>' + escapeHtml(branch) + '</code></td>' +
+          '<td>' + microrepteLabel(challengeId) + '</td>' +
+          '<td><code>' + escapeHtml(microrepteRa(challengeId)) + '</code></td>' +
+          '<td>' + escapeHtml(challengeOriginFor(item.repo, group)) + '</td>' +
+        '</tr>';
       });
-      document.querySelector('#repoRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="3">No hi ha repositoris en aquest fitxer.</td></tr>';
+      document.querySelector('#repoRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6">No hi ha repositoris seleccionats.</td></tr>';
+      document.querySelector('#correctionPreview').innerHTML =
+        '<h3>Què es corregirà</h3>' +
+        '<p><strong>Repositoris:</strong> ' + escapeHtml(selected.source) + '</p>' +
+        '<p><strong>Branca corregible:</strong> <code>' + escapeHtml(branch) + '</code></p>' +
+        '<p><strong>Microrepte:</strong> ' + (selectedChallenge ? 'selecció manual per a esta execució.' : 'configuració activa: assignació individual en <code>course/active-challenges.json</code>; si no existeix, assignació del grup.') + '</p>' +
+        '<p><strong>Criteri de branques:</strong> el lliurament corregible ha d’estar integrat en <code>main</code>. Les branques de treball són opcionals i no es corregeixen si no s’indiquen explícitament.</p>';
     }
 
     async function loadConfig() {
       const response = await fetch('/api/config');
       config = await response.json();
+      if (microreptes.length === 0) {
+        const microrepteResponse = await fetch('/api/microreptes');
+        const payload = await microrepteResponse.json();
+        microreptes = payload.microreptes || [];
+      }
+      refreshCorrectionChallengeSelect();
+      refreshCorrectionStudentSelect();
       document.querySelector('#githubStatus').innerHTML =
         'GitHub: <code>' + config.github.owner + '/' + config.github.repo + '@' + config.github.ref + '</code> · Token configurat: ' +
         (config.github.token_configured ? '<span class="ok">sí</span>' : '<span class="error">no</span>');
@@ -2238,9 +2491,33 @@ function pageHtml() {
           button.addEventListener('click', () => showGradeDetail(button.dataset.gradeId));
         });
         document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
+        await loadRaGrades(params);
       } catch (error) {
         document.querySelector('#gradesInfo').textContent = 'Error: ' + error.message;
       }
+    }
+
+    async function loadRaGrades(params) {
+      const response = await fetch('/api/ra-grades?' + params.toString());
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar les notes per RA.');
+
+      const rows = (payload.ra_grades || []).map((item) => {
+        const microreptesText = item.microreptes.map((microrepte) => (
+          microrepte.microrepte_code + ' ' + Number(microrepte.score ?? 0).toFixed(2) + ' x ' + Math.round(microrepte.weight * 100) + '%'
+        )).join(', ');
+
+        return '<tr>' +
+          '<td><code>' + escapeHtml(item.repo || '') + '</code></td>' +
+          '<td>' + escapeHtml(item.group_name || '') + '</td>' +
+          '<td><code>' + escapeHtml(item.repte_id || '') + '</code></td>' +
+          '<td><code>' + escapeHtml(item.primary_ra || '') + '</code></td>' +
+          '<td class="' + getScoreClass(item.score || 0) + '">' + escapeHtml(item.score ?? '-') + '</td>' +
+          '<td>' + escapeHtml(microreptesText) + '</td>' +
+        '</tr>';
+      });
+
+      document.querySelector('#raGradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6">No hi ha notes amb RA avaluat.</td></tr>';
     }
 
     async function runWorkflow() {
@@ -2250,12 +2527,16 @@ function pageHtml() {
       status.className = 'status';
       status.textContent = 'Llançant...';
       try {
+        const selected = selectedRepositories();
         const body = {
           target_group: document.querySelector('#targetGroup').value,
+          challenge_id: document.querySelector('#correctionChallenge').value,
           mode: document.querySelector('#mode').value,
           student_ref: document.querySelector('#studentRef').value,
           publish_to_student_repo: document.querySelector('#publish').value === 'true',
-          repositories: document.querySelector('#repositories').value
+          repositories: selected.source_type === 'file'
+            ? document.querySelector('#repositories').value
+            : selected.repositories.map((item) => [item.repo, item.group].filter(Boolean).join(' ')).join('\\n')
         };
         const response = await fetch('/api/run', {
           method: 'POST',
@@ -2274,6 +2555,10 @@ function pageHtml() {
     }
 
     document.querySelector('#targetGroup').addEventListener('change', refreshTable);
+    document.querySelector('#studentRef').addEventListener('input', refreshTable);
+    document.querySelector('#correctionChallenge').addEventListener('change', refreshTable);
+    document.querySelector('#correctionStudent').addEventListener('change', refreshTable);
+    document.querySelector('#repositories').addEventListener('input', refreshTable);
     document.querySelectorAll('[data-nav-view]').forEach((button) => {
       button.addEventListener('click', () => showView(button.dataset.navView));
     });
@@ -2325,6 +2610,15 @@ async function handleRequest(request, response) {
       if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
       if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
       sendJson(response, 200, { grades: await readLatestGrades(filters) });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/ra-grades') {
+      const filters = {};
+      if (url.searchParams.has('group')) filters.group_name = url.searchParams.get('group');
+      if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
+      if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
+      sendJson(response, 200, { ra_grades: await readRaGrades(filters) });
       return;
     }
 

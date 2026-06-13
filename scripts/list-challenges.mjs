@@ -21,7 +21,9 @@ async function main() {
 
   for (const challengeDir of challengeDirs) {
     const challenge = await readChallenge(challengeDir);
-    console.log(`- ${challenge.challenge_id}: ${challenge.title}`);
+    const code = challenge.microrepte_code || 'sense codi';
+    const primaryRa = challenge.primary_ra || challenge.assessment_role || 'sense RA';
+    console.log(`- ${challenge.challenge_id} [${code} · ${primaryRa}]: ${challenge.title}`);
   }
 }
 

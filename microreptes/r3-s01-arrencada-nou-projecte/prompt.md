@@ -6,6 +6,6 @@ Comprova que hi ha un projecte en framework arrancable, amb Docker o entorn equi
 
 Comprova també la part docent: comparativa curta de l'stack triat amb una alternativa, esquema abans/despres respecte de `R2`, issue o registre de `R3` i declaracio dels `2` casos d'us, indicant quin ve de `R2` i quin sera server-rendered.
 
-No penalitzes que encara no hi haja BBDD, migrations, seeders, flux complet, API, autenticacio avançada ni desplegament. Sí que has de penalitzar un framework que no arranca, una ruta inexistent, secrets versionats, comparativa generica o promesa de migrar tota l'aplicacio sense abast.
+No penalitzes que encara no hi haja BBDD, migracions/fixtures/seeders, flux complet, API, autenticacio avançada ni desplegament. Sí que has de penalitzar un framework que no arranca, una ruta inexistent, secrets versionats, comparativa generica o promesa de migrar tota l'aplicacio sense abast.
 
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisio docent si falta evidència crítica o si la confiança és baixa.

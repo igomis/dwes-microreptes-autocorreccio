@@ -3,11 +3,24 @@
   "repte_id": "r2-processament-estat-autenticacio",
   "session_code": "R2-S05",
   "microrepte_code": "R2M5",
-  "microreptes_covered": ["R2M5"],
+  "microreptes_covered": [
+    "R2M5"
+  ],
   "title": "Autenticacio i funcionalitat protegida",
   "summary": "Implementar registre mínim amb contrasenya hashejada, autenticacio funcional i proteccio d'una operacio real del domini amb cas autoritzat i cas denegat.",
   "pedagogical_goal": "Comprovar que l'alumne diferencia registre, identificacio, autenticacio i autoritzacio bàsica, guarda contrasenyes amb hash i aplica la restriccio a una operacio real del producte.",
-  "relevant_paths": ["public/", "src/", "app/", "routes/", "views/", "templates/", "README.md", "docs/", "evidence/", "ai-log.md"],
+  "relevant_paths": [
+    "public/",
+    "src/",
+    "app/",
+    "routes/",
+    "views/",
+    "templates/",
+    "README.md",
+    "docs/",
+    "evidence/",
+    "ai-log.md"
+  ],
   "required_evidence": [
     "Formulari o mecanisme de registre mínim",
     "Usuari guardat en array, fitxer o estructura equivalent del projecte",
@@ -37,6 +50,18 @@
     "L'alumne pot explicar autenticacio i autoritzacio"
   ],
   "recommended_test_strategy": "Registrar o localitzar un usuari amb contrasenya hashejada, comprovar que no hi ha contrasenya en clar, provar login incorrecte, iniciar sessio amb credencials vàlides, intentar executar l'operacio protegida sense sessio, executar-la correctament amb sessio, fer logout i repetir l'intent. Revisar el punt de codi on es verifica el hash i on es comprova la restriccio.",
-  "source_alignment": ["Repte 2 R2M5", "Programacio d'aula R2S5", "Documentacio d'alumnat del Repte 2", "Pes orientatiu dins del repte: 20%"],
-  "repte_weight": 0.2
+  "source_alignment": [
+    "Repte 2 R2M5",
+    "Programacio d'aula R2S5",
+    "Documentacio d'alumnat del Repte 2",
+    "Pes orientatiu dins del repte: 20%"
+  ],
+  "repte_weight": 0.2,
+  "primary_ra": "RA4",
+  "assessed_ca": [
+    "RA4.d",
+    "RA4.e"
+  ],
+  "context_ra": [],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

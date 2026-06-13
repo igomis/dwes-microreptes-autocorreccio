@@ -26,6 +26,10 @@ on:
         description: "Grup per defecte si el fitxer o l'input no especifiquen grup"
         required: false
         default: "2DAW-A"
+      challenge_id:
+        description: "Autocorrecció concreta per a tota l'execució. Si queda buit, s'usa course/active-challenges.json"
+        required: false
+        default: ""
       mode:
         description: "Motor d'autograding"
         required: true
@@ -37,7 +41,7 @@ on:
       student_ref:
         description: "Branca del repositori de l'alumne"
         required: true
-        default: "master"
+        default: "main"
       publish_to_student_repo:
         description: "Publicar autograde/latest.md i autograde/latest.json en cada repo"
         required: true
@@ -79,6 +83,7 @@ jobs:
           INPUT_TARGET_GROUP: ${{ inputs.target_group }}
           INPUT_REPOSITORIES_FILE: ${{ inputs.repositories_file }}
           INPUT_GROUP: ${{ inputs.group }}
+          INPUT_CHALLENGE_ID: ${{ inputs.challenge_id }}
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_STUDENT_REF: ${{ inputs.student_ref }}
           INPUT_PUBLISH_TO_STUDENT_REPO: ${{ inputs.publish_to_student_repo }}
@@ -155,14 +160,19 @@ jobs:
           echo "- Batch: \`$batch_id\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Grup seleccionat: \`$INPUT_TARGET_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Grup per defecte: \`$INPUT_GROUP\`" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$INPUT_CHALLENGE_ID" ]; then
+            echo "- Microrepte seleccionat manualment: \`$INPUT_CHALLENGE_ID\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Microrepte: configuració activa de \`course/active-challenges.json\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
           echo "- Mode: \`$INPUT_MODE\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Fitxer repositoris: \`$selected_repositories_file\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Branca alumne: \`$INPUT_STUDENT_REF\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Publicació en repo alumne: \`$INPUT_PUBLISH_TO_STUDENT_REPO\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Total repositoris: **$total**" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Repositori | Grup | Nota | Revisió docent | Publicació |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---|---:|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Repositori | Grup | Branca | Microrepte | Nota | Revisió docent | Publicació |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|---|---:|---|---|" >> "$GITHUB_STEP_SUMMARY"
 
           work_root="$RUNNER_TEMP/batch-autograde"
           rm -rf "$work_root"
@@ -170,6 +180,11 @@ jobs:
 
           while read -r repo repo_group; do
             echo "Autograde $repo"
+            if [ -n "$INPUT_CHALLENGE_ID" ]; then
+              active_challenge="$INPUT_CHALLENGE_ID"
+            else
+              active_challenge="$(node scripts/resolve-active-challenge.mjs --student "$repo" --group "$repo_group")"
+            fi
             safe_repo="${repo//\//__}"
             student_dir="$work_root/$safe_repo/repo"
             result_dir="$PWD/tmp/batch/$safe_repo"
@@ -188,6 +203,7 @@ jobs:
             node scripts/build-evaluation-payload.mjs \
               --student "$repo" \
               --group "$repo_group" \
+              --challenge-id "$active_challenge" \
               --repo "$repo" \
               --commit "$commit_sha" \
               --repo-signals "$result_dir/repo-signals.json" \
@@ -240,7 +256,7 @@ jobs:
               fi
             fi
 
-            echo "| \`$repo\` | \`$repo_group\` | $score | $review | $published |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| \`$repo\` | \`$repo_group\` | \`$INPUT_STUDENT_REF\` | \`$active_challenge\` | $score | $review | $published |" >> "$GITHUB_STEP_SUMMARY"
           done < "$tmp_repos"
 
           echo "" >> "$GITHUB_STEP_SUMMARY"

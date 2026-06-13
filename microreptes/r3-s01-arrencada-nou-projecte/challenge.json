@@ -3,11 +3,27 @@
   "repte_id": "r3-framework-persistencia",
   "session_code": "R3-S01",
   "microrepte_code": "R3M1",
-  "microreptes_covered": ["R3M1"],
+  "microreptes_covered": [
+    "R3M1"
+  ],
   "title": "Arrencada del nou projecte",
   "summary": "Crear una base en framework arrancable amb Docker, configuracio minima, ruta inicial i abast dels dos fluxos de R3.",
   "pedagogical_goal": "Comprovar que l'alumne pot iniciar una base real en framework, justificar l'stack i acotar la reconstruccio de R2 sense convertir-la en migracio total.",
-  "relevant_paths": ["README.md", "docs/", "evidence/", "docker-compose.yml", "compose.yaml", "Dockerfile", ".env.example", "src/", "app/", "routes/", "templates/", "views/", "ai-log.md"],
+  "relevant_paths": [
+    "README.md",
+    "docs/",
+    "evidence/",
+    "docker-compose.yml",
+    "compose.yaml",
+    "Dockerfile",
+    ".env.example",
+    "src/",
+    "app/",
+    "routes/",
+    "templates/",
+    "views/",
+    "ai-log.md"
+  ],
   "required_evidence": [
     "Projecte base en Laravel, Symfony, NestJS o via autoritzada",
     "Docker, compose o entorn equivalent documentat i arrancable",
@@ -29,6 +45,23 @@
     "No hi ha secrets reals en fitxers versionats"
   ],
   "recommended_test_strategy": "Seguir el README o instruccions d'arrencada, executar Docker o entorn equivalent, obrir la ruta inicial, revisar .env.example, llegir la comparativa i verificar que els dos casos d'us estan acotats.",
-  "source_alignment": ["Repte 3 R3M1", "Programacio d'aula R3S1", "Documentacio d'alumnat del Repte 3", "Pes orientatiu dins del repte: 15%"],
-  "repte_weight": 0.15
+  "source_alignment": [
+    "Repte 3 R3M1",
+    "Programacio d'aula R3S1",
+    "Documentacio d'alumnat del Repte 3",
+    "Pes orientatiu dins del repte: 12%"
+  ],
+  "repte_weight": 0.12,
+  "primary_ra": "RA5",
+  "assessed_ca": [
+    "RA5.a",
+    "RA5.b",
+    "RA5.c",
+    "RA5.d",
+    "RA5.e"
+  ],
+  "context_ra": [
+    "RA8.c"
+  ],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

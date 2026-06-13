@@ -35,7 +35,7 @@ Des del terminal, consulta [terminal.md](terminal.md).
 3. Obri `Batch autograde student repositories`.
 4. Prem `Run workflow`.
 5. Tria `target_group`: `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`.
-6. Deixa buit `repositories` per usar la llista del grup seleccionat, o escriu repositoris per a una tanda puntual:
+6. Deixa buit `repositories` per usar la llista del grup seleccionat, o escriu repositoris per a una tanda puntual. Per corregir un sol alumne, escriu només el seu repositori:
 
 ```text
 cipfpbatoi/microreptes-i-igomis
@@ -44,8 +44,9 @@ cipfpbatoi/microreptes-joan-ferrer
 ```
 
 7. Indica el grup per defecte, per exemple `2DAW-A`. Només s'usa si una línia no porta grup.
-8. Selecciona `mode = openai` per usar IA.
-9. Mantin `publish_to_student_repo = true` si vols que l'alumne veja la correccio en el seu repositori.
+8. Deixa buit `challenge_id` per usar `course/active-challenges.json`, o indica un microrepte concret per corregir eixe microrepte en tota l'execució.
+9. Selecciona `mode = openai` per usar IA.
+10. Mantin `publish_to_student_repo = true` si vols que l'alumne veja la correccio en el seu repositori.
 
 El workflow clona cada repositori d'alumne, recull evidencies, construeix el payload, executa el motor d'autograding i publica el resultat.
 
@@ -98,7 +99,12 @@ Les linies buides i els comentaris amb `#` s'ignoren. Si una línia no porta gru
 
 ## Quin microrepte corregeix
 
-El workflow no demana el microrepte directament. Es resol amb `course/active-challenges.json`:
+El workflow pot funcionar de dues formes:
+
+- Execució ordinària: deixa `challenge_id` buit i el microrepte es resol amb `course/active-challenges.json`.
+- Execució puntual: indica `challenge_id` i eixe microrepte s'aplica a tots els repositoris inclosos en eixa execució.
+
+Quan `challenge_id` queda buit, la resolució és:
 
 1. Si el repositori de l'alumne té una assignació específica en `students`, s'usa eixa.
 2. Si no, s'usa l'assignació del grup indicat en la línia del repositori.
@@ -113,7 +119,45 @@ Configuració activa inicial:
 | `2DAW-C` | `r1-s02-entorn-executable` |
 | `2DAW-D` | `r1-s02-entorn-executable` |
 
-Per canviar el microrepte actiu d'un grup o d'un alumne concret, modifica `course/active-challenges.json` i fes commit.
+Per canviar el microrepte ordinari d'un grup o d'un alumne concret, modifica `course/active-challenges.json` i fes commit.
+
+Per fer una correcció puntual d'un altre microrepte, no cal tocar `course/active-challenges.json`: usa l'input `challenge_id` del workflow o el selector **Microrepte a corregir** del dashboard.
+
+## Correcció d'un sol alumne
+
+La via recomanada és usar el dashboard:
+
+1. Entra en la vista `Correcció`.
+2. En **Alumne concret**, selecciona l'alumne.
+3. En **Microrepte a corregir**, deixa `Configuració activa` o tria un microrepte concret.
+4. Mantin **Branca alumne** en `main`, excepte recuperació o incidència pactada.
+5. Llança el workflow.
+
+Des del workflow manual també es pot fer escrivint només una línia en `repositories`, per exemple:
+
+```text
+cipfpbatoi/microreptes-ana-marti 2DAW-B
+```
+
+El dashboard mostra esta resolució abans de llançar el workflow: per cada repositori indica grup, branca, microrepte, RA avaluat i si l'assignació ve del grup o d'una excepció individual.
+
+## Criteri de branques
+
+El criteri ordinari és corregir sempre la branca:
+
+```text
+main
+```
+
+L'alumnat pot treballar en branques pròpies si li ajuda a organitzar-se, per exemple `r2m3`, `r3m5` o `feature/auth`, però abans de demanar correcció ha d'integrar el lliurament en `main`.
+
+El camp `student_ref` del workflow i el camp **Branca alumne** del dashboard només s'han de canviar en estos casos:
+
+- recuperació puntual corregida en una branca pactada;
+- revisió d'una entrega antiga sense mesclar-la amb `main`;
+- incidència tècnica en què el professorat indique explícitament una branca diferent.
+
+No s'ha d'usar el nom de la branca per decidir quin microrepte es corregeix. El microrepte ix de `course/active-challenges.json` en les execucions ordinàries, o de l'input `challenge_id` en una correcció puntual.
 
 ## Que veu l'alumne
 
