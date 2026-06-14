@@ -42,10 +42,10 @@
   ],
   "primary_ra": "RA1",
   "assessed_ca": [
-    "RA1a",
-    "RA1b",
-    "RA1c",
-    "RA1g"
+    "RA1.a",
+    "RA1.b",
+    "RA1.c",
+    "RA1.g"
   ],
   "context_ra": [],
   "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."

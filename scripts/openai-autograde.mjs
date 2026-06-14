@@ -77,7 +77,7 @@ function validateResult(result, schema) {
     }
   }
 
-  for (const field of ['dimension_scores', 'strengths', 'weaknesses', 'blocking_flags']) {
+  for (const field of ['dimension_scores', 'ra_scores', 'strengths', 'weaknesses', 'blocking_flags']) {
     if (field in result && !Array.isArray(result[field])) {
       errors.push(`"${field}" ha de ser array`);
     }
@@ -93,6 +93,22 @@ function validateResult(result, schema) {
 
   if (Array.isArray(result.dimension_scores) && result.dimension_scores.length === 0) {
     errors.push('"dimension_scores" ha de tindre almenys un element');
+  }
+
+  if (Array.isArray(result.ra_scores)) {
+    result.ra_scores.forEach((raScore, index) => {
+      const prefix = `ra_scores[${index}]`;
+      if (!isPlainObject(raScore)) {
+        errors.push(`${prefix} ha de ser objecte`);
+        return;
+      }
+      if (!/^RA\d+$/i.test(String(raScore.ra_id || ''))) {
+        errors.push(`${prefix}.ra_id ha de tindre format RA<n>`);
+      }
+      if (typeof raScore.score !== 'number' || raScore.score < 0 || raScore.score > 10) {
+        errors.push(`${prefix}.score ha de ser number entre 0 i 10`);
+      }
+    });
   }
 
   return errors;
@@ -139,7 +155,8 @@ function buildMessages(payload, schema, promptText) {
         'Eres un motor d_autograding per a microreptes DWES.',
         'Has de tornar exclusivament un objecte JSON compatible amb l_esquema proporcionat.',
         'No canvies el contracte d_eixida. Marca sempre provisional=true si no hi ha revisio docent final.',
-        'Avalua de manera prudent i explica cada dimensio amb una rao curta.'
+        'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
+        'Ompli sempre ra_scores: una entrada per cada RA present en assessed_ra del payload; si nomes hi ha un RA, torna una sola entrada.'
       ].join(' ')
     },
     {

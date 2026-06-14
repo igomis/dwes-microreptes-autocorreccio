@@ -7,6 +7,7 @@ export const gradeFields = [
   'group',
   'challenge_id',
   'score',
+  'ra_scores',
   'confidence',
   'teacher_review_required',
   'provisional',
@@ -51,7 +52,11 @@ export async function readGrades(rootDir = process.cwd()) {
 }
 
 function csvEscape(value) {
-  const text = value === null || value === undefined ? '' : String(value);
+  const text = value === null || value === undefined
+    ? ''
+    : typeof value === 'object'
+      ? JSON.stringify(value)
+      : String(value);
 
   if (/[",\n\r]/.test(text)) {
     return `"${text.replaceAll('"', '""')}"`;

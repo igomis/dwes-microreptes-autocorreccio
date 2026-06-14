@@ -54,9 +54,25 @@
     "RA5.g",
     "RA5.h"
   ],
+  "assessed_ra": [
+    {
+      "ra_id": "RA5",
+      "assessed_ca": [
+        "RA5.g",
+        "RA5.h"
+      ],
+      "weight": 1
+    },
+    {
+      "ra_id": "RA6",
+      "assessed_ca": [
+        "RA6.g"
+      ],
+      "weight": 1
+    }
+  ],
   "context_ra": [
-    "RA6.f",
-    "RA6.g"
+    "RA6.f"
   ],
   "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
 }

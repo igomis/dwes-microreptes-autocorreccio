@@ -68,6 +68,7 @@ export function buildGradeRecord(result, args) {
     group: args.group,
     challenge_id: result.challenge_id,
     score: result.final_score_over_10,
+    ra_scores: Array.isArray(result.ra_scores) ? result.ra_scores : [],
     confidence: result.confidence,
     teacher_review_required: result.teacher_review_required,
     provisional: result.provisional,

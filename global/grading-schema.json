@@ -11,6 +11,7 @@
     "final_score_over_10",
     "provisional",
     "dimension_scores",
+    "ra_scores",
     "strengths",
     "weaknesses",
     "blocking_flags",
@@ -58,6 +59,33 @@
           "max_score": {
             "type": "number",
             "exclusiveMinimum": 0
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ra_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ra_id", "score", "assessed_ca", "reason"],
+        "properties": {
+          "ra_id": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "assessed_ca": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "reason": {
             "type": "string"

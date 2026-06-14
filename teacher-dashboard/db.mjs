@@ -45,6 +45,7 @@ export function initDb() {
       student_id INTEGER NOT NULL,
       challenge_id INTEGER NOT NULL,
       score REAL,
+      ra_scores TEXT,
       confidence REAL,
       feedback TEXT,
       teacher_review_required BOOLEAN,
@@ -60,6 +61,11 @@ export function initDb() {
       UNIQUE(student_id, challenge_id, commit_hash)
     )
   `);
+
+  const gradeColumns = db.prepare('PRAGMA table_info(grades)').all().map((column) => column.name);
+  if (!gradeColumns.includes('ra_scores')) {
+    db.exec('ALTER TABLE grades ADD COLUMN ra_scores TEXT');
+  }
 
   // Taula de criteris avaluació (per a desglossar la nota)
   db.exec(`
@@ -249,6 +255,7 @@ export function insertGrade(gradeData) {
     student_id,
     challenge_id,
     score,
+    ra_scores,
     confidence,
     feedback,
     teacher_review_required,
@@ -262,14 +269,14 @@ export function insertGrade(gradeData) {
 
   const stmt = db.prepare(`
     INSERT INTO grades (
-      student_id, challenge_id, score, confidence, feedback,
+      student_id, challenge_id, score, ra_scores, confidence, feedback,
       teacher_review_required, provisional, commit_hash, source,
       batch_id, timestamp, history_dir
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   return stmt.run(
-    student_id, challenge_id, score, confidence, feedback,
+    student_id, challenge_id, score, JSON.stringify(Array.isArray(ra_scores) ? ra_scores : []), confidence, feedback,
     teacher_review_required ? 1 : 0, provisional ? 1 : 0, commit_hash, source,
     batch_id, timestamp, history_dir
   );
@@ -284,6 +291,7 @@ export function getLatestGrades(limit = 100, filters = {}) {
       s.group_name,
       c.challenge_id,
       g.score,
+      g.ra_scores,
       g.confidence,
       g.feedback,
       g.teacher_review_required,
@@ -343,6 +351,7 @@ export function getGradeById(gradeId) {
       s.group_name,
       c.challenge_id,
       g.score,
+      g.ra_scores,
       g.confidence,
       g.feedback,
       g.teacher_review_required,
@@ -429,13 +438,14 @@ export function migrateFromJson(jsonGrades) {
     // Insert grade
     db.prepare(`
       INSERT OR IGNORE INTO grades (
-        student_id, challenge_id, score, confidence, teacher_review_required,
+        student_id, challenge_id, score, ra_scores, confidence, teacher_review_required,
         provisional, commit_hash, source, batch_id, timestamp, history_dir
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       studentId,
       challengeId,
       grade.score,
+      JSON.stringify(Array.isArray(grade.ra_scores) ? grade.ra_scores : []),
       grade.confidence,
       grade.teacher_review_required ? 1 : 0,
       grade.provisional ? 1 : 0,

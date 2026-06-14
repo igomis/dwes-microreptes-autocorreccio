@@ -85,6 +85,17 @@ async function main() {
   }
   lines.push('');
 
+  if (Array.isArray(result.ra_scores) && result.ra_scores.length > 0) {
+    lines.push('## Puntuació per RA');
+    lines.push('');
+    lines.push('| RA | Nota | CA | Comentari |');
+    lines.push('|---|---:|---|---|');
+    for (const raScore of result.ra_scores) {
+      lines.push(`| ${tableCell(raScore.ra_id)} | ${tableCell(`${value(raScore.score, 0)}/10`)} | ${tableCell((raScore.assessed_ca || []).join(', '))} | ${tableCell(raScore.reason)} |`);
+    }
+    lines.push('');
+  }
+
   lines.push('## Punts forts');
   lines.push('');
   lines.push(list(result.strengths, 'Sense punts forts destacats en aquesta execució.').trimEnd());

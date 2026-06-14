@@ -42,6 +42,21 @@
       "reason": "Valor simulat a partir de la rubrica: Implementacio minima, clara i coherent amb el producte."
     }
   ],
+  "ra_scores": [
+    {
+      "ra_id": "RA1",
+      "score": 7.9,
+      "assessed_ca": [
+        "RA1.b",
+        "RA1.c",
+        "RA1.d",
+        "RA1.e",
+        "RA1.f",
+        "RA1.g"
+      ],
+      "reason": "Nota global del RA1 per al microrepte avaluat."
+    }
+  ],
   "strengths": [
     "Payload d_avaluacio llegit correctament.",
     "La rubrica permet generar una estimacio inicial coherent."

@@ -68,6 +68,10 @@ function validateBasicTypes(result, errors) {
   if ('dimension_scores' in result && !Array.isArray(result.dimension_scores)) {
     errors.push('"dimension_scores" ha de ser array segons global/grading-schema.json');
   }
+
+  if ('ra_scores' in result && !Array.isArray(result.ra_scores)) {
+    errors.push('"ra_scores" ha de ser array');
+  }
 }
 
 function validateNumberRanges(result, errors) {
@@ -122,6 +126,42 @@ function validateDimensionScores(result, errors) {
   });
 }
 
+function validateRaScores(result, errors) {
+  if (!Array.isArray(result.ra_scores)) {
+    return;
+  }
+
+  result.ra_scores.forEach((raScore, index) => {
+    const prefix = `ra_scores[${index}]`;
+    if (!isPlainObject(raScore)) {
+      errors.push(`${prefix} ha de ser objecte`);
+      return;
+    }
+
+    for (const field of ['ra_id', 'score', 'assessed_ca', 'reason']) {
+      if (!(field in raScore)) {
+        errors.push(`${prefix}: falta "${field}"`);
+      }
+    }
+
+    if ('ra_id' in raScore && !/^RA\d+$/i.test(String(raScore.ra_id))) {
+      errors.push(`${prefix}.ra_id ha de tindre format RA<n>`);
+    }
+
+    if ('score' in raScore && (typeof raScore.score !== 'number' || raScore.score < 0 || raScore.score > 10)) {
+      errors.push(`${prefix}.score ha de ser number entre 0 i 10`);
+    }
+
+    if ('assessed_ca' in raScore && !Array.isArray(raScore.assessed_ca)) {
+      errors.push(`${prefix}.assessed_ca ha de ser array`);
+    }
+
+    if ('reason' in raScore && typeof raScore.reason !== 'string') {
+      errors.push(`${prefix}.reason ha de ser string`);
+    }
+  });
+}
+
 function validateResult(result, schema) {
   const errors = [];
 
@@ -133,6 +173,7 @@ function validateResult(result, schema) {
   validateBasicTypes(result, errors);
   validateNumberRanges(result, errors);
   validateDimensionScores(result, errors);
+  validateRaScores(result, errors);
 
   return errors;
 }

@@ -724,6 +724,47 @@ async function readLatestGrades(filters = {}) {
   return getLatestGrades(200, filters);
 }
 
+function parseRaScores(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value !== 'string' || !value.trim()) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function scoreEntriesForGrade(grade, microrepte) {
+  const raScores = parseRaScores(grade.ra_scores)
+    .filter((item) => item?.ra_id && typeof item.score === 'number');
+
+  if (raScores.length > 0) {
+    return raScores.map((item) => ({
+      ra_id: String(item.ra_id).toUpperCase(),
+      score: item.score,
+      assessed_ca: Array.isArray(item.assessed_ca) ? item.assessed_ca : []
+    }));
+  }
+
+  const primaryRa = microrepte?.challenge?.primary_ra;
+  if (!primaryRa) {
+    return [];
+  }
+
+  return [{
+    ra_id: primaryRa,
+    score: Number(grade.score || 0),
+    assessed_ca: Array.isArray(microrepte?.challenge?.assessed_ca) ? microrepte.challenge.assessed_ca : []
+  }];
+}
+
 async function readRaGrades(filters = {}) {
   const [grades, microreptes] = await Promise.all([
     readLatestGrades(filters),
@@ -742,43 +783,51 @@ async function readRaGrades(filters = {}) {
   const groups = new Map();
   for (const grade of latestByRepoChallenge.values()) {
     const microrepte = challengeMap.get(grade.challenge_id);
-    const primaryRa = microrepte?.challenge?.primary_ra;
+    if (!microrepte) {
+      continue;
+    }
 
-    if (!primaryRa) {
+    const scoreEntries = scoreEntriesForGrade(grade, microrepte);
+
+    if (scoreEntries.length === 0) {
       continue;
     }
 
     const weight = Number.isFinite(microrepte.repte_weight) && microrepte.repte_weight > 0
       ? microrepte.repte_weight
       : 1;
-    const groupKey = [
-      grade.repo || '',
-      grade.group_name || '',
-      microrepte.repte_id || '',
-      primaryRa
-    ].join('\u0000');
 
-    if (!groups.has(groupKey)) {
-      groups.set(groupKey, {
-        repo: grade.repo || '',
-        group_name: grade.group_name || '',
-        repte_id: microrepte.repte_id || '',
-        primary_ra: primaryRa,
-        weighted_score: 0,
-        weight_sum: 0,
-        microreptes: []
+    for (const scoreEntry of scoreEntries) {
+      const groupKey = [
+        grade.repo || '',
+        grade.group_name || '',
+        microrepte.repte_id || '',
+        scoreEntry.ra_id
+      ].join('\u0000');
+
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, {
+          repo: grade.repo || '',
+          group_name: grade.group_name || '',
+          repte_id: microrepte.repte_id || '',
+          primary_ra: scoreEntry.ra_id,
+          weighted_score: 0,
+          weight_sum: 0,
+          microreptes: []
+        });
+      }
+
+      const group = groups.get(groupKey);
+      group.weighted_score += Number(scoreEntry.score || 0) * weight;
+      group.weight_sum += weight;
+      group.microreptes.push({
+        challenge_id: grade.challenge_id,
+        microrepte_code: microrepte.microrepte_code,
+        score: scoreEntry.score,
+        assessed_ca: scoreEntry.assessed_ca,
+        weight
       });
     }
-
-    const group = groups.get(groupKey);
-    group.weighted_score += Number(grade.score || 0) * weight;
-    group.weight_sum += weight;
-    group.microreptes.push({
-      challenge_id: grade.challenge_id,
-      microrepte_code: microrepte.microrepte_code,
-      score: grade.score,
-      weight
-    });
   }
 
   return [...groups.values()]
@@ -789,6 +838,139 @@ async function readRaGrades(filters = {}) {
     }))
     .sort((left, right) => [left.group_name, left.repo, left.repte_id, left.primary_ra].join('\u0000')
       .localeCompare([right.group_name, right.repo, right.repte_id, right.primary_ra].join('\u0000'), 'ca', { numeric: true }));
+}
+
+function normalizeTeacherRepteGrades(records) {
+  const teacherGrades = new Map();
+  for (const record of Array.isArray(records) ? records : []) {
+    if (!record.repo || !record.repte_id) {
+      continue;
+    }
+
+    teacherGrades.set(`${record.repo}\u0000${record.repte_id}`, {
+      teacher_score: typeof record.teacher_score === 'number' ? record.teacher_score : null,
+      teacher_comment: record.teacher_comment || '',
+      teacher_review_required: Boolean(record.teacher_review_required),
+      teacher_source: record.source || 'teacher'
+    });
+  }
+  return teacherGrades;
+}
+
+async function readTeacherRepteGrades() {
+  const records = await readTeacherRepteGradeRecords();
+  return normalizeTeacherRepteGrades(records);
+}
+
+async function readTeacherRepteGradeRecords() {
+  const filePath = path.join(rootDir, 'grades', 'teacher-repte-grades.json');
+  const records = await readJsonIfExists(filePath);
+  return Array.isArray(records) ? records : [];
+}
+
+async function saveTeacherRepteGrade(body) {
+  const repo = String(body.repo || '').trim();
+  const group = String(body.group_name || body.group || '').trim();
+  const repteId = String(body.repte_id || '').trim();
+  const rawScore = body.teacher_score;
+  const teacherScore = rawScore === null || rawScore === undefined || rawScore === ''
+    ? null
+    : Number(rawScore);
+
+  if (!repo || !repteId) {
+    throw new Error('Falten repo o repte_id.');
+  }
+
+  if (teacherScore !== null && (!Number.isFinite(teacherScore) || teacherScore < 0 || teacherScore > 10)) {
+    throw new Error('La nota docent ha de ser un número entre 0 i 10.');
+  }
+
+  const records = await readTeacherRepteGradeRecords();
+  const index = records.findIndex((record) => record.repo === repo && record.repte_id === repteId);
+  const nextRecord = {
+    repo,
+    group,
+    repte_id: repteId,
+    teacher_score: teacherScore,
+    teacher_comment: String(body.teacher_comment || '').trim(),
+    teacher_review_required: Boolean(body.teacher_review_required),
+    source: 'dashboard'
+  };
+
+  if (index >= 0) {
+    records[index] = nextRecord;
+  } else {
+    records.push(nextRecord);
+  }
+
+  records.sort((left, right) => [left.group || '', left.repo || '', left.repte_id || ''].join('\u0000')
+    .localeCompare([right.group || '', right.repo || '', right.repte_id || ''].join('\u0000'), 'ca', { numeric: true }));
+
+  await writeFile(path.join(rootDir, 'grades', 'teacher-repte-grades.json'), `${JSON.stringify(records, null, 2)}\n`, 'utf8');
+  return nextRecord;
+}
+
+async function repteIdForChallenge(challengeId) {
+  if (!challengeId) {
+    return '';
+  }
+
+  const microrepte = await readMicrorepteDetail(challengeId);
+  return microrepte?.repte_id || '';
+}
+
+async function readRepteGrades(filters = {}) {
+  const repteId = await repteIdForChallenge(filters.challenge_id);
+  const raFilters = { ...filters };
+  delete raFilters.challenge_id;
+
+  const [raGrades, teacherGrades] = await Promise.all([
+    readRaGrades(raFilters),
+    readTeacherRepteGrades()
+  ]);
+  const groups = new Map();
+
+  for (const raGrade of raGrades) {
+    if (repteId && raGrade.repte_id !== repteId) {
+      continue;
+    }
+
+    const key = `${raGrade.repo || ''}\u0000${raGrade.group_name || ''}\u0000${raGrade.repte_id || ''}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        repo: raGrade.repo || '',
+        group_name: raGrade.group_name || '',
+        repte_id: raGrade.repte_id || '',
+        ra_scores: [],
+        teacher_score: null,
+        teacher_comment: '',
+        teacher_review_required: false,
+        teacher_source: ''
+      });
+    }
+
+    groups.get(key).ra_scores.push({
+      ra_id: raGrade.primary_ra,
+      auto_score: raGrade.score,
+      weight_sum: raGrade.weight_sum,
+      microreptes: raGrade.microreptes
+    });
+  }
+
+  return [...groups.values()]
+    .map((record) => {
+      const teacherData = teacherGrades.get(`${record.repo}\u0000${record.repte_id}`);
+      if (teacherData) {
+        record.teacher_score = teacherData.teacher_score;
+        record.teacher_comment = teacherData.teacher_comment;
+        record.teacher_review_required = teacherData.teacher_review_required;
+        record.teacher_source = teacherData.teacher_source;
+      }
+      record.ra_scores.sort((left, right) => String(left.ra_id).localeCompare(String(right.ra_id), 'ca', { numeric: true }));
+      return record;
+    })
+    .sort((left, right) => [left.group_name, left.repo, left.repte_id].join('\u0000')
+      .localeCompare([right.group_name, right.repo, right.repte_id].join('\u0000'), 'ca', { numeric: true }));
 }
 
 function pageHtml() {
@@ -1163,6 +1345,7 @@ function pageHtml() {
       <div class="toolbar">
         <h2>Últims resultats</h2>
         <button id="refreshGrades" type="button">Actualitzar</button>
+        <button id="recalculateFilteredGrades" type="button">Recalcular seleccionats</button>
       </div>
       <div class="filters">
         <label>Filtre per grup
@@ -1193,6 +1376,11 @@ function pageHtml() {
       <table>
         <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>RA</th><th>Nota RA</th><th>Microreptes computats</th></tr></thead>
         <tbody id="raGradeRows"></tbody>
+      </table>
+      <h3>Notes per repte</h3>
+      <table>
+        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>Notes RA automàtiques</th><th>Nota docent</th><th>Comentari docent</th><th>Revisió</th><th>Accions</th></tr></thead>
+        <tbody id="repteGradeRows"></tbody>
       </table>
     </section>
 
@@ -1494,6 +1682,18 @@ function pageHtml() {
         '<thead><tr><th>ID</th><th>Criteri</th><th>Pes</th><th>Què comprova</th></tr></thead>' +
         '<tbody>' + rows.join('') + '</tbody>' +
       '</table>';
+    }
+
+    function renderAssessedRaBlocks(assessedRa) {
+      if (!Array.isArray(assessedRa) || assessedRa.length === 0) {
+        return '';
+      }
+
+      return '<h4>Blocs RA avaluats</h4>' + assessedRa.map((item) => (
+        '<p><strong><code>' + escapeHtml(item.ra_id || '') + '</code></strong>: ' +
+        escapeHtml((item.assessed_ca || []).join(', ') || 'Sense CA') +
+        '</p>'
+      )).join('');
     }
 
     function renderInlineMarkdown(value) {
@@ -2041,6 +2241,7 @@ function pageHtml() {
           '<div class="feedback-box"><h3>RA i CA qualificables</h3>' +
             '<p><strong>RA avaluat:</strong> <code>' + escapeHtml(challenge.primary_ra || '') + '</code></p>' +
             '<h4>CA avaluats</h4>' + renderMicrorepteList(challenge.assessed_ca, 'Sense CA avaluats.') +
+            renderAssessedRaBlocks(challenge.assessed_ra) +
             '<h4>RA de context</h4>' + renderMicrorepteList(challenge.context_ra, 'Sense RA de context.') +
           '</div>' +
           '<div class="feedback-box"><h3>Validació</h3>' +
@@ -2483,15 +2684,22 @@ function pageHtml() {
             '<td class="' + scoreClass + '">' + escapeHtml(grade.score ?? '-') + '</td>' +
             '<td>' + Math.round((grade.confidence || 0) * 100) + '%</td>' +
             '<td>' + escapeHtml(grade.source || '') + '</td>' +
-            '<td><button class="secondary" type="button" data-grade-id="' + escapeHtml(grade.id) + '">Veure</button></td>' +
+            '<td><div class="compact-actions">' +
+              '<button class="secondary" type="button" data-grade-id="' + escapeHtml(grade.id) + '" data-grade-repo="' + escapeHtml(grade.repo || '') + '" data-grade-challenge="' + escapeHtml(grade.challenge_id || '') + '">Veure</button>' +
+              '<button class="secondary" type="button" data-grade-recalc="' + escapeHtml(grade.id) + '" data-grade-repo="' + escapeHtml(grade.repo || '') + '" data-grade-challenge="' + escapeHtml(grade.challenge_id || '') + '" data-grade-group="' + escapeHtml(grade.group_name || '') + '">Recalcular</button>' +
+            '</div></td>' +
             '</tr>';
         });
         document.querySelector('#gradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha resultats.</td></tr>';
         document.querySelectorAll('[data-grade-id]').forEach((button) => {
           button.addEventListener('click', () => showGradeDetail(button.dataset.gradeId));
         });
+        document.querySelectorAll('[data-grade-recalc]').forEach((button) => {
+          button.addEventListener('click', () => recalculateGrade(button.dataset.gradeRepo, button.dataset.gradeChallenge, button.dataset.gradeGroup));
+        });
         document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
         await loadRaGrades(params);
+        await loadRepteGrades(params);
       } catch (error) {
         document.querySelector('#gradesInfo').textContent = 'Error: ' + error.message;
       }
@@ -2518,6 +2726,147 @@ function pageHtml() {
       });
 
       document.querySelector('#raGradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6">No hi ha notes amb RA avaluat.</td></tr>';
+    }
+
+    async function loadRepteGrades(params) {
+      const response = await fetch('/api/repte-grades?' + params.toString());
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar les notes per repte.');
+
+      const rows = (payload.repte_grades || []).map((item) => {
+        const raText = item.ra_scores.map((raScore) => (
+          raScore.ra_id + ': ' + Number(raScore.auto_score ?? 0).toFixed(2)
+        )).join(', ');
+        const teacherScore = typeof item.teacher_score === 'number'
+          ? Number(item.teacher_score).toFixed(2)
+          : '';
+
+        return '<tr>' +
+          '<td><code>' + escapeHtml(item.repo || '') + '</code></td>' +
+          '<td>' + escapeHtml(item.group_name || '') + '</td>' +
+          '<td><code>' + escapeHtml(item.repte_id || '') + '</code></td>' +
+          '<td>' + escapeHtml(raText || 'Sense notes RA') + '</td>' +
+          '<td><input data-teacher-score type="number" min="0" max="10" step="0.01" value="' + escapeHtml(teacherScore) + '"></td>' +
+          '<td><textarea data-teacher-comment rows="2">' + escapeHtml(item.teacher_comment || '') + '</textarea></td>' +
+          '<td><input data-teacher-review type="checkbox"' + (item.teacher_review_required ? ' checked' : '') + '></td>' +
+          '<td><button class="secondary" type="button" data-save-teacher-repte data-repo="' + escapeHtml(item.repo || '') + '" data-group="' + escapeHtml(item.group_name || '') + '" data-repte="' + escapeHtml(item.repte_id || '') + '">Guardar</button></td>' +
+        '</tr>';
+      });
+
+      document.querySelector('#repteGradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha notes agregades per repte.</td></tr>';
+      document.querySelectorAll('[data-save-teacher-repte]').forEach((button) => {
+        button.addEventListener('click', () => saveTeacherRepteGrade(button));
+      });
+    }
+
+    async function saveTeacherRepteGrade(button) {
+      const row = button.closest('tr');
+      const status = document.querySelector('#gradesInfo');
+      const scoreInput = row.querySelector('[data-teacher-score]');
+      const commentInput = row.querySelector('[data-teacher-comment]');
+      const reviewInput = row.querySelector('[data-teacher-review]');
+      button.disabled = true;
+      status.className = 'status';
+      status.textContent = 'Guardant nota docent...';
+
+      try {
+        const response = await fetch('/api/repte-grades/teacher', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            repo: button.dataset.repo,
+            group_name: button.dataset.group,
+            repte_id: button.dataset.repte,
+            teacher_score: scoreInput.value,
+            teacher_comment: commentInput.value,
+            teacher_review_required: reviewInput.checked
+          })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'No s’ha pogut guardar la nota docent.');
+        status.innerHTML = '<span class="ok">Nota docent guardada.</span>';
+        await loadGrades();
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function recalculateWorkflow(inputs, statusElement) {
+      statusElement.className = 'status';
+      statusElement.textContent = 'Llançant recalcul...';
+      try {
+        const response = await fetch('/api/run', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(inputs)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Error desconegut');
+        statusElement.innerHTML = '<span class="ok">Recalcul enviat.</span> <a href="' + result.actions_url + '" target="_blank" rel="noreferrer">Obrir Actions</a>';
+        await loadGrades();
+      } catch (error) {
+        statusElement.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      }
+    }
+
+    async function recalculateGrade(repo, challengeId, groupName) {
+      const status = document.querySelector('#gradesInfo');
+      if (!repo || !challengeId) {
+        status.innerHTML = '<span class="error">No es pot recalcular: falta repositori o repte.</span>';
+        return;
+      }
+      const mode = document.querySelector('#mode')?.value || 'mock';
+      const targetGroup = groupName || document.querySelector('#filterGroup')?.value || 'all';
+      await recalculateWorkflow({
+        target_group: targetGroup || 'all',
+        challenge_id: challengeId,
+        mode,
+        student_ref: 'main',
+        publish_to_student_repo: false,
+        repositories: repo + ' ' + (groupName || targetGroup || 'all')
+      }, status);
+    }
+
+    async function recalculateFilteredGrades() {
+      const status = document.querySelector('#gradesInfo');
+      const group = document.querySelector('#filterGroup').value || 'all';
+      const challenge = document.querySelector('#filterChallenge').value;
+      const repo = document.querySelector('#filterRepo').value.trim();
+
+      if (!challenge) {
+        status.innerHTML = '<span class="error">Selecciona un repte per recalcular.</span>';
+        return;
+      }
+
+      const mode = document.querySelector('#mode')?.value || 'mock';
+      if (repo) {
+        await recalculateWorkflow({
+          target_group: group,
+          challenge_id: challenge,
+          mode,
+          student_ref: 'main',
+          publish_to_student_repo: false,
+          repositories: repo + ' ' + group
+        }, status);
+        return;
+      }
+
+      const groupInfo = config.repositories_by_target[group] || config.repositories_by_target.all;
+      if (!groupInfo || !groupInfo.repositories.length) {
+        status.innerHTML = '<span class="error">No hi ha repositoris disponibles per al grup seleccionat.</span>';
+        return;
+      }
+
+      await recalculateWorkflow({
+        target_group: group,
+        challenge_id: challenge,
+        mode,
+        student_ref: 'main',
+        publish_to_student_repo: false,
+        repositories: groupInfo.repositories.map((item) => item.repo + ' ' + item.group).join('\\n')
+      }, status);
     }
 
     async function runWorkflow() {
@@ -2564,6 +2913,7 @@ function pageHtml() {
     });
     document.querySelector('#runButton').addEventListener('click', runWorkflow);
     document.querySelector('#refreshGrades').addEventListener('click', () => loadGrades());
+    document.querySelector('#recalculateFilteredGrades').addEventListener('click', recalculateFilteredGrades);
     document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
     document.querySelector('#clearViewer').addEventListener('click', clearViewer);
     document.querySelector('#saveStudent').addEventListener('click', saveStudent);
@@ -2619,6 +2969,21 @@ async function handleRequest(request, response) {
       if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
       if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
       sendJson(response, 200, { ra_grades: await readRaGrades(filters) });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/repte-grades') {
+      const filters = {};
+      if (url.searchParams.has('group')) filters.group_name = url.searchParams.get('group');
+      if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
+      if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
+      sendJson(response, 200, { repte_grades: await readRepteGrades(filters) });
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/repte-grades/teacher') {
+      const body = await readRequestJson(request);
+      sendJson(response, 200, { teacher_grade: await saveTeacherRepteGrade(body) });
       return;
     }
 

@@ -19,7 +19,8 @@
     "grades:append": "node scripts/append-grade-result.mjs",
     "grades:import": "node scripts/import-autograde-result.mjs",
     "grades:compact": "node scripts/compact-latest-grades.mjs",
-    "grades:list": "node scripts/list-grades.mjs"
+    "grades:list": "node scripts/list-grades.mjs",
+    "grades:aggregate-repte": "node scripts/aggregate-repte-grades.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^9.x",

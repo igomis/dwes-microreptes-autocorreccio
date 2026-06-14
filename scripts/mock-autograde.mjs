@@ -68,11 +68,36 @@ function calculateFinalScore(dimensionScores) {
   return Number(((totalScore / totalMax) * 10).toFixed(1));
 }
 
+function buildRaScores(payload, finalScore) {
+  const assessedRa = Array.isArray(payload.assessed_ra) && payload.assessed_ra.length > 0
+    ? payload.assessed_ra
+    : [{
+      ra_id: payload.primary_ra,
+      assessed_ca: payload.assessed_ca,
+      weight: 1
+    }];
+
+  return assessedRa
+    .filter((item) => item?.ra_id)
+    .map((item, index) => {
+      const adjustment = assessedRa.length > 1 ? (index % 2 === 0 ? 0.2 : -0.2) : 0;
+      const score = Math.max(0, Math.min(10, Number((finalScore + adjustment).toFixed(1))));
+
+      return {
+        ra_id: item.ra_id,
+        score,
+        assessed_ca: Array.isArray(item.assessed_ca) ? item.assessed_ca : [],
+        reason: `Nota simulada per a ${item.ra_id} a partir dels criteris declarats del microrepte.`
+      };
+    });
+}
+
 function buildResult(payload) {
   const dimensions = Array.isArray(payload.dimensions) ? payload.dimensions : [];
   const hasRequiredEvidence = isNonEmptyArray(payload.required_evidence);
   const hasEnoughDimensions = dimensions.length >= 6;
   const dimensionScores = buildDimensionScores(dimensions);
+  const finalScore = calculateFinalScore(dimensionScores);
   const blockingFlags = [];
 
   if (!hasRequiredEvidence) {
@@ -87,7 +112,8 @@ function buildResult(payload) {
     challenge_id: payload.challenge_id || 'unknown-challenge',
     student: payload.student || 'unknown-student',
     commit: payload.commit || 'unknown',
-    final_score_over_10: calculateFinalScore(dimensionScores),
+    final_score_over_10: finalScore,
+    ra_scores: buildRaScores(payload, finalScore),
     provisional: true,
     dimension_scores: dimensionScores,
     strengths: [

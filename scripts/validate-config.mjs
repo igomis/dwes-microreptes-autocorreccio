@@ -49,6 +49,34 @@ function criterionRaPrefix(criterion) {
   return match ? match[1].toUpperCase() : null;
 }
 
+function validateAssessedRaEntry(entry, challengeDir, index, errors) {
+  const prefix = `${challengeDir}: assessed_ra[${index}]`;
+  const raId = String(entry?.ra_id || '').toUpperCase();
+
+  if (!/^RA\d+$/.test(raId)) {
+    errors.push(`${prefix}: falta ra_id valid`);
+    return;
+  }
+
+  if (!Array.isArray(entry.assessed_ca) || entry.assessed_ca.length === 0) {
+    errors.push(`${prefix}: falta assessed_ca`);
+    return;
+  }
+
+  for (const criterion of entry.assessed_ca) {
+    if (criterionRaPrefix(criterion) !== raId) {
+      errors.push(`${prefix}: assessed_ca ${criterion} no pertany a ${raId}`);
+    }
+  }
+
+  if ('weight' in entry) {
+    const weight = Number(entry.weight);
+    if (!Number.isFinite(weight) || weight < 0 || weight > 1) {
+      errors.push(`${prefix}: weight ha de ser un numero entre 0 i 1`);
+    }
+  }
+}
+
 function validateRaAssessment(challenge, challengeDir, errors) {
   const microrepteCode = String(challenge?.microrepte_code || '');
 
@@ -56,8 +84,19 @@ function validateRaAssessment(challenge, challengeDir, errors) {
     return;
   }
 
+  const hasAssessedRa = Array.isArray(challenge.assessed_ra) && challenge.assessed_ra.length > 0;
+
   if (!challenge.primary_ra || !/^RA\d+$/i.test(String(challenge.primary_ra))) {
     errors.push(`${challengeDir}: falta primary_ra únic per al microrepte`);
+  }
+
+  if ('context_ra' in challenge && !Array.isArray(challenge.context_ra)) {
+    errors.push(`${challengeDir}: context_ra ha de ser array si està definit`);
+  }
+
+  if (hasAssessedRa) {
+    challenge.assessed_ra.forEach((entry, index) => validateAssessedRaEntry(entry, challengeDir, index, errors));
+    return;
   }
 
   if (!Array.isArray(challenge.assessed_ca) || challenge.assessed_ca.length === 0) {
@@ -72,9 +111,6 @@ function validateRaAssessment(challenge, challengeDir, errors) {
     }
   }
 
-  if ('context_ra' in challenge && !Array.isArray(challenge.context_ra)) {
-    errors.push(`${challengeDir}: context_ra ha de ser array si està definit`);
-  }
 }
 
 async function validateGlobalFiles(errors) {

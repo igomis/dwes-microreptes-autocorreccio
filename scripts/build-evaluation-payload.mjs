@@ -101,6 +101,13 @@ async function main() {
     challenge_title: challenge.title,
     primary_ra: challenge.primary_ra,
     assessed_ca: challenge.assessed_ca,
+    assessed_ra: Array.isArray(challenge.assessed_ra) ? challenge.assessed_ra : [
+      {
+        ra_id: challenge.primary_ra,
+        assessed_ca: challenge.assessed_ca,
+        weight: 1
+      }
+    ],
     context_ra: challenge.context_ra,
     rubric_id: rubric.rubric_id,
     policies_version: policies.version,

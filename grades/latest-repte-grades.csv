@@ -1,0 +1,3 @@
+student,repo,group,repte_id,repte_title,ra_id,record_type,auto_score,auto_score_mode,teacher_score,teacher_comment,teacher_review_required,timestamp
+cipfpbatoi/microreptes-i-igomis,cipfpbatoi/microreptes-i-igomis,2DAW-A,r1-kickoff-backend,Model client/servidor i elecció guiada de stack,RA1,ra,7.80,weighted_by_repte_weight,,,false,2026-06-01T09:40:56.271Z
+cipfpbatoi/microreptes-i-igomis,cipfpbatoi/microreptes-i-igomis,2DAW-A,r1-kickoff-backend,Model client/servidor i elecció guiada de stack,,repte,,not_calculated_without_ra_weights,,,false,2026-06-01T09:40:56.271Z
