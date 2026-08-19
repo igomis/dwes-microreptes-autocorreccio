@@ -10,6 +10,7 @@
   "summary": "Protegir una accio significativa de R3 amb autenticacio del framework, autoritzacio minima i middleware/guard/policy equivalent.",
   "pedagogical_goal": "Comprovar que l'alumnat sap traslladar l'autenticacio treballada en R2 a les eines pròpies del framework, separant autenticacio, autoritzacio i proteccio de ruta.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "routes/",

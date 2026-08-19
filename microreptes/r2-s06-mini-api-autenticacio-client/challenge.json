@@ -10,6 +10,7 @@
   "summary": "Exposar l'autenticació de R2M5 com una mini API consumible des de client, amb resposta JSON, codis 200/401, token simple i ruta protegida.",
   "pedagogical_goal": "Crear un pont intermodular amb DWEC sense esperar a R4 ni convertir R2 en un repte complet d'API.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",

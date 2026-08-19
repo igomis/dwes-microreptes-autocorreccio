@@ -18,6 +18,7 @@
     "src/",
     "app/",
     "routes/",
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "documentacio/",
@@ -42,7 +43,7 @@
   "expected_signals": [
     "docker compose up o equivalent arranca els serveis definits, o hi ha error documentat amb pla concret",
     "El projecte està adaptat: nom, ports, estructura o resposta inicial no són una còpia plana",
-    "El README permet repetir l'arrencada i comprovar servei web, BBDD i phpMyAdmin quan corresponga",
+    "ENTREGA.md o la documentació del microrepte permet repetir l'arrencada i comprovar servei web, BBDD i phpMyAdmin quan corresponga",
     "Hi ha una URL, ruta o endpoint que respon en execució",
     "La resposta està connectada amb el producte o el seu estat inicial",
     "El punt d'entrada no és només una maqueta estàtica desconnectada del backend",
@@ -50,7 +51,7 @@
     "La documentació del repte està dins del repositori i és accessible des d'un índex o ubicació clara",
     "El tancament explica què queda pendent i quin és el primer pas cap a R2"
   ],
-  "recommended_test_strategy": "Arrancar l'entorn seguint només el README, obrir la ruta documentada, comprovar la resposta, revisar documentació i decisions, contrastar-les amb commits i fer preguntes breus de defensa.",
+  "recommended_test_strategy": "Arrancar l'entorn seguint només ENTREGA.md o la documentació del microrepte, obrir la ruta documentada, comprovar la resposta, revisar documentació i decisions, contrastar-les amb commits i fer preguntes breus de defensa.",
   "source_alignment": [
     "Repte 1 R1M2",
     "Programació d'aula R1 S02",

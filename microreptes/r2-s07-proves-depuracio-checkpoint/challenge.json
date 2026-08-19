@@ -10,6 +10,7 @@
   "summary": "Executar una bateria mínima de proves del flux complet, afegir una prova automàtica lleugera de flux, registrar incidencies, corregir bloquejos i actualitzar la documentacio de reproduccio.",
   "pedagogical_goal": "Comprovar que l'alumne pot verificar i explicar el comportament real del flux abans de crear la primera peça testable amb POO i Composer, introduint automatitzacio lleugera sense exigir encara proves unitàries.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -35,7 +36,7 @@
     "Almenys una prova automàtica lleugera de flux amb `curl`, script `.sh`, script PHP senzill, col·leccio de peticions o equivalent",
     "Instruccions per executar la prova automàtica",
     "Incidencies detectades o confirmacio explícita que no n'hi ha",
-    "README o guia de reproduccio actualitzada",
+    "ENTREGA.md o guia de reproduccio actualitzada",
     "AI log si hi ha ús rellevant d'IA"
   ],
   "ai_log_required": false,

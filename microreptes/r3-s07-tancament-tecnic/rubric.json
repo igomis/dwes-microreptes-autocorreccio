@@ -11,7 +11,7 @@
     {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "El tancament és honest: no oculta mancances, diferencia migrat/ampliat/pendent i deixa base defensable."}
   ],
   "hard_rules": [
-    "Sense README o instruccions d'arrencada, la puntuacio maxima recomanada és 6.",
+    "Sense ENTREGA.md o instruccions d'arrencada, la puntuacio maxima recomanada és 6.",
     "Sense documentacio de BBDD/migracions/fixtures/seeders o script equivalent, la puntuacio maxima recomanada és 7.",
     "Sense documentacio de la proteccio d'accessos, cal penalitzar documentacio i qualitat.",
     "Sense dos fluxos descrits o demostrables, la puntuacio maxima recomanada és 7.",

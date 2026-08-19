@@ -10,6 +10,7 @@
   "summary": "Afegir control d'acces al servei amb cas autoritzat, cas denegat i resposta coherent.",
   "pedagogical_goal": "Diferenciar una API usable d'un endpoint obert sense criteri i adaptar l'autenticacio al context de servei.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",

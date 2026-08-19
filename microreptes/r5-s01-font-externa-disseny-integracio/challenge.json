@@ -10,6 +10,7 @@
   "summary": "Triar una font externa útil, comparar alternatives i dissenyar el mapa inicial del flux híbrid abans d'implementar.",
   "pedagogical_goal": "Evitar integracions ornamentals i comprovar que l'alumne entén contracte, valor, riscos i límits de la font triada.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",

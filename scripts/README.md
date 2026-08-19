@@ -50,7 +50,7 @@ El resolver imprimeix només el `challenge_id` quan tot va bé. Si no troba assi
 
 El builder de payload resol l'autocorrecció activa, carrega polítiques, challenge i rúbrica, imprimeix el JSON formatat i el guarda en `tmp/evaluation-payload.json`.
 
-Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. Estos fitxers els genera el workflow del repositori d'alumne i permeten afegir al payload senyals del repositori i fragments revisables de `README.md`, `docs/`, `evidence/`, `tests/` i `src/`.
+Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. Estos fitxers els genera el workflow del repositori d'alumne i permeten afegir al payload senyals del repositori i fragments revisables de `ENTREGA.md`, `README.md`, `docs/`, `evidence/`, `tests/` i `src/`.
 
 El mock d'autograding llig el payload, aplica regles simples sense OpenAI, imprimeix el JSON formatat i el guarda en `tmp/autograde-result.json`.
 

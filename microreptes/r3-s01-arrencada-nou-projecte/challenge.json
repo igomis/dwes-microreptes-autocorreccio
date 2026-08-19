@@ -10,6 +10,7 @@
   "summary": "Crear una base en framework arrancable amb Docker, configuracio minima, ruta inicial i abast dels dos fluxos de R3.",
   "pedagogical_goal": "Comprovar que l'alumne pot iniciar una base real en framework, justificar l'stack i acotar la reconstruccio de R2 sense convertir-la en migracio total.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -44,7 +45,7 @@
     "L'abast no promet migrar tota l'aplicacio",
     "No hi ha secrets reals en fitxers versionats"
   ],
-  "recommended_test_strategy": "Seguir el README o instruccions d'arrencada, executar Docker o entorn equivalent, obrir la ruta inicial, revisar .env.example, llegir la comparativa i verificar que els dos casos d'us estan acotats.",
+  "recommended_test_strategy": "Seguir ENTREGA.md o instruccions d'arrencada, executar Docker o entorn equivalent, obrir la ruta inicial, revisar .env.example, llegir la comparativa i verificar que els dos casos d'us estan acotats.",
   "source_alignment": [
     "Repte 3 R3M1",
     "Programacio d'aula R3S1",

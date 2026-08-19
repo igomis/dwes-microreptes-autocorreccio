@@ -25,7 +25,7 @@
       "id": "documentation",
       "label": "Documentació",
       "weight": 0.15,
-      "must_check": "El README és executable, indica requisits, arrencada, parada, ports, URL i comprovacions, i la documentació del repte és localitzable dins del repositori."
+      "must_check": "ENTREGA.md o la documentació del microrepte indica requisits, arrencada, parada, ports, URL i comprovacions, i la documentació del repte és localitzable dins del repositori."
     },
     {
       "id": "ai_usage",

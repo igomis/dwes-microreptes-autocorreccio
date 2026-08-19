@@ -10,6 +10,7 @@
   "summary": "Convertir una regla o comprovacio del flux de R2 en una classe simple carregada amb Composer i verificar-la amb una prova unitària mínima, mantenint el flux web funcional.",
   "pedagogical_goal": "Introduir POO, Composer, autoload i proves automàtiques de manera acotada abans d'entrar en l'arquitectura més formal de R3.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",

@@ -25,7 +25,7 @@
       "id": "documentation",
       "label": "Documentació",
       "weight": 0.15,
-      "must_check": "El README o la documentació enllaça la fitxa, resumeix la decisió i deixa clars els dubtes oberts."
+      "must_check": "ENTREGA.md o la documentació enllaça la fitxa, resumeix la decisió i deixa clars els dubtes oberts."
     },
     {
       "id": "ai_usage",
@@ -44,6 +44,6 @@
     "Sense fitxa d'exploració tècnica o document equivalent, la puntuació màxima recomanada és 5.",
     "Si no diferencia client i servidor aplicat al producte propi, la puntuació màxima recomanada és 6.",
     "Si només aporta captures o text d'IA sense elaboració pròpia, cal revisió docent.",
-    "Si no hi ha README o documentació localitzable, aplica la penalització global configurada."
+    "Si no hi ha ENTREGA.md o documentació localitzable, aplica la penalització global configurada."
   ]
 }

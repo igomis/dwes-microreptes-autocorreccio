@@ -10,6 +10,7 @@
   "summary": "Preparar consumidor minim, eina o script que use el servei i tracte cas correcte i error.",
   "pedagogical_goal": "Comprovar que l'API és realment reusable i no només una resposta del servidor.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "evidence/",

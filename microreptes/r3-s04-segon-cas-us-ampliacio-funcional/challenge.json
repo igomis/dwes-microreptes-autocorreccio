@@ -10,6 +10,7 @@
   "summary": "Afegir un segon flux end-to-end o ampliacio funcional útil que use framework, BBDD real i canvi dinàmic verificable.",
   "pedagogical_goal": "Comprovar que la base de R3 pot créixer més enllà d'una demo única sense duplicacio buida ni canvi només visual.",
   "relevant_paths": [
+    "ENTREGA.md",
     "README.md",
     "docs/",
     "routes/",

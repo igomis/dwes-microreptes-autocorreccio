@@ -25,7 +25,7 @@
       "id": "documentation",
       "label": "Documentació",
       "weight": 0.15,
-      "must_check": "El README, issue o registre explica la regla en llenguatge natural, quines dades usa, quin fitxer de llibreria pròpia conté la funcio, on s'importa, quins dos casos cal provar i quin resultat s'espera en cada cas."
+      "must_check": "El fitxer `ENTREGA.md`, issue o registre explica la regla en llenguatge natural, quines dades usa, quin fitxer de llibreria pròpia conté la funcio, on s'importa, quins dos casos cal provar i quin resultat s'espera en cada cas."
     },
     {
       "id": "ai_usage",
