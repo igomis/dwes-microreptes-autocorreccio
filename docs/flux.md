@@ -4,10 +4,13 @@
 
 1. El professor defineix l'autocorrecció de sessió en el repositori central.
 2. L'alumne treballa al seu repositori individual.
-3. L'alumne fa `push`.
-4. El workflow de correcció recull evidències i configuracio.
-5. El sistema genera feedback provisional.
-6. El professor revisa si hi ha flags, baixa confiança o necessitat docent.
+3. L'alumne actualitza `ENTREGA.md` i els fitxers concrets del microrepte.
+4. L'alumne fa `push`.
+5. El workflow de correcció recull evidències i configuracio.
+6. El sistema genera feedback provisional.
+7. El professor revisa si hi ha flags, baixa confiança o necessitat docent.
+
+El `README.md` arrel i els README de carpeta del template serveixen per orientar el repositori. No són, per defecte, documents d'entrega.
 
 ## Autocorrecció activa centralitzada pel professor
 

@@ -14,6 +14,7 @@ El sistema es planteja amb una separacio clara entre configuracio docent i treba
   - contenen el codi de cada alumne;
   - executen workflows propis;
   - aporten evidències de prova, commits i documentacio mínima.
+  - mantenen `ENTREGA.md` com a fitxer principal d'entrega; els `README.md` del template són context o índexs de carpeta, no l'evidència principal del microrepte.
 - GitHub Actions:
   - valida este repositori central;
   - prepararà l'autocorrecció en repositoris d'alumnes;
@@ -53,3 +54,4 @@ Alumnat
 - El feedback esperat és estructurat i també inclou resum en Markdown.
 - Les notes automàtiques són provisionals fins que la política indique el contrari.
 - Les crides a IA queden fora de la primera versio executable.
+- L'autocorrecció ha de prioritzar `ENTREGA.md` i els fitxers concrets de `docs/`, `evidence/`, `tests/` i `src/`; no ha de puntuar els README de carpeta del template com si foren treball de l'alumne.

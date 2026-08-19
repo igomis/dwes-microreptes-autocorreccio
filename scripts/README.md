@@ -50,7 +50,7 @@ El resolver imprimeix només el `challenge_id` quan tot va bé. Si no troba assi
 
 El builder de payload resol l'autocorrecció activa, carrega polítiques, challenge i rúbrica, imprimeix el JSON formatat i el guarda en `tmp/evaluation-payload.json`.
 
-Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. Estos fitxers els genera el workflow del repositori d'alumne i permeten afegir al payload senyals del repositori i fragments revisables de `ENTREGA.md`, `README.md`, `docs/`, `evidence/`, `tests/` i `src/`.
+Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. Estos fitxers els genera el workflow del repositori d'alumne i permeten afegir al payload senyals del repositori i fragments revisables de `ENTREGA.md`, `docs/`, `evidence/`, `tests/` i `src/`. El `README.md` arrel pot aparéixer com a context del repositori base, però no és la fitxa d'entrega. Els README de carpeta del template (`docs/README.md`, `evidence/README.md`, `tests/README.md`) i la documentació de sistema (`docs/autograde.md`) no es tracten com a evidències de microrepte.
 
 El mock d'autograding llig el payload, aplica regles simples sense OpenAI, imprimeix el JSON formatat i el guarda en `tmp/autograde-result.json`.
 

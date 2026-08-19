@@ -22,6 +22,13 @@ const textExtensions = new Set([
 ]);
 const maxFilesPerSection = 12;
 const maxExcerptChars = 4000;
+const templateGuideFiles = new Set([
+  'docs/README.md',
+  'docs/autograde.md',
+  'docs/actualitzar-repos-classroom.md',
+  'evidence/README.md',
+  'tests/README.md'
+]);
 
 function parseArgs(argv) {
   const args = {};
@@ -111,7 +118,7 @@ async function countFiles(dir) {
   return total;
 }
 
-async function listFiles(dir, maxFiles = maxFilesPerSection) {
+async function listFiles(repoDir, dir, maxFiles = maxFilesPerSection) {
   if (!await isDirectory(dir)) {
     return [];
   }
@@ -132,7 +139,7 @@ async function listFiles(dir, maxFiles = maxFilesPerSection) {
       const fullPath = path.join(current, entry.name);
       if (entry.isDirectory()) {
         await walk(fullPath);
-      } else if (entry.isFile()) {
+      } else if (entry.isFile() && !templateGuideFiles.has(path.relative(repoDir, fullPath))) {
         result.push(fullPath);
       }
     }
@@ -225,10 +232,10 @@ async function main() {
     delivery: await fileSummary(repoDir, 'ENTREGA.md'),
     readme: await fileSummary(repoDir, 'README.md'),
     ai_log: await fileSummary(repoDir, 'docs/ai-log.md'),
-    docs_files: await summarizeFiles(repoDir, await listFiles(resolveInRepo(repoDir, 'docs'))),
-    evidence_files: await summarizeFiles(repoDir, await listFiles(resolveInRepo(repoDir, 'evidence'))),
-    test_files: await summarizeFiles(repoDir, await listFiles(resolveInRepo(repoDir, 'tests'))),
-    source_files: await summarizeFiles(repoDir, await listFiles(resolveInRepo(repoDir, 'src')))
+    docs_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'))),
+    evidence_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'))),
+    test_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'tests'))),
+    source_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'src')))
   };
 
   await mkdir(path.dirname(repoSignalsPath), { recursive: true });

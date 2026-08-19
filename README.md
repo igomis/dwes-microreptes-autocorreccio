@@ -56,6 +56,8 @@ Configuració activa inicial:
 
 Vegeu [docs/correccio-massiva.md](docs/correccio-massiva.md).
 
+Per actualitzar repositoris d'alumnes ja creats des del template, vegeu [docs/actualitzar-repos-classroom.md](docs/actualitzar-repos-classroom.md).
+
 Per treballar des del terminal amb `gh`, vegeu [docs/terminal.md](docs/terminal.md).
 
 ## Dashboard del professor
