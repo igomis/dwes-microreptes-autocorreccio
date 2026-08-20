@@ -6,12 +6,12 @@
   "commit": "abc1234def5678",
   "changed_files": [
     "public/index.php",
-    "ENTREGA.md",
+    "README.md",
     "evidence/punt-entrada.md"
   ],
   "repo_signals": {
-    "delivery_present": true,
     "readme_present": true,
+    "template_guide_present": true,
     "ai_log_present": false,
     "declared_runtime": "php",
     "framework_detected": null

@@ -10,7 +10,7 @@
   "summary": "Migrar o reconstruir en el framework un primer flux real heretat de R2 amb ruta, controlador, dades reals, resposta visible, validacio i error minim.",
   "pedagogical_goal": "Comprovar que l'alumne pot convertir la base de R3 en un flux end-to-end real, separant responsabilitats i usant persistencia.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "routes/",

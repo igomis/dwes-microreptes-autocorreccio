@@ -16,7 +16,7 @@
     "routes/",
     "views/",
     "templates/",
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -32,7 +32,7 @@
     "Funcio útil dins de la llibreria pròpia, amb nom clar i responsabilitat recognoscible",
     "Dos casos de prova amb resultats visibles diferents",
     "Resposta, pantalla, resum o missatge on es veja la decisio presa pel backend",
-    "ENTREGA.md, issue o registre que explique la regla, els dos casos i com provar-los",
+    "README.md, issue o registre que explique la regla, els dos casos i com provar-los",
     "Commit o traçabilitat associada a la regla i a la logica implementada",
     "AI log si hi ha ús rellevant d'IA"
   ],

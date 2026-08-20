@@ -16,7 +16,7 @@
     "routes/",
     "views/",
     "templates/",
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -32,7 +32,7 @@
     "Reenviament corregit amb resposta correcta",
     "Processament i guardat funcional simple del cas correcte",
     "Pantalla, llista, resum o resposta posterior on la dada correcta es mostra o recupera",
-    "ENTREGA.md, issue o registre que explique com provar l'error i el reintent",
+    "README.md, issue o registre que explique com provar l'error i el reintent",
     "Commit o traçabilitat associada al processament del reintent i al guardat funcional",
     "AI log si hi ha ús rellevant d'IA"
   ],

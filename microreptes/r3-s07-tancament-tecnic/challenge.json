@@ -7,10 +7,10 @@
     "R3M7"
   ],
   "title": "Tancament tecnic",
-  "summary": "Tancar R3 amb ENTREGA.md reproduïble, documentacio de BBDD, dos fluxos, decisions, demo i backlog cap a R4.",
+  "summary": "Tancar R3 amb README.md reproduïble, documentacio de BBDD, dos fluxos, decisions, demo i backlog cap a R4.",
   "pedagogical_goal": "Comprovar que el projecte en framework és comprensible, reproduïble i defensable abans d'obrir API en R4.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -37,7 +37,7 @@
   "ai_log_required": false,
   "expected_signals": [
     "Una altra persona pot arrancar el projecte",
-    "ENTREGA.md o les instruccions de reproducció coincideixen amb el codi real",
+    "README.md o les instruccions de reproducció coincideixen amb el codi real",
     "Els dos fluxos són demostrables",
     "Queda clar què s'ha migrat i què queda fora",
     "El pas a R4 està justificat"

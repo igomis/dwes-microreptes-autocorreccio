@@ -10,7 +10,7 @@
   "summary": "Definir quin recurs real del projecte es publicarà com a API, amb endpoints, request/response, errors i valor funcional.",
   "pedagogical_goal": "Evitar APIs improvisades i comprovar que l'alumne pot pensar en contracte abans d'implementar.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

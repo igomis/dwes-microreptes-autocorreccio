@@ -13,4 +13,4 @@ Evidències mínimes:
 - alternativa descartada i dubtes oberts;
 - referència a fonts o ús d'IA, si n'hi ha.
 
-El document ha d'estar referenciat en `ENTREGA.md` i pot estar en `docs/`, `documentacio/`, `evidence/` o en una fitxa específica, però ha de formar part del repositori i ser fàcil de trobar. `README.md` és documentació base del repositori i no ha de ser l'evidència principal de l'entrega.
+El document ha d'estar referenciat en `README.md` i pot estar en `docs/`, `documentacio/`, `evidence/` o en una fitxa específica, però ha de formar part del repositori i ser fàcil de trobar. `README.md` és documentació base del repositori i no ha de ser l'evidència principal de l'entrega.

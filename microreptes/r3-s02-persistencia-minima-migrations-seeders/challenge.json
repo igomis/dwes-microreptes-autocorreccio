@@ -10,7 +10,7 @@
   "summary": "Crear BBDD real reconstruïble amb migracions o mecanisme equivalent, dades inicials amb fixtures/seeders o script equivalent i una primera lectura de conjunt de dades usable.",
   "pedagogical_goal": "Comprovar que la persistencia de R3 és real, reproduïble i connectada als fluxos triats, no una demo manual o un array temporal.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "database/",

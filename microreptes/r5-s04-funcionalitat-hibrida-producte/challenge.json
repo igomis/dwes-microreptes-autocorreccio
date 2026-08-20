@@ -10,7 +10,7 @@
   "summary": "Connectar connector i transformació amb una pantalla, endpoint, procés o automatització real del producte.",
   "pedagogical_goal": "Comprovar que la integració no queda com una demo aïllada i que genera valor observable en el producte final.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

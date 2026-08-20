@@ -10,7 +10,7 @@
   "summary": "Afegir una persistència mínima real al flux de R2 amb PHP pur: connexió, taula, alta, lectura i consultes preparades, sense entrar encara en ORM ni framework.",
   "pedagogical_goal": "Introduir l'accés a BBDD des de PHP abans de R3, de manera acotada i vinculada a una dada significativa del projecte.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

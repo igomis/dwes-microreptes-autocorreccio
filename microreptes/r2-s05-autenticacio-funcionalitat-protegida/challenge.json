@@ -16,7 +16,7 @@
     "routes/",
     "views/",
     "templates/",
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -34,7 +34,7 @@
     "Cas no autenticat denegat",
     "Cas autenticat permés",
     "Cas no autoritzat si el projecte ja té rol, propietat o restriccio simple",
-    "ENTREGA.md, issue o registre amb forma de registre, usuaris de prova i passos",
+    "README.md, issue o registre amb forma de registre, usuaris de prova i passos",
     "Commit o traçabilitat associada",
     "AI log si hi ha ús rellevant d'IA"
   ],

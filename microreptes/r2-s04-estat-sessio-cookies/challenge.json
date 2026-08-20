@@ -16,7 +16,7 @@
     "routes/",
     "views/",
     "templates/",
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -34,7 +34,7 @@
     "Demo o documentacio de recuperacio del flux amb sessio i cookie",
     "Accio de neteja, reinici o invalidacio controlada",
     "Explicacio de què queda en client, què queda en servidor, què ve de `$_SERVER` i què no és persistencia",
-    "ENTREGA.md, issue o registre amb passos abans/després",
+    "README.md, issue o registre amb passos abans/després",
     "Commit o traçabilitat associada",
     "AI log si hi ha ús rellevant d'IA"
   ],

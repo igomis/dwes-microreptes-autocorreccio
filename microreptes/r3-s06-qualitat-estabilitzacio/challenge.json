@@ -10,7 +10,7 @@
   "summary": "Estabilitzar els fluxos de R3 amb proves, errors, validacio, revisio de responsabilitats, comprovacio de BBDD reproduïble i proteccio d'accessos.",
   "pedagogical_goal": "Comprovar que la base en framework és reproduïble, verificable i mantenible, no només una demo puntual.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "tests/",

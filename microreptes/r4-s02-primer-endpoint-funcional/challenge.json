@@ -10,7 +10,7 @@
   "summary": "Publicar un primer endpoint real amb resposta estructurada i dades o accio del projecte.",
   "pedagogical_goal": "Comprovar que el contracte passa a comportament executable sense reobrir el bloc de persistencia de R3.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

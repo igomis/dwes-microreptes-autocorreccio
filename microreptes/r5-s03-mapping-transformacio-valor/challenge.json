@@ -10,7 +10,7 @@
   "summary": "Transformar la resposta externa perquè encaixe amb el domini del producte i demostrar el valor aportat.",
   "pedagogical_goal": "Evitar mostrar dades externes en cru i comprovar que l'alumne adapta, filtra i justifica la informació integrada.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

@@ -10,7 +10,7 @@
   "summary": "Implementar un connector o mecanisme d'accés que recupere resposta real i controle almenys un error significatiu.",
   "pedagogical_goal": "Comprovar que l'alumne pot passar del disseny a una connexió reproduïble, segura i explicable.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

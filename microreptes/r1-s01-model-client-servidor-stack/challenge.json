@@ -11,7 +11,7 @@
   "summary": "Entendre el model client/servidor del producte, diferenciar l'execució en client i servidor, i justificar una primera decisió tècnica orientativa.",
   "pedagogical_goal": "Comprovar que l'alumne sap explicar el paper del backend, caracteritza els mecanismes d'execució web i pren una decisió tècnica inicial coherent amb el marc del curs.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "documentacio/",

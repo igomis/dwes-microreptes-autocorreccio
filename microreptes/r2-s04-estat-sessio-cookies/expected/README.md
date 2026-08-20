@@ -11,7 +11,7 @@
 - demo de recuperacio de sessio i cookie;
 - accio de neteja o invalidacio;
 - explicacio de client, servidor, `$_SERVER`, includes i persistencia;
-- ENTREGA.md, issue o registre amb passos abans/després;
+- README.md, issue o registre amb passos abans/després;
 - commit o traçabilitat.
 
 Fora del minim: login, rols, autoritzacio, MVC i base de dades.

@@ -16,7 +16,7 @@
     "routes/",
     "views/",
     "templates/",
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",
@@ -29,7 +29,7 @@
     "Validació bàsica de servidor amb una condició simple i una variable o missatge d'error",
     "Demo o captura d'un cas incorrecte amb error visible",
     "Demo o captura del reenviament corregit",
-    "ENTREGA.md, issue o registre que explique com provar el cas correcte i un error",
+    "README.md, issue o registre que explique com provar el cas correcte i un error",
     "Commit o traçabilitat associada al formulari i a la validació",
     "AI log si hi ha ús rellevant d'IA"
   ],

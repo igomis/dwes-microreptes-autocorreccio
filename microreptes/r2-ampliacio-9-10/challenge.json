@@ -16,7 +16,7 @@
   "summary": "Filtrar si una ampliacio integrada del Repte 2 pot optar a la franja 9-10 una vegada el nucli obligatori ja està complet, funcional i validat.",
   "pedagogical_goal": "Diferenciar nota de nucli i via d'excellencia: l'ampliacio no compensa mancances del repte base i ha d'aportar valor real, verificable i defensable.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

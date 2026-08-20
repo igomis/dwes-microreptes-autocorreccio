@@ -10,7 +10,7 @@
   "summary": "Tancar la integració amb prova positiva, prova d'error, mapa final, documentació tècnica i mini defensa.",
   "pedagogical_goal": "Fer que la integració siga reproduïble, verificable i defensable abans de la defensa final del producte.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

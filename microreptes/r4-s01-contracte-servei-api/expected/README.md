@@ -5,4 +5,4 @@
 - Taula request/response.
 - Errors i codis d'estat mínims.
 - Justificació funcional del servei.
-- `ENTREGA.md`, issue o document d'API.
+- `README.md`, issue o document d'API.

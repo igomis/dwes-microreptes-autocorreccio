@@ -25,7 +25,7 @@
       "id": "documentation",
       "label": "Documentació",
       "weight": 0.15,
-      "must_check": "El fitxer `ENTREGA.md`, issue o registre explica com provocar l'error, quines dades es conserven, com reenviar corregit i què es guarda quan el cas és correcte."
+      "must_check": "El fitxer `README.md`, issue o registre explica com provocar l'error, quines dades es conserven, com reenviar corregit i què es guarda quan el cas és correcte."
     },
     {
       "id": "ai_usage",

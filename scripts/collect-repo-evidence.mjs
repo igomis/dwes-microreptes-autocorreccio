@@ -207,8 +207,8 @@ async function main() {
     repository: args.repo,
     commit: args.commit,
     files: {
-      delivery: await exists(resolveInRepo(repoDir, 'ENTREGA.md')),
       readme: await exists(resolveInRepo(repoDir, 'README.md')),
+      template_guide: await exists(resolveInRepo(repoDir, 'ENTREGA.md')),
       ai_log: await exists(resolveInRepo(repoDir, 'docs/ai-log.md')),
       student_meta: await exists(resolveInRepo(repoDir, 'student-meta.json'))
     },
@@ -229,8 +229,8 @@ async function main() {
 
   const summary = {
     generated_at: new Date().toISOString(),
-    delivery: await fileSummary(repoDir, 'ENTREGA.md'),
     readme: await fileSummary(repoDir, 'README.md'),
+    template_guide: await fileSummary(repoDir, 'ENTREGA.md'),
     ai_log: await fileSummary(repoDir, 'docs/ai-log.md'),
     docs_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'))),
     evidence_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'))),

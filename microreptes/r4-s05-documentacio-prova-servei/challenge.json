@@ -10,7 +10,7 @@
   "summary": "Tancar R4 amb documentacio d'endpoints, proves reproduïbles, incidencies i mini defensa de contracte i consum.",
   "pedagogical_goal": "Comprovar que una altra persona pot entendre, provar i consumir el servei abans d'obrir R5.",
   "relevant_paths": [
-    "ENTREGA.md",
+    "README.md",
     "README.md",
     "docs/",
     "evidence/",

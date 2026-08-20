@@ -14,7 +14,7 @@ Perquè l'autocorrecció actual funcione amb evidències reals del repositori de
 - `docs/autograde.md`
 - `ENTREGA.md`, si encara no existeix en el repositori de l'alumne.
 
-El `README.md`, `docs/ai-log.md`, `evidence/README.md` i `tests/README.md` són recomanables, però si l'alumne ja els ha modificat no convé sobreescriure'ls sense revisar. `ENTREGA.md` és un fitxer de treball de l'alumne: si ja existeix, no s'ha de sobreescriure.
+El `README.md` és el fitxer de treball de l'alumne: si ja existeix, no s'ha de sobreescriure. `ENTREGA.md`, `docs/ai-log.md`, `evidence/README.md` i `tests/README.md` són recomanables com a suport de template, però si l'alumne ja els ha modificat no convé sobreescriure'ls sense revisar.
 
 ## Configuració del repositori d'alumne
 
