@@ -37,7 +37,7 @@
       "id": "code_quality",
       "label": "Qualitat tècnica",
       "weight": 0.15,
-      "must_check": "La comparació de tecnologies és acotada, realista i alineada amb el recorregut del curs."
+      "must_check": "La comparació de tecnologies és acotada, realista, orientada a R1M2 i deixa clar que el framework complet queda per a R3 o més avant."
     }
   ],
   "hard_rules": [

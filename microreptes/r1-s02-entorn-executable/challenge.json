@@ -7,9 +7,9 @@
   "microreptes_covered": [
     "R1M2"
   ],
-  "title": "Entorn executable, punt d'entrada i tancament de R1",
-  "summary": "Configurar una base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin, crear un primer punt d'entrada funcional del backend i tancar R1 amb documentació verificable.",
-  "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, transforma la infraestructura en una resposta funcional simple i deixa el kickoff executable, documentat i defensable abans de passar a R2.",
+  "title": "Entorn executable, landing inicial i tancament de R1",
+  "summary": "Configurar una base executable amb Docker, PHP, servidor web, BBDD i phpMyAdmin, crear una landing inicial del producte servida pel backend i tancar R1 amb documentació verificable.",
+  "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, transforma la infraestructura en una primera entrada visible del producte i deixa el kickoff executable, documentat i defensable abans de passar a R2.",
   "relevant_paths": [
     "docker-compose.yml",
     "compose.yaml",
@@ -30,12 +30,13 @@
   "required_evidence": [
     "Configuració Docker o equivalent amb PHP, servidor web, BBDD i phpMyAdmin, o error real documentat amb hipòtesi i pla de correcció",
     "README executable amb requisits, arrencada, parada, serveis, ports, URL i resultat esperat",
-    "Ruta, vista, endpoint, landing mínima o healthcheck funcional servit pel backend",
-    "Demo, captura, log o URL de comprovació de l'entorn i del punt d'entrada",
+    "Landing inicial del producte servida pel backend, amb contingut propi i CSS senzill",
+    "Healthcheck o endpoint d'estat només com a comprovació tècnica auxiliar, si n'hi ha",
+    "Demo, captura, log o URL de comprovació de l'entorn i de la landing",
     "Documentació localitzable dins del repositori",
     "Justificació tècnica curta, decisió o ADR inicial",
     "Registre d'incidències, verificacions i pendent de pas a R2",
-    "Commit o traçabilitat associada a l'entorn i al punt d'entrada",
+    "Commit o traçabilitat associada a l'entorn i a la landing",
     "Explicació del flux petició, execució en servidor i resposta",
     "AI log si hi ha ús rellevant d'IA"
   ],
@@ -44,14 +45,15 @@
     "docker compose up o equivalent arranca els serveis definits, o hi ha error documentat amb pla concret",
     "El projecte està adaptat: nom, ports, estructura o resposta inicial no són una còpia plana",
     "README.md o la documentació del microrepte permet repetir l'arrencada i comprovar servei web, BBDD i phpMyAdmin quan corresponga",
-    "Hi ha una URL, ruta o endpoint que respon en execució",
-    "La resposta està connectada amb el producte o el seu estat inicial",
-    "El punt d'entrada no és només una maqueta estàtica desconnectada del backend",
+    "Hi ha una URL de landing que respon en execució",
+    "La landing està connectada amb el producte o el seu estat inicial",
+    "Un healthcheck, si existeix, no és l'única entrega funcional",
+    "La landing no és només una maqueta estàtica oberta fora del servidor",
     "L'alumne identifica què fa cada servei i quin fitxer o peça respon a la petició",
     "La documentació del repte està dins del repositori i és accessible des d'un índex o ubicació clara",
     "El tancament explica què queda pendent i quin és el primer pas cap a R2"
   ],
-  "recommended_test_strategy": "Arrancar l'entorn seguint només README.md o la documentació del microrepte, obrir la ruta documentada, comprovar la resposta, revisar documentació i decisions, contrastar-les amb commits i fer preguntes breus de defensa.",
+  "recommended_test_strategy": "Arrancar l'entorn seguint només README.md o la documentació del microrepte, obrir la URL de la landing documentada, comprovar que està servida pel backend, revisar documentació i decisions, contrastar-les amb commits i fer preguntes breus de defensa.",
   "source_alignment": [
     "Repte 1 R1M2",
     "Programació d'aula R1 S02",

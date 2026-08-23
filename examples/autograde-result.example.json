@@ -21,7 +21,7 @@
       "id": "traceability",
       "score": 0.82,
       "max_score": 1,
-      "reason": "Valor simulat a partir de la rubrica: El canvi del punt d'entrada es pot localitzar."
+      "reason": "Valor simulat a partir de la rubrica: El canvi de la landing inicial es pot localitzar."
     },
     {
       "id": "documentation",
