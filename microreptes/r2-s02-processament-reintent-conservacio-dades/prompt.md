@@ -2,13 +2,14 @@
 
 Avalua la sessió d'autocorrecció `r2-s02-processament-reintent-conservacio-dades` només amb les evidències disponibles al repositori de l'alumne.
 
-Esta autocorrecció correspon a `R2-S02` i al microrepte `R2M2`: processament, reintent i guardat funcional. El criteri és progressiu respecte de `R2M1`. Espera que ja hi haja un formulari o entrada equivalent amb validació bàsica, però no esperes encara persistència formal, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, checkbox múltiples ni fitxers com a mínim.
+Esta autocorrecció correspon a `R2-S02` i al microrepte `R2M2`: processament, reintent i guardat funcional. El criteri és progressiu respecte de `R2M1`. Espera que ja hi haja un formulari o entrada equivalent amb validació bàsica, però no esperes encara persistència formal, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, checkbox múltiples ni fitxers com a mínim. Penalitza que l'alumne presente un formulari nou desconnectat en lloc d'evolucionar el flux de R2M1.
 
 Comprova la continuïtat amb `R2M1`:
 
 - hi ha una entrada de formulari o equivalent que arriba al servidor;
 - hi ha una condició de servidor que pot generar un error visible;
 - el cas amb error no es resol només amb validació de client.
+- la sessió mostra una millora del flux anterior: dades conservades, reintent i guardat funcional.
 
 Comprova el reintent:
 
@@ -40,6 +41,6 @@ Comprova la documentació i traçabilitat:
 - hi ha commit o canvi localitzable associat al processament del reintent i al guardat funcional;
 - si s'ha usat IA de manera rellevant, hi ha registre breu i verificació posterior.
 
-No penalitzes que no hi haja persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples. Sí que has de penalitzar un formulari que torna buit després de l'error, valors fixos que simulen conservació, dades guardades quan encara hi ha error, absència total de guardat funcional del cas correcte, validació només de client o codi massa avançat que l'alumne no pot explicar.
+No penalitzes que no hi haja persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples. Sí que has de penalitzar un formulari nou desconnectat de R2M1, un formulari que torna buit després de l'error, valors fixos que simulen conservació, dades guardades quan encara hi ha error, absència total de guardat funcional del cas correcte, validació només de client o codi massa avançat que l'alumne no pot explicar.
 
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisió docent si la confiança és baixa, si falta evidència crítica o si apareixen flags.

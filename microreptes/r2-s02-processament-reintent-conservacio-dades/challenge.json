@@ -24,6 +24,7 @@
   ],
   "required_evidence": [
     "Flux que parteix del formulari o entrada equivalent de R2M1",
+    "Evolució directa de la mateixa acció del projecte, no formulari nou desconnectat",
     "Recepció de dades enviades en servidor amb `$_POST` o mecanisme equivalent",
     "Error visible generat per una condició de servidor",
     "Formulari regenerat després de l'error amb dades aprofitables conservades",
@@ -39,6 +40,7 @@
   "ai_log_required": false,
   "expected_signals": [
     "El formulari no torna buit després d'un error",
+    "El flux manté continuïtat amb R2M1 i mostra què ha millorat respecte de la sessió anterior",
     "Els valors conservats venen de dades enviades realment, no de literals fixos",
     "El codi prepara valors per a `value`, `selected`, `checked` o equivalents",
     "La validació continua sent de servidor i no només de client",

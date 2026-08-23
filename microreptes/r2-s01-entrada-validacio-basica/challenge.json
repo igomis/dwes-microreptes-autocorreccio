@@ -42,6 +42,7 @@
     "L'error visible correspon a una condició real del codi",
     "El cas corregit es pot reenviar i genera una resposta correcta",
     "No es demanen arrays d'errors, checkbox múltiple, fitxers ni validació acumulada com a mínim",
+    "No s'exigeix encara reintent amb dades conservades ni guardat funcional del cas correcte; això correspon a R2M2",
     "L'alumne pot explicar què passa quan falta la dada validada"
   ],
   "recommended_test_strategy": "Executar el formulari, enviar un cas incorrecte, comprovar el missatge d'error, reenviar un cas correcte, revisar el fragment PHP que recupera dades i preguntar per la condició que genera l'error.",

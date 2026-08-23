@@ -47,6 +47,7 @@
     "Sense error visible generat per una condició real de servidor, la puntuació màxima recomanada és 7.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
     "No penalitzes l'absència d'arrays d'errors, fitxers o checkbox múltiple en esta sessió.",
+    "No penalitzes l'absència de reintent amb dades conservades ni guardat funcional del cas correcte en esta sessió.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }
