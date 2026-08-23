@@ -10,7 +10,7 @@ Evidències mínimes:
 - comprovació del servei web i de la landing;
 - comprovació de BBDD i phpMyAdmin, o error documentat amb pla de correcció;
 - documentació localitzable dins del repositori;
-- justificació tècnica curta, decisió o ADR inicial;
+- justificació tècnica curta o nota tècnica de decisió inicial;
 - registre d'una incidència, dubte o pendent de pas a R2;
 - commit o traçabilitat equivalent de l'entorn i de la landing.
 

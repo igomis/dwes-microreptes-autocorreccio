@@ -29,7 +29,7 @@ Comprova finalment si el repte queda tancat i defensable:
 - documentació dins del repositori;
 - fitxa de `R1M1`, decisió tècnica, incidències i comprovacions incorporades al repo;
 - índex, apartat d'`README.md` o pàgina visible que permeta localitzar eixa documentació;
-- justificació tècnica curta o ADR inicial;
+- justificació tècnica curta o nota tècnica de decisió inicial;
 - evidència de verificació de l'entorn i de la landing;
 - AI log quan hi haja ús rellevant d'IA;
 - pendent o primer pas previst cap a R2.

@@ -23,7 +23,6 @@
     "docs/",
     "documentacio/",
     "evidence/",
-    "ADR.md",
     "decisions/",
     "ai-log.md"
   ],
@@ -34,7 +33,7 @@
     "Healthcheck o endpoint d'estat només com a comprovació tècnica auxiliar, si n'hi ha",
     "Demo, captura, log o URL de comprovació de l'entorn i de la landing",
     "Documentació localitzable dins del repositori",
-    "Justificació tècnica curta, decisió o ADR inicial",
+    "Justificació tècnica curta o nota tècnica de decisió inicial",
     "Registre d'incidències, verificacions i pendent de pas a R2",
     "Commit o traçabilitat associada a l'entorn i a la landing",
     "Explicació del flux petició, execució en servidor i resposta",
