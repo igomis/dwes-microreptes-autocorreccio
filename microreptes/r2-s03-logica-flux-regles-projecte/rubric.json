@@ -7,7 +7,7 @@
       "id": "functional_resolution",
       "label": "Resolució funcional",
       "weight": 0.3,
-      "must_check": "Hi ha una regla del projecte implementada en servidor amb decisio observable, dades reals del flux, array o estructura útil, funcio clara en una llibreria pròpia importada i dos resultats visibles diferents."
+      "must_check": "Hi ha una regla del projecte implementada en servidor amb decisio observable, dades reals del flux preparat en R2M1/R2M2, array o estructura útil, funcio clara en una llibreria pròpia importada i dos resultats visibles diferents."
     },
     {
       "id": "verification",
@@ -43,6 +43,7 @@
   "hard_rules": [
     "Sense flux executable que vinga de formulari, reintent o guardat funcional, la puntuacio maxima recomanada és 5.",
     "Sense regla del projecte connectada al domini, la puntuacio maxima recomanada és 6.",
+    "Si la regla depén d'un formulari nou creat només per a R2M3 i no del flux anterior, cal revisio docent.",
     "Sense dos casos amb resultats visibles diferents, la puntuacio maxima recomanada és 7.",
     "Sense array o estructura equivalent usada amb sentit, la puntuacio maxima recomanada és 8.",
     "Sense funcio útil amb responsabilitat recognoscible, la puntuacio maxima recomanada és 8.",

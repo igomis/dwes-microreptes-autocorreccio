@@ -7,7 +7,7 @@
       "id": "functional_resolution",
       "label": "Resolució funcional",
       "weight": 0.35,
-      "must_check": "Hi ha un formulari o entrada equivalent amb text, opció tancada i checkbox, i el servidor rep les dades."
+      "must_check": "Hi ha un formulari o entrada equivalent connectat amb una acció de la landing i del projecte, amb text, opció tancada i checkbox, i el servidor rep les dades."
     },
     {
       "id": "verification",
@@ -45,6 +45,8 @@
     "Sense recepció de dades en servidor, la puntuació màxima recomanada és 5.",
     "Si la validació només és de client, la puntuació màxima recomanada és 6.",
     "Sense error visible generat per una condició real de servidor, la puntuació màxima recomanada és 7.",
+    "Si el formulari és genèric i no es pot relacionar amb cap acció real del projecte, cal revisió docent.",
+    "No exigisques que la regla de R2M3 estiga implementada, però sí que hi haja alguna dada tancada o classificada que la puga alimentar.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
     "No penalitzes l'absència d'arrays d'errors, fitxers o checkbox múltiple en esta sessió.",
     "No penalitzes l'absència de reintent amb dades conservades ni guardat funcional del cas correcte en esta sessió.",

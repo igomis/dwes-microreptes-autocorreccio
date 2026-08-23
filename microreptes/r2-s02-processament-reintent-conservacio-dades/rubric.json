@@ -7,7 +7,7 @@
       "id": "functional_resolution",
       "label": "Resolució funcional",
       "weight": 0.3,
-      "must_check": "Hi ha un flux executable amb error visible, formulari regenerat amb dades aprofitables conservades, reenviament corregit i cas correcte guardat funcionalment."
+      "must_check": "Hi ha un flux executable que manté l'acció de R2M1, amb error visible, formulari regenerat amb dades aprofitables conservades, reenviament corregit i cas correcte guardat funcionalment."
     },
     {
       "id": "verification",
@@ -43,6 +43,7 @@
   "hard_rules": [
     "Sense formulari o entrada equivalent enviada al servidor, la puntuació màxima recomanada és 5.",
     "Si és un formulari nou desconnectat del flux de R2M1, cal revisió docent.",
+    "Si es perd o se substitueix per un valor fix la dada tancada o classificada que havia de permetre una regla posterior, cal revisió docent.",
     "Sense error visible generat per una condició de servidor, la puntuació màxima recomanada és 6.",
     "Si el formulari torna buit després de l'error, la puntuació màxima recomanada és 7.",
     "Si els valors conservats són literals fixos i no dades de l'enviament, la puntuació màxima recomanada és 7.",

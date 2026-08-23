@@ -25,7 +25,7 @@
   "required_evidence": [
     "Flux que parteix del formulari, reintent o guardat funcional treballat en R2M2",
     "Regla del projecte escrita o explicada en llenguatge natural",
-    "Decisio de servidor connectada a dades reals del formulari, del flux o del guardat funcional",
+    "Decisio de servidor connectada a dades reals del formulari, del flux o del guardat funcional preparades en R2M1 i R2M2",
     "Array o estructura equivalent usada amb sentit funcional",
     "Fitxer separat de llibreria pròpia, com `src/regles.php`, `includes/regles.php`, `lib/funcions.php` o equivalent",
     "Import real de la llibreria amb `require_once`, `include_once` o mecanisme equivalent",
@@ -39,6 +39,7 @@
   "ai_log_required": false,
   "expected_signals": [
     "La regla té sentit dins del producte i no és un exemple generic desconnectat",
+    "La regla naix de l'acció triada des de la landing i no d'un formulari nou creat només per a R2M3",
     "La decisio canvia el resultat segons dades reals, no segons literals fixos",
     "Hi ha almenys dos casos reproduïbles que forcen resultats diferents",
     "L'array o estructura representa opcions, cataleg, llista, regles o elements del domini",

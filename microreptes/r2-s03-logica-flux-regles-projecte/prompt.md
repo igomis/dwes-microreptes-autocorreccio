@@ -9,8 +9,10 @@ En esta versio de `R2M3`, la regla ha d'estar implementada amb una separacio mí
 Comprova la continuïtat amb `R2M2`:
 
 - hi ha una entrada o flux de dades que arriba al servidor;
+- el flux manté l'acció triada des de la landing i treballada en `R2M1`;
 - hi ha alguna validacio o reintent previ que no queda substituït per una demo aïllada;
 - la regla nova usa dades reals del formulari, del flux o del guardat funcional.
+- la regla no obliga a inventar un formulari nou perquè el formulari anterior era massa genèric.
 
 Comprova la regla del projecte:
 
@@ -48,6 +50,6 @@ Comprova la documentacio i traçabilitat:
 - hi ha commit o canvi localitzable associat a la regla, la funcio i l'estructura usada;
 - si s'ha usat IA de manera rellevant, hi ha registre breu i verificacio posterior.
 
-No penalitzes que no hi haja sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal, base de dades, arquitectura completa o refactoritzacio general. Sí que has de penalitzar logica ornamental, condicions que sempre generen el mateix resultat, arrays no usats, funcions sense responsabilitat, absencia de llibreria pròpia importada, imports que no s'usen, resultats desconnectats del domini, dades fixes que simulen comportament o codi massa avançat que l'alumne no pot explicar.
+No penalitzes que no hi haja sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal, base de dades, arquitectura completa o refactoritzacio general. Sí que has de penalitzar logica ornamental, condicions que sempre generen el mateix resultat, arrays no usats, funcions sense responsabilitat, absencia de llibreria pròpia importada, imports que no s'usen, resultats desconnectats del domini, formularis nous creats només per poder decidir en R2M3, dades fixes que simulen comportament o codi massa avançat que l'alumne no pot explicar.
 
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisio docent si la confiança és baixa, si falta evidencia crítica o si apareixen flags.
