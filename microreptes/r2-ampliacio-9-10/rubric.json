@@ -46,6 +46,7 @@
     "Sense commit, branca, diff o traçabilitat clara de l'ampliacio, la candidatura ha de marcar-se com a revisio docent i no sumar automàticament.",
     "Sense prova, demo o checklist reproduïble de l'ampliacio, la candidatura no hauria de superar la franja mínima de revisio.",
     "Una pantalla decorativa, canvi visual o codi lateral no integrat no compta com a ampliacio 9-10.",
+    "R2S10 pot comptar com a ampliacio 9-10 si documenta un contracte d'autenticacio consumible per DWEC i inclou prova creuada o validacio equivalent.",
     "Una API externa o llibreria només compta si aporta valor real al flux de R2 i està documentada i provada.",
     "L'AI log no acredita autoria per si sol; cal contrast amb codi, commits, proves i defensa.",
     "Esta autocorreccio no assigna directament la nota final: filtra candidatura i informa la revisio docent.",

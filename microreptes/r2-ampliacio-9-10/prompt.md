@@ -16,6 +16,8 @@ Després revisa l'ampliacio:
 - l'alumne pot defensar-la;
 - l'AI log és verificable si hi ha ús rellevant d'IA.
 
+Si l'ampliacio presentada és `R2S10`, comprova que no es presenta com a microrepte nou: ha de ser una sessio d'ampliacio intermodular amb contracte d'autenticacio consumible per `DWEC`, incloent endpoints, headers, respostes, dades demo i prova creuada o validacio equivalent.
+
 No valores positivament una API externa, llibreria o codi avançat només perquè parega sofisticat. Ha d'aportar valor real i estar provat.
 
 Marca revisio docent si la candidatura sembla viable però cal confirmar defensa, autoria o qualitat de la integracio.
