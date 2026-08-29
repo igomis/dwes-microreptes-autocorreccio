@@ -48,6 +48,7 @@
     "La funcio encapsula una comprovacio, calcul, classificacio o preparacio útil",
     "El resultat de la regla es mostra en una resposta generada pel servidor",
     "La validacio i el reintent previs no queden trencats",
+    "Els errors acumulats en array poden aparéixer com a ampliació si el nucli de R2M3 ja està resolt, però no substitueixen la regla de domini obligatòria",
     "No es demanen encara sessio, cookies, login, rols, autoritzacio, MVC ni persistencia formal com a mínim",
     "L'alumne pot explicar què decideix el backend i modificar una condicio o valor de cataleg"
   ],

@@ -41,6 +41,8 @@ Comprova la verificacio:
 - el flux anterior de validacio, reintent i guardat funcional no queda trencat;
 - si es mostra text de l'usuari, hi ha algun tractament o escapament raonable segons el nivell.
 
+Si l'alumne incorpora errors acumulats en array, tracta-ho com a ampliació coherent de `R2M3` només quan el nucli ja està resolt: regla de domini, array o estructura útil, funcio pròpia en llibreria importada i dos resultats visibles. No exigisques esta ampliació com a mínim i no la uses per compensar una regla de domini absent o ornamental.
+
 Comprova la documentacio i traçabilitat:
 
 - `README`, issue o registre explica la regla;
@@ -50,6 +52,6 @@ Comprova la documentacio i traçabilitat:
 - hi ha commit o canvi localitzable associat a la regla, la funcio i l'estructura usada;
 - si s'ha usat IA de manera rellevant, hi ha registre breu i verificacio posterior.
 
-No penalitzes que no hi haja sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal, base de dades, arquitectura completa o refactoritzacio general. Sí que has de penalitzar logica ornamental, condicions que sempre generen el mateix resultat, arrays no usats, funcions sense responsabilitat, absencia de llibreria pròpia importada, imports que no s'usen, resultats desconnectats del domini, formularis nous creats només per poder decidir en R2M3, dades fixes que simulen comportament o codi massa avançat que l'alumne no pot explicar.
+No penalitzes que no hi haja errors acumulats en array, sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal, base de dades, arquitectura completa o refactoritzacio general. Sí que has de penalitzar logica ornamental, condicions que sempre generen el mateix resultat, arrays no usats, funcions sense responsabilitat, absencia de llibreria pròpia importada, imports que no s'usen, resultats desconnectats del domini, formularis nous creats només per poder decidir en R2M3, dades fixes que simulen comportament o codi massa avançat que l'alumne no pot explicar.
 
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisio docent si la confiança és baixa, si falta evidencia crítica o si apareixen flags.
