@@ -2,7 +2,7 @@
 
 Avalua la sessió d'autocorrecció `r2-s02-processament-reintent-conservacio-dades` només amb les evidències disponibles al repositori de l'alumne.
 
-Esta autocorrecció correspon a `R2-S02` i al microrepte `R2M2`: processament, reintent i guardat funcional. El criteri és progressiu respecte de `R2M1`. Espera que ja hi haja un formulari o entrada equivalent amb validació bàsica, però no esperes encara persistència formal, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, checkbox múltiples ni fitxers com a mínim. Penalitza que l'alumne presente un formulari nou desconnectat en lloc d'evolucionar el flux de R2M1.
+Esta autocorrecció correspon a `R2-S02` i al microrepte `R2M2`: processament, reintent i guardat funcional. El criteri és progressiu respecte de `R2M1`. Espera que ja hi haja un formulari o entrada equivalent amb validació bàsica, però no esperes encara persistència formal, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, checkbox múltiples ni fitxers com a mínim de `R2M2`. Això no vol dir que la validació acumulada quede fora del `Repte 2`: pot aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte. Penalitza que l'alumne presente un formulari nou desconnectat en lloc d'evolucionar el flux de R2M1.
 
 Comprova la continuïtat amb `R2M1`:
 

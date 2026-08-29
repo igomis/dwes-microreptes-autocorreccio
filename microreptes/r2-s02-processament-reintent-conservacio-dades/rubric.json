@@ -49,7 +49,7 @@
     "Si els valors conservats són literals fixos i no dades de l'enviament, la puntuació màxima recomanada és 7.",
     "Sense reenviament corregit verificable, la puntuació màxima recomanada és 8.",
     "Sense guardat funcional del cas correcte, la puntuació màxima recomanada és 8.",
-    "No penalitzes l'absència de persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples en esta sessió.",
+    "No penalitzes l'absència de persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples en esta sessió; no són mínim de R2M2, encara que poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
