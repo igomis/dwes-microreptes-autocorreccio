@@ -27,7 +27,8 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
-const classroomProgrammingDir = path.resolve(rootDir, '../dwes-restructuracio-modul/docs/01_programacio_modul');
+const localClassroomProgrammingDir = path.resolve(rootDir, 'docs/programacio_aula');
+const externalClassroomProgrammingDir = path.resolve(rootDir, '../dwes-restructuracio-modul/docs/01_programacio_modul');
 const execFileAsync = promisify(execFile);
 const workflowFile = 'batch-autograde-students.yml';
 const defaultPort = 4173;
@@ -234,12 +235,12 @@ function extractFirstMarkdownHeading(markdown) {
 }
 
 function extractSessionCode(value) {
-  const match = String(value || '').match(/\b(R\d+S(?:\d+|X))\b/i);
+  const match = String(value || '').match(/\b(R\d+S(?:\d+[A-Z]?|X))\b/i);
   return match ? match[1].toUpperCase() : '';
 }
 
 function extractRepteId(value) {
-  const match = String(value || '').match(/\b(R\d+)(?:S(?:\d+|X))?\b/i);
+  const match = String(value || '').match(/\b(R\d+)(?:S(?:\d+[A-Z]?|X))?\b/i);
   return match ? match[1].toUpperCase() : '';
 }
 
@@ -257,22 +258,32 @@ function extractSessionDuration(markdown) {
     '3 hores';
 }
 
+function classroomProgrammingSourceDir() {
+  if (existsSync(localClassroomProgrammingDir)) {
+    return localClassroomProgrammingDir;
+  }
+
+  return externalClassroomProgrammingDir;
+}
+
 function resolveClassroomProgrammingPath(relativeFile) {
   const absolutePath = path.resolve(rootDir, relativeFile);
-  if (!absolutePath.startsWith(classroomProgrammingDir + path.sep)) {
+  const allowedDirs = [localClassroomProgrammingDir, externalClassroomProgrammingDir];
+  if (!allowedDirs.some((dir) => absolutePath.startsWith(dir + path.sep))) {
     throw new Error('Ruta de programació d’aula no permesa.');
   }
   return absolutePath;
 }
 
 async function readClassroomProgramming() {
+  const classroomProgrammingDir = classroomProgrammingSourceDir();
   if (!existsSync(classroomProgrammingDir)) {
     return [];
   }
 
   const entries = await readdir(classroomProgrammingDir, { withFileTypes: true });
   const files = entries
-    .filter((entry) => entry.isFile() && /^programacio_aula_r\d+s(?:\d+|x)_.*\.md$/i.test(entry.name))
+    .filter((entry) => entry.isFile() && /^programacio_aula_r\d+s(?:\d+[a-z]?|x)_.*\.md$/i.test(entry.name))
     .map((entry) => entry.name);
 
   const sessions = [];
@@ -292,6 +303,7 @@ async function readClassroomProgramming() {
       duration: extractSessionDuration(markdown),
       focus: extractInlineField(markdown, 'Focus'),
       file: path.relative(rootDir, absolutePath),
+      source: classroomProgrammingDir === localClassroomProgrammingDir ? 'snapshot' : 'external',
       markdown
     });
   }
@@ -1964,12 +1976,15 @@ function pageHtml() {
         '</tr>';
       });
 
-      document.querySelector('#programacioInfo').textContent = 'Programació d’aula llegida des de dwes-restructuracio-modul: ' + sessions.length + ' sessions';
+      const sourceLabel = sessions[0]?.source === 'snapshot'
+        ? 'còpia versionada en docs/programacio_aula'
+        : 'dwes-restructuracio-modul';
+      document.querySelector('#programacioInfo').textContent = 'Programació d’aula llegida des de ' + sourceLabel + ': ' + sessions.length + ' sessions';
       viewer.innerHTML =
         '<div class="result-header">' +
           '<div class="metric"><span>Repte</span><strong><code>' + escapeHtml(repte) + '</code></strong></div>' +
           '<div class="metric"><span>Sessions</span><strong>' + escapeHtml(sessions.length) + '</strong></div>' +
-          '<div class="metric"><span>Font</span><strong>Programació d’aula</strong></div>' +
+          '<div class="metric"><span>Font</span><strong>' + escapeHtml(sourceLabel) + '</strong></div>' +
           '<div class="metric"><span>Format</span><strong>Markdown</strong></div>' +
         '</div>' +
         '<div class="feedback-box"><h3>Mapa de sessions</h3>' +
