@@ -65,6 +65,7 @@ Per treballar des del terminal amb `gh`, vegeu [docs/terminal.md](docs/terminal.
 El dashboard local permet veure els grups, repositoris i autocorreccions, i llançar el workflow massiu sense navegar per GitHub Actions.
 
 ```bash
+npm install
 npm run dashboard
 ```
 
