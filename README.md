@@ -76,6 +76,8 @@ DASHBOARD_HOST=0.0.0.0
 DASHBOARD_AUTH_REQUIRED=true
 DASHBOARD_USER=professor
 DASHBOARD_PASSWORD=canvia-aquesta-contrasenya
+DASHBOARD_DOCS_PROFESSORAT_URL=https://el-teu-domini/professorat/
+DASHBOARD_DOCS_ALUMNAT_URL=https://el-teu-domini/alumnat/
 ```
 
 Vegeu [docs/dashboard.md](docs/dashboard.md).

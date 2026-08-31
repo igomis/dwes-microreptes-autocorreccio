@@ -136,6 +136,40 @@ function dashboardCredentialsConfigured() {
   return Boolean(process.env.DASHBOARD_USER && process.env.DASHBOARD_PASSWORD);
 }
 
+function envText(name) {
+  return String(process.env[name] || '').trim();
+}
+
+function envUrl(name) {
+  const value = envText(name);
+  if (!value) {
+    return '';
+  }
+
+  try {
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol) ? url.toString() : '';
+  } catch {
+    return '';
+  }
+}
+
+function dashboardDocLinks() {
+  return {
+    professorat_url: envUrl('DASHBOARD_DOCS_PROFESSORAT_URL'),
+    alumnat_url: envUrl('DASHBOARD_DOCS_ALUMNAT_URL')
+  };
+}
+
+function escapeHtmlServer(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 function isDashboardRequestAuthorized(request, host) {
   if (!dashboardAuthRequired(host)) {
     return true;
@@ -805,6 +839,7 @@ async function buildConfigPayload() {
     active_challenges: activeChallenges,
     group_files: groupFiles,
     repositories_by_target: repositoriesByTarget,
+    docs: dashboardDocLinks(),
     github: {
       owner: process.env.GITHUB_OWNER || 'igomis',
       repo: process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio',
@@ -1068,6 +1103,14 @@ async function readRepteGrades(filters = {}) {
 }
 
 function pageHtml() {
+  const docs = dashboardDocLinks();
+  const alumnatNavLink = docs.alumnat_url
+    ? '<a class="nav-button nav-link" href="' + escapeHtmlServer(docs.alumnat_url) + '" target="_blank" rel="noreferrer">Doc alumnat</a>'
+    : '';
+  const professoratProgramacioLink = docs.professorat_url
+    ? '<a class="secondary nav-link" href="' + escapeHtmlServer(docs.professorat_url) + '" target="_blank" rel="noreferrer">Documentació professorat</a>'
+    : '';
+
   return `<!doctype html>
 <html lang="ca">
 <head>
@@ -1116,6 +1159,15 @@ function pageHtml() {
     .nav-button {
       background: #eef2f6;
       color: #253244;
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
     }
     .nav-button:hover,
     .nav-button.active {
@@ -1375,6 +1427,7 @@ function pageHtml() {
         <button class="nav-button" type="button" data-nav-view="students">Alumnes</button>
         <button class="nav-button" type="button" data-nav-view="microreptes">Microreptes</button>
         <button class="nav-button" type="button" data-nav-view="programacio">Programació</button>
+        ${alumnatNavLink}
       </nav>
     </div>
   </header>
@@ -1574,7 +1627,10 @@ function pageHtml() {
     <section class="view-panel hidden" data-view="programacio">
       <div class="toolbar">
         <h2>Programació d'aula</h2>
-        <button id="refreshProgramacio" type="button">Actualitzar</button>
+        <div class="actions">
+          ${professoratProgramacioLink}
+          <button id="refreshProgramacio" type="button">Actualitzar</button>
+        </div>
       </div>
       <div class="filters">
         <label>Repte
