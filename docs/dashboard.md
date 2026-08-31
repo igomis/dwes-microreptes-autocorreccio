@@ -13,9 +13,27 @@ GITHUB_REPO=dwes-microreptes-autocorreccio
 GITHUB_REF=main
 DASHBOARD_HOST=127.0.0.1
 DASHBOARD_PORT=4173
+DASHBOARD_AUTH_REQUIRED=false
+DASHBOARD_USER=
+DASHBOARD_PASSWORD=
 ```
 
 El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-autocorreccio`. Si vols publicar resultats en els repositoris d'alumnes, el workflow de GitHub també necessita el secret `CLASSROOM_AUTOGRADE_TOKEN` configurat en el repositori del professor.
+
+## Autenticació mínima
+
+En local, l'autenticació està desactivada per defecte si el dashboard escolta només en `127.0.0.1`, `localhost` o `::1`.
+
+Si el dashboard es publica darrere d'un domini, activa com a mínim Basic Auth i fes-lo servir sempre amb HTTPS:
+
+```text
+DASHBOARD_HOST=0.0.0.0
+DASHBOARD_AUTH_REQUIRED=true
+DASHBOARD_USER=professor
+DASHBOARD_PASSWORD=canvia-aquesta-contrasenya
+```
+
+Quan `DASHBOARD_HOST` no és local, el dashboard exigeix usuari i contrasenya excepte si `DASHBOARD_AUTH_REQUIRED=false` s'ha indicat explícitament. No és recomanable desactivar-ho en un servidor públic.
 
 ## Execució
 

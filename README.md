@@ -69,6 +69,15 @@ npm install
 npm run dashboard
 ```
 
+Si el dashboard s'exposa fora de l'equip local, configura autenticació mínima:
+
+```bash
+DASHBOARD_HOST=0.0.0.0
+DASHBOARD_AUTH_REQUIRED=true
+DASHBOARD_USER=professor
+DASHBOARD_PASSWORD=canvia-aquesta-contrasenya
+```
+
 Vegeu [docs/dashboard.md](docs/dashboard.md).
 
 ## Com afegir una nova autocorrecció

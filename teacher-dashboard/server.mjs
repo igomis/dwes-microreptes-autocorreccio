@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -70,6 +71,87 @@ function sendJson(response, status, payload) {
 function sendHtml(response, html) {
   response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
   response.end(html);
+}
+
+function sendUnauthorized(response) {
+  response.writeHead(401, {
+    'content-type': 'text/plain; charset=utf-8',
+    'www-authenticate': 'Basic realm="DWES Autocorreccio Dashboard", charset="UTF-8"'
+  });
+  response.end('Autenticacio requerida.\n');
+}
+
+function envFlag(name, fallback = false) {
+  const value = process.env[name];
+  if (value === undefined || value === '') {
+    return fallback;
+  }
+
+  return ['1', 'true', 'yes', 'on'].includes(String(value).toLowerCase());
+}
+
+function isLocalHost(host) {
+  return ['127.0.0.1', 'localhost', '::1'].includes(String(host || '').toLowerCase());
+}
+
+function dashboardAuthRequired(host) {
+  return envFlag('DASHBOARD_AUTH_REQUIRED', !isLocalHost(host));
+}
+
+function hashValue(value) {
+  return createHash('sha256').update(String(value)).digest();
+}
+
+function constantTimeTextEqual(left, right) {
+  const leftHash = hashValue(left);
+  const rightHash = hashValue(right);
+  return timingSafeEqual(leftHash, rightHash);
+}
+
+function parseBasicAuth(header) {
+  const match = String(header || '').match(/^Basic\s+(.+)$/i);
+  if (!match) {
+    return null;
+  }
+
+  let decoded = '';
+  try {
+    decoded = Buffer.from(match[1], 'base64').toString('utf8');
+  } catch {
+    return null;
+  }
+
+  const separator = decoded.indexOf(':');
+  if (separator < 0) {
+    return null;
+  }
+
+  return {
+    user: decoded.slice(0, separator),
+    password: decoded.slice(separator + 1)
+  };
+}
+
+function dashboardCredentialsConfigured() {
+  return Boolean(process.env.DASHBOARD_USER && process.env.DASHBOARD_PASSWORD);
+}
+
+function isDashboardRequestAuthorized(request, host) {
+  if (!dashboardAuthRequired(host)) {
+    return true;
+  }
+
+  if (!dashboardCredentialsConfigured()) {
+    return false;
+  }
+
+  const credentials = parseBasicAuth(request.headers.authorization);
+  if (!credentials) {
+    return false;
+  }
+
+  return constantTimeTextEqual(credentials.user, process.env.DASHBOARD_USER) &&
+    constantTimeTextEqual(credentials.password, process.env.DASHBOARD_PASSWORD);
 }
 
 async function readJson(relativePath) {
@@ -2957,6 +3039,12 @@ function pageHtml() {
 
 async function handleRequest(request, response) {
   const url = new URL(request.url, 'http://localhost');
+  const host = process.env.DASHBOARD_HOST || '127.0.0.1';
+
+  if (!isDashboardRequestAuthorized(request, host)) {
+    sendUnauthorized(response);
+    return;
+  }
 
   try {
     if (request.method === 'GET' && url.pathname === '/') {
@@ -3193,12 +3281,20 @@ try {
 
 const port = Number(process.env.DASHBOARD_PORT || defaultPort);
 const host = process.env.DASHBOARD_HOST || '127.0.0.1';
+if (dashboardAuthRequired(host) && !dashboardCredentialsConfigured()) {
+  console.error('DASHBOARD_USER i DASHBOARD_PASSWORD són obligatoris quan el dashboard no és només local.');
+  process.exit(1);
+}
+
 const server = createServer((request, response) => {
   handleRequest(request, response);
 });
 
 server.listen(port, host, () => {
   console.log(`Dashboard disponible en http://${host}:${port}`);
+  if (dashboardAuthRequired(host)) {
+    console.log('Autenticació del dashboard activada.');
+  }
 });
 
 // Tancar BD al finalitzar
