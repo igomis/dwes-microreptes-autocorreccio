@@ -869,7 +869,7 @@ function resolveWorkflowInputs(body) {
   const repositoriesFile = body.repositories_file || '';
   const challengeId = String(body.challenge_id || '').trim();
   const mode = body.mode || 'mock';
-  const studentRef = body.student_ref || 'main';
+  const studentRef = body.student_ref || 'master';
   const publishToStudentRepo = String(body.publish_to_student_repo ?? false);
   const defaultGroup = body.group || (targetGroup === 'all' ? '2DAW-A' : targetGroup);
 
@@ -894,13 +894,13 @@ function resolveWorkflowInputs(body) {
 }
 
 async function dispatchWorkflow(inputs) {
-  const token = process.env.GITHUB_TOKEN || process.env.CLASSROOM_AUTOGRADE_TOKEN;
+  const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER || 'igomis';
   const repo = process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio';
   const ref = process.env.GITHUB_REF || 'main';
 
   if (!token) {
-    throw new Error('Falta GITHUB_TOKEN en .env o en l_entorn del dashboard.');
+    throw new Error('Falta GITHUB_TOKEN en .env o en l_entorn del dashboard. Este token ha de poder llançar workflows en el repositori docent.');
   }
 
   const url = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowFile}/dispatches`;
@@ -950,7 +950,7 @@ async function buildConfigPayload() {
       ref: process.env.GITHUB_REF || 'main',
       classroom_org: envText('GITHUB_CLASSROOM_ORG'),
       student_template: envText('GITHUB_STUDENT_TEMPLATE'),
-      token_configured: Boolean(process.env.GITHUB_TOKEN || process.env.CLASSROOM_AUTOGRADE_TOKEN)
+      token_configured: Boolean(process.env.GITHUB_TOKEN)
     }
   };
 }

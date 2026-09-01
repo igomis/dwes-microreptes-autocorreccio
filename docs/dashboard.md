@@ -10,7 +10,7 @@ Crea un fitxer `.env` en l'arrel del repositori:
 GITHUB_TOKEN=
 GITHUB_OWNER=igomis
 GITHUB_REPO=dwes-microreptes-autocorreccio
-GITHUB_REF=master
+GITHUB_REF=main
 GITHUB_CLASSROOM_ORG=batoi-dwes-2026
 GITHUB_STUDENT_TEMPLATE=igomis/dwes-microreptes-alumnes
 GH_BIN=gh
@@ -24,7 +24,7 @@ DASHBOARD_DOCS_PROFESSORAT_URL=https://igomis.github.io/reestructuracioModul/pro
 DASHBOARD_DOCS_ALUMNAT_URL=https://cipfpbatoi.github.io/dwes2627/
 ```
 
-El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-autocorreccio`. Si vols publicar resultats en els repositoris d'alumnes, el workflow de GitHub també necessita el secret `CLASSROOM_AUTOGRADE_TOKEN` configurat en el repositori del professor.
+El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-autocorreccio`. El workflow de GitHub també necessita el secret `CLASSROOM_AUTOGRADE_TOKEN` configurat en el repositori del professor per llegir els repositoris privats d'alumnes i, si cal, publicar-hi resultats.
 
 ## Autenticació mínima
 
@@ -63,7 +63,7 @@ gh auth status
 
 Si el dashboard corre com a servei i apareix `spawn gh ENOENT`, indica la ruta absoluta en `.env`, per exemple `GH_BIN=/usr/bin/gh`.
 
-El dashboard usa `GITHUB_TOKEN` per cridar l'API de GitHub quan llança workflows. Per a GitHub CLI, usa l'autenticació guardada amb `gh auth login` o, si defineixes `GH_TOKEN`, eixe token explícit. Això evita que un `GITHUB_TOKEN` amb permisos parcials impedisca crear repositoris des d'una plantilla.
+El dashboard usa `GITHUB_TOKEN` per cridar l'API de GitHub quan llança workflows en el repositori docent. Per a GitHub CLI, usa l'autenticació guardada amb `gh auth login` o, si defineixes `GH_TOKEN`, eixe token explícit. Això evita que un `GITHUB_TOKEN` amb permisos parcials impedisca crear repositoris des d'una plantilla. No uses el token `CLASSROOM_AUTOGRADE_TOKEN` en `.env`: eixe és un secret d'Actions per al workflow, no el token del dashboard.
 
 ## Execució
 
