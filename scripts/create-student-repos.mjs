@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const rootDir = process.cwd();
 const courseDir = path.join(rootDir, 'course');
+const ghBin = process.env.GH_BIN || 'gh';
 
 const allowedArgs = new Set([
   '--input',
@@ -283,14 +284,21 @@ async function updateCourseRepositoryFiles(students, dryRun) {
 }
 
 async function runGh(command, args, dryRun) {
-  const rendered = ['gh', command, ...args].join(' ');
+  const rendered = [ghBin, command, ...args].join(' ');
   if (dryRun) {
     console.log(`DRY RUN: ${rendered}`);
     return;
   }
 
   console.log(rendered);
-  await execFileAsync('gh', [command, ...args], { cwd: rootDir });
+  try {
+    await execFileAsync(ghBin, [command, ...args], { cwd: rootDir });
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`No s'ha trobat GitHub CLI (${ghBin}). Instal·la gh al servidor o configura GH_BIN=/ruta/al/gh en .env.`);
+    }
+    throw error;
+  }
 }
 
 function buildStudents(rows, args) {

@@ -823,10 +823,19 @@ async function deleteGithubRepository(repo) {
     throw new Error('El repositori GitHub no té format owner/repo.');
   }
 
-  const result = await execFileAsync('gh', ['repo', 'delete', repo, '--yes'], {
-    cwd: rootDir,
-    maxBuffer: 1024 * 1024 * 10
-  });
+  const ghBin = process.env.GH_BIN || 'gh';
+  let result;
+  try {
+    result = await execFileAsync(ghBin, ['repo', 'delete', repo, '--yes'], {
+      cwd: rootDir,
+      maxBuffer: 1024 * 1024 * 10
+    });
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`No s'ha trobat GitHub CLI (${ghBin}). Instal·la gh al servidor o configura GH_BIN=/ruta/al/gh en .env.`);
+    }
+    throw error;
+  }
 
   return {
     repo,

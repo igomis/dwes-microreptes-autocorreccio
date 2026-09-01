@@ -86,6 +86,8 @@ Quan el resultat siga correcte, lleva `--dry-run`. El script crea els repositori
 
 També es pot fer des del dashboard, en la vista `Alumnes`, pujant el CSV o enganxant-ne el contingut. Els valors per defecte d'organització i plantilla es poden configurar amb `GITHUB_CLASSROOM_ORG` i `GITHUB_STUDENT_TEMPLATE` en `.env`. Per defecte s'executa en mode prova; quan la previsualització és correcta es pot desmarcar `Prova sense crear` i executar la creació real.
 
+En servidor, GitHub CLI ha d'estar instal·lat i autenticat. Si el servei no troba `gh`, configura `GH_BIN=/ruta/al/gh` en `.env`.
+
 ## Dashboard del professor
 
 El dashboard local permet veure els grups, repositoris i autocorreccions, crear repositoris d'alumnes des d'un CSV i llançar el workflow massiu sense navegar per GitHub Actions.
