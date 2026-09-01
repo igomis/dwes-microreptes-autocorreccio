@@ -75,7 +75,7 @@ jobs:
       - name: Batch autograde
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN }}
           STUDENT_WRITE_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
@@ -92,6 +92,11 @@ jobs:
 
           if [ "$INPUT_MODE" = "openai" ] && [ -z "${OPENAI_API_KEY:-}" ]; then
             echo "Falta el secret OPENAI_API_KEY en el repositori del professor."
+            exit 1
+          fi
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "Falta CLASSROOM_AUTOGRADE_TOKEN o TEACHER_REPO_TOKEN amb permís de lectura sobre els repositoris privats d'alumnes."
             exit 1
           fi
 
@@ -127,22 +132,18 @@ jobs:
 
           tmp_repos="$(mktemp)"
           if [ -n "$INPUT_REPOSITORIES" ]; then
-            printf '%s\n' "$INPUT_REPOSITORIES" \
-              | tr ',;' '\n' \
-              | sed '/^[[:space:]]*$/d' \
-              | sort -u \
-              | awk -v default_group="$INPUT_GROUP" '{ repo=$1; group=($2 != "" ? $2 : default_group); print repo " " group; }' > "$tmp_repos"
+            node scripts/parse-student-repositories.mjs \
+              --input "$INPUT_REPOSITORIES" \
+              --default-group "$INPUT_GROUP" > "$tmp_repos"
           else
             if [ ! -f "$selected_repositories_file" ]; then
               echo "No s'ha trobat el fitxer de repositoris: $selected_repositories_file"
               exit 1
             fi
 
-            sed 's/#.*$//' "$selected_repositories_file" \
-              | tr ',;' '\n' \
-              | sed '/^[[:space:]]*$/d' \
-              | sort -u \
-              | awk -v default_group="$INPUT_GROUP" '{ repo=$1; group=($2 != "" ? $2 : default_group); print repo " " group; }' > "$tmp_repos"
+            node scripts/parse-student-repositories.mjs \
+              --file "$selected_repositories_file" \
+              --default-group "$INPUT_GROUP" > "$tmp_repos"
           fi
 
           total="$(wc -l < "$tmp_repos" | tr -d ' ')"
@@ -178,27 +179,32 @@ jobs:
           rm -rf "$work_root"
           mkdir -p "$work_root"
 
-          while read -r repo repo_group; do
+          failures=0
+
+          autograde_one() {
+            local repo="$1"
+            local repo_group="$2"
+
             echo "Autograde $repo"
             if [ -n "$INPUT_CHALLENGE_ID" ]; then
               active_challenge="$INPUT_CHALLENGE_ID"
             else
-              active_challenge="$(node scripts/resolve-active-challenge.mjs --student "$repo" --group "$repo_group")"
+              active_challenge="$(node scripts/resolve-active-challenge.mjs --student "$repo" --group "$repo_group")" || return 1
             fi
             safe_repo="${repo//\//__}"
             student_dir="$work_root/$safe_repo/repo"
             result_dir="$PWD/tmp/batch/$safe_repo"
             mkdir -p "$result_dir"
 
-            git clone --branch "$INPUT_STUDENT_REF" --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${repo}.git" "$student_dir"
-            commit_sha="$(git -C "$student_dir" rev-parse HEAD)"
+            git clone --branch "$INPUT_STUDENT_REF" --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${repo}.git" "$student_dir" || return 1
+            commit_sha="$(git -C "$student_dir" rev-parse HEAD)" || return 1
 
             node scripts/collect-repo-evidence.mjs \
               --repo-dir "$student_dir" \
               --repo "$repo" \
               --commit "$commit_sha" \
               --repo-signals "$result_dir/repo-signals.json" \
-              --evidence-summary "$result_dir/evidence-summary.json"
+              --evidence-summary "$result_dir/evidence-summary.json" || return 1
 
             node scripts/build-evaluation-payload.mjs \
               --student "$repo" \
@@ -207,26 +213,26 @@ jobs:
               --repo "$repo" \
               --commit "$commit_sha" \
               --repo-signals "$result_dir/repo-signals.json" \
-              --evidence-summary "$result_dir/evidence-summary.json" > "$result_dir/evaluation-payload.stdout.json"
-            cp tmp/evaluation-payload.json "$result_dir/evaluation-payload.json"
+              --evidence-summary "$result_dir/evidence-summary.json" > "$result_dir/evaluation-payload.stdout.json" || return 1
+            cp tmp/evaluation-payload.json "$result_dir/evaluation-payload.json" || return 1
 
             if [ "$INPUT_MODE" = "openai" ]; then
-              node scripts/openai-autograde.mjs --input tmp/evaluation-payload.json > "$result_dir/autograde.stdout.json"
-              cp tmp/openai-raw-response.json "$result_dir/openai-raw-response.json"
+              node scripts/openai-autograde.mjs --input tmp/evaluation-payload.json > "$result_dir/autograde.stdout.json" || return 1
+              cp tmp/openai-raw-response.json "$result_dir/openai-raw-response.json" || return 1
             else
-              node scripts/mock-autograde.mjs --input tmp/evaluation-payload.json > "$result_dir/autograde.stdout.json"
+              node scripts/mock-autograde.mjs --input tmp/evaluation-payload.json > "$result_dir/autograde.stdout.json" || return 1
               rm -f tmp/openai-raw-response.json
             fi
 
-            node scripts/validate-autograde-result.mjs --input tmp/autograde-result.json
-            cp tmp/autograde-result.json "$result_dir/autograde-result.json"
+            node scripts/validate-autograde-result.mjs --input tmp/autograde-result.json || return 1
+            cp tmp/autograde-result.json "$result_dir/autograde-result.json" || return 1
 
             node scripts/render-autograde-markdown.mjs \
               --input "$result_dir/autograde-result.json" \
               --output "$result_dir/latest.md" \
               --repo "$repo" \
               --group "$repo_group" \
-              --source "$INPUT_MODE"
+              --source "$INPUT_MODE" || return 1
 
             node scripts/store-batch-autograde-result.mjs \
               --result "$result_dir/autograde-result.json" \
@@ -235,32 +241,50 @@ jobs:
               --repo "$repo" \
               --group "$repo_group" \
               --source "$INPUT_MODE" \
-              --batch-id "$batch_id"
+              --batch-id "$batch_id" || return 1
 
-            score="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(String(r.final_score_over_10 ?? 'n/d'))")"
-            review="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(r.teacher_review_required ? 'Sí' : 'No')")"
+            score="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(String(r.final_score_over_10 ?? 'n/d'))")" || return 1
+            review="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('$result_dir/autograde-result.json','utf8')); process.stdout.write(r.teacher_review_required ? 'Sí' : 'No')")" || return 1
             published="No"
 
             if [ "$INPUT_PUBLISH_TO_STUDENT_REPO" = "true" ]; then
               mkdir -p "$student_dir/autograde"
-              cp "$result_dir/autograde-result.json" "$student_dir/autograde/latest.json"
-              cp "$result_dir/latest.md" "$student_dir/autograde/latest.md"
-              git -C "$student_dir" add autograde/latest.json autograde/latest.md
+              cp "$result_dir/autograde-result.json" "$student_dir/autograde/latest.json" || return 1
+              cp "$result_dir/latest.md" "$student_dir/autograde/latest.md" || return 1
+              git -C "$student_dir" add autograde/latest.json autograde/latest.md || return 1
 
               if git -C "$student_dir" diff --cached --quiet; then
                 published="Sense canvis"
               else
-                git -C "$student_dir" commit -m "Actualitza autocorrecció ${INPUT_MODE}"
-                git -C "$student_dir" push origin "HEAD:$INPUT_STUDENT_REF"
+                git -C "$student_dir" commit -m "Actualitza autocorrecció ${INPUT_MODE}" || return 1
+                git -C "$student_dir" push origin "HEAD:$INPUT_STUDENT_REF" || return 1
                 published="Publicat"
               fi
             fi
 
             echo "| \`$repo\` | \`$repo_group\` | \`$INPUT_STUDENT_REF\` | \`$active_challenge\` | $score | $review | $published |" >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          while read -r repo repo_group; do
+            safe_repo="${repo//\//__}"
+            result_dir="$PWD/tmp/batch/$safe_repo"
+            mkdir -p "$result_dir"
+
+            if autograde_one "$repo" "$repo_group" 2>&1 | tee "$result_dir/autograde-error.log"; then
+              rm -f "$result_dir/autograde-error.log"
+            else
+              failures=$((failures + 1))
+              echo "| \`$repo\` | \`$repo_group\` | \`$INPUT_STUDENT_REF\` | n/d | n/d | Sí | Error: veure artifact \`$safe_repo/autograde-error.log\` |" >> "$GITHUB_STEP_SUMMARY"
+            fi
           done < "$tmp_repos"
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Els resultats complets queden guardats en \`grades/history/$batch_id\` i publicats com a artifact d'aquest workflow." >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$failures" -gt 0 ]; then
+            echo "Han fallat $failures repositoris. Revisa les files d'error i l'artifact batch-autograde-results."
+            exit 1
+          fi
 
       - name: Commit teacher-side grade history
         shell: bash
