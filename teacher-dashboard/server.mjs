@@ -1782,7 +1782,8 @@ function pageHtml() {
             <span><input id="createReposNoInvite" type="checkbox"> No convidar encara</span>
           </label>
         </div>
-        <textarea id="createReposCsvText" placeholder="github_user,group,student_name&#10;alumne01,2DAW-A,Ana Marti&#10;alumne02,2DAW-B,Pau Garcia"></textarea>
+        <textarea id="createReposCsvText" placeholder="github_user,group,student_name&#10;alumne01,2DAW-A,Ana Marti&#10;alumne02,2DAW-B,Pau Garcia">github_user,group,student_name
+</textarea>
         <div class="actions">
           <button id="createReposRun" type="button">Executar creació</button>
           <span id="createReposStatus" class="status"></span>
