@@ -200,13 +200,15 @@ jobs:
               --repo "$repo" \
               --ref "$INPUT_STUDENT_REF" || return 1
 
-            student_url="https://x-access-token:${STUDENT_READ_TOKEN}@github.com/${repo}.git"
-            git ls-remote --exit-code --heads "$student_url" "$INPUT_STUDENT_REF" >/dev/null || {
+            student_url="https://github.com/${repo}.git"
+            git -c "http.https://github.com/.extraheader=AUTHORIZATION: bearer ${STUDENT_READ_TOKEN}" \
+              ls-remote --exit-code --heads "$student_url" "$INPUT_STUDENT_REF" >/dev/null || {
               echo "No s'ha pogut accedir a ${repo} o no existeix la branca ${INPUT_STUDENT_REF}."
               echo "Comprova que CLASSROOM_AUTOGRADE_TOKEN o TEACHER_REPO_TOKEN tinga accés de lectura a este repositori privat."
               return 1
             }
-            git clone --branch "$INPUT_STUDENT_REF" --depth 1 "$student_url" "$student_dir" || return 1
+            git -c "http.https://github.com/.extraheader=AUTHORIZATION: bearer ${STUDENT_READ_TOKEN}" \
+              clone --branch "$INPUT_STUDENT_REF" --depth 1 "$student_url" "$student_dir" || return 1
             commit_sha="$(git -C "$student_dir" rev-parse HEAD)" || return 1
 
             node scripts/collect-repo-evidence.mjs \
