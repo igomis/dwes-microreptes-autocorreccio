@@ -64,7 +64,7 @@ Per treballar des del terminal amb `gh`, vegeu [docs/terminal.md](docs/terminal.
 
 Si GitHub Classroom no està disponible, es poden crear repositoris privats d'alumnes des d'una plantilla amb GitHub CLI i mantindre'ls en esta organització o en una organització docent pròpia.
 
-El CSV pot incloure alumnes de diferents grups:
+El CSV pot incloure alumnes de diferents grups. La capçalera és recomanable, però també s'accepten línies sense capçalera en l'ordre `github_user,group,student_name`:
 
 ```csv
 github_user,group,student_name

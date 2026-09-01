@@ -62,8 +62,12 @@ node scripts/create-student-repos.mjs \\
   [--dry-run] \\
   [--no-invite]
 
-CSV esperat:
+CSV esperat, amb capçalera:
 github_user,group,student_name
+alumne01,2DAW-A,Ana Marti
+alumne02,2DAW-B,Pau Garcia
+
+També s'accepta sense capçalera, amb este ordre:
 alumne01,2DAW-A,Ana Marti
 alumne02,2DAW-B,Pau Garcia
 
@@ -74,6 +78,21 @@ Columnes acceptades:
 - repo o repository, opcional
 `);
 }
+
+const headerAliases = new Set([
+  'github_user',
+  'user',
+  'username',
+  'login',
+  'group',
+  'grup',
+  'group_name',
+  'student_name',
+  'nom',
+  'name',
+  'repo',
+  'repository'
+]);
 
 function parseCsvLine(line) {
   const values = [];
@@ -118,14 +137,19 @@ function parseCsv(content) {
     return [];
   }
 
-  const headers = parseCsvLine(lines[0]).map((header) => header.trim().toLowerCase());
-  return lines.slice(1).map((line, index) => {
+  const firstLine = parseCsvLine(lines[0]).map((header) => header.trim().toLowerCase());
+  const hasHeader = firstLine.every((header) => headerAliases.has(header));
+  const headers = hasHeader ? firstLine : ['github_user', 'group', 'student_name'];
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+  const firstDataLine = hasHeader ? 2 : 1;
+
+  return dataLines.map((line, index) => {
     const values = parseCsvLine(line);
     const row = {};
     headers.forEach((header, headerIndex) => {
       row[header] = values[headerIndex] || '';
     });
-    row.__line = index + 2;
+    row.__line = index + firstDataLine;
     return row;
   });
 }
@@ -313,6 +337,9 @@ async function main() {
 
   const rows = parseCsv(await readFile(path.resolve(args.input), 'utf8'));
   const students = buildStudents(rows, args);
+  if (students.length === 0) {
+    throw new Error('No hi ha cap alumne per processar en el CSV.');
+  }
 
   for (const student of students) {
     await runGh('repo', [
