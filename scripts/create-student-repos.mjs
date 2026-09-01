@@ -236,7 +236,7 @@ async function updateCourseRepositoryFiles(students, dryRun) {
   }
 
   if (dryRun) {
-    console.log('DRY RUN: s_actualitzarien els fitxers course/student-repositories*.txt');
+    console.log("DRY RUN: s'actualitzarien els fitxers course/student-repositories*.txt");
     for (const [group, rows] of groupRows.entries()) {
       console.log(`- ${group}: ${rows.length} repositoris`);
     }

@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
@@ -750,6 +750,74 @@ async function syncStudentRepositoryFiles() {
   };
 }
 
+async function createStudentReposFromCsv(body) {
+  const csv = String(body.csv || '').trim();
+  const org = String(body.org || '').trim();
+  const template = String(body.template || '').trim();
+  const repoPrefix = String(body.repo_prefix || 'microreptes-').trim();
+  const defaultGroup = String(body.default_group || '').trim();
+  const permission = String(body.permission || 'push').trim();
+  const dryRun = body.dry_run !== false;
+  const noInvite = Boolean(body.no_invite);
+
+  if (!csv) {
+    throw new Error("Cal pujar o enganxar un CSV d'alumnes.");
+  }
+
+  if (!/^[\w.-]+$/.test(org)) {
+    throw new Error("L'organització ha de ser un nom GitHub valid.");
+  }
+
+  if (!/^[\w.-]+\/[\w.-]+$/.test(template)) {
+    throw new Error('La plantilla ha de tindre format owner/repo.');
+  }
+
+  if (!['pull', 'push', 'maintain', 'admin'].includes(permission)) {
+    throw new Error('Permís no valid. Usa pull, push, maintain o admin.');
+  }
+
+  await mkdir(path.join(rootDir, 'tmp'), { recursive: true });
+  await writeFile(path.join(rootDir, 'tmp', 'create-student-repos-dashboard.csv'), `${csv}\n`, 'utf8');
+
+  const args = [
+    'scripts/create-student-repos.mjs',
+    '--input',
+    path.join(rootDir, 'tmp', 'create-student-repos-dashboard.csv'),
+    '--org',
+    org,
+    '--template',
+    template,
+    '--repo-prefix',
+    repoPrefix,
+    '--permission',
+    permission
+  ];
+
+  if (defaultGroup) {
+    args.push('--default-group', defaultGroup);
+  }
+  if (dryRun) {
+    args.push('--dry-run');
+  }
+  if (noInvite) {
+    args.push('--no-invite');
+  }
+
+  const result = await execFileAsync(process.execPath, args, {
+    cwd: rootDir,
+    maxBuffer: 1024 * 1024 * 10
+  });
+
+  const students = dryRun ? [] : await importStudentsFromCourseFiles();
+
+  return {
+    dry_run: dryRun,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    students
+  };
+}
+
 async function readRequestJson(request) {
   const chunks = [];
   for await (const chunk of request) {
@@ -1253,6 +1321,10 @@ function pageHtml() {
       color: var(--text);
       background: #fff;
     }
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 6px;
+    }
     textarea {
       min-height: 110px;
       resize: vertical;
@@ -1630,6 +1702,54 @@ function pageHtml() {
         <thead><tr><th>Nom</th><th>Repositori</th><th>Grup</th><th>Resultats</th><th>Accions</th></tr></thead>
         <tbody id="studentRows"></tbody>
       </table>
+      <div class="feedback-box">
+        <h3>Crear repositoris des de CSV</h3>
+        <div class="grid">
+          <label>Organització
+            <input id="createReposOrg" placeholder="batoi-dwes-2026">
+          </label>
+          <label>Plantilla
+            <input id="createReposTemplate" placeholder="igomis/dwes-microreptes-alumnes">
+          </label>
+          <label>Prefix repositori
+            <input id="createReposPrefix" value="microreptes-">
+          </label>
+          <label>Grup per defecte
+            <select id="createReposDefaultGroup">
+              <option value="">El CSV indica el grup</option>
+              <option value="2DAW-A">2DAW-A</option>
+              <option value="2DAW-B">2DAW-B</option>
+              <option value="2DAW-C">2DAW-C</option>
+              <option value="2DAW-D">2DAW-D</option>
+            </select>
+          </label>
+          <label>Permís
+            <select id="createReposPermission">
+              <option value="push">push</option>
+              <option value="pull">pull</option>
+              <option value="maintain">maintain</option>
+              <option value="admin">admin</option>
+            </select>
+          </label>
+          <label>CSV
+            <input id="createReposCsvFile" type="file" accept=".csv,text/csv">
+          </label>
+          <label>
+            Opcions
+            <span><input id="createReposDryRun" type="checkbox" checked> Prova sense crear</span>
+          </label>
+          <label>
+            Invitacions
+            <span><input id="createReposNoInvite" type="checkbox"> No convidar encara</span>
+          </label>
+        </div>
+        <textarea id="createReposCsvText" placeholder="github_user,group,student_name&#10;alumne01,2DAW-A,Ana Marti&#10;alumne02,2DAW-B,Pau Garcia"></textarea>
+        <div class="actions">
+          <button id="createReposRun" type="button">Executar creació</button>
+          <span id="createReposStatus" class="status"></span>
+        </div>
+        <div id="createReposOutput" class="markdown-preview hidden"></div>
+      </div>
     </section>
 
     <section class="view-panel hidden" data-view="microreptes">
@@ -2680,6 +2800,62 @@ function pageHtml() {
       }
     }
 
+    async function readCreateReposCsv() {
+      const fileInput = document.querySelector('#createReposCsvFile');
+      const textInput = document.querySelector('#createReposCsvText');
+      const file = fileInput?.files?.[0];
+      if (file) {
+        return file.text();
+      }
+
+      return textInput.value;
+    }
+
+    async function runCreateStudentRepos() {
+      const status = document.querySelector('#createReposStatus');
+      const output = document.querySelector('#createReposOutput');
+      const button = document.querySelector('#createReposRun');
+      const dryRun = document.querySelector('#createReposDryRun').checked;
+      const body = {
+        org: document.querySelector('#createReposOrg').value,
+        template: document.querySelector('#createReposTemplate').value,
+        repo_prefix: document.querySelector('#createReposPrefix').value,
+        default_group: document.querySelector('#createReposDefaultGroup').value,
+        permission: document.querySelector('#createReposPermission').value,
+        dry_run: dryRun,
+        no_invite: document.querySelector('#createReposNoInvite').checked,
+        csv: await readCreateReposCsv()
+      };
+
+      if (!dryRun && !confirm('Aquesta execució crearà repositoris a GitHub, enviarà invitacions si no ho has desactivat i actualitzarà els fitxers course. Vols continuar?')) {
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = dryRun ? 'Executant prova...' : 'Creant repositoris...';
+      output.classList.remove('hidden');
+      output.textContent = '';
+
+      try {
+        const response = await fetch('/api/students/create-repos', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut executar el script.');
+        output.textContent = [payload.stdout || '', payload.stderr || ''].filter(Boolean).join('\\n');
+        if (!dryRun) {
+          await loadStudents();
+        }
+        status.innerHTML = '<span class="ok">' + (dryRun ? 'Prova completada.' : 'Repositoris processats i alumnes importats.') + '</span>';
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     function refreshMicrorepteRepteFilter() {
       const select = document.querySelector('#microrepteFilterRepte');
       const current = select.value;
@@ -3123,6 +3299,7 @@ function pageHtml() {
     document.querySelector('#applyStudentFilters').addEventListener('click', loadStudents);
     document.querySelector('#importStudents').addEventListener('click', importStudents);
     document.querySelector('#syncStudents').addEventListener('click', syncStudents);
+    document.querySelector('#createReposRun').addEventListener('click', runCreateStudentRepos);
     document.querySelector('#refreshMicroreptes').addEventListener('click', loadMicroreptes);
     document.querySelector('#applyMicrorepteFilters').addEventListener('click', renderMicrorepteRows);
     document.querySelector('#clearMicrorepteViewer').addEventListener('click', clearMicrorepteViewer);
@@ -3325,6 +3502,13 @@ async function handleRequest(request, response) {
 
     if (request.method === 'POST' && url.pathname === '/api/students/sync-course') {
       const result = await syncStudentRepositoryFiles();
+      sendJson(response, 200, result);
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/students/create-repos') {
+      const body = await readRequestJson(request);
+      const result = await createStudentReposFromCsv(body);
       sendJson(response, 200, result);
       return;
     }

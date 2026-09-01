@@ -84,9 +84,11 @@ npm run students:create-repos -- \
 
 Quan el resultat siga correcte, lleva `--dry-run`. El script crea els repositoris, convida cada alumne amb permís `push` i actualitza `course/student-repositories.txt` i els fitxers específics de grup.
 
+També es pot fer des del dashboard, en la vista `Alumnes`, pujant el CSV o enganxant-ne el contingut. Per defecte s'executa en mode prova; quan la previsualització és correcta es pot desmarcar `Prova sense crear` i executar la creació real.
+
 ## Dashboard del professor
 
-El dashboard local permet veure els grups, repositoris i autocorreccions, i llançar el workflow massiu sense navegar per GitHub Actions.
+El dashboard local permet veure els grups, repositoris i autocorreccions, crear repositoris d'alumnes des d'un CSV i llançar el workflow massiu sense navegar per GitHub Actions.
 
 ```bash
 npm install

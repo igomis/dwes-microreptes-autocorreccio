@@ -82,6 +82,7 @@ El dashboard està separat en aquestes vistes:
 - Afegir, editar, filtrar i eliminar alumnes. Si tenen resultats associats, el dashboard mostra un avís i, en confirmar, esborra també eixos resultats.
 - Importar alumnes des de `course/student-repositories.txt`.
 - Sincronitzar els alumnes mantinguts en la BD cap als fitxers `course/student-repositories*.txt` que usa el workflow massiu.
+- Crear repositoris privats d'alumnes des d'un CSV, amb organització, plantilla, prefix, grup per defecte i permisos configurables. La pantalla executa primer una prova sense crear repositoris i permet l'execució real amb confirmació.
 - Consultar microreptes per repte, sessió, codi, pes dins del repte, dimensions de rúbrica i criteris que comprova cada dimensió.
 - Editar microreptes de forma guiada: títol, resum, objectiu, pes dins del repte, evidències, senyals esperats, regles dures i dimensions de rúbrica.
 - Validar abans de guardar que els pesos de la rúbrica sumen `1`; si la validació general falla, es restauren els JSON originals.
