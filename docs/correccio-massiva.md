@@ -130,7 +130,7 @@ La via recomanada és usar el dashboard:
 1. Entra en la vista `Correcció`.
 2. En **Alumne concret**, selecciona l'alumne.
 3. En **Microrepte a corregir**, deixa `Configuració activa` o tria un microrepte concret.
-4. Mantin **Branca alumne** en `main`, excepte recuperació o incidència pactada.
+4. Mantin **Branca alumne** en `master`, excepte recuperació o incidència pactada.
 5. Llança el workflow.
 
 Des del workflow manual també es pot fer escrivint només una línia en `repositories`, per exemple:
@@ -146,10 +146,10 @@ El dashboard mostra esta resolució abans de llançar el workflow: per cada repo
 El criteri ordinari és corregir sempre la branca:
 
 ```text
-main
+master
 ```
 
-L'alumnat pot treballar en branques pròpies si li ajuda a organitzar-se, per exemple `r2m3`, `r3m5` o `feature/auth`, però abans de demanar correcció ha d'integrar el lliurament en `main`.
+L'alumnat pot treballar en branques pròpies si li ajuda a organitzar-se, per exemple `r2m3`, `r3m5` o `feature/auth`, però abans de demanar correcció ha d'integrar el lliurament en `master`.
 
 El camp `student_ref` del workflow i el camp **Branca alumne** del dashboard només s'han de canviar en estos casos:
 

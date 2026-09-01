@@ -10,7 +10,7 @@ Crea un fitxer `.env` en l'arrel del repositori:
 GITHUB_TOKEN=
 GITHUB_OWNER=igomis
 GITHUB_REPO=dwes-microreptes-autocorreccio
-GITHUB_REF=main
+GITHUB_REF=master
 GITHUB_CLASSROOM_ORG=batoi-dwes-2026
 GITHUB_STUDENT_TEMPLATE=igomis/dwes-microreptes-alumnes
 GH_BIN=gh
@@ -92,7 +92,7 @@ El dashboard està separat en aquestes vistes:
 - Veure els repositoris del fitxer associat o els repositoris puntuals escrits manualment.
 - Triar un **Microrepte a corregir** per a una execució puntual, o deixar `Configuració activa` per usar `course/active-challenges.json`.
 - Veure abans de llançar la correcció: branca, microrepte resolt, RA avaluat i origen de l'assignació.
-- Aplicar el criteri ordinari de branca corregible `main`; les branques alternatives només s'usen en recuperacions o incidències pactades.
+- Aplicar el criteri ordinari de branca corregible `master`; les branques alternatives només s'usen en recuperacions o incidències pactades.
 - Llançar el workflow massiu en mode `mock` o `openai`.
 - Consultar els últims resultats guardats en `grades/latest-grades.json`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
