@@ -930,6 +930,8 @@ async function buildConfigPayload() {
       owner: process.env.GITHUB_OWNER || 'igomis',
       repo: process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio',
       ref: process.env.GITHUB_REF || 'main',
+      classroom_org: envText('GITHUB_CLASSROOM_ORG'),
+      student_template: envText('GITHUB_STUDENT_TEMPLATE'),
       token_configured: Boolean(process.env.GITHUB_TOKEN || process.env.CLASSROOM_AUTOGRADE_TOKEN)
     }
   };
@@ -3076,6 +3078,8 @@ function pageHtml() {
       document.querySelector('#githubStatus').innerHTML =
         'GitHub: <code>' + config.github.owner + '/' + config.github.repo + '@' + config.github.ref + '</code> · Token configurat: ' +
         (config.github.token_configured ? '<span class="ok">sí</span>' : '<span class="error">no</span>');
+      document.querySelector('#createReposOrg').value = config.github.classroom_org || '';
+      document.querySelector('#createReposTemplate').value = config.github.student_template || '';
       refreshTable();
     }
 

@@ -11,6 +11,8 @@ GITHUB_TOKEN=
 GITHUB_OWNER=igomis
 GITHUB_REPO=dwes-microreptes-autocorreccio
 GITHUB_REF=main
+GITHUB_CLASSROOM_ORG=batoi-dwes-2026
+GITHUB_STUDENT_TEMPLATE=igomis/dwes-microreptes-alumnes
 DASHBOARD_HOST=127.0.0.1
 DASHBOARD_PORT=4173
 DASHBOARD_AUTH_REQUIRED=false
@@ -47,6 +49,8 @@ El dashboard pot mostrar enllaços externs configurats des de `.env`:
 - `DASHBOARD_DOCS_ALUMNAT_URL`: apareix en el menú principal com a accés ràpid a la documentació de l'alumnat.
 
 Si alguna variable queda buida, el seu enllaç no es mostra.
+
+La pantalla `Alumnes` usa `GITHUB_CLASSROOM_ORG` i `GITHUB_STUDENT_TEMPLATE` com a valors per defecte per crear repositoris d'alumnes des d'un CSV. Es poden modificar des del formulari abans d'executar l'script.
 
 ## Execució
 
