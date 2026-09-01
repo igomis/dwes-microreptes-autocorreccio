@@ -16,6 +16,7 @@
     "render:autograde": "node scripts/render-autograde-markdown.mjs",
     "store:batch-result": "node scripts/store-batch-autograde-result.mjs",
     "dashboard": "node teacher-dashboard/server.mjs",
+    "students:create-repos": "node scripts/create-student-repos.mjs",
     "grades:append": "node scripts/append-grade-result.mjs",
     "grades:import": "node scripts/import-autograde-result.mjs",
     "grades:compact": "node scripts/compact-latest-grades.mjs",

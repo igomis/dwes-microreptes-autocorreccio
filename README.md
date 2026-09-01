@@ -60,6 +60,30 @@ Per actualitzar repositoris d'alumnes ja creats des del template, vegeu [docs/ac
 
 Per treballar des del terminal amb `gh`, vegeu [docs/terminal.md](docs/terminal.md).
 
+## Creació de repositoris d'alumnes sense GitHub Classroom
+
+Si GitHub Classroom no està disponible, es poden crear repositoris privats d'alumnes des d'una plantilla amb GitHub CLI i mantindre'ls en esta organització o en una organització docent pròpia.
+
+El CSV pot incloure alumnes de diferents grups:
+
+```csv
+github_user,group,student_name
+alumne01,2DAW-A,Ana Marti
+alumne02,2DAW-B,Pau Garcia
+```
+
+Prova primer amb:
+
+```bash
+npm run students:create-repos -- \
+  --input alumnes.csv \
+  --org batoi-dwes-2026 \
+  --template igomis/dwes-microreptes-alumnes \
+  --dry-run
+```
+
+Quan el resultat siga correcte, lleva `--dry-run`. El script crea els repositoris, convida cada alumne amb permís `push` i actualitza `course/student-repositories.txt` i els fitxers específics de grup.
+
 ## Dashboard del professor
 
 El dashboard local permet veure els grups, repositoris i autocorreccions, i llançar el workflow massiu sense navegar per GitHub Actions.
