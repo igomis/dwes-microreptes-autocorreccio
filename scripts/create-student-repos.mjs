@@ -51,6 +51,14 @@ function parseArgs(argv) {
   return args;
 }
 
+function githubCliEnv() {
+  const env = { ...process.env };
+  if (!env.GH_TOKEN) {
+    delete env.GITHUB_TOKEN;
+  }
+  return env;
+}
+
 function printUsage() {
   console.log(`Ús:
 node scripts/create-student-repos.mjs \\
@@ -292,7 +300,10 @@ async function runGh(command, args, dryRun) {
 
   console.log(rendered);
   try {
-    await execFileAsync(ghBin, [command, ...args], { cwd: rootDir });
+    await execFileAsync(ghBin, [command, ...args], {
+      cwd: rootDir,
+      env: githubCliEnv()
+    });
   } catch (error) {
     if (error.code === 'ENOENT') {
       throw new Error(`No s'ha trobat GitHub CLI (${ghBin}). Instal·la gh al servidor o configura GH_BIN=/ruta/al/gh en .env.`);

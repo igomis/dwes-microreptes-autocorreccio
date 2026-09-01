@@ -14,6 +14,7 @@ GITHUB_REF=main
 GITHUB_CLASSROOM_ORG=batoi-dwes-2026
 GITHUB_STUDENT_TEMPLATE=igomis/dwes-microreptes-alumnes
 GH_BIN=gh
+GH_TOKEN=
 DASHBOARD_HOST=127.0.0.1
 DASHBOARD_PORT=4173
 DASHBOARD_AUTH_REQUIRED=false
@@ -61,6 +62,8 @@ gh auth status
 ```
 
 Si el dashboard corre com a servei i apareix `spawn gh ENOENT`, indica la ruta absoluta en `.env`, per exemple `GH_BIN=/usr/bin/gh`.
+
+El dashboard usa `GITHUB_TOKEN` per cridar l'API de GitHub quan llança workflows. Per a GitHub CLI, usa l'autenticació guardada amb `gh auth login` o, si defineixes `GH_TOKEN`, eixe token explícit. Això evita que un `GITHUB_TOKEN` amb permisos parcials impedisca crear repositoris des d'una plantilla.
 
 ## Execució
 

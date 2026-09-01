@@ -162,6 +162,14 @@ function dashboardDocLinks() {
   };
 }
 
+function githubCliEnv() {
+  const env = { ...process.env };
+  if (!env.GH_TOKEN) {
+    delete env.GITHUB_TOKEN;
+  }
+  return env;
+}
+
 function escapeHtmlServer(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -828,6 +836,7 @@ async function deleteGithubRepository(repo) {
   try {
     result = await execFileAsync(ghBin, ['repo', 'delete', repo, '--yes'], {
       cwd: rootDir,
+      env: githubCliEnv(),
       maxBuffer: 1024 * 1024 * 10
     });
   } catch (error) {
