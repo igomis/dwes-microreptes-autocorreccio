@@ -79,7 +79,7 @@ El dashboard està separat en aquestes vistes:
 - Llançar el workflow massiu en mode `mock` o `openai`.
 - Consultar els últims resultats guardats en `grades/latest-grades.json`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
-- Afegir, editar, filtrar i eliminar alumnes sense resultats associats.
+- Afegir, editar, filtrar i eliminar alumnes. Si tenen resultats associats, el dashboard mostra un avís i, en confirmar, esborra també eixos resultats.
 - Importar alumnes des de `course/student-repositories.txt`.
 - Sincronitzar els alumnes mantinguts en la BD cap als fitxers `course/student-repositories*.txt` que usa el workflow massiu.
 - Consultar microreptes per repte, sessió, codi, pes dins del repte, dimensions de rúbrica i criteris que comprova cada dimensió.

@@ -195,18 +195,32 @@ export function updateStudent(studentId, studentData) {
 
 export function deleteStudent(studentId) {
   const db = getDb();
-  const student = getStudentById(studentId);
+  const removeStudent = db.transaction((id) => {
+    const student = getStudentById(id);
 
-  if (!student) {
-    return { changes: 0 };
-  }
+    if (!student) {
+      return { changes: 0, deleted_grades: 0, deleted_criteria: 0, student: null };
+    }
 
-  if (student.grade_count > 0) {
-    throw new Error('No es pot eliminar un alumne amb resultats associats.');
-  }
+    const grades = db.prepare('SELECT id FROM grades WHERE student_id = ?').all(id);
+    let deletedCriteria = 0;
 
-  const stmt = db.prepare('DELETE FROM students WHERE id = ?');
-  return stmt.run(studentId);
+    for (const grade of grades) {
+      deletedCriteria += db.prepare('DELETE FROM grade_criteria WHERE grade_id = ?').run(grade.id).changes;
+    }
+
+    const deletedGrades = db.prepare('DELETE FROM grades WHERE student_id = ?').run(id).changes;
+    const result = db.prepare('DELETE FROM students WHERE id = ?').run(id);
+
+    return {
+      changes: result.changes,
+      deleted_grades: deletedGrades,
+      deleted_criteria: deletedCriteria,
+      student
+    };
+  });
+
+  return removeStudent(studentId);
 }
 
 // Operacions de microreptes

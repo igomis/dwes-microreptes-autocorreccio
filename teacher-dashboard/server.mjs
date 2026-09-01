@@ -25,6 +25,7 @@ import {
   getClassroomSessionNotes,
   insertClassroomSessionNote
 } from './db.mjs';
+import { readGrades, writeGrades } from '../scripts/lib/grades-store.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
@@ -995,6 +996,46 @@ async function readTeacherRepteGradeRecords() {
   const filePath = path.join(rootDir, 'grades', 'teacher-repte-grades.json');
   const records = await readJsonIfExists(filePath);
   return Array.isArray(records) ? records : [];
+}
+
+async function removeStudentAggregateResults(repo) {
+  const latestGrades = await readGrades(rootDir);
+  const nextGrades = latestGrades.filter((grade) => (grade.repo || grade.student || '') !== repo);
+  await writeGrades(nextGrades, rootDir);
+
+  const teacherGradesPath = path.join(rootDir, 'grades', 'teacher-repte-grades.json');
+  const teacherGrades = await readJsonIfExists(teacherGradesPath);
+  let deletedTeacherGrades = 0;
+
+  if (Array.isArray(teacherGrades)) {
+    const nextTeacherGrades = teacherGrades.filter((grade) => grade.repo !== repo);
+    deletedTeacherGrades = teacherGrades.length - nextTeacherGrades.length;
+    await writeFile(teacherGradesPath, `${JSON.stringify(nextTeacherGrades, null, 2)}\n`, 'utf8');
+  }
+
+  const aggregateArgs = ['scripts/aggregate-repte-grades.mjs'];
+  if (existsSync(teacherGradesPath)) {
+    aggregateArgs.push('--teacher-input', teacherGradesPath);
+  }
+  await execFileAsync(process.execPath, aggregateArgs, { cwd: rootDir });
+
+  return {
+    deleted_latest_grades: latestGrades.length - nextGrades.length,
+    deleted_teacher_repte_grades: deletedTeacherGrades
+  };
+}
+
+async function deleteStudentAndAssociatedResults(studentId) {
+  const result = deleteStudent(studentId);
+  if (!result.student) {
+    return result;
+  }
+
+  const aggregateCleanup = await removeStudentAggregateResults(result.student.repo);
+  return {
+    ...result,
+    ...aggregateCleanup
+  };
 }
 
 async function saveTeacherRepteGrade(body) {
@@ -2524,7 +2565,12 @@ function pageHtml() {
       const student = students.find((item) => String(item.id) === String(studentId));
       if (!student) return;
 
-      if (!confirm('Eliminar ' + (student.student_name || student.repo) + '?')) {
+      const gradeCount = Number(student.grade_count || 0);
+      const warning = gradeCount > 0
+        ? ' Té ' + gradeCount + ' resultat(s) associat(s), que també s’esborraran.'
+        : '';
+
+      if (!confirm('Eliminar ' + (student.student_name || student.repo) + '?' + warning)) {
         return;
       }
 
@@ -2533,6 +2579,7 @@ function pageHtml() {
       if (!response.ok) throw new Error(payload.error || 'No s’ha pogut eliminar l’alumne.');
       clearStudentForm();
       await loadStudents();
+      return payload;
     }
 
     async function loadStudents() {
@@ -2566,8 +2613,10 @@ function pageHtml() {
         document.querySelectorAll('[data-student-delete]').forEach((button) => {
           button.addEventListener('click', async () => {
             try {
-              await deleteStudentRow(button.dataset.studentDelete);
-              document.querySelector('#studentStatus').innerHTML = '<span class="ok">Alumne eliminat.</span>';
+              const result = await deleteStudentRow(button.dataset.studentDelete);
+              if (result) {
+                document.querySelector('#studentStatus').innerHTML = '<span class="ok">Alumne eliminat. Resultats esborrats: ' + escapeHtml(result.deleted_grades || 0) + '.</span>';
+              }
             } catch (error) {
               document.querySelector('#studentStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
             }
@@ -3257,8 +3306,14 @@ async function handleRequest(request, response) {
     }
 
     if (studentMatch && request.method === 'DELETE') {
-      const result = deleteStudent(Number(studentMatch[1]));
-      sendJson(response, 200, { deleted: result.changes > 0 });
+      const result = await deleteStudentAndAssociatedResults(Number(studentMatch[1]));
+      sendJson(response, 200, {
+        deleted: result.changes > 0,
+        deleted_grades: result.deleted_grades || 0,
+        deleted_criteria: result.deleted_criteria || 0,
+        deleted_latest_grades: result.deleted_latest_grades || 0,
+        deleted_teacher_repte_grades: result.deleted_teacher_repte_grades || 0
+      });
       return;
     }
 
