@@ -818,6 +818,23 @@ async function createStudentReposFromCsv(body) {
   };
 }
 
+async function deleteGithubRepository(repo) {
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
+    throw new Error('El repositori GitHub no té format owner/repo.');
+  }
+
+  const result = await execFileAsync('gh', ['repo', 'delete', repo, '--yes'], {
+    cwd: rootDir,
+    maxBuffer: 1024 * 1024 * 10
+  });
+
+  return {
+    repo,
+    stdout: result.stdout,
+    stderr: result.stderr
+  };
+}
+
 async function readRequestJson(request) {
   const chunks = [];
   for await (const chunk of request) {
@@ -1093,16 +1110,36 @@ async function removeStudentAggregateResults(repo) {
   };
 }
 
-async function deleteStudentAndAssociatedResults(studentId) {
+async function deleteStudentAndAssociatedResults(studentId, options = {}) {
   const result = deleteStudent(studentId);
   if (!result.student) {
     return result;
   }
 
   const aggregateCleanup = await removeStudentAggregateResults(result.student.repo);
+  const syncResult = await syncStudentRepositoryFiles();
+  let github = null;
+
+  if (options.deleteGithubRepo) {
+    try {
+      github = {
+        deleted: true,
+        ...(await deleteGithubRepository(result.student.repo))
+      };
+    } catch (error) {
+      github = {
+        deleted: false,
+        repo: result.student.repo,
+        error: error.message
+      };
+    }
+  }
+
   return {
     ...result,
-    ...aggregateCleanup
+    ...aggregateCleanup,
+    synced_course_files: syncResult.files,
+    github
   };
 }
 
@@ -2694,7 +2731,22 @@ function pageHtml() {
         return;
       }
 
-      const response = await fetch('/api/students/' + encodeURIComponent(studentId), { method: 'DELETE' });
+      let deleteGithubRepo = false;
+      if (confirm('Vols eliminar també el repositori de GitHub ' + student.repo + '? Aquesta acció és destructiva i no es pot desfer des del dashboard.')) {
+        const typedRepo = prompt('Escriu el nom exacte del repositori per confirmar l’esborrat remot:', '');
+        if (typedRepo !== student.repo) {
+          throw new Error('No s’ha eliminat res: el repositori escrit no coincideix.');
+        }
+        deleteGithubRepo = true;
+      }
+
+      const params = new URLSearchParams();
+      if (deleteGithubRepo) {
+        params.set('delete_github_repo', 'true');
+      }
+
+      const requestUrl = '/api/students/' + encodeURIComponent(studentId) + (params.toString() ? '?' + params.toString() : '');
+      const response = await fetch(requestUrl, { method: 'DELETE' });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'No s’ha pogut eliminar l’alumne.');
       clearStudentForm();
@@ -2735,7 +2787,12 @@ function pageHtml() {
             try {
               const result = await deleteStudentRow(button.dataset.studentDelete);
               if (result) {
-                document.querySelector('#studentStatus').innerHTML = '<span class="ok">Alumne eliminat. Resultats esborrats: ' + escapeHtml(result.deleted_grades || 0) + '.</span>';
+                const githubMessage = result.github
+                  ? (result.github.deleted
+                    ? ' Repositori GitHub eliminat: ' + escapeHtml(result.github.repo) + '.'
+                    : ' No s’ha pogut eliminar el repositori GitHub: ' + escapeHtml(result.github.error || 'error desconegut') + '.')
+                  : '';
+                document.querySelector('#studentStatus').innerHTML = '<span class="ok">Alumne eliminat. Resultats esborrats: ' + escapeHtml(result.deleted_grades || 0) + '.' + githubMessage + '</span>';
               }
             } catch (error) {
               document.querySelector('#studentStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
@@ -3483,13 +3540,17 @@ async function handleRequest(request, response) {
     }
 
     if (studentMatch && request.method === 'DELETE') {
-      const result = await deleteStudentAndAssociatedResults(Number(studentMatch[1]));
+      const result = await deleteStudentAndAssociatedResults(Number(studentMatch[1]), {
+        deleteGithubRepo: url.searchParams.get('delete_github_repo') === 'true'
+      });
       sendJson(response, 200, {
         deleted: result.changes > 0,
         deleted_grades: result.deleted_grades || 0,
         deleted_criteria: result.deleted_criteria || 0,
         deleted_latest_grades: result.deleted_latest_grades || 0,
-        deleted_teacher_repte_grades: result.deleted_teacher_repte_grades || 0
+        deleted_teacher_repte_grades: result.deleted_teacher_repte_grades || 0,
+        synced_course_files: result.synced_course_files || [],
+        github: result.github || null
       });
       return;
     }
