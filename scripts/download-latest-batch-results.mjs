@@ -156,6 +156,7 @@ async function copyIfExists(source, destination, options = {}) {
 }
 
 async function copyDownloadedGrades(rootDir, downloadedGradesDir) {
+  const warnings = [];
   const targetGradesDir = path.join(rootDir, 'grades');
   await mkdir(targetGradesDir, { recursive: true });
 
@@ -179,15 +180,25 @@ async function copyDownloadedGrades(rootDir, downloadedGradesDir) {
     path.join(targetGradesDir, 'latest-repte-grades.csv'),
     { force: true }
   );
-  await copyIfExists(
-    path.join(downloadedGradesDir, 'history'),
-    path.join(targetGradesDir, 'history'),
-    {
-      recursive: true,
-      force: false,
-      errorOnExist: false
+  try {
+    await copyIfExists(
+      path.join(downloadedGradesDir, 'history'),
+      path.join(targetGradesDir, 'history'),
+      {
+        recursive: true,
+        force: false,
+        errorOnExist: false
+      }
+    );
+  } catch (error) {
+    if (error?.code !== 'EACCES' && error?.code !== 'EPERM') {
+      throw error;
     }
-  );
+
+    warnings.push(`No s'ha pogut copiar grades/history per permisos: ${error.message}`);
+  }
+
+  return warnings;
 }
 
 async function main() {
@@ -219,7 +230,7 @@ async function main() {
       throw new Error(`L'artifact ${artifactName} del run ${runId} no conte la carpeta grades/`);
     }
 
-    await copyDownloadedGrades(rootDir, downloadedGradesDir);
+    const warnings = await copyDownloadedGrades(rootDir, downloadedGradesDir);
 
     let migrated = 0;
     if (!args['no-db']) {
@@ -229,6 +240,9 @@ async function main() {
     console.log(`Resultats importats del run ${runId} en grades/.`);
     if (!args['no-db']) {
       console.log(`Notes sincronitzades amb la BD del dashboard: ${migrated}.`);
+    }
+    for (const warning of warnings) {
+      console.warn(`Avís: ${warning}`);
     }
   } finally {
     await rm(downloadDir, { recursive: true, force: true });
