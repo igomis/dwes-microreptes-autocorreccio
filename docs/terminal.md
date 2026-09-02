@@ -167,6 +167,8 @@ grades/history/
 
 `latest-grades.*` només manté l'últim registre per `repo + challenge_id`. Els intents anteriors queden en `grades/history/`.
 
+Els fitxers de `grades/` son sortida generada i no es commitegen. En execucions de GitHub Actions, descarrega l'artifact `batch-autograde-results` per conservar o consultar la còpia central.
+
 ## Dashboard local opcional
 
 Si vols una interfície local:

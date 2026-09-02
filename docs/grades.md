@@ -1,6 +1,6 @@
 # Notes provisionals centralitzades
 
-Este repositori del professor pot agregar manualment resultats d'autograding generats en repositoris d'alumnes. La primera versio usa fitxers locals JSON i CSV, sense base de dades ni sincronitzacio automatica.
+Este repositori del professor pot agregar manualment resultats d'autograding generats en repositoris d'alumnes. La primera versio usa fitxers locals JSON i CSV, sense base de dades ni sincronitzacio automatica. Els fitxers generats dins de `grades/` son sortida local i no es versionen en Git.
 
 ## On es genera el resultat
 
@@ -135,6 +135,8 @@ Els registres s'afigen a:
 - `grades/latest-grades.csv`
 
 Els fitxers `latest-grades.json` i `latest-grades.csv` mantenen un únic registre vigent per parella `repo + challenge_id`. Si importes dues vegades la mateixa parella, la segona substitueix la primera.
+
+Com que estos fitxers no es commitegen, conserva'ls localment o descarrega l'artifact `batch-autograde-results` quan la correccio s'ha executat des de GitHub Actions.
 
 Per revisar les notes agregades:
 

@@ -302,23 +302,13 @@ jobs:
             exit 1
           fi
 
-      - name: Commit teacher-side grade history
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          git add grades/latest-grades.json grades/latest-grades.csv grades/history/
-          if git diff --cached --quiet; then
-            echo "No hi ha canvis de notes per commitejar."
-            exit 0
-          fi
-
-          git commit -m "Guarda resultats d'autocorreccio massiva"
-          git push
-
       - name: Upload teacher-side autograde artifacts
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: batch-autograde-results
-          path: tmp/batch/
+          path: |
+            tmp/batch/
+            grades/latest-grades.json
+            grades/latest-grades.csv
+            grades/history/

@@ -1,6 +1,6 @@
 # Notes provisionals
 
-La carpeta `grades/` conte registres provisionals d'autograding agregats manualment al repositori del professor.
+La carpeta `grades/` conte registres provisionals d'autograding agregats manualment al repositori del professor. Excepte aquest `README.md`, el contingut de la carpeta es genera localment o en GitHub Actions i queda ignorat per Git.
 
 Hi ha tres nivells diferents:
 
@@ -15,7 +15,7 @@ Les notes d'esta carpeta son provisionals. Servixen per centralitzar resultats i
 
 `latest-grades.json` i `latest-grades.csv` no acumulen duplicats del mateix repositori i autocorreccio. Si una entrega es corregeix de nou, la fila vigent se substitueix.
 
-L'historial complet no es perd: cada execucio massiva queda guardada en `grades/history/`.
+L'historial complet de cada execucio massiva queda guardat en `grades/history/` durant l'execucio i es publica en l'artifact `batch-autograde-results`.
 
 ## Historial
 

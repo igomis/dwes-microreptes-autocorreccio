@@ -50,13 +50,15 @@ cipfpbatoi/microreptes-joan-ferrer
 
 El workflow clona cada repositori d'alumne, recull evidencies, construeix el payload, executa el motor d'autograding i publica el resultat.
 
-Cada execucio massiva també guarda una còpia central en el repositori del professor:
+Cada execucio massiva també guarda una còpia central en l'artifact del workflow:
 
 ```text
 grades/history/<batch-id>/
 grades/latest-grades.json
 grades/latest-grades.csv
 ```
+
+Estos fitxers es generen durant l'execucio, pero no es commitegen al repositori del professor. Aixi el repositori local pot fer `git pull --ff-only` sense conflictes provocats per notes provisionals.
 
 ## Fitxer de repositoris
 
@@ -179,7 +181,7 @@ El fitxer `autograde/latest.md` es el resum llegible:
 
 ## Consulta posterior
 
-El professor pot consultar l'historial central en:
+El professor pot consultar l'historial central descarregant l'artifact `batch-autograde-results` de l'execucio del workflow. Si ha executat scripts locals, tambe el tindra en:
 
 ```text
 grades/history/
@@ -196,7 +198,7 @@ Els fitxers `latest-grades.*` mantenen només l'últim registre per parella `rep
 
 Les execucions anteriors continuen disponibles en `grades/history/`.
 
-El dashboard local també mostra els últims resultats llegint `grades/latest-grades.json`.
+El dashboard local també mostra els últims resultats llegint `grades/latest-grades.json` quan existeix localment.
 
 ## Prova sense consum
 

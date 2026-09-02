@@ -11,4 +11,6 @@ tmp/*
 .idea/
 .vscode/
 *.log
-grades/*.db*
+grades/**
+!grades/
+!grades/README.md
