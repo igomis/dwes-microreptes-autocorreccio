@@ -1621,7 +1621,7 @@ function pageHtml() {
           </select>
         </label>
         <label>Branca alumne
-          <input id="studentRef" value="main">
+          <input id="studentRef" value="master">
         </label>
         <label>Microrepte a corregir
           <select id="correctionChallenge">
@@ -3061,7 +3061,7 @@ function pageHtml() {
     function refreshTable() {
       const selected = selectedRepositories();
       const target = document.querySelector('#targetGroup').value;
-      const branch = document.querySelector('#studentRef').value.trim() || 'main';
+      const branch = document.querySelector('#studentRef').value.trim() || 'master';
       const selectedChallenge = document.querySelector('#correctionChallenge')?.value || '';
       const rows = selected.repositories.map((item) => {
         const group = item.group || (target === 'all' ? '' : target);
@@ -3081,7 +3081,7 @@ function pageHtml() {
         '<p><strong>Repositoris:</strong> ' + escapeHtml(selected.source) + '</p>' +
         '<p><strong>Branca corregible:</strong> <code>' + escapeHtml(branch) + '</code></p>' +
         '<p><strong>Microrepte:</strong> ' + (selectedChallenge ? 'selecció manual per a esta execució.' : 'configuració activa: assignació individual en <code>course/active-challenges.json</code>; si no existeix, assignació del grup.') + '</p>' +
-        '<p><strong>Criteri de branques:</strong> el lliurament corregible ha d’estar integrat en <code>main</code>. Les branques de treball són opcionals i no es corregeixen si no s’indiquen explícitament.</p>';
+        '<p><strong>Criteri de branques:</strong> el lliurament corregible ha d’estar integrat en <code>master</code>. Les branques de treball són opcionals i no es corregeixen si no s’indiquen explícitament.</p>';
     }
 
     async function loadConfig() {
@@ -3281,7 +3281,7 @@ function pageHtml() {
         target_group: targetGroup || 'all',
         challenge_id: challengeId,
         mode,
-        student_ref: 'main',
+        student_ref: 'master',
         publish_to_student_repo: false,
         repositories: repo + ' ' + (groupName || targetGroup || 'all')
       }, status);
@@ -3304,7 +3304,7 @@ function pageHtml() {
           target_group: group,
           challenge_id: challenge,
           mode,
-          student_ref: 'main',
+          student_ref: 'master',
           publish_to_student_repo: false,
           repositories: repo + ' ' + group
         }, status);
@@ -3321,7 +3321,7 @@ function pageHtml() {
         target_group: group,
         challenge_id: challenge,
         mode,
-        student_ref: 'main',
+        student_ref: 'master',
         publish_to_student_repo: false,
         repositories: groupInfo.repositories.map((item) => item.repo + ' ' + item.group).join('\\n')
       }, status);
