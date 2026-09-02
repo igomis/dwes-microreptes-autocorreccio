@@ -898,6 +898,7 @@ async function dispatchWorkflow(inputs) {
   const owner = process.env.GITHUB_OWNER || 'igomis';
   const repo = process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio';
   const ref = process.env.GITHUB_REF || 'main';
+  const dispatchedAt = new Date().toISOString();
 
   if (!token) {
     throw new Error('Falta GITHUB_TOKEN en .env o en l_entorn del dashboard. Este token ha de poder llançar workflows en el repositori docent.');
@@ -920,12 +921,50 @@ async function dispatchWorkflow(inputs) {
     throw new Error(`GitHub ha retornat ${githubResponse.status}: ${errorText}`);
   }
 
+  const run = await findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt });
+
   return {
     actions_url: `https://github.com/${owner}/${repo}/actions/workflows/${workflowFile}`,
+    run_url: run?.html_url || '',
+    run_status: run?.status || '',
     owner,
     repo,
     ref
   };
+}
+
+async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt }) {
+  const url = new URL(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs`);
+  url.searchParams.set('branch', ref);
+  url.searchParams.set('event', 'workflow_dispatch');
+  url.searchParams.set('per_page', '5');
+
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const response = await fetch(url, {
+      headers: {
+        accept: 'application/vnd.github+json',
+        authorization: `Bearer ${token}`,
+        'x-github-api-version': '2022-11-28'
+      }
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = await response.json();
+    const run = (payload.workflow_runs || []).find((item) => (
+      new Date(item.created_at).getTime() >= new Date(dispatchedAt).getTime() - 10000
+    ));
+
+    if (run) {
+      return run;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
+
+  return null;
 }
 
 async function buildConfigPayload() {
@@ -3303,8 +3342,10 @@ function pageHtml() {
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || 'Error desconegut');
-        statusElement.innerHTML = '<span class="ok">Recalcul enviat.</span> <a href="' + result.actions_url + '" target="_blank" rel="noreferrer">Obrir Actions</a>';
-        await loadGrades();
+        const actionLink = result.run_url || result.actions_url;
+        const linkText = result.run_url ? 'Obrir run' : 'Obrir Actions';
+        const statusText = result.run_status ? ' Estat inicial: ' + escapeHtml(result.run_status) + '.' : '';
+        statusElement.innerHTML = '<span class="ok">Recalcul enviat a GitHub Actions.</span>' + statusText + ' Pot estar esperant runner. <a href="' + escapeHtml(actionLink) + '" target="_blank" rel="noreferrer">' + linkText + '</a>. Quan acabe, prem Actualitzar per importar el resultat.';
       } catch (error) {
         statusElement.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
       }
