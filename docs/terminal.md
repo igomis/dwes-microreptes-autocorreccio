@@ -169,6 +169,26 @@ grades/history/
 
 Els fitxers de `grades/` son sortida generada i no es commitegen. En execucions de GitHub Actions, descarrega l'artifact `batch-autograde-results` per conservar o consultar la còpia central.
 
+Per importar automàticament l'últim artifact correcte al servidor:
+
+```bash
+npm run grades:download-latest
+```
+
+També pots importar un run concret:
+
+```bash
+npm run grades:download-latest -- --run-id 33598305678
+```
+
+El script copia `grades/` des de l'artifact i sincronitza `grades/latest-grades.json` amb la BD local del dashboard.
+
+Exemple de cron cada 10 minuts:
+
+```cron
+*/10 * * * * cd /ruta/al/servidor/dwes-microreptes-autocorreccio && git pull --ff-only && npm run grades:download-latest >> /tmp/dwes-grades-import.log 2>&1
+```
+
 ## Dashboard local opcional
 
 Si vols una interfície local:

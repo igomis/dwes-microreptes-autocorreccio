@@ -144,6 +144,12 @@ Per revisar les notes agregades:
 npm run grades:list
 ```
 
+Per descarregar i importar automàticament l'últim artifact correcte en el servidor:
+
+```bash
+npm run grades:download-latest
+```
+
 ## Nota provisional i nota validada
 
 Una nota provisional es el resultat calculat per autograding a partir d'una execucio concreta. Pot ajudar a prioritzar revisions i donar feedback inicial, pero pot contindre errors o requerir interpretacio docent.
