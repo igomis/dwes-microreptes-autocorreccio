@@ -14,6 +14,7 @@ import {
   upsertStudent,
   updateStudent,
   deleteStudent,
+  deleteGrade,
   getStudents,
   upsertChallenge,
   getChallenges,
@@ -1189,6 +1190,55 @@ async function removeStudentAggregateResults(repo) {
   return {
     deleted_latest_grades: latestGrades.length - nextGrades.length,
     deleted_teacher_repte_grades: deletedTeacherGrades
+  };
+}
+
+function sameGradeRecord(fileGrade, deletedGrade) {
+  const repo = fileGrade.repo || fileGrade.student || '';
+  const commit = fileGrade.commit || fileGrade.commit_hash || '';
+
+  return repo === deletedGrade.repo
+    && fileGrade.challenge_id === deletedGrade.challenge_id
+    && commit === (deletedGrade.commit_hash || '')
+    && (fileGrade.source || '') === (deletedGrade.source || '')
+    && (fileGrade.timestamp || '') === (deletedGrade.timestamp || '');
+}
+
+async function regenerateRepteGradeFiles() {
+  const teacherGradesPath = path.join(rootDir, 'grades', 'teacher-repte-grades.json');
+  const aggregateArgs = ['scripts/aggregate-repte-grades.mjs'];
+  if (existsSync(teacherGradesPath)) {
+    aggregateArgs.push('--teacher-input', teacherGradesPath);
+  }
+  await execFileAsync(process.execPath, aggregateArgs, { cwd: rootDir });
+}
+
+async function removeGradeAggregateResult(grade) {
+  const latestGrades = await readGrades(rootDir);
+  const nextGrades = latestGrades.filter((fileGrade) => !sameGradeRecord(fileGrade, grade));
+
+  if (nextGrades.length !== latestGrades.length) {
+    await writeGrades(nextGrades, rootDir);
+  }
+
+  await regenerateRepteGradeFiles();
+
+  return {
+    deleted_latest_grades: latestGrades.length - nextGrades.length
+  };
+}
+
+async function deleteGradeAndAggregateResult(gradeId) {
+  const result = deleteGrade(gradeId);
+  if (!result.grade) {
+    return result;
+  }
+
+  const aggregateCleanup = await removeGradeAggregateResult(result.grade);
+
+  return {
+    ...result,
+    ...aggregateCleanup
   };
 }
 
@@ -3206,7 +3256,8 @@ function pageHtml() {
             '<td>' + escapeHtml(grade.source || '') + '</td>' +
             '<td><div class="compact-actions">' +
               '<button class="secondary" type="button" data-grade-id="' + escapeHtml(grade.id) + '" data-grade-repo="' + escapeHtml(grade.repo || '') + '" data-grade-challenge="' + escapeHtml(grade.challenge_id || '') + '">Veure</button>' +
-              '<button class="secondary" type="button" data-grade-recalc="' + escapeHtml(grade.id) + '" data-grade-repo="' + escapeHtml(grade.repo || '') + '" data-grade-challenge="' + escapeHtml(grade.challenge_id || '') + '" data-grade-group="' + escapeHtml(grade.group_name || '') + '">Recalcular</button>' +
+              '<button class="secondary" type="button" data-grade-recalc="' + escapeHtml(grade.id) + '" data-grade-repo="' + escapeHtml(grade.repo || '') + '" data-grade-challenge="' + escapeHtml(grade.challenge_id || '') + '" data-grade-group="' + escapeHtml(grade.group_name || '') + '" data-grade-source="' + escapeHtml(grade.source || '') + '">Recalcular</button>' +
+              '<button class="secondary" type="button" data-grade-delete="' + escapeHtml(grade.id) + '" data-grade-repo="' + escapeHtml(grade.repo || '') + '" data-grade-challenge="' + escapeHtml(grade.challenge_id || '') + '">Esborrar</button>' +
             '</div></td>' +
             '</tr>';
         });
@@ -3215,7 +3266,10 @@ function pageHtml() {
           button.addEventListener('click', () => showGradeDetail(button.dataset.gradeId));
         });
         document.querySelectorAll('[data-grade-recalc]').forEach((button) => {
-          button.addEventListener('click', () => recalculateGrade(button.dataset.gradeRepo, button.dataset.gradeChallenge, button.dataset.gradeGroup));
+          button.addEventListener('click', () => recalculateGrade(button.dataset.gradeRepo, button.dataset.gradeChallenge, button.dataset.gradeGroup, button.dataset.gradeSource));
+        });
+        document.querySelectorAll('[data-grade-delete]').forEach((button) => {
+          button.addEventListener('click', () => deleteGradeRow(button.dataset.gradeDelete, button.dataset.gradeRepo, button.dataset.gradeChallenge));
         });
         document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
         await loadRaGrades(params);
@@ -3351,13 +3405,32 @@ function pageHtml() {
       }
     }
 
-    async function recalculateGrade(repo, challengeId, groupName) {
+    async function deleteGradeRow(gradeId, repo, challengeId) {
+      const status = document.querySelector('#gradesInfo');
+      if (!confirm('Esborrar el resultat de ' + repo + ' per a ' + challengeId + '? La nota agregada del microrepte es recalcularà.')) {
+        return;
+      }
+
+      status.className = 'status';
+      status.textContent = 'Esborrant resultat i recalculant agregats...';
+      try {
+        const response = await fetch('/api/grades/' + encodeURIComponent(gradeId), { method: 'DELETE' });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut esborrar el resultat.');
+        await loadGrades();
+        status.innerHTML = '<span class="ok">Resultat esborrat. Agregats recalculats.</span>';
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      }
+    }
+
+    async function recalculateGrade(repo, challengeId, groupName, source) {
       const status = document.querySelector('#gradesInfo');
       if (!repo || !challengeId) {
         status.innerHTML = '<span class="error">No es pot recalcular: falta repositori o repte.</span>';
         return;
       }
-      const mode = document.querySelector('#mode')?.value || 'mock';
+      const mode = String(source || '').toLowerCase() === 'openai' ? 'openai' : 'mock';
       const targetGroup = groupName || document.querySelector('#filterGroup')?.value || 'all';
       await recalculateWorkflow({
         target_group: targetGroup || 'all',
@@ -3620,6 +3693,22 @@ async function handleRequest(request, response) {
       }
 
       sendJson(response, 200, detail);
+      return;
+    }
+
+    if (request.method === 'DELETE' && gradeDetailMatch) {
+      const result = await deleteGradeAndAggregateResult(Number(gradeDetailMatch[1]));
+      if (!result.grade) {
+        sendJson(response, 404, { error: 'Resultat no trobat' });
+        return;
+      }
+
+      sendJson(response, 200, {
+        deleted: result.changes > 0,
+        deleted_criteria: result.deleted_criteria || 0,
+        deleted_latest_grades: result.deleted_latest_grades || 0,
+        grade: result.grade
+      });
       return;
     }
 

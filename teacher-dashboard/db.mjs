@@ -223,6 +223,28 @@ export function deleteStudent(studentId) {
   return removeStudent(studentId);
 }
 
+export function deleteGrade(gradeId) {
+  const db = getDb();
+  const removeGrade = db.transaction((id) => {
+    const grade = getGradeById(id);
+
+    if (!grade) {
+      return { changes: 0, deleted_criteria: 0, grade: null };
+    }
+
+    const deletedCriteria = db.prepare('DELETE FROM grade_criteria WHERE grade_id = ?').run(id).changes;
+    const result = db.prepare('DELETE FROM grades WHERE id = ?').run(id);
+
+    return {
+      changes: result.changes,
+      deleted_criteria: deletedCriteria,
+      grade
+    };
+  });
+
+  return removeGrade(gradeId);
+}
+
 // Operacions de microreptes
 export function upsertChallenge(challengeId, title = null, description = null) {
   const db = getDb();
@@ -349,7 +371,19 @@ export function getLatestGrades(limit = 100, filters = {}) {
     params.push(filters.to_date);
   }
 
-  query += ' ORDER BY g.timestamp DESC LIMIT ?';
+  query += `
+    ORDER BY
+      CASE LOWER(COALESCE(g.source, ''))
+        WHEN 'openai' THEN 0
+        WHEN 'dashboard' THEN 1
+        WHEN 'teacher' THEN 1
+        WHEN 'manual-import' THEN 1
+        WHEN 'mock' THEN 3
+        ELSE 2
+      END,
+      g.timestamp DESC
+    LIMIT ?
+  `;
   params.push(limit);
 
   const stmt = db.prepare(query);
