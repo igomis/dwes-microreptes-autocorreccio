@@ -146,6 +146,50 @@ async function createDownloadDir(rootDir, configuredDir, runId) {
   return mkdtemp(path.join(baseDir, `run-${runId}-`));
 }
 
+async function copyIfExists(source, destination, options = {}) {
+  if (!existsSync(source)) {
+    return false;
+  }
+
+  await cp(source, destination, options);
+  return true;
+}
+
+async function copyDownloadedGrades(rootDir, downloadedGradesDir) {
+  const targetGradesDir = path.join(rootDir, 'grades');
+  await mkdir(targetGradesDir, { recursive: true });
+
+  await copyIfExists(
+    path.join(downloadedGradesDir, 'latest-grades.json'),
+    path.join(targetGradesDir, 'latest-grades.json'),
+    { force: true }
+  );
+  await copyIfExists(
+    path.join(downloadedGradesDir, 'latest-grades.csv'),
+    path.join(targetGradesDir, 'latest-grades.csv'),
+    { force: true }
+  );
+  await copyIfExists(
+    path.join(downloadedGradesDir, 'latest-repte-grades.json'),
+    path.join(targetGradesDir, 'latest-repte-grades.json'),
+    { force: true }
+  );
+  await copyIfExists(
+    path.join(downloadedGradesDir, 'latest-repte-grades.csv'),
+    path.join(targetGradesDir, 'latest-repte-grades.csv'),
+    { force: true }
+  );
+  await copyIfExists(
+    path.join(downloadedGradesDir, 'history'),
+    path.join(targetGradesDir, 'history'),
+    {
+      recursive: true,
+      force: false,
+      errorOnExist: false
+    }
+  );
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
@@ -175,11 +219,7 @@ async function main() {
       throw new Error(`L'artifact ${artifactName} del run ${runId} no conte la carpeta grades/`);
     }
 
-    await mkdir(path.join(rootDir, 'grades'), { recursive: true });
-    await cp(downloadedGradesDir, path.join(rootDir, 'grades'), {
-      recursive: true,
-      force: true
-    });
+    await copyDownloadedGrades(rootDir, downloadedGradesDir);
 
     let migrated = 0;
     if (!args['no-db']) {
