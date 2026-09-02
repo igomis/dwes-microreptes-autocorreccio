@@ -183,6 +183,8 @@ npm run grades:download-latest -- --run-id 33598305678
 
 El script copia `grades/` des de l'artifact i sincronitza `grades/latest-grades.json` amb la BD local del dashboard.
 
+En el dashboard, el botó **Actualitzar** de la vista `Resultats` fa aquesta mateixa importació automàtica abans de recarregar les notes.
+
 Exemple de cron cada 10 minuts:
 
 ```cron

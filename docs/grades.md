@@ -150,6 +150,8 @@ Per descarregar i importar automàticament l'últim artifact correcte en el serv
 npm run grades:download-latest
 ```
 
+Des del dashboard, el botó **Actualitzar** de la vista `Resultats` executa aquesta importació automàtica i recarrega la taula.
+
 ## Nota provisional i nota validada
 
 Una nota provisional es el resultat calculat per autograding a partir d'una execucio concreta. Pot ajudar a prioritzar revisions i donar feedback inicial, pero pot contindre errors o requerir interpretacio docent.

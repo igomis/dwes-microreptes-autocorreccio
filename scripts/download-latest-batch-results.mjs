@@ -60,7 +60,7 @@ Opcions:
   --repo owner/repo        Repositori docent. Per defecte: ${defaultRepo}
   --run-id 123456789      Importa un run concret en lloc de l'últim correcte
   --download-dir ruta     Directori temporal de baixada
-  --include-failed        Permet agafar l'últim run fallit si no hi ha run correcte
+  --include-failed        Permet agafar l'últim run completat, encara que haja fallat
   --no-db                 Copia grades/ però no migra latest-grades.json a SQLite
 
 Requisit:
@@ -101,8 +101,9 @@ async function latestRunId(repo, includeFailed) {
   ]);
   const runs = JSON.parse(stdout);
   const completed = runs.filter((run) => run.status === 'completed');
-  const selected = completed.find((run) => run.conclusion === 'success')
-    || (includeFailed ? completed.find((run) => run.conclusion === 'failure') : null);
+  const selected = includeFailed
+    ? completed.find((run) => ['success', 'failure'].includes(run.conclusion))
+    : completed.find((run) => run.conclusion === 'success');
 
   if (!selected) {
     throw new Error(`No s'ha trobat cap execucio completada${includeFailed ? '' : ' amb exit'} del workflow ${workflowFile}`);

@@ -959,6 +959,29 @@ async function readLatestGrades(filters = {}) {
   return getLatestGrades(200, filters);
 }
 
+async function importLatestGradeArtifact() {
+  const env = { ...process.env };
+  if (!env.GH_TOKEN && env.GITHUB_TOKEN) {
+    env.GH_TOKEN = env.GITHUB_TOKEN;
+  }
+
+  const result = await execFileAsync('npm', [
+    'run',
+    'grades:download-latest',
+    '--',
+    '--include-failed'
+  ], {
+    cwd: rootDir,
+    env,
+    maxBuffer: 1024 * 1024 * 20
+  });
+
+  return {
+    stdout: result.stdout,
+    stderr: result.stderr
+  };
+}
+
 function parseRaScores(value) {
   if (Array.isArray(value)) {
     return value;
@@ -3163,6 +3186,24 @@ function pageHtml() {
       }
     }
 
+    async function importLatestGrades() {
+      const button = document.querySelector('#refreshGrades');
+      const status = document.querySelector('#gradesInfo');
+      button.disabled = true;
+      status.textContent = 'Important últim artifact de correcció...';
+      try {
+        const response = await fetch('/api/grades/import-latest', { method: 'POST' });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut importar l’artifact.');
+        status.textContent = 'Resultats importats. Actualitzant vista...';
+        await loadGrades();
+      } catch (error) {
+        status.textContent = 'Error important resultats: ' + error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     async function loadRaGrades(params) {
       const response = await fetch('/api/ra-grades?' + params.toString());
       const payload = await response.json();
@@ -3370,7 +3411,7 @@ function pageHtml() {
       button.addEventListener('click', () => showView(button.dataset.navView));
     });
     document.querySelector('#runButton').addEventListener('click', runWorkflow);
-    document.querySelector('#refreshGrades').addEventListener('click', () => loadGrades());
+    document.querySelector('#refreshGrades').addEventListener('click', importLatestGrades);
     document.querySelector('#recalculateFilteredGrades').addEventListener('click', recalculateFilteredGrades);
     document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
     document.querySelector('#clearViewer').addEventListener('click', clearViewer);
@@ -3425,6 +3466,11 @@ async function handleRequest(request, response) {
       if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
       if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
       sendJson(response, 200, { grades: await readLatestGrades(filters) });
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/grades/import-latest') {
+      sendJson(response, 200, { import: await importLatestGradeArtifact() });
       return;
     }
 
