@@ -1,6 +1,7 @@
-import { cp, mkdir, readFile, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { execFile } from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { promisify } from 'node:util';
@@ -24,7 +25,7 @@ const allowedArgs = new Set([
 function parseArgs(argv) {
   const args = {
     repo: process.env.GITHUB_FULL_REPO || defaultRepo,
-    'download-dir': path.join('tmp', 'batch-autograde-results'),
+    'download-dir': '',
     'include-failed': false,
     'no-db': false
   };
@@ -59,7 +60,7 @@ npm run grades:download-latest -- [opcions]
 Opcions:
   --repo owner/repo        Repositori docent. Per defecte: ${defaultRepo}
   --run-id 123456789      Importa un run concret en lloc de l'últim correcte
-  --download-dir ruta     Directori temporal de baixada
+  --download-dir ruta     Directori base de baixada. Per defecte usa /tmp
   --include-failed        Permet agafar l'últim run completat, encara que haja fallat
   --no-db                 Copia grades/ però no migra latest-grades.json a SQLite
 
@@ -135,6 +136,16 @@ async function migrateDownloadedGrades(rootDir) {
   return grades.length;
 }
 
+async function createDownloadDir(rootDir, configuredDir, runId) {
+  if (!configuredDir) {
+    return mkdtemp(path.join(os.tmpdir(), `dwes-batch-autograde-${runId}-`));
+  }
+
+  const baseDir = path.resolve(rootDir, configuredDir);
+  await mkdir(baseDir, { recursive: true });
+  return mkdtemp(path.join(baseDir, `run-${runId}-`));
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
@@ -144,42 +155,43 @@ async function main() {
 
   const rootDir = process.cwd();
   const runId = args['run-id'] || await latestRunId(args.repo, args['include-failed']);
-  const downloadDir = path.resolve(rootDir, args['download-dir']);
+  const downloadDir = await createDownloadDir(rootDir, args['download-dir'], runId);
 
-  await rm(downloadDir, { recursive: true, force: true });
-  await mkdir(downloadDir, { recursive: true });
+  try {
+    await runGh([
+      'run',
+      'download',
+      String(runId),
+      '--repo',
+      args.repo,
+      '--name',
+      artifactName,
+      '--dir',
+      downloadDir
+    ]);
 
-  await runGh([
-    'run',
-    'download',
-    String(runId),
-    '--repo',
-    args.repo,
-    '--name',
-    artifactName,
-    '--dir',
-    downloadDir
-  ]);
+    const downloadedGradesDir = path.join(downloadDir, 'grades');
+    if (!existsSync(downloadedGradesDir)) {
+      throw new Error(`L'artifact ${artifactName} del run ${runId} no conte la carpeta grades/`);
+    }
 
-  const downloadedGradesDir = path.join(downloadDir, 'grades');
-  if (!existsSync(downloadedGradesDir)) {
-    throw new Error(`L'artifact ${artifactName} del run ${runId} no conte la carpeta grades/`);
-  }
+    await mkdir(path.join(rootDir, 'grades'), { recursive: true });
+    await cp(downloadedGradesDir, path.join(rootDir, 'grades'), {
+      recursive: true,
+      force: true
+    });
 
-  await mkdir(path.join(rootDir, 'grades'), { recursive: true });
-  await cp(downloadedGradesDir, path.join(rootDir, 'grades'), {
-    recursive: true,
-    force: true
-  });
+    let migrated = 0;
+    if (!args['no-db']) {
+      migrated = await migrateDownloadedGrades(rootDir);
+    }
 
-  let migrated = 0;
-  if (!args['no-db']) {
-    migrated = await migrateDownloadedGrades(rootDir);
-  }
-
-  console.log(`Resultats importats del run ${runId} en grades/.`);
-  if (!args['no-db']) {
-    console.log(`Notes sincronitzades amb la BD del dashboard: ${migrated}.`);
+    console.log(`Resultats importats del run ${runId} en grades/.`);
+    if (!args['no-db']) {
+      console.log(`Notes sincronitzades amb la BD del dashboard: ${migrated}.`);
+    }
+  } finally {
+    await rm(downloadDir, { recursive: true, force: true });
   }
 }
 
