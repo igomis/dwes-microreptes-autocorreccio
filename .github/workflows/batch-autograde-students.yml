@@ -107,6 +107,10 @@ jobs:
           fi
 
           student_auth_header="$(printf 'x-access-token:%s' "$STUDENT_READ_TOKEN" | base64 | tr -d '\n')"
+          student_write_auth_header=""
+          if [ "$INPUT_PUBLISH_TO_STUDENT_REPO" = "true" ]; then
+            student_write_auth_header="$(printf 'x-access-token:%s' "$STUDENT_WRITE_TOKEN" | base64 | tr -d '\n')"
+          fi
 
           selected_repositories_file="$INPUT_REPOSITORIES_FILE"
           if [ -z "$selected_repositories_file" ]; then
@@ -274,7 +278,9 @@ jobs:
                 published="Sense canvis"
               else
                 git -C "$student_dir" commit -m "Actualitza autocorrecció ${INPUT_MODE}" || return 1
-                git -C "$student_dir" push origin "HEAD:$INPUT_STUDENT_REF" || return 1
+                git -C "$student_dir" \
+                  -c "http.https://github.com/.extraheader=AUTHORIZATION: Basic ${student_write_auth_header}" \
+                  push origin "HEAD:$INPUT_STUDENT_REF" || return 1
                 published="Publicat"
               fi
             fi
