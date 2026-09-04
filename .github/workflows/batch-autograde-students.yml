@@ -51,6 +51,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: batch-autograde-student-repositories
+  cancel-in-progress: false
+
 jobs:
   autograde:
     name: Autograde student repositories
@@ -272,6 +276,11 @@ jobs:
             published="No"
 
             if [ "$INPUT_PUBLISH_TO_STUDENT_REPO" = "true" ]; then
+              git -C "$student_dir" \
+                -c "http.https://github.com/.extraheader=AUTHORIZATION: Basic ${student_auth_header}" \
+                fetch origin "$INPUT_STUDENT_REF" || return 1
+              git -C "$student_dir" rebase FETCH_HEAD || return 1
+
               node scripts/publish-student-autograde.mjs \
                 --student-dir "$student_dir" \
                 --result "$result_dir/autograde-result.json" \

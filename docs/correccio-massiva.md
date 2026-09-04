@@ -50,6 +50,10 @@ cipfpbatoi/microreptes-joan-ferrer
 
 El workflow clona cada repositori d'alumne, recull evidencies, construeix el payload, executa el motor d'autograding i publica el resultat.
 
+Les execucions massives queden en cua: si llances una segona correcció mentre una anterior encara està en marxa, GitHub no les executa alhora. La segona espera que acabe la primera. Això evita que dues tandes intenten publicar `autograde/latest.*` sobre els mateixos repositoris al mateix temps.
+
+Abans de publicar en cada repositori d'alumne, el workflow actualitza el clon amb l'últim estat de la branca de l'alumne. Si l'alumne ha fet `push` mentre s'estava corregint, la publicació intenta aplicar-se damunt de la branca actualitzada.
+
 Cada execucio massiva també guarda una còpia central en l'artifact del workflow:
 
 ```text

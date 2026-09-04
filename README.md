@@ -39,7 +39,9 @@ Això permet canviar el repte actiu de forma centralitzada, sense commits als re
 
 El workflow `Batch autograde student repositories` permet llançar autocorreccions en molts repositoris d'alumnes des d'una única execució manual.
 
-El mode automàtic en cada `push` continua sent `mock`, sense consum d'OpenAI. Per a una tanda real, executa el workflow massiu amb `mode = openai`. La clau `OPENAI_API_KEY` es configura en este repositori del professor i el resultat es publica en cada repo d'alumne com `autograde/latest.md` i `autograde/latest.json`. També es guarda una còpia central en `grades/history/` i s'actualitzen `grades/latest-grades.json` i `grades/latest-grades.csv` dins de l'artifact del workflow, sense commitejar notes generades al repositori del professor.
+Per a una tanda real, executa el workflow massiu amb `mode = openai`. La clau `OPENAI_API_KEY` es configura en este repositori del professor i el resultat es publica en cada repo d'alumne com `autograde/latest.md` i `autograde/latest.json`. També es guarda una còpia central en `grades/history/` i s'actualitzen `grades/latest-grades.json` i `grades/latest-grades.csv` dins de l'artifact del workflow, sense commitejar notes generades al repositori del professor.
+
+Les execucions massives queden en cua. Si se'n llancen dues seguides, GitHub espera que acabe la primera abans d'executar la següent.
 
 Els repositoris que es corregeixen es mantenen en fitxers `course/student-repositories*.txt`, amb format `repositori grup`. El workflow té un input `target_group` per triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`; amb això selecciona automàticament el fitxer corresponent. També es pot usar l'input `repositories` per sobreescriure la llista en una execució puntual, incloent-hi la correcció d'un sol alumne.
 

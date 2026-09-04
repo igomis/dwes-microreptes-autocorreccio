@@ -98,6 +98,8 @@ gh run list \
   --limit 5
 ```
 
+Les execucions massives queden en cua. Si llances diverses correccions seguides, GitHub no les executa alhora: la següent espera que acabe l'anterior.
+
 ## Llançar correcció real amb OpenAI
 
 Per corregir 2DAW-A amb OpenAI i publicar el resultat en els repositoris dels alumnes:
