@@ -1,16 +1,18 @@
 # Notes provisionals centralitzades
 
-Este repositori del professor pot agregar manualment resultats d'autograding generats en repositoris d'alumnes. La primera versio usa fitxers locals JSON i CSV, sense base de dades ni sincronitzacio automatica. Els fitxers generats dins de `grades/` son sortida local i no es versionen en Git.
+Este repositori del professor agrega resultats d'autograding generats des del workflow massiu del repositori docent. La primera versio usa fitxers locals JSON i CSV, sense base de dades ni sincronitzacio automatica. Els fitxers generats dins de `grades/` son sortida local i no es versionen en Git.
 
 ## On es genera el resultat
 
-Els repositoris dels alumnes executen el workflow `autograde-from-teacher.yml`. En cada execucio es genera un artifact que conte:
+El workflow massiu del repositori del professor clona els repositoris dels alumnes, executa els scripts de recollida d'evidències del template i genera resultats en l'artifact central:
 
 ```text
-_artifacts/autograde-result.json
+grades/history/<batch-id>/
+grades/latest-grades.json
+grades/latest-grades.csv
 ```
 
-El fitxer rellevant es `autograde-result.json`. Inclou camps com `challenge_id`, `student`, `commit`, `final_score_over_10`, `provisional`, `teacher_review_required` i `confidence`.
+En cada resultat, el fitxer rellevant es `autograde-result.json`. Inclou camps com `challenge_id`, `student`, `commit`, `final_score_over_10`, `provisional`, `teacher_review_required` i `confidence`.
 
 ## Notes per repte i RA
 
@@ -99,11 +101,11 @@ Quan guardes una nota docent des del dashboard, es desa en `grades/teacher-repte
 
 En GitHub:
 
-1. Obri el repositori de l'alumne.
+1. Obri el repositori del professor.
 2. Entra en la pestanya `Actions`.
-3. Selecciona una execucio del workflow `autograde-from-teacher.yml`.
+3. Selecciona una execucio del workflow `Batch autograde student repositories`.
 4. Descarrega l'artifact generat per eixa execucio.
-5. Descomprimeix-lo i localitza `_artifacts/autograde-result.json`.
+5. Descomprimeix-lo i localitza el resultat dins de `grades/history/<batch-id>/`.
 
 Esta versio no descarrega artifacts automaticament des de la GitHub API.
 

@@ -8,7 +8,6 @@ Si el template `dwes-microreptes-alumnes` canvia, cada repositori d'alumne ja cr
 
 Perquè l'autocorrecció actual funcione amb evidències reals del repositori de l'alumne, copia o actualitza estos fitxers:
 
-- `.github/workflows/autograde-from-teacher.yml`
 - `scripts/build-student-repo-signals.sh`
 - `scripts/collect-student-evidence.sh`
 - `docs/autograde.md`
@@ -16,33 +15,27 @@ Perquè l'autocorrecció actual funcione amb evidències reals del repositori de
 
 El `README.md` és el fitxer de treball de l'alumne: si ja existeix, no s'ha de sobreescriure. `ENTREGA.md`, `docs/ai-log.md`, `evidence/README.md` i `tests/README.md` són recomanables com a suport de template, però si l'alumne ja els ha modificat no convé sobreescriure'ls sense revisar.
 
+No cal copiar workflows de GitHub Actions al repositori de l'alumne. La correcció es llança des del repositori del professor.
+
 ## Configuració del repositori d'alumne
 
-En cada repositori d'alumne cal definir:
+En el repositori de l'alumne no cal definir secrets ni variables d'autograding. El grup docent es resol des de la llista central de repositoris o des de l'input del workflow massiu.
 
-- `AUTOGRADE_GROUP`: grup docent, per exemple `2DAW-A`.
-
-Si el repositori central del professor és privat, també cal:
-
-- `TEACHER_REPO_TOKEN`: secret amb permís de lectura sobre el repositori del professor.
-
-La clau `OPENAI_API_KEY` es configura en el repositori del professor. No cal copiar-la als repositoris d'alumnes.
+La clau `OPENAI_API_KEY` i el token amb permisos sobre repositoris d'alumnes es configuren en el repositori del professor. No cal copiar-los als repositoris d'alumnes.
 
 ## Prova manual
 
-Des de GitHub Actions del repositori d'alumne:
+Des de GitHub Actions del repositori del professor:
 
-1. Obri `Autograde from teacher repo`.
+1. Obri `Batch autograde student repositories`.
 2. Executa `Run workflow`.
 3. Indica `mode = mock` per comprovar el flux sense API.
-4. Per provar la correcció real amb API, usa el workflow massiu del repositori del professor.
+4. Indica un repositori concret en `repositories` si vols provar només un alumne.
 
-El workflow genera estos artefactes:
+El workflow genera estos artefactes centrals:
 
 - `repo-signals.json`
 - `evidence-summary.json`
 - `evaluation-payload.json`
 - `autograde-result.json`
-- `openai-raw-response.json`, només si s'executa el mode `openai` localment.
-
-Si el repositori d'alumne usa `master` com a branca principal, el workflow també s'executa en `push` a `master`.
+- `openai-raw-response.json`, només si s'executa el mode `openai`.
