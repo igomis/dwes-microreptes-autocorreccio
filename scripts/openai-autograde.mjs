@@ -156,6 +156,8 @@ function buildMessages(payload, schema, promptText) {
         'Has de tornar exclusivament un objecte JSON compatible amb l_esquema proporcionat.',
         'No canvies el contracte d_eixida. Marca sempre provisional=true si no hi ha revisio docent final.',
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
+        'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu.',
+        'Si el payload no conte evidencia especifica vinculada al challenge_id o microrepte_code actiu, la nota maxima orientativa es 2/10 encara que el repositori tinga treball anterior.',
         'Ompli sempre ra_scores: una entrada per cada RA present en assessed_ra del payload; si nomes hi ha un RA, torna una sola entrada.'
       ].join(' ')
     },

@@ -57,7 +57,7 @@ El resolver imprimeix només el `challenge_id` quan tot va bé. Si no troba assi
 
 El builder de payload resol l'autocorrecció activa, carrega polítiques, challenge i rúbrica, imprimeix el JSON formatat i el guarda en `tmp/evaluation-payload.json`.
 
-Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. En la correcció massiva, estos fitxers els genera `collect-repo-evidence.mjs` des del repositori del professorat sobre el clon del repositori de l'alumne. Permeten afegir al payload senyals del repositori i fragments revisables de `README.md`, `docs/`, `evidence/`, `tests/` i `src/`. `README.md` és la fitxa ordinària d'entrega. `ENTREGA.md`, els README de carpeta del template (`docs/README.md`, `evidence/README.md`, `tests/README.md`) i la documentació de sistema (`docs/autograde.md`) no es tracten com a evidències de microrepte.
+Opcionalment pot rebre `--repo-signals` i `--evidence-summary`. En la correcció massiva, estos fitxers els genera `collect-repo-evidence.mjs` des del repositori del professorat sobre el clon del repositori de l'alumne. La recollida rep el `challenge_id` i el codi del microrepte actiu, i només tracta com a evidència directa els fitxers de `docs/`, `evidence/`, `tests/` i `src/` que mencionen eixe microrepte en el path o el contingut. `README.md` és la fitxa ordinària d'entrega. `ENTREGA.md`, els README de carpeta del template (`docs/README.md`, `evidence/README.md`, `tests/README.md`) i la documentació de sistema (`docs/autograde.md`) no es tracten com a evidències de microrepte.
 
 El mock d'autograding llig el payload, aplica regles simples sense OpenAI, imprimeix el JSON formatat i el guarda en `tmp/autograde-result.json`.
 

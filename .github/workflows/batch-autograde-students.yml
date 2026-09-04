@@ -198,6 +198,7 @@ jobs:
             else
               active_challenge="$(node scripts/resolve-active-challenge.mjs --student "$repo" --group "$repo_group")" || return 1
             fi
+            microrepte_code="$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('microreptes/${active_challenge}/challenge.json','utf8')); process.stdout.write(c.microrepte_code || '')")" || return 1
             safe_repo="${repo//\//__}"
             student_dir="$work_root/$safe_repo/repo"
             result_dir="$PWD/tmp/batch/$safe_repo"
@@ -224,6 +225,8 @@ jobs:
               --repo-dir "$student_dir" \
               --repo "$repo" \
               --commit "$commit_sha" \
+              --challenge-id "$active_challenge" \
+              --microrepte-code "$microrepte_code" \
               --repo-signals "$result_dir/repo-signals.json" \
               --evidence-summary "$result_dir/evidence-summary.json" || return 1
 

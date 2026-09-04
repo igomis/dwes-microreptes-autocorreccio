@@ -97,7 +97,15 @@ function buildResult(payload) {
   const hasRequiredEvidence = isNonEmptyArray(payload.required_evidence);
   const hasEnoughDimensions = dimensions.length >= 6;
   const dimensionScores = buildDimensionScores(dimensions);
-  const finalScore = calculateFinalScore(dimensionScores);
+  const calculatedFinalScore = calculateFinalScore(dimensionScores);
+  const guardrails = payload.scoring_guardrails || {};
+  const hasActiveEvidence = Number(guardrails.active_evidence_files_count || 0) > 0;
+  const maxScoreWithoutActiveEvidence = Number.isFinite(guardrails.max_score_without_active_evidence)
+    ? guardrails.max_score_without_active_evidence
+    : 2;
+  const finalScore = guardrails.active_microrepte_only && !hasActiveEvidence
+    ? Math.min(calculatedFinalScore, maxScoreWithoutActiveEvidence)
+    : calculatedFinalScore;
   const blockingFlags = [];
 
   if (!hasRequiredEvidence) {
@@ -106,6 +114,10 @@ function buildResult(payload) {
 
   if (!hasEnoughDimensions) {
     blockingFlags.push('rubric_has_less_than_6_dimensions');
+  }
+
+  if (guardrails.active_microrepte_only && !hasActiveEvidence) {
+    blockingFlags.push('missing_active_microrepte_evidence');
   }
 
   return {
@@ -121,11 +133,13 @@ function buildResult(payload) {
       'La rubrica permet generar una estimacio inicial coherent.'
     ],
     weaknesses: [
-      'Resultat simulat: encara no revisa codi real ni executa proves del repositori de l_alumne.'
+      guardrails.active_microrepte_only && !hasActiveEvidence
+        ? 'No s_han detectat evidencies especifiques del microrepte actiu.'
+        : 'Resultat simulat: encara no revisa codi real ni executa proves del repositori de l_alumne.'
     ],
     blocking_flags: blockingFlags,
-    teacher_review_required: !hasRequiredEvidence,
-    confidence: hasEnoughDimensions ? 0.78 : 0.48,
+    teacher_review_required: !hasRequiredEvidence || (guardrails.active_microrepte_only && !hasActiveEvidence),
+    confidence: hasEnoughDimensions && hasActiveEvidence ? 0.78 : 0.48,
     short_feedback_md: '### Feedback provisional\n\nAutograding simulat sense OpenAI. La qualificacio es basa en les dimensions de la rubrica i ha de ser revisada abans de considerar-la definitiva.'
   };
 }

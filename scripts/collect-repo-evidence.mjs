@@ -36,6 +36,8 @@ function parseArgs(argv) {
     '--repo-dir',
     '--repo',
     '--commit',
+    '--challenge-id',
+    '--microrepte-code',
     '--repo-signals',
     '--evidence-summary'
   ]);
@@ -51,6 +53,32 @@ function parseArgs(argv) {
   }
 
   return args;
+}
+
+function normalizeToken(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function buildActiveTokens(args) {
+  const rawTokens = [
+    args['challenge-id'],
+    args['microrepte-code']
+  ].filter(Boolean);
+
+  return [...new Set(rawTokens.flatMap((token) => [
+    String(token).toLowerCase(),
+    normalizeToken(token)
+  ]).filter(Boolean))];
+}
+
+function pathMatchesTokens(filePath, tokens) {
+  if (tokens.length === 0) {
+    return true;
+  }
+
+  const lowerPath = String(filePath).toLowerCase();
+  const normalizedPath = normalizeToken(filePath);
+  return tokens.some((token) => lowerPath.includes(token) || normalizedPath.includes(token));
 }
 
 function requireArgs(args) {
@@ -164,6 +192,21 @@ async function safeExcerpt(filePath) {
     : content;
 }
 
+async function fileMatchesActiveTokens(filePath, relativePath, tokens) {
+  if (tokens.length === 0 || pathMatchesTokens(relativePath, tokens)) {
+    return true;
+  }
+
+  if (!await isFile(filePath) || !isTextFile(filePath)) {
+    return false;
+  }
+
+  const content = await readFile(filePath, 'utf8');
+  const lowerContent = content.toLowerCase();
+  const normalizedContent = normalizeToken(content);
+  return tokens.some((token) => lowerContent.includes(token) || normalizedContent.includes(token));
+}
+
 async function fileSummary(repoDir, filePath) {
   const fullPath = resolveInRepo(repoDir, filePath);
   if (!await isFile(fullPath)) {
@@ -192,6 +235,31 @@ async function summarizeFiles(repoDir, files) {
   return summaries;
 }
 
+async function summarizeActiveFiles(repoDir, files, tokens) {
+  const summaries = [];
+  for (const fullPath of files) {
+    const relativePath = path.relative(repoDir, fullPath);
+    if (!await fileMatchesActiveTokens(fullPath, relativePath, tokens)) {
+      continue;
+    }
+
+    const summary = await fileSummary(repoDir, relativePath);
+    if (summary) {
+      summaries.push(summary);
+    }
+  }
+  return summaries;
+}
+
+async function activeFileSummary(repoDir, filePath, tokens) {
+  const fullPath = resolveInRepo(repoDir, filePath);
+  if (!await fileMatchesActiveTokens(fullPath, filePath, tokens)) {
+    return null;
+  }
+
+  return fileSummary(repoDir, filePath);
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   requireArgs(args);
@@ -199,6 +267,7 @@ async function main() {
   const repoDir = path.resolve(args['repo-dir']);
   const repoSignalsPath = path.resolve(args['repo-signals']);
   const evidenceSummaryPath = path.resolve(args['evidence-summary']);
+  const activeTokens = buildActiveTokens(args);
   const trackedFiles = await git(repoDir, ['ls-files']);
   const trackedFilesCount = trackedFiles ? trackedFiles.split('\n').length : 0;
 
@@ -229,13 +298,19 @@ async function main() {
 
   const summary = {
     generated_at: new Date().toISOString(),
+    evidence_scope: {
+      challenge_id: args['challenge-id'] || null,
+      microrepte_code: args['microrepte-code'] || null,
+      active_tokens: activeTokens,
+      rule: 'Els fitxers de docs, evidence, tests i src nomes es consideren evidencia directa si el path o el contingut referencia el microrepte actiu.'
+    },
     readme: await fileSummary(repoDir, 'README.md'),
     template_guide: await fileSummary(repoDir, 'ENTREGA.md'),
-    ai_log: await fileSummary(repoDir, 'docs/ai-log.md'),
-    docs_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'))),
-    evidence_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'))),
-    test_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'tests'))),
-    source_files: await summarizeFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'src')))
+    ai_log: await activeFileSummary(repoDir, 'docs/ai-log.md', activeTokens),
+    docs_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'), Number.POSITIVE_INFINITY), activeTokens),
+    evidence_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'), Number.POSITIVE_INFINITY), activeTokens),
+    test_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'tests'), Number.POSITIVE_INFINITY), activeTokens),
+    source_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'src'), Number.POSITIVE_INFINITY), activeTokens)
   };
 
   await mkdir(path.dirname(repoSignalsPath), { recursive: true });

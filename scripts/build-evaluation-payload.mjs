@@ -66,6 +66,59 @@ async function resolveChallengeId(rootDir, student, group, challengeIdOverride =
   throw new Error(`No s'ha trobat autocorrecció activa per a student=${student || '(sense)'} group=${group || '(sense)'}`);
 }
 
+function normalizeToken(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function summaryMatchesActiveTokens(summary, tokens) {
+  if (!summary || tokens.length === 0) {
+    return false;
+  }
+
+  const text = [
+    summary.path,
+    summary.excerpt
+  ].filter(Boolean).join('\n');
+  const lowerText = text.toLowerCase();
+  const normalizedText = normalizeToken(text);
+
+  return tokens.some((token) => lowerText.includes(token) || normalizedText.includes(token));
+}
+
+function isUnfilledTemplateReadme(summary) {
+  const excerpt = String(summary?.excerpt || '');
+
+  return excerpt.includes("Este és el fitxer que has d'actualitzar en cada entrega.")
+    && excerpt.includes('| Què he fet |  |')
+    && excerpt.includes('| Com provar-ho |  |')
+    && excerpt.includes('| Evidències principals |  |');
+}
+
+function countEvidenceFiles(evidenceSummary) {
+  if (!evidenceSummary) {
+    return 0;
+  }
+
+  const activeTokens = Array.isArray(evidenceSummary.evidence_scope?.active_tokens)
+    ? evidenceSummary.evidence_scope.active_tokens
+    : [];
+  const fileSectionCount = [
+    evidenceSummary.docs_files,
+    evidenceSummary.evidence_files,
+    evidenceSummary.test_files,
+    evidenceSummary.source_files
+  ].reduce((total, section) => total + (Array.isArray(section) ? section.length : 0), 0);
+  const activeMainFilesCount = [
+    evidenceSummary.ai_log
+  ].filter((summary) => summaryMatchesActiveTokens(summary, activeTokens)).length;
+  const activeReadmeCount = summaryMatchesActiveTokens(evidenceSummary.readme, activeTokens)
+    && !isUnfilledTemplateReadme(evidenceSummary.readme)
+    ? 1
+    : 0;
+
+  return fileSectionCount + activeMainFilesCount + activeReadmeCount;
+}
+
 function requireArgs(args) {
   const missing = ['student', 'group', 'repo', 'commit'].filter((key) => !args[key]);
   if (missing.length > 0) {
@@ -114,6 +167,13 @@ async function main() {
     expected_signals: challenge.expected_signals,
     required_evidence: challenge.required_evidence,
     dimensions: rubric.dimensions,
+    scoring_guardrails: {
+      active_microrepte_only: true,
+      active_evidence_files_count: countEvidenceFiles(evidenceSummary),
+      rule: 'Avalua nomes evidencies vinculades al challenge_id o microrepte_code actiu. El treball de microreptes anteriors pot servir de context, pero no ha de sumar punts si no demostra el microrepte actual.',
+      max_score_without_active_evidence: 2,
+      max_score_with_only_previous_microrepte_evidence: 2
+    },
     student_repository_evidence: {
       repo_signals: repoSignals,
       evidence_summary: evidenceSummary

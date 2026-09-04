@@ -4,7 +4,7 @@ Este repositori del professor agrega resultats d'autograding generats des del wo
 
 ## On es genera el resultat
 
-El workflow massiu del repositori del professor clona els repositoris dels alumnes, executa els scripts de recollida d'evidències del template i genera resultats en l'artifact central:
+El workflow massiu del repositori del professor clona els repositoris dels alumnes, executa el script docent de recollida d'evidències sobre el clon i genera resultats en l'artifact central:
 
 ```text
 grades/history/<batch-id>/
@@ -13,6 +13,8 @@ grades/latest-grades.csv
 ```
 
 En cada resultat, el fitxer rellevant es `autograde-result.json`. Inclou camps com `challenge_id`, `student`, `commit`, `final_score_over_10`, `provisional`, `teacher_review_required` i `confidence`.
+
+La recollida d'evidències està limitada al microrepte actiu: els fitxers de `docs/`, `evidence/`, `tests/` i `src/` només compten com a evidència directa si mencionen el `challenge_id` o el codi del microrepte, per exemple `R2M1`. El treball de microreptes anteriors pot aparéixer com a context de repositori, però no ha de sumar nota del microrepte nou.
 
 ## Notes per repte i RA
 
