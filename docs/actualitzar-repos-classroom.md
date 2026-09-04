@@ -6,16 +6,14 @@ Si el template `dwes-microreptes-alumnes` canvia, cada repositori d'alumne ja cr
 
 ## Fitxers mínims que cal sincronitzar
 
-Perquè l'autocorrecció actual funcione amb evidències reals del repositori de l'alumne, copia o actualitza estos fitxers:
+Perquè l'autocorrecció actual funcione amb evidències reals del repositori de l'alumne, copia o actualitza estos fitxers de suport:
 
-- `scripts/build-student-repo-signals.sh`
-- `scripts/collect-student-evidence.sh`
 - `docs/autograde.md`
 - `ENTREGA.md`, si encara no existeix en el repositori de l'alumne.
 
 El `README.md` és el fitxer de treball de l'alumne: si ja existeix, no s'ha de sobreescriure. `ENTREGA.md`, `docs/ai-log.md`, `evidence/README.md` i `tests/README.md` són recomanables com a suport de template, però si l'alumne ja els ha modificat no convé sobreescriure'ls sense revisar.
 
-No cal copiar workflows de GitHub Actions al repositori de l'alumne. La correcció es llança des del repositori del professor.
+No cal copiar workflows de GitHub Actions ni scripts d'autocorrecció al repositori de l'alumne. La correcció es llança des del repositori del professor i la recollida d'evidències es fa amb `scripts/collect-repo-evidence.mjs` del repositori docent.
 
 ## Configuració del repositori d'alumne
 
