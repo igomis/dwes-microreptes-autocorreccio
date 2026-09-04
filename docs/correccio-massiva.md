@@ -8,7 +8,7 @@ La correccio real amb OpenAI s'executa en `igomis/dwes-microreptes-autocorreccio
 
 - Els `push` dels alumnes continuen executant el mode `mock`, sense consum d'OpenAI.
 - Quan vols corregir una tanda amb IA, llances manualment aquest workflow i selecciones `mode = openai`.
-- El resultat OpenAI es publica en cada repositori d'alumne com `autograde/latest.md` i `autograde/latest.json`.
+- El resultat OpenAI es publica en cada repositori d'alumne com `autograde/latest.md` i `autograde/latest.json`, i cada intent queda també en `autograde/history/`.
 
 ## Requisits
 
@@ -168,9 +168,11 @@ Despres de la correccio massiva, cada repositori d'alumne rep un commit amb:
 ```text
 autograde/latest.md
 autograde/latest.json
+autograde/README.md
+autograde/history/
 ```
 
-El fitxer `autograde/latest.md` es el resum llegible:
+El fitxer `autograde/README.md` és el punt d'entrada visible: mostra la darrera correcció i una taula amb l'historial d'intents. El fitxer `autograde/latest.md` continua sent el resum llegible de l'última correcció:
 
 - nota provisional;
 - feedback;
@@ -178,6 +180,8 @@ El fitxer `autograde/latest.md` es el resum llegible:
 - punts forts;
 - millores recomanades;
 - avisos de revisio docent.
+
+Les correccions anteriors queden en `autograde/history/` amb el seu Markdown i el JSON complet. Així l'alumne pot comparar valoracions del mateix microrepte sense dependre de l'historial de commits.
 
 ## Consulta posterior
 

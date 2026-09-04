@@ -269,10 +269,15 @@ jobs:
             published="No"
 
             if [ "$INPUT_PUBLISH_TO_STUDENT_REPO" = "true" ]; then
-              mkdir -p "$student_dir/autograde"
-              cp "$result_dir/autograde-result.json" "$student_dir/autograde/latest.json" || return 1
-              cp "$result_dir/latest.md" "$student_dir/autograde/latest.md" || return 1
-              git -C "$student_dir" add autograde/latest.json autograde/latest.md || return 1
+              node scripts/publish-student-autograde.mjs \
+                --student-dir "$student_dir" \
+                --result "$result_dir/autograde-result.json" \
+                --markdown "$result_dir/latest.md" \
+                --repo "$repo" \
+                --group "$repo_group" \
+                --source "$INPUT_MODE" \
+                --batch-id "$batch_id" || return 1
+              git -C "$student_dir" add autograde || return 1
 
               if git -C "$student_dir" diff --cached --quiet; then
                 published="Sense canvis"

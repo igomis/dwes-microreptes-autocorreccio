@@ -167,6 +167,8 @@ grades/history/
 
 `latest-grades.*` només manté l'últim registre per `repo + challenge_id`. Els intents anteriors queden en `grades/history/`.
 
+En els repositoris d'alumnes, la publicació manté `autograde/latest.*` i afegeix `autograde/README.md` amb enllaços a `autograde/history/`, on es conserven les valoracions anteriors.
+
 Els fitxers de `grades/` son sortida generada i no es commitegen. En execucions de GitHub Actions, descarrega l'artifact `batch-autograde-results` per conservar o consultar la còpia central.
 
 Per importar automàticament l'últim artifact correcte al servidor:

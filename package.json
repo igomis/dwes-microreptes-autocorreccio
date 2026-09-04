@@ -15,6 +15,7 @@
     "collect:repo-evidence": "node scripts/collect-repo-evidence.mjs",
     "render:autograde": "node scripts/render-autograde-markdown.mjs",
     "store:batch-result": "node scripts/store-batch-autograde-result.mjs",
+    "publish:student-autograde": "node scripts/publish-student-autograde.mjs",
     "dashboard": "node teacher-dashboard/server.mjs",
     "students:create-repos": "node scripts/create-student-repos.mjs",
     "grades:append": "node scripts/append-grade-result.mjs",

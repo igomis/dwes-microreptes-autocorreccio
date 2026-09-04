@@ -13,6 +13,7 @@ Scripts Node.js per mantindre el repositori central.
 - `import-autograde-result.mjs`: alias explicit per a imports manuals de resultats descarregats d'artifacts.
 - `compact-latest-grades.mjs`: compacta `latest-grades.*` deixant només l'últim registre per parella `repo + challenge_id`.
 - `list-grades.mjs`: mostra les notes provisionals agregades en format llegible.
+- `publish-student-autograde.mjs`: publica `autograde/latest.*`, guarda una còpia en `autograde/history/` i regenera `autograde/README.md` en el repositori de l'alumne.
 - `create-student-repos.mjs`: crea repositoris privats d'alumnes des d'una plantilla, dona permisos i actualitza `course/student-repositories*.txt`.
 
 Execució recomanada:
@@ -67,6 +68,8 @@ La diferència pràctica és que `mock-autograde.mjs` és determinista i útil p
 El validador d'autograding llig el resultat generat, comprova els camps obligatoris i els tipus bàsics definits en l'esquema, i ix amb codi `1` si detecta errors.
 
 Els scripts de notes provisionals treballen amb fitxers locals dins de `grades/`. `append-grade-result.mjs` i `import-autograde-result.mjs` mantenen un únic registre vigent per parella `repo + challenge_id`; si es torna a importar la mateixa parella, es substitueix la fila anterior. `list-grades.mjs` llig `grades/latest-grades.json` i mostra alumne, microrepte, nota, confiança, revisio docent requerida i marca temporal.
+
+Quan es publica una correcció en un repositori d'alumne, `publish-student-autograde.mjs` manté `autograde/latest.md` i `autograde/latest.json` com a còpia vigent, però també deixa cada intent en `autograde/history/` i actualitza `autograde/README.md` amb una taula visible d'intents anteriors.
 
 El script `create-student-repos.mjs` accepta un CSV amb alumnes de diversos grups:
 
