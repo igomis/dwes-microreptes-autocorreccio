@@ -1030,6 +1030,43 @@ async function importLatestGradeArtifact() {
   };
 }
 
+async function buildClassFollowupReport(body) {
+  const group = String(body.group || '').trim();
+  const challengeId = String(body.challenge_id || '').trim();
+
+  if (!group || group === 'all') {
+    throw new Error('Cal seleccionar un grup concret per generar l_informe posterior.');
+  }
+
+  if (!challengeId) {
+    throw new Error('Cal seleccionar un microrepte concret per generar l_informe posterior.');
+  }
+
+  const result = await execFileAsync(process.execPath, [
+    'scripts/build-class-followup-report.mjs',
+    '--group',
+    group,
+    '--challenge-id',
+    challengeId
+  ], {
+    cwd: rootDir,
+    maxBuffer: 1024 * 1024 * 10
+  });
+  const safeGroup = group.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const reportRelativePath = path.join('grades', 'reports', `${challengeId}-${safeGroup}.md`);
+  const reportPath = path.join(rootDir, reportRelativePath);
+  const markdown = await readFile(reportPath, 'utf8');
+
+  return {
+    group,
+    challenge_id: challengeId,
+    report_path: reportRelativePath,
+    markdown,
+    stdout: result.stdout,
+    stderr: result.stderr
+  };
+}
+
 function parseRaScores(value) {
   if (Array.isArray(value)) {
     return value;
@@ -1783,6 +1820,7 @@ function pageHtml() {
         <h2>Últims resultats</h2>
         <button id="refreshGrades" type="button">Actualitzar</button>
         <button id="recalculateFilteredGrades" type="button">Recalcular seleccionats</button>
+        <button id="buildClassReport" type="button">Informe classe</button>
       </div>
       <div class="filters">
         <label>Filtre per grup
@@ -1809,6 +1847,7 @@ function pageHtml() {
         <tbody id="gradeRows"></tbody>
       </table>
       <div id="gradesInfo" class="status"></div>
+      <div id="classReportPanel" class="markdown-rendered hidden"></div>
       <h3>Notes orientatives per RA</h3>
       <table>
         <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>RA</th><th>Nota RA</th><th>Microreptes computats</th></tr></thead>
@@ -3305,6 +3344,49 @@ function pageHtml() {
       }
     }
 
+    async function buildClassReport() {
+      const button = document.querySelector('#buildClassReport');
+      const status = document.querySelector('#gradesInfo');
+      const panel = document.querySelector('#classReportPanel');
+      const group = document.querySelector('#filterGroup').value;
+      const challengeId = document.querySelector('#filterChallenge').value;
+
+      if (!group) {
+        status.innerHTML = '<span class="error">Selecciona un grup concret per generar l’informe de classe.</span>';
+        return;
+      }
+
+      if (!challengeId) {
+        status.innerHTML = '<span class="error">Selecciona un microrepte concret per generar l’informe de classe.</span>';
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = 'Generant informe de classe...';
+      panel.classList.add('hidden');
+      panel.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/grades/class-report', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            group,
+            challenge_id: challengeId
+          })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut generar l’informe.');
+        panel.innerHTML = renderMarkdown(payload.markdown || '');
+        panel.classList.remove('hidden');
+        status.innerHTML = '<span class="ok">Informe generat: <code>' + escapeHtml(payload.report_path || '') + '</code></span>';
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     async function loadRaGrades(params) {
       const response = await fetch('/api/ra-grades?' + params.toString());
       const payload = await response.json();
@@ -3535,6 +3617,7 @@ function pageHtml() {
     document.querySelector('#runButton').addEventListener('click', runWorkflow);
     document.querySelector('#refreshGrades').addEventListener('click', importLatestGrades);
     document.querySelector('#recalculateFilteredGrades').addEventListener('click', recalculateFilteredGrades);
+    document.querySelector('#buildClassReport').addEventListener('click', buildClassReport);
     document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
     document.querySelector('#clearViewer').addEventListener('click', clearViewer);
     document.querySelector('#saveStudent').addEventListener('click', saveStudent);
@@ -3593,6 +3676,12 @@ async function handleRequest(request, response) {
 
     if (request.method === 'POST' && url.pathname === '/api/grades/import-latest') {
       sendJson(response, 200, { import: await importLatestGradeArtifact() });
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/grades/class-report') {
+      const body = await readRequestJson(request);
+      sendJson(response, 200, await buildClassFollowupReport(body));
       return;
     }
 

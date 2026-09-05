@@ -103,6 +103,7 @@ El dashboard està separat en aquestes vistes:
 - Aplicar el criteri ordinari de branca corregible `main`; les branques alternatives només s'usen en recuperacions o incidències pactades.
 - Llançar el workflow massiu en mode `mock` o `openai`.
 - Consultar els últims resultats locals guardats en `grades/latest-grades.json`, quan existisca.
+- Generar un **Informe classe** per a un grup i microrepte concret des de la vista `Resultats`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
 - Afegir, editar, filtrar i eliminar alumnes. Si tenen resultats associats, el dashboard mostra un avís i, en confirmar, esborra també eixos resultats. L'esborrat del repositori GitHub és opcional, destructiu i exigeix escriure el nom exacte del repositori.
 - Importar alumnes des de `course/student-repositories.txt`.
