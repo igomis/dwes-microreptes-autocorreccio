@@ -26,6 +26,8 @@ DASHBOARD_DOCS_ALUMNAT_URL=https://cipfpbatoi.github.io/dwes2627/
 
 El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-autocorreccio`. El workflow de GitHub també necessita el secret `CLASSROOM_AUTOGRADE_TOKEN` configurat en el repositori del professor per llegir els repositoris privats d'alumnes i, si cal, publicar-hi resultats.
 
+Per crear, convidar col·laboradors o esborrar repositoris d'alumnes des del dashboard, configura `GH_TOKEN` amb un token del compte docent que tinga permisos sobre l'organització. En tokens clàssics, normalment calen `repo` i `delete_repo`, a més de permisos d'administració en l'organització/repositori. En tokens fine-grained, dona accés a l'organització i permisos de `Administration` en els repositoris afectats. Si GitHub CLI retorna `Not Found (HTTP 404)` en una URL de `collaborators`, comprova primer que el login de l'alumne existeix i després que eixe `GH_TOKEN` pot veure i administrar el repositori privat.
+
 ## Autenticació mínima
 
 En local, l'autenticació està desactivada per defecte si el dashboard escolta només en `127.0.0.1`, `localhost` o `::1`.

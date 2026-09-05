@@ -171,6 +171,13 @@ function githubCliEnv() {
   return env;
 }
 
+function formatCommandError(error) {
+  return [error.stderr, error.stdout, error.message]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
 function escapeHtmlServer(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -844,7 +851,8 @@ async function deleteGithubRepository(repo) {
     if (error.code === 'ENOENT') {
       throw new Error(`No s'ha trobat GitHub CLI (${ghBin}). Instal·la gh al servidor o configura GH_BIN=/ruta/al/gh en .env.`);
     }
-    throw error;
+    const details = formatCommandError(error);
+    throw new Error(`No s'ha pogut esborrar "${repo}". Revisa que GH_TOKEN o l'usuari autenticat amb gh tinga administració sobre el repositori i permís per eliminar repositoris en l'organització.${details ? `\n${details}` : ''}`);
   }
 
   return {

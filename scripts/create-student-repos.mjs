@@ -8,6 +8,7 @@ const execFileAsync = promisify(execFile);
 const rootDir = process.cwd();
 const courseDir = path.join(rootDir, 'course');
 const ghBin = process.env.GH_BIN || 'gh';
+const validPermissions = new Set(['pull', 'push', 'maintain', 'admin']);
 
 const allowedArgs = new Set([
   '--input',
@@ -312,6 +313,66 @@ async function runGh(command, args, dryRun) {
   }
 }
 
+async function runGhChecked(command, args, dryRun, failureMessage) {
+  try {
+    return await runGh(command, args, dryRun);
+  } catch (error) {
+    const details = [error.stderr, error.stdout, error.message]
+      .map((value) => String(value || '').trim())
+      .filter(Boolean)
+      .join('\n');
+    throw new Error(`${failureMessage}${details ? `\n${details}` : ''}`);
+  }
+}
+
+async function assertGithubUserExists(student, dryRun) {
+  await runGhChecked(
+    'api',
+    ['users/' + student.githubUser, '--jq', '.login'],
+    dryRun,
+    `No s'ha pogut trobar l'usuari GitHub "${student.githubUser}". Revisa el login del CSV.`
+  );
+}
+
+async function assertRepositoryIsAccessible(student, dryRun) {
+  await runGhChecked(
+    'repo',
+    ['view', student.fullRepo, '--json', 'nameWithOwner'],
+    dryRun,
+    `El repositori "${student.fullRepo}" no és visible per a GitHub CLI després de crear-lo. Revisa que GH_TOKEN o l'usuari autenticat amb gh tinga permisos d'administració sobre l'organització.`
+  );
+}
+
+async function createRepository(student, args) {
+  await runGhChecked(
+    'repo',
+    [
+      'create',
+      student.fullRepo,
+      '--private',
+      '--template',
+      args.template
+    ],
+    args['dry-run'],
+    `No s'ha pogut crear el repositori "${student.fullRepo}" des de la plantilla "${args.template}". Revisa permisos de creació en l'organització i accés a la plantilla.`
+  );
+}
+
+async function inviteCollaborator(student, args) {
+  await runGhChecked(
+    'api',
+    [
+      '--method',
+      'PUT',
+      `repos/${student.fullRepo}/collaborators/${student.githubUser}`,
+      '-f',
+      `permission=${args.permission}`
+    ],
+    args['dry-run'],
+    `No s'ha pogut donar permís "${args.permission}" a "${student.githubUser}" en "${student.fullRepo}". Si GitHub retorna 404, normalment és perquè el token no té permisos d'administració sobre el repositori privat, el repositori no és visible per a eixe token, o el login de l'alumne no existeix.`
+  );
+}
+
 function buildStudents(rows, args) {
   return rows.map((row) => {
     const githubUser = pick(row, ['github_user', 'user', 'username', 'login']);
@@ -354,6 +415,10 @@ async function main() {
     throw new Error('Cal indicar --input, --org i --template');
   }
 
+  if (!validPermissions.has(args.permission)) {
+    throw new Error('Permís no valid. Usa pull, push, maintain o admin.');
+  }
+
   const rows = parseCsv(await readFile(path.resolve(args.input), 'utf8'));
   const students = buildStudents(rows, args);
   if (students.length === 0) {
@@ -361,22 +426,12 @@ async function main() {
   }
 
   for (const student of students) {
-    await runGh('repo', [
-      'create',
-      student.fullRepo,
-      '--private',
-      '--template',
-      args.template
-    ], args['dry-run']);
+    await assertGithubUserExists(student, args['dry-run']);
+    await createRepository(student, args);
+    await assertRepositoryIsAccessible(student, args['dry-run']);
 
     if (!args['no-invite']) {
-      await runGh('api', [
-        '--method',
-        'PUT',
-        `repos/${student.fullRepo}/collaborators/${student.githubUser}`,
-        '-f',
-        `permission=${args.permission}`
-      ], args['dry-run']);
+      await inviteCollaborator(student, args);
     }
   }
 
