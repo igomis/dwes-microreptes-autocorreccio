@@ -874,7 +874,7 @@ async function readRequestJson(request) {
 
 function resolveWorkflowInputs(body) {
   const targetGroup = body.target_group || 'all';
-  const repositories = body.repositories || '';
+  let repositories = String(body.repositories || '').trim();
   const repositoriesFile = body.repositories_file || '';
   const challengeId = String(body.challenge_id || '').trim();
   const mode = body.mode || 'mock';
@@ -888,6 +888,16 @@ function resolveWorkflowInputs(body) {
 
   if (!['mock', 'openai'].includes(mode)) {
     throw new Error(`mode no valid: ${mode}`);
+  }
+
+  if (!repositories && !repositoriesFile) {
+    repositories = getStudents()
+      .filter((student) => targetGroup === 'all' || student.group_name === targetGroup)
+      .map((student) => `${student.repo} ${student.group_name || defaultGroup}`)
+      .join('\n');
+    if (!repositories) {
+      throw new Error('No hi ha alumnes registrats per al grup seleccionat.');
+    }
   }
 
   return {
@@ -979,11 +989,14 @@ async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt
 async function buildConfigPayload() {
   const activeChallenges = await readJson('course/active-challenges.json');
   const repositoriesByTarget = {};
+  const students = getStudents();
 
   for (const [target, file] of Object.entries(groupFiles)) {
     repositoriesByTarget[target] = {
       file,
-      repositories: await parseRepositoryFile(file)
+      repositories: students
+        .filter((student) => target === 'all' || student.group_name === target)
+        .map((student) => ({ repo: student.repo, group: student.group_name, name: student.student_name || '' }))
     };
   }
 
@@ -1799,7 +1812,7 @@ function pageHtml() {
       </div>
       <div id="correctionPreview" class="feedback-box"></div>
       <label>Repositoris puntuals
-        <textarea id="repositories" placeholder="Opcional. Si ho deixes buit, s'usa el fitxer del grup seleccionat."></textarea>
+        <textarea id="repositories" placeholder="Opcional. Si ho deixes buit, s'usen els alumnes registrats del grup seleccionat."></textarea>
       </label>
       <div class="actions">
         <button id="runButton">Llançar workflow</button>
@@ -3005,6 +3018,7 @@ function pageHtml() {
         if (!response.ok) throw new Error(payload.error || 'No s’ha pogut guardar l’alumne.');
         clearStudentForm();
         await loadStudents();
+        await loadConfig();
         status.innerHTML = '<span class="ok">Alumne guardat.</span>';
       } catch (error) {
         status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
@@ -3211,8 +3225,8 @@ function pageHtml() {
 
       const entry = config.repositories_by_target[target];
       return {
-        source_type: 'file',
-        source: 'Fitxer: ' + entry.file,
+        source_type: 'students',
+        source: 'Alumnes registrats: ' + target,
         repositories: entry.repositories
       };
     }
@@ -3579,16 +3593,16 @@ function pageHtml() {
       status.className = 'status';
       status.textContent = 'Llançant...';
       try {
+        await loadConfig();
         const selected = selectedRepositories();
+        if (!selected.repositories.length) throw new Error('No hi ha alumnes per a corregir en la selecció.');
         const body = {
           target_group: document.querySelector('#targetGroup').value,
           challenge_id: document.querySelector('#correctionChallenge').value,
           mode: document.querySelector('#mode').value,
           student_ref: document.querySelector('#studentRef').value,
           publish_to_student_repo: document.querySelector('#publish').value === 'true',
-          repositories: selected.source_type === 'file'
-            ? document.querySelector('#repositories').value
-            : selected.repositories.map((item) => [item.repo, item.group].filter(Boolean).join(' ')).join('\\n')
+          repositories: selected.repositories.map((item) => [item.repo, item.group].filter(Boolean).join(' ')).join('\\n')
         };
         const response = await fetch('/api/run', {
           method: 'POST',
