@@ -313,25 +313,29 @@ async function runGh(command, args, dryRun) {
   }
 }
 
+function formatCommandError(error) {
+  return [error.stderr, error.stdout, error.message]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
 async function runGhChecked(command, args, dryRun, failureMessage) {
   try {
     return await runGh(command, args, dryRun);
   } catch (error) {
-    const details = [error.stderr, error.stdout, error.message]
-      .map((value) => String(value || '').trim())
-      .filter(Boolean)
-      .join('\n');
+    const details = formatCommandError(error);
     throw new Error(`${failureMessage}${details ? `\n${details}` : ''}`);
   }
 }
 
-async function assertGithubUserExists(student, dryRun) {
-  await runGhChecked(
-    'api',
-    ['users/' + student.githubUser, '--jq', '.login'],
-    dryRun,
-    `No s'ha pogut trobar l'usuari GitHub "${student.githubUser}". Revisa el login del CSV.`
-  );
+async function repositoryIsAccessible(student, dryRun) {
+  try {
+    await runGh('repo', ['view', student.fullRepo, '--json', 'nameWithOwner'], dryRun);
+    return !dryRun;
+  } catch {
+    return false;
+  }
 }
 
 async function assertRepositoryIsAccessible(student, dryRun) {
@@ -343,7 +347,12 @@ async function assertRepositoryIsAccessible(student, dryRun) {
   );
 }
 
-async function createRepository(student, args) {
+async function createRepositoryIfNeeded(student, args) {
+  if (await repositoryIsAccessible(student, args['dry-run'])) {
+    console.log(`Repo existent: ${student.fullRepo}`);
+    return 'existing';
+  }
+
   await runGhChecked(
     'repo',
     [
@@ -356,6 +365,8 @@ async function createRepository(student, args) {
     args['dry-run'],
     `No s'ha pogut crear el repositori "${student.fullRepo}" des de la plantilla "${args.template}". Revisa permisos de creació en l'organització i accés a la plantilla.`
   );
+  await assertRepositoryIsAccessible(student, args['dry-run']);
+  return 'created';
 }
 
 async function inviteCollaborator(student, args) {
@@ -371,6 +382,28 @@ async function inviteCollaborator(student, args) {
     args['dry-run'],
     `No s'ha pogut donar permís "${args.permission}" a "${student.githubUser}" en "${student.fullRepo}". Si GitHub retorna 404, normalment és perquè el token no té permisos d'administració sobre el repositori privat, el repositori no és visible per a eixe token, o el login de l'alumne no existeix.`
   );
+}
+
+async function tryInviteCollaborator(student, args) {
+  if (args['no-invite']) {
+    return { status: 'skipped' };
+  }
+
+  try {
+    await runGhChecked(
+      'api',
+      ['users/' + student.githubUser, '--jq', '.login'],
+      args['dry-run'],
+      `No s'ha pogut trobar l'usuari GitHub "${student.githubUser}". Revisa el login del CSV.`
+    );
+    await inviteCollaborator(student, args);
+    return { status: 'invited' };
+  } catch (error) {
+    return {
+      status: 'failed',
+      error: error.message
+    };
+  }
 }
 
 function buildStudents(rows, args) {
@@ -425,18 +458,33 @@ async function main() {
     throw new Error('No hi ha cap alumne per processar en el CSV.');
   }
 
-  for (const student of students) {
-    await assertGithubUserExists(student, args['dry-run']);
-    await createRepository(student, args);
-    await assertRepositoryIsAccessible(student, args['dry-run']);
+  const results = [];
 
-    if (!args['no-invite']) {
-      await inviteCollaborator(student, args);
-    }
+  for (const student of students) {
+    const repoStatus = await createRepositoryIfNeeded(student, args);
+    const invite = await tryInviteCollaborator(student, args);
+    results.push({ student, repoStatus, invite });
   }
 
   await updateCourseRepositoryFiles(students, args['dry-run']);
+
+  const created = results.filter((result) => result.repoStatus === 'created').length;
+  const existing = results.filter((result) => result.repoStatus === 'existing').length;
+  const invited = results.filter((result) => result.invite.status === 'invited').length;
+  const skipped = results.filter((result) => result.invite.status === 'skipped').length;
+  const failedInvites = results.filter((result) => result.invite.status === 'failed');
+
   console.log(`Repositoris processats: ${students.length}`);
+  console.log(`- Creats: ${created}`);
+  console.log(`- Ja existien: ${existing}`);
+  console.log(`- Invitacions enviades: ${invited}`);
+  console.log(`- Invitacions omeses: ${skipped}`);
+  console.log(`- Invitacions amb error: ${failedInvites.length}`);
+
+  for (const result of failedInvites) {
+    console.warn(`AVIS: ${result.student.fullRepo} queda registrat, però no s'ha pogut convidar ${result.student.githubUser}.`);
+    console.warn(result.invite.error);
+  }
 }
 
 main().catch((error) => {

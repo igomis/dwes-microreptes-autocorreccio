@@ -28,6 +28,8 @@ El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-aut
 
 Per crear, convidar col·laboradors o esborrar repositoris d'alumnes des del dashboard, configura `GH_TOKEN` amb un token del compte docent que tinga permisos sobre l'organització. En tokens clàssics, normalment calen `repo` i `delete_repo`, a més de permisos d'administració en l'organització/repositori. En tokens fine-grained, dona accés a l'organització i permisos de `Administration` en els repositoris afectats. Si GitHub CLI retorna `Not Found (HTTP 404)` en una URL de `collaborators`, comprova primer que el login de l'alumne existeix i després que eixe `GH_TOKEN` pot veure i administrar el repositori privat.
 
+Si la creació del repositori funciona però falla la invitació de l'alumne, el dashboard manté el repositori registrat en `course/student-repositories*.txt` i mostra l'error d'invitació com a avís. Això permet reintentar després de corregir permisos o logins sense duplicar alumnes ni perdre els repositoris ja creats.
+
 ## Autenticació mínima
 
 En local, l'autenticació està desactivada per defecte si el dashboard escolta només en `127.0.0.1`, `localhost` o `::1`.
