@@ -85,7 +85,7 @@ gh workflow run batch-autograde-students.yml \
   -f repositories_file= \
   -f group=2DAW-A \
   -f mode=mock \
-  -f student_ref=master \
+  -f student_ref=main \
   -f publish_to_student_repo=false
 ```
 
@@ -112,7 +112,7 @@ gh workflow run batch-autograde-students.yml \
   -f repositories_file= \
   -f group=2DAW-A \
   -f mode=openai \
-  -f student_ref=master \
+  -f student_ref=main \
   -f publish_to_student_repo=true
 ```
 
@@ -126,7 +126,7 @@ gh workflow run batch-autograde-students.yml \
   -f repositories_file= \
   -f group=2DAW-A \
   -f mode=openai \
-  -f student_ref=master \
+  -f student_ref=main \
   -f publish_to_student_repo=true
 ```
 
@@ -142,7 +142,7 @@ gh workflow run batch-autograde-students.yml \
   -f repositories_file= \
   -f group=2DAW-A \
   -f mode=mock \
-  -f student_ref=master \
+  -f student_ref=main \
   -f publish_to_student_repo=false
 ```
 

@@ -41,7 +41,7 @@ on:
       student_ref:
         description: "Branca del repositori de l'alumne"
         required: true
-        default: "master"
+        default: "main"
       publish_to_student_repo:
         description: "Publicar autograde/latest.md i autograde/latest.json en cada repo"
         required: true

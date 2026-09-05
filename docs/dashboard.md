@@ -98,7 +98,7 @@ El dashboard està separat en aquestes vistes:
 - Veure els repositoris del fitxer associat o els repositoris puntuals escrits manualment.
 - Triar un **Microrepte a corregir** per a una execució puntual, o deixar `Configuració activa` per usar `course/active-challenges.json`.
 - Veure abans de llançar la correcció: branca, microrepte resolt, RA avaluat i origen de l'assignació.
-- Aplicar el criteri ordinari de branca corregible `master`; les branques alternatives només s'usen en recuperacions o incidències pactades.
+- Aplicar el criteri ordinari de branca corregible `main`; les branques alternatives només s'usen en recuperacions o incidències pactades.
 - Llançar el workflow massiu en mode `mock` o `openai`.
 - Consultar els últims resultats locals guardats en `grades/latest-grades.json`, quan existisca.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.

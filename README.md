@@ -45,7 +45,7 @@ Les execucions massives queden en cua. Si se'n llancen dues seguides, GitHub esp
 
 Els repositoris que es corregeixen es mantenen en fitxers `course/student-repositories*.txt`, amb format `repositori grup`. El workflow té un input `target_group` per triar `all`, `2DAW-A`, `2DAW-B`, `2DAW-C` o `2DAW-D`; amb això selecciona automàticament el fitxer corresponent. També es pot usar l'input `repositories` per sobreescriure la llista en una execució puntual, incloent-hi la correcció d'un sol alumne.
 
-El microrepte ordinari es resol des de `course/active-challenges.json`, primer per assignació específica d'alumne i després pel grup indicat en la línia del repositori. Per a una correcció puntual, el workflow i el dashboard permeten indicar `challenge_id` sense modificar `active-challenges.json`. La branca ordinària corregible és `master`; si l'alumnat treballa en una branca de microrepte, ha d'integrar-la en `master` abans de la correcció. El camp `student_ref` només s'ha de canviar per una recuperació o incidència pactada.
+El microrepte ordinari es resol des de `course/active-challenges.json`, primer per assignació específica d'alumne i després pel grup indicat en la línia del repositori. Per a una correcció puntual, el workflow i el dashboard permeten indicar `challenge_id` sense modificar `active-challenges.json`. La branca ordinària corregible és `main`; si l'alumnat treballa en una branca de microrepte, ha d'integrar-la en `main` abans de la correcció. El camp `student_ref` només s'ha de canviar per una recuperació o incidència pactada.
 
 Configuració activa inicial:
 
