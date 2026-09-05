@@ -1,6 +1,5 @@
 # Repositoris de tots els grups per a correccio massiva.
 # Format: repositori grup
 
-cipfpbatoi/microreptes-i-igomis 2DAW-A
 batoi-dwes-2026/microreptes-fakeigomis 2DAW-C
 batoi-dwes-2026/microreptes-igomis 2DAW-C
