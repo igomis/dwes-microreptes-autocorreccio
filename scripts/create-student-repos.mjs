@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { promisify } from 'node:util';
@@ -219,6 +220,55 @@ async function readRepositoryRows(filePath) {
   } catch (error) {
     if (error.code === 'ENOENT') {
       return [];
+    }
+    throw error;
+  }
+}
+
+async function assertFileCanBeWritten(filePath) {
+  try {
+    await access(filePath, constants.W_OK);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      await access(path.dirname(filePath), constants.W_OK);
+      return;
+    }
+    throw error;
+  }
+}
+
+async function assertCourseRepositoryFilesWritable(students, dryRun) {
+  if (dryRun) {
+    return;
+  }
+
+  const allPath = path.join(courseDir, 'student-repositories.txt');
+  let existingAllRows;
+
+  try {
+    existingAllRows = await readRepositoryRows(allPath);
+  } catch (error) {
+    if (error.code === 'EACCES' || error.code === 'EPERM') {
+      throw new Error(`No es pot llegir "${allPath}". Revisa permisos del directori course abans de crear repositoris en GitHub.`);
+    }
+    throw error;
+  }
+
+  const groups = new Set([
+    ...existingAllRows.map((row) => normalizeGroup(row.group)),
+    ...students.map((student) => normalizeGroup(student.group))
+  ].filter(Boolean));
+  const filePaths = [
+    allPath,
+    ...[...groups].map((group) => path.join(courseDir, groupFileName(group)))
+  ];
+
+  try {
+    await mkdir(courseDir, { recursive: true });
+    await Promise.all(filePaths.map(assertFileCanBeWritten));
+  } catch (error) {
+    if (error.code === 'EACCES' || error.code === 'EPERM') {
+      throw new Error(`No es poden escriure els fitxers course/student-repositories*.txt. Revisa que l'usuari que executa el dashboard tinga permís d'escriptura en "${courseDir}" abans de crear repositoris en GitHub.`);
     }
     throw error;
   }
@@ -457,6 +507,8 @@ async function main() {
   if (students.length === 0) {
     throw new Error('No hi ha cap alumne per processar en el CSV.');
   }
+
+  await assertCourseRepositoryFilesWritable(students, args['dry-run']);
 
   const results = [];
 
