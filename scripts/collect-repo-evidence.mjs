@@ -302,7 +302,13 @@ async function main() {
       challenge_id: args['challenge-id'] || null,
       microrepte_code: args['microrepte-code'] || null,
       active_tokens: activeTokens,
-      rule: 'Els fitxers de docs, evidence, tests i src nomes es consideren evidencia directa si el path o el contingut referencia el microrepte actiu.'
+      rule: 'Els fitxers de docs, evidence, tests i src nomes es consideren evidencia directa si el path o el contingut referencia el microrepte actiu.',
+      delivery_contract: [
+        'README.md de l_arrel es la fitxa de l_entrega actual i pot sobreescriure el microrepte anterior.',
+        'docs/README.md, evidence/README.md i tests/README.md son guies de carpeta, no evidencia puntuable.',
+        'Els fitxers del microrepte han d_estar nomenats o enllacats amb el challenge_id o microrepte_code actiu.',
+        'Els tests han de ser executables o, si encara no toca automatitzar, proves manuals reproduibles amb passos, dades i resultat esperat.'
+      ]
     },
     readme: await fileSummary(repoDir, 'README.md'),
     template_guide: await fileSummary(repoDir, 'ENTREGA.md'),

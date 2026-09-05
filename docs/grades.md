@@ -16,6 +16,8 @@ En cada resultat, el fitxer rellevant es `autograde-result.json`. Inclou camps c
 
 La recollida d'evidències està limitada al microrepte actiu: els fitxers de `docs/`, `evidence/`, `tests/` i `src/` només compten com a evidència directa si mencionen el `challenge_id` o el codi del microrepte, per exemple `R2M1`. El treball de microreptes anteriors pot aparéixer com a context de repositori, però no ha de sumar nota del microrepte nou.
 
+El criteri ordinari de lliurament és: `README.md` de l'arrel és la fitxa de l'entrega actual i ha d'enllaçar els fitxers concrets del microrepte. Els README de carpeta (`docs/README.md`, `evidence/README.md`, `tests/README.md`) són guies del template i no compten com a evidència puntuable. Els tests només compten com a tests si són executables i comproven comportament observable, o si el microrepte encara no demana automatització i deixen una prova manual reproduïble amb passos, dades i resultat esperat.
+
 ## Notes per repte i RA
 
 S'ha afegit un script per agrupar les notes provisionals de microreptes per repte (`repte_id`) i per RA avaluat.

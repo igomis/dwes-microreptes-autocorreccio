@@ -158,6 +158,10 @@ function buildMessages(payload, schema, promptText) {
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
         'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu.',
         'Si el payload no conte evidencia especifica vinculada al challenge_id o microrepte_code actiu, la nota maxima orientativa es 2/10 encara que el repositori tinga treball anterior.',
+        'Interpreta README.md de l_arrel com la fitxa de l_entrega actual: ha d_orientar la correccio i enllacar docs, evidence i tests concrets del microrepte actiu.',
+        'No tractes ENTREGA.md ni docs/README.md, evidence/README.md o tests/README.md com a evidencia puntuable del microrepte; son guies del template.',
+        'Valora positivament que docs, evidence i tests usen noms del microrepte actiu, com docs/r2m3.md, evidence/r2m3/ o tests/r2m3.test.php.',
+        'Els tests nomes compten com a tests si son executables o descriuen una prova manual reproduible amb passos, dades i resultat esperat quan encara no toca automatitzar.',
         'Ompli sempre ra_scores: una entrada per cada RA present en assessed_ra del payload; si nomes hi ha un RA, torna una sola entrada.'
       ].join(' ')
     },
