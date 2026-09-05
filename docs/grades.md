@@ -158,6 +158,30 @@ npm run grades:download-latest
 
 Des del dashboard, el botó **Actualitzar** de la vista `Resultats` executa aquesta importació automàtica i recarrega la taula.
 
+## Informe per preparar la classe següent
+
+Després de corregir un microrepte, pots generar un informe per grup. L'objectiu és donar al professorat d'eixe grup una visió ràpida de:
+
+- on ha fallat més l'alumnat;
+- quins bloquejos convé revisar en classe;
+- quines dimensions han quedat més baixes;
+- quines preguntes o prompts d'IA apareixen en `docs/ai-log.md`;
+- qui no té AI log o evidències actives localitzades.
+
+```bash
+npm run grades:class-report -- \
+  --group 2DAW-C \
+  --challenge-id r2-s03-logica-flux-regles-projecte
+```
+
+El resultat es guarda en:
+
+```text
+grades/reports/<challenge-id>-<group>.md
+```
+
+L'informe és per `group + challenge_id`, perquè cada grup pot tindre professorat, ritme i dificultats diferents.
+
 ## Nota provisional i nota validada
 
 Una nota provisional es el resultat calculat per autograding a partir d'una execucio concreta. Pot ajudar a prioritzar revisions i donar feedback inicial, pero pot contindre errors o requerir interpretacio docent.
