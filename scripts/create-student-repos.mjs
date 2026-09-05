@@ -11,6 +11,8 @@ const courseDir = path.join(rootDir, 'course');
 const ghBin = process.env.GH_BIN || 'gh';
 const validPermissions = new Set(['pull', 'push', 'maintain', 'admin']);
 const defaultStudentBranch = 'main';
+const templateReadyAttempts = 12;
+const templateReadyDelayMs = 5000;
 
 const allowedArgs = new Set([
   '--input',
@@ -60,6 +62,12 @@ function githubCliEnv() {
     delete env.GITHUB_TOKEN;
   }
   return env;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function printUsage() {
@@ -468,6 +476,40 @@ async function createBranchFromRef(student, branch, sourceBranch, args) {
   );
 }
 
+async function defaultRepositoryBranch(student, args) {
+  return readGhValue(
+    'api',
+    [`repos/${student.fullRepo}`, '--jq', '.default_branch'],
+    args['dry-run'],
+    `No s'ha pogut llegir la branca per defecte de "${student.fullRepo}".`
+  );
+}
+
+async function waitForRepositoryBranch(student, args) {
+  if (args['dry-run']) {
+    await runGh('api', [`repos/${student.fullRepo}`, '--jq', '.default_branch'], true);
+    return '<default-branch>';
+  }
+
+  for (let attempt = 1; attempt <= templateReadyAttempts; attempt += 1) {
+    if (await repositoryBranchExists(student, defaultStudentBranch, false)) {
+      return defaultStudentBranch;
+    }
+
+    const sourceBranch = await defaultRepositoryBranch(student, args);
+    if (sourceBranch && await repositoryBranchExists(student, sourceBranch, false)) {
+      return sourceBranch;
+    }
+
+    if (attempt < templateReadyAttempts) {
+      console.log(`Esperant que GitHub acabe de generar ${student.fullRepo} des de la plantilla... (${attempt}/${templateReadyAttempts})`);
+      await sleep(templateReadyDelayMs);
+    }
+  }
+
+  throw new Error(`El repositori "${student.fullRepo}" encara no té cap branca després de crear-lo. GitHub pot estar generant la plantilla encara, o la creació ha deixat un repositori buit. Reintenta en uns segons; si continua passant, revisa que la plantilla "${args.template}" tinga commits i que GitHub la genere correctament.`);
+}
+
 async function setDefaultBranch(student, branch, args) {
   await runGhChecked(
     'api',
@@ -485,21 +527,12 @@ async function setDefaultBranch(student, branch, args) {
 
 async function ensureDefaultStudentBranch(student, args) {
   const dryRun = args['dry-run'];
-  const hasMain = await repositoryBranchExists(student, defaultStudentBranch, dryRun);
+  const sourceBranch = await waitForRepositoryBranch(student, args);
+  const hasMain = sourceBranch === defaultStudentBranch
+    || await repositoryBranchExists(student, defaultStudentBranch, dryRun);
 
   if (!hasMain) {
-    const sourceBranch = dryRun
-      ? '<default-branch>'
-      : await readGhValue(
-        'api',
-        [`repos/${student.fullRepo}`, '--jq', '.default_branch'],
-        dryRun,
-        `No s'ha pogut llegir la branca per defecte de "${student.fullRepo}".`
-      );
-
-    if (sourceBranch !== defaultStudentBranch) {
-      await createBranchFromRef(student, defaultStudentBranch, sourceBranch, args);
-    }
+    await createBranchFromRef(student, defaultStudentBranch, sourceBranch, args);
   }
 
   await setDefaultBranch(student, defaultStudentBranch, args);
