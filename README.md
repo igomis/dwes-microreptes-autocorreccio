@@ -84,7 +84,7 @@ npm run students:create-repos -- \
   --dry-run
 ```
 
-Quan el resultat siga correcte, lleva `--dry-run`. El script crea els repositoris, convida cada alumne amb permís `push` i actualitza `course/student-repositories.txt` i els fitxers específics de grup.
+Quan el resultat siga correcte, lleva `--dry-run`. El script crea els repositoris, assegura que tinguen `main` com a branca per defecte, convida cada alumne amb permís `push` i actualitza `course/student-repositories.txt` i els fitxers específics de grup.
 
 També es pot fer des del dashboard, en la vista `Alumnes`, pujant el CSV o enganxant-ne el contingut. Els valors per defecte d'organització i plantilla es poden configurar amb `GITHUB_CLASSROOM_ORG` i `GITHUB_STUDENT_TEMPLATE` en `.env`. Per defecte s'executa en mode prova; quan la previsualització és correcta es pot desmarcar `Prova sense crear` i executar la creació real.
 

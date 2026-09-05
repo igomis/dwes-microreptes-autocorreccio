@@ -32,6 +32,8 @@ El procés que executa el dashboard també ha de poder escriure en `course/`, pe
 
 Si la creació del repositori funciona però falla la invitació de l'alumne, el dashboard manté el repositori registrat en `course/student-repositories*.txt` i mostra l'error d'invitació com a avís. Això permet reintentar després de corregir permisos o logins sense duplicar alumnes ni perdre els repositoris ja creats.
 
+Els repositoris processats des del dashboard queden amb `main` com a branca per defecte. Si un repositori ja existia amb una altra branca per defecte, l'script crea `main` des de la branca actual i després actualitza el repositori perquè les correccions ordinàries apunten a `main`.
+
 ## Autenticació mínima
 
 En local, l'autenticació està desactivada per defecte si el dashboard escolta només en `127.0.0.1`, `localhost` o `::1`.

@@ -10,6 +10,7 @@ const rootDir = process.cwd();
 const courseDir = path.join(rootDir, 'course');
 const ghBin = process.env.GH_BIN || 'gh';
 const validPermissions = new Set(['pull', 'push', 'maintain', 'admin']);
+const defaultStudentBranch = 'main';
 
 const allowedArgs = new Set([
   '--input',
@@ -351,7 +352,7 @@ async function runGh(command, args, dryRun) {
 
   console.log(rendered);
   try {
-    await execFileAsync(ghBin, [command, ...args], {
+    return await execFileAsync(ghBin, [command, ...args], {
       cwd: rootDir,
       env: githubCliEnv()
     });
@@ -377,6 +378,14 @@ async function runGhChecked(command, args, dryRun, failureMessage) {
     const details = formatCommandError(error);
     throw new Error(`${failureMessage}${details ? `\n${details}` : ''}`);
   }
+}
+
+async function readGhValue(command, args, dryRun, failureMessage) {
+  const result = await runGhChecked(command, args, dryRun, failureMessage);
+  if (dryRun) {
+    return '<dry-run>';
+  }
+  return String(result?.stdout || '').trim();
 }
 
 async function repositoryIsAccessible(student, dryRun) {
@@ -417,6 +426,84 @@ async function createRepositoryIfNeeded(student, args) {
   );
   await assertRepositoryIsAccessible(student, args['dry-run']);
   return 'created';
+}
+
+async function repositoryBranchExists(student, branch, dryRun) {
+  if (dryRun) {
+    await runGh('api', [`repos/${student.fullRepo}/branches/${encodeURIComponent(branch)}`, '--jq', '.name'], true);
+    return false;
+  }
+
+  try {
+    await runGh('api', [`repos/${student.fullRepo}/branches/${encodeURIComponent(branch)}`, '--jq', '.name'], false);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function createBranchFromRef(student, branch, sourceBranch, args) {
+  const sourceSha = args['dry-run']
+    ? '<sha>'
+    : await readGhValue(
+      'api',
+      [`repos/${student.fullRepo}/branches/${encodeURIComponent(sourceBranch)}`, '--jq', '.commit.sha'],
+      args['dry-run'],
+      `No s'ha pogut llegir la branca "${sourceBranch}" de "${student.fullRepo}" per crear "${branch}".`
+    );
+
+  await runGhChecked(
+    'api',
+    [
+      '--method',
+      'POST',
+      `repos/${student.fullRepo}/git/refs`,
+      '-f',
+      `ref=refs/heads/${branch}`,
+      '-f',
+      `sha=${sourceSha}`
+    ],
+    args['dry-run'],
+    `No s'ha pogut crear la branca "${branch}" en "${student.fullRepo}".`
+  );
+}
+
+async function setDefaultBranch(student, branch, args) {
+  await runGhChecked(
+    'api',
+    [
+      '--method',
+      'PATCH',
+      `repos/${student.fullRepo}`,
+      '-f',
+      `default_branch=${branch}`
+    ],
+    args['dry-run'],
+    `No s'ha pogut establir "${branch}" com a branca per defecte de "${student.fullRepo}". Revisa que GH_TOKEN tinga permisos d'administració sobre el repositori.`
+  );
+}
+
+async function ensureDefaultStudentBranch(student, args) {
+  const dryRun = args['dry-run'];
+  const hasMain = await repositoryBranchExists(student, defaultStudentBranch, dryRun);
+
+  if (!hasMain) {
+    const sourceBranch = dryRun
+      ? '<default-branch>'
+      : await readGhValue(
+        'api',
+        [`repos/${student.fullRepo}`, '--jq', '.default_branch'],
+        dryRun,
+        `No s'ha pogut llegir la branca per defecte de "${student.fullRepo}".`
+      );
+
+    if (sourceBranch !== defaultStudentBranch) {
+      await createBranchFromRef(student, defaultStudentBranch, sourceBranch, args);
+    }
+  }
+
+  await setDefaultBranch(student, defaultStudentBranch, args);
+  return hasMain ? 'existing' : 'created';
 }
 
 async function inviteCollaborator(student, args) {
@@ -514,8 +601,9 @@ async function main() {
 
   for (const student of students) {
     const repoStatus = await createRepositoryIfNeeded(student, args);
+    const branchStatus = await ensureDefaultStudentBranch(student, args);
     const invite = await tryInviteCollaborator(student, args);
-    results.push({ student, repoStatus, invite });
+    results.push({ student, repoStatus, branchStatus, invite });
   }
 
   await updateCourseRepositoryFiles(students, args['dry-run']);
@@ -525,10 +613,14 @@ async function main() {
   const invited = results.filter((result) => result.invite.status === 'invited').length;
   const skipped = results.filter((result) => result.invite.status === 'skipped').length;
   const failedInvites = results.filter((result) => result.invite.status === 'failed');
+  const branchesCreated = results.filter((result) => result.branchStatus === 'created').length;
+  const branchesExisting = results.filter((result) => result.branchStatus === 'existing').length;
 
   console.log(`Repositoris processats: ${students.length}`);
   console.log(`- Creats: ${created}`);
   console.log(`- Ja existien: ${existing}`);
+  console.log(`- Branques main creades: ${branchesCreated}`);
+  console.log(`- Branques main ja existien: ${branchesExisting}`);
   console.log(`- Invitacions enviades: ${invited}`);
   console.log(`- Invitacions omeses: ${skipped}`);
   console.log(`- Invitacions amb error: ${failedInvites.length}`);
