@@ -1,4 +1,4 @@
-import { extensionSchema, validateProposal } from './lib/repte-extension.mjs';
+import { extensionSchema, validateProposal, normalizeExtensionProposal } from './lib/repte-extension.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -244,7 +244,8 @@ async function main() {
   await writeFile(rawOutputPath, `${JSON.stringify(response, null, 2)}\n`, 'utf8');
 
   const result = parseModelJson(response);
-  const errors = validateResult(result, schema);
+  const errors = validateResult(result, { ...schema, required: schema.required.filter(field => field !== 'repte_extension') });
+  if (payload.repte_extension && errors.length === 0) normalizeExtensionProposal(result);
   if (payload.repte_extension) {
     try { validateProposal(result.repte_extension); } catch (error) { errors.push(error.message); }
   } else if (result.repte_extension) errors.push('Ampliació fora de l’últim microrepte');

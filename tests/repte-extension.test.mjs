@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { calculateRepteExtension as calc, makeExtensionReview, validateExtensionOwners, validateProposal, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
+import { calculateRepteExtension as calc, makeExtensionReview, normalizeExtensionProposal, validateExtensionOwners, validateProposal, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
 import { aggregateRepteGrades } from '../scripts/aggregate-repte-grades.mjs';
 import { initDb, closeDb, migrateFromJson, getLatestGrades } from '../teacher-dashboard/db.mjs';
 
@@ -107,4 +107,20 @@ test('recull fitxers enllaçats de l’ampliació sense exigir-los el codi del m
   run('r1-s01-model-client-servidor-stack','R1M1');
   assert.equal(JSON.parse(readFileSync(path.join(dir,'summary.json'))).repte_extension,null);
  } finally {rmSync(dir,{recursive:true,force:true});}
+});
+
+test('proposta incoherent no elimina la nota del nucli ni valida punts',()=>{
+ for (const invalid of [{...proposal,core_ready:false}, {...proposal,evidence:[]}, null, {...proposal,proposed_score:2}]) {
+  const result={final_score_over_10:8.1,ra_scores:[{ra_id:'RA1',score:8.1}],repte_extension:invalid,blocking_flags:[]};
+  normalizeExtensionProposal(result);
+  assert.equal(result.final_score_over_10,8.1);
+  assert.deepEqual(result.ra_scores,[{ra_id:'RA1',score:8.1}]);
+  assert.equal(result.repte_extension.proposed_score,0);
+  assert.equal(result.teacher_review_required,true);
+  assert.doesNotThrow(()=>validateProposal(result.repte_extension));
+  const gs=grades();gs[1].repte_extension=result.repte_extension;
+  assert.equal(calc(gs,metadata,repte).final_score,null);
+ }
+ const valid={repte_extension:structuredClone(proposal)};
+ const before=structuredClone(valid);normalizeExtensionProposal(valid);assert.deepEqual(valid,before);
 });

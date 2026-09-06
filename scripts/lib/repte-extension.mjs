@@ -53,6 +53,30 @@ export function validateProposal(proposal) {
   return proposal;
 }
 
+// An inconsistent optional proposal must not discard a valid core assessment.
+// The original API response remains in openai-raw-response.json.
+export function normalizeExtensionProposal(result) {
+  try {
+    validateProposal(result.repte_extension);
+    return result;
+  } catch (error) {
+    const original = result.repte_extension;
+    const warning = `Proposta d’ampliació bloquejada: ${error.message}`;
+    const strings = value => Array.isArray(value) ? value.filter(x => typeof x === 'string') : [];
+    result.repte_extension = {
+      proposed_score: 0,
+      core_ready: false,
+      reason: `${warning} Proposta original: ${JSON.stringify(original ?? null)}. Cal revisió docent; no és una validació a zero.`,
+      evidence: strings(original?.evidence),
+      presentation_checks: [...strings(original?.presentation_checks), 'Confirmar els mínims del nucli i les evidències abans de valorar l’ampliació.']
+    };
+    result.teacher_review_required = true;
+    result.provisional = true;
+    result.blocking_flags = [...strings(result.blocking_flags), warning];
+    return result;
+  }
+}
+
 const round = value => Math.round((value + Number.EPSILON) * 100) / 100;
 function scoreOf(grade) { return grade.score ?? grade.final_score_over_10; }
 function parseProposal(value) {

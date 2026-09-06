@@ -57,3 +57,7 @@ npm test
 ```
 
 No cal consumir l'API d'IA per validar el càlcul, la persistència o els controls. Les correccions prèvies sense proposta continuen disponibles i admeten validació docent manual des de l'últim microrepte.
+
+## Proposta incoherent de la IA
+
+Si la proposta d’ampliació és invàlida o positiva sense mínims/evidències, el motor conserva la nota del nucli, bloqueja la proposta a 0 i marca revisió docent. No és una validació a zero: la nota global continua pendent. La proposta original queda en la justificació i la resposta completa es conserva en `openai-raw-response.json`. Els errors de l’avaluació del nucli continuen fent fallar la validació.
