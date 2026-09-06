@@ -135,3 +135,7 @@ Després de `R5M5`, la integració híbrida passa a formar part de la defensa fi
 - **Microtaller**: `MT15. Defensa tècnica curta`
 - **Moment recomanat**: abans de la mini defensa i del tancament final de `R5`.
 - **Evidència mínima**: guió de defensa, prova reproduïble i una pregunta crítica preparada.
+
+## Registre de l’ampliació global al final de R5
+
+En R5M5 es recull una única proposta d’ampliació del repte (0–1), amb declaració `docs/r5-ampliacio.md`. En la presentació el professorat comprova mínims, demo i comprensió, valida els punts i deixa observació. El programa calcula `0,9 × mitjana ponderada del nucli + ampliació validada`; no suma en les dimensions del microrepte ni en cada RA. Pendent de revisió no és zero.

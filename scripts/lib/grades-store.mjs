@@ -8,6 +8,7 @@ export const gradeFields = [
   'challenge_id',
   'score',
   'ra_scores',
+  'repte_extension',
   'confidence',
   'teacher_review_required',
   'provisional',

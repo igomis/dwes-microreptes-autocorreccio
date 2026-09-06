@@ -37,3 +37,7 @@ Comprova finalment si el repte queda tancat i defensable:
 No penalitzes que encara no hi haja formularis, validació, sessió, login o persistència rica: això pertany a reptes posteriors o ampliacions. Sí que has de penalitzar que siga només un `healthcheck`, decoració estàtica oberta fora del servidor, una pàgina genèrica sense relació amb el producte, que no es puga provar, que la documentació no corresponga amb el sistema real o que l'entorn siga una còpia plana no explicable.
 
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisió docent si la confiança és baixa, si falta evidència crítica o si apareixen flags.
+
+## Ampliació global del repte
+
+Este és l'únic microrepte que recull la proposta d'ampliació del repte complet. Avalua el nucli sobre 10 sense sumar ni penalitzar l'ampliació en les dimensions o en ra_scores. Si el payload inclou repte_extension, completa la proposta separada segons els criteris adjunts, de 0 a 1 en passos de 0.25. L'absència d'ampliació dona una proposta 0, no una penalització del nucli. La proposta no és una validació docent. Indica evidències concretes i preguntes pendents per a la presentació; no inventes una defensa oral. No sumes punts al resultat final_score_over_10: el programa farà el càlcul global 0.9 × nucli ponderat + ampliació validada, una sola vegada.

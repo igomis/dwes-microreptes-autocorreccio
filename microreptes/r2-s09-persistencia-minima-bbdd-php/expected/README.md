@@ -13,3 +13,5 @@ Un lliurament acceptable hauria de mostrar:
 - Evidència que el flux principal de R2 continua funcionant.
 
 No cal que hi haja ORM, migrations, seeders, framework ni una capa completa de repositori.
+
+Ampliació opcional del repte: declaració en `docs/r2-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R2M9; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

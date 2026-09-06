@@ -58,5 +58,7 @@
     "Criteri docent nucli primer, ampliacio després"
   ],
   "assessment_role": "ampliacio_transversal",
-  "assessment_model": "No genera una nota RA independent: actua com a filtre docent per optar a la franja 9-10 del Repte 2 una vegada el nucli obligatori està validat per RA."
+  "assessment_model": "No genera una nota RA independent: actua com a filtre docent per optar a la franja 9-10 del Repte 2 una vegada el nucli obligatori està validat per RA.",
+  "deprecated": true,
+  "replacement_challenge_id": "r2-s09-persistencia-minima-bbdd-php"
 }

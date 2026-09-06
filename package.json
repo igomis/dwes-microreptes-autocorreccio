@@ -24,7 +24,8 @@
     "grades:compact": "node scripts/compact-latest-grades.mjs",
     "grades:list": "node scripts/list-grades.mjs",
     "grades:aggregate-repte": "node scripts/aggregate-repte-grades.mjs",
-    "grades:class-report": "node scripts/build-class-followup-report.mjs"
+    "grades:class-report": "node scripts/build-class-followup-report.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^9.x",

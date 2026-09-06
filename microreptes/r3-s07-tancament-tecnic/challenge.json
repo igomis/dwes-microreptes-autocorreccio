@@ -58,5 +58,12 @@
   "context_ra": [
     "RA6.g"
   ],
-  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció.",
+  "repte_extension": {
+    "scope": "repte",
+    "max_score": 1,
+    "requires_teacher_validation": true,
+    "declaration_path": "docs/r3-ampliacio.md",
+    "criteria": " 9→10\n\n**Finalitat**  \nAprofundir en la qualitat de l'arquitectura en framework i demostrar millor criteri sobre `MVC`, persistència i mantenibilitat.\n\n**Condició prèvia**  \nEl nucli del repte ha d'estar complet, funcional i validat.\n\n**Opcions d'ampliació**\n- Millorar un flux amb paginació, filtrat, cerca o una autorització més fina que amplie la regla mínima sense trencar la coherència del projecte.\n- Fer una refactorització justificada del repartiment entre ruta, controlador, capa de dades i vista o plantilla.\n\n**Proposta pròpia**  \nEs pot presentar una ampliació pròpia si continua centrada en qualitat arquitectònica i es valida abans amb el professorat.\n\n**Evidències mínimes**\n- commit o branca identificable\n- nota tècnica breu de decisió\n- demo funcional del flux millorat\n- rastre de l'ús assistit per IA, si n'hi ha hagut\n\n**Ús assistit per IA**  \nLa IA et pot ajudar a comparar estructures, revisar codi o suggerir proves, però la decisió d'arquitectura i la defensa han de ser teues.\n\n**Defensa**  \nPerquè compute com a `9→10`, has de poder justificar per què la millora aporta qualitat real al projecte.\n\n"
+  }
 }

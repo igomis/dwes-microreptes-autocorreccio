@@ -1,3 +1,4 @@
+import { readChallengeMetadata, validateExtensionOwners } from './lib/repte-extension.mjs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -221,6 +222,7 @@ async function main() {
   const validChallenges = [];
 
   await validateGlobalFiles(errors);
+  try { validateExtensionOwners(await readChallengeMetadata(rootDir)); } catch (error) { errors.push(error.message); }
 
   const entries = await readdir(microreptesDir, { withFileTypes: true });
   const challengeDirs = entries

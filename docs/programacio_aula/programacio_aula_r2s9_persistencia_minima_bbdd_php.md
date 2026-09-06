@@ -223,3 +223,7 @@ Una alta i un llistat són suficients si estan connectats al flux real.
 ## Connexio amb R3
 
 `R3` convertirà esta persistencia mínima en una persistencia més professional: migracions o equivalent, càrrega inicial reproduïble, models, validacions més ordenades i proves més sòlides. La idea important és que l'alumnat arribe a `R3` sabent ja què significa guardar i recuperar dades reals des del backend.
+
+## Registre de l’ampliació global al final de R2
+
+En R2M9 es recull una única proposta d’ampliació del repte (0–1), amb declaració `docs/r2-ampliacio.md`. En la presentació el professorat comprova mínims, demo i comprensió, valida els punts i deixa observació. El programa calcula `0,9 × mitjana ponderada del nucli + ampliació validada`; no suma en les dimensions del microrepte ni en cada RA. Pendent de revisió no és zero.

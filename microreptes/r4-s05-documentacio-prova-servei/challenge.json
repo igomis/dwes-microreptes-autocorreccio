@@ -55,5 +55,12 @@
   "context_ra": [
     "RA6.g"
   ],
-  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció.",
+  "repte_extension": {
+    "scope": "repte",
+    "max_score": 1,
+    "requires_teacher_validation": true,
+    "declaration_path": "docs/r4-ampliacio.md",
+    "criteria": " 9→10\n\n**Finalitat**  \nFer l'API més robusta, més clara i més verificable des del punt de vista del productor i del consumidor.\n\n**Condició prèvia**  \nEl nucli del repte ha d'estar complet, funcional i validat.\n\n**Opcions d'ampliació**\n- Millorar la documentació de l'API, la coherència dels codis de resposta i la gestió d'errors dels endpoints principals.\n- Afegir comprovacions o proves addicionals sobre contracte, autenticació o casos crítics de consum.\n\n**Proposta pròpia**  \nPots proposar una ampliació pròpia si continua centrada en qualitat d'API i es valida abans amb el professorat.\n\n**Evidències mínimes**\n- commit o branca identificable\n- `README.md` curt o nota tècnica de canvis\n- prova funcional amb client, script, Postman o equivalent\n- rastre de l'ús assistit per IA, si n'hi ha hagut\n\n**Ús assistit per IA**  \nLa IA pot ajudar a revisar endpoints, generar proves o comparar respostes, però has de validar tu el comportament real de l'API.\n\n**Defensa**  \nPerquè compte com a `9→10`, l'ampliació ha d'estar integrada, aportar robustesa real i poder-se defensar.\n\n"
+  }
 }

@@ -1,3 +1,4 @@
+import { calculateRepteExtension, makeExtensionReview, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
 import { createHash, timingSafeEqual } from 'node:crypto';
@@ -344,7 +345,8 @@ async function readMicroreptes() {
 
   for (const entry of entries) {
     if (entry.isDirectory()) {
-      microreptes.push(await readMicrorepteDir(entry.name));
+      const item = await readMicrorepteDir(entry.name);
+      if (!item.challenge?.deprecated) microreptes.push(item);
     }
   }
 
@@ -1016,8 +1018,8 @@ async function buildConfigPayload() {
   };
 }
 
-async function readLatestGrades(filters = {}) {
-  return getLatestGrades(200, filters);
+async function readLatestGrades(filters = {}, limit = 200) {
+  return getLatestGrades(limit, filters);
 }
 
 async function importLatestGradeArtifact() {
@@ -1123,7 +1125,7 @@ function scoreEntriesForGrade(grade, microrepte) {
 
 async function readRaGrades(filters = {}) {
   const [grades, microreptes] = await Promise.all([
-    readLatestGrades(filters),
+    readLatestGrades(filters, -1),
     readMicroreptes()
   ]);
   const challengeMap = new Map(microreptes.map((microrepte) => [microrepte.id, microrepte]));
@@ -1204,6 +1206,7 @@ function normalizeTeacherRepteGrades(records) {
     }
 
     teacherGrades.set(`${record.repo}\u0000${record.repte_id}`, {
+      extension_review: record.extension_review || null,
       teacher_score: typeof record.teacher_score === 'number' ? record.teacher_score : null,
       teacher_comment: record.teacher_comment || '',
       teacher_review_required: Boolean(record.teacher_review_required),
@@ -1352,7 +1355,20 @@ async function saveTeacherRepteGrade(body) {
 
   const records = await readTeacherRepteGradeRecords();
   const index = records.findIndex((record) => record.repo === repo && record.repte_id === repteId);
+  const previous = index >= 0 ? records[index] : {};
+  let extensionReview = previous.extension_review || null;
+  const history = previous.extension_review_history || [];
+  if (body.extension_review) {
+    const grades = (await readLatestGrades({}, -1)).filter(g => g.repo === repo);
+    const metadata = await readChallengeMetadata(rootDir);
+    const calculation = calculateRepteExtension(grades, metadata, repteId, extensionReview);
+    extensionReview = makeExtensionReview(body.extension_review, calculation);
+    history.push(extensionReview);
+  }
   const nextRecord = {
+    ...previous,
+    extension_review: extensionReview,
+    extension_review_history: history,
     repo,
     group,
     repte_id: repteId,
@@ -1389,9 +1405,8 @@ async function readRepteGrades(filters = {}) {
   const raFilters = { ...filters };
   delete raFilters.challenge_id;
 
-  const [raGrades, teacherGrades] = await Promise.all([
-    readRaGrades(raFilters),
-    readTeacherRepteGrades()
+  const [raGrades, teacherGrades, allGrades, metadata] = await Promise.all([
+    readRaGrades(raFilters), readTeacherRepteGrades(), readLatestGrades({}, -1), readChallengeMetadata(rootDir)
   ]);
   const groups = new Map();
 
@@ -1431,6 +1446,8 @@ async function readRepteGrades(filters = {}) {
         record.teacher_review_required = teacherData.teacher_review_required;
         record.teacher_source = teacherData.teacher_source;
       }
+      record.extension = calculateRepteExtension(allGrades.filter(g => g.repo === record.repo), metadata, record.repte_id, teacherData?.extension_review);
+      record.can_review_extension = Boolean(record.extension) && (!filters.challenge_id || filters.challenge_id === record.extension.source_challenge_id);
       record.ra_scores.sort((left, right) => String(left.ra_id).localeCompare(String(right.ra_id), 'ca', { numeric: true }));
       return record;
     })
@@ -1868,7 +1885,7 @@ function pageHtml() {
       </table>
       <h3>Notes per repte</h3>
       <table>
-        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>Notes RA automàtiques</th><th>Nota docent</th><th>Comentari docent</th><th>Revisió</th><th>Accions</th></tr></thead>
+        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>Notes RA automàtiques</th><th>Nota del repte i ampliació</th><th>Nota docent</th><th>Comentari docent</th><th>Revisió</th><th>Accions</th></tr></thead>
         <tbody id="repteGradeRows"></tbody>
       </table>
     </section>
@@ -3424,6 +3441,27 @@ function pageHtml() {
       document.querySelector('#raGradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6">No hi ha notes amb RA avaluat.</td></tr>';
     }
 
+    function renderExtension(item) {
+      const ext = item.extension;
+      if (!ext) return 'Sense ampliació configurada';
+      const state = { pending: 'Pendent de presentació', stale: 'Revisió anterior desactualitzada', incomplete: 'Falten microreptes', validated: 'Ampliació validada' }[ext.status];
+      let html = '<p>Nucli /10: <strong>' + escapeHtml(ext.core_score ?? '—') + '</strong> · Base /9: ' + escapeHtml(ext.base_score ?? '—') + '</p>' +
+        '<p>Nota calculada /10: <strong>' + escapeHtml(ext.final_score ?? 'pendent') + '</strong>' + (ext.provisional ? ' · provisional' : '') + '</p>' +
+        '<p>' + escapeHtml(state) + ' · ' + escapeHtml(ext.source_microrepte_code) + '</p>';
+      if (!item.can_review_extension) return html;
+      html += '<p>Proposta IA /1: ' + escapeHtml(ext.proposed_score ?? 'sense proposta') + '</p>';
+      if (ext.proposal) {
+        html += '<details><summary>Evidències i punts per a la presentació</summary><p>' + escapeHtml(ext.proposal.reason) + '</p><ul>' +
+          [...ext.proposal.evidence, ...ext.proposal.presentation_checks].map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul></details>';
+      }
+      const disabled = ext.core_complete ? '' : ' disabled';
+      html += '<label>Ampliació validada /1 <select data-extension-score data-source="' + escapeHtml(ext.source_challenge_id) + '" data-snapshot="' + escapeHtml(ext.snapshot) + '"' + disabled + '>' +
+        '<option value="" disabled>Pendent</option>' + [0, 0.25, 0.5, 0.75, 1].map(x => '<option value="' + x + '"' + (ext.validated_score === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></label>' +
+        '<label><input type="checkbox" data-extension-core' + (ext.review?.core_requirements_met ? ' checked' : '') + disabled + '> Mínims del repte comprovats</label>' +
+        '<label>Observació de la presentació<textarea data-extension-comment rows="2"' + disabled + '>' + escapeHtml(ext.review?.comment || '') + '</textarea></label>';
+      return html;
+    }
+
     async function loadRepteGrades(params) {
       const response = await fetch('/api/repte-grades?' + params.toString());
       const payload = await response.json();
@@ -3442,6 +3480,7 @@ function pageHtml() {
           '<td>' + escapeHtml(item.group_name || '') + '</td>' +
           '<td><code>' + escapeHtml(item.repte_id || '') + '</code></td>' +
           '<td>' + escapeHtml(raText || 'Sense notes RA') + '</td>' +
+          '<td>' + renderExtension(item) + '</td>' +
           '<td><input data-teacher-score type="number" min="0" max="10" step="0.01" value="' + escapeHtml(teacherScore) + '"></td>' +
           '<td><textarea data-teacher-comment rows="2">' + escapeHtml(item.teacher_comment || '') + '</textarea></td>' +
           '<td><input data-teacher-review type="checkbox"' + (item.teacher_review_required ? ' checked' : '') + '></td>' +
@@ -3449,7 +3488,7 @@ function pageHtml() {
         '</tr>';
       });
 
-      document.querySelector('#repteGradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha notes agregades per repte.</td></tr>';
+      document.querySelector('#repteGradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="9">No hi ha notes agregades per repte.</td></tr>';
       document.querySelectorAll('[data-save-teacher-repte]').forEach((button) => {
         button.addEventListener('click', () => saveTeacherRepteGrade(button));
       });
@@ -3461,6 +3500,7 @@ function pageHtml() {
       const scoreInput = row.querySelector('[data-teacher-score]');
       const commentInput = row.querySelector('[data-teacher-comment]');
       const reviewInput = row.querySelector('[data-teacher-review]');
+      const extensionInput = row.querySelector('[data-extension-score]');
       button.disabled = true;
       status.className = 'status';
       status.textContent = 'Guardant nota docent...';
@@ -3475,7 +3515,14 @@ function pageHtml() {
             repte_id: button.dataset.repte,
             teacher_score: scoreInput.value,
             teacher_comment: commentInput.value,
-            teacher_review_required: reviewInput.checked
+            teacher_review_required: reviewInput.checked,
+            extension_review: extensionInput && extensionInput.value !== '' ? {
+              source_challenge_id: extensionInput.dataset.source,
+              snapshot: extensionInput.dataset.snapshot,
+              validated_score: Number(extensionInput.value),
+              core_requirements_met: row.querySelector('[data-extension-core]').checked,
+              comment: row.querySelector('[data-extension-comment]').value
+            } : undefined
           })
         });
         const result = await response.json();
@@ -3957,7 +4004,7 @@ const server = createServer((request, response) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`Dashboard disponible en http://${host}:${port}`);
+  console.log(`Dashboard disponible en http://${host}:${server.address().port}`);
   if (dashboardAuthRequired(host)) {
     console.log('Autenticació del dashboard activada.');
   }

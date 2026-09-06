@@ -220,3 +220,7 @@ Frase guia: "No afegis funcionalitat de R2 fins que pugues arrancar, obrir i exp
 - **Microtaller**: `MT02. README executable i commit defensable`
 - **Moment recomanat**: després de comprovar que l'entorn arranca i abans del commit de tancament de `R1`.
 - **Evidència mínima**: README amb arrencada real, landing inicial verificada i commit explicable.
+
+## Registre de l’ampliació global al final de R1
+
+En R1M2 es recull una única proposta d’ampliació del repte (0–1), amb declaració `docs/r1-ampliacio.md`. En la presentació el professorat comprova mínims, demo i comprensió, valida els punts i deixa observació. El programa calcula `0,9 × mitjana ponderada del nucli + ampliació validada`; no suma en les dimensions del microrepte ni en cada RA. Pendent de revisió no és zero.

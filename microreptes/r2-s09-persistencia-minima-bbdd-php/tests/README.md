@@ -12,3 +12,5 @@ Comprovacions recomanades:
 8. Demanar explicació breu de diferència entre sessió, cookie, fitxer provisional i BBDD.
 
 Si no es pot executar la BBDD en l'entorn de correcció, la revisió pot basar-se en evidència documentada i defensa tècnica breu.
+
+Ampliació opcional del repte: declaració en `docs/r2-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R2M9; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

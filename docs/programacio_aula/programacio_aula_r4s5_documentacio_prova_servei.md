@@ -130,3 +130,7 @@ Per a suport, documentar un endpoint crític complet. Com ampliació, millorar O
 - **Microtaller**: `MT11. Provar i documentar una API`
 - **Moment recomanat**: abans de tancar `R4` i passar a integració.
 - **Evidència mínima**: peticions reproduïbles, un cas d'error i documentació alineada amb el comportament real.
+
+## Registre de l’ampliació global al final de R4
+
+En R4M5 es recull una única proposta d’ampliació del repte (0–1), amb declaració `docs/r4-ampliacio.md`. En la presentació el professorat comprova mínims, demo i comprensió, valida els punts i deixa observació. El programa calcula `0,9 × mitjana ponderada del nucli + ampliació validada`; no suma en les dimensions del microrepte ni en cada RA. Pendent de revisió no és zero.

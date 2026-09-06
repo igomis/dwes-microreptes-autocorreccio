@@ -1,3 +1,4 @@
+import { extensionSchema, validateProposal } from './lib/repte-extension.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -156,7 +157,7 @@ function buildMessages(payload, schema, promptText) {
         'Has de tornar exclusivament un objecte JSON compatible amb l_esquema proporcionat.',
         'No canvies el contracte d_eixida. Marca sempre provisional=true si no hi ha revisio docent final.',
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
-        'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu.',
+        'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu. Excepció: la proposta separada repte_extension usa evidències del repte complet, només quan el payload l’habilita. Mai suma a les dimensions ni a les notes del microrepte.',
         'Si el payload no conte evidencia especifica vinculada al challenge_id o microrepte_code actiu, la nota maxima orientativa es 2/10 encara que el repositori tinga treball anterior.',
         'Interpreta README.md de l_arrel com la fitxa de l_entrega actual: ha d_orientar la correccio i enllacar docs, evidence i tests concrets del microrepte actiu.',
         'No tractes ENTREGA.md ni docs/README.md, evidence/README.md o tests/README.md com a evidencia puntuable del microrepte; son guies del template.',
@@ -213,6 +214,12 @@ async function main() {
     readJson(path.resolve(rootDir, args.input)),
     readJson(path.join(rootDir, 'global', 'grading-schema.json'))
   ]);
+  if (payload.repte_extension) {
+    schema.properties.repte_extension = extensionSchema;
+    schema.required.push('repte_extension');
+  } else {
+    delete schema.properties.repte_extension;
+  }
   const promptPath = payload.challenge_id
     ? path.join(rootDir, 'microreptes', payload.challenge_id, 'prompt.md')
     : null;
@@ -238,6 +245,9 @@ async function main() {
 
   const result = parseModelJson(response);
   const errors = validateResult(result, schema);
+  if (payload.repte_extension) {
+    try { validateProposal(result.repte_extension); } catch (error) { errors.push(error.message); }
+  } else if (result.repte_extension) errors.push('Ampliació fora de l’últim microrepte');
   if (errors.length > 0) {
     console.error('La resposta d_OpenAI no compleix l_esquema esperat:');
     for (const error of errors) {

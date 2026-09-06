@@ -187,3 +187,7 @@ L'informe és per `group + challenge_id`, perquè cada grup pot tindre professor
 Una nota provisional es el resultat calculat per autograding a partir d'una execucio concreta. Pot ajudar a prioritzar revisions i donar feedback inicial, pero pot contindre errors o requerir interpretacio docent.
 
 Una nota validada es la qualificacio revisada i confirmada pel professorat. Les dades de `grades/` no substituixen eixa validacio posterior.
+
+## Ampliació global
+
+Consulta [càlcul i validació de l’ampliació](ampliacio-repte.md). Es gestiona només des de l’últim microrepte i suma una sola vegada al repte complet.

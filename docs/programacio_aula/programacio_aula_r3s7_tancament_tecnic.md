@@ -175,3 +175,7 @@ La IA pot ajudar a ordenar README, demo o backlog. L'alumnat ha de verificar que
 ## Connexio amb el microrepte posterior
 
 Després de `R3M7`, l'equip pot entrar a `R4`: contracte d'API i exposicio de funcionalitats. Si `R3` no queda reproduïble, `R4` començara sobre una base fragil.
+
+## Registre de l’ampliació global al final de R3
+
+En R3M7 es recull una única proposta d’ampliació del repte (0–1), amb declaració `docs/r3-ampliacio.md`. En la presentació el professorat comprova mínims, demo i comprensió, valida els punts i deixa observació. El programa calcula `0,9 × mitjana ponderada del nucli + ampliació validada`; no suma en les dimensions del microrepte ni en cada RA. Pendent de revisió no és zero.

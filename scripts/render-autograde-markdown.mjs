@@ -75,6 +75,13 @@ async function main() {
     lines.push('');
   }
 
+  if (result.repte_extension) {
+    lines.push('## Proposta d’ampliació del repte (pendent de validació docent)', '',
+      `Proposta: **${result.repte_extension.proposed_score}/1**. No suma a la nota del microrepte.`, '',
+      result.repte_extension.reason, '', list(result.repte_extension.evidence, 'Sense evidències'),
+      list(result.repte_extension.presentation_checks, 'Revisió docent pendent'), '');
+  }
+
   lines.push('## Puntuació per dimensions');
   lines.push('');
   lines.push('| Dimensió | Punts | Comentari |');

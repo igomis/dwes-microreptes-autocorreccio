@@ -1,3 +1,4 @@
+import { validateProposal, readChallengeMetadata } from './lib/repte-extension.mjs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -188,6 +189,13 @@ async function main() {
     readJson(path.join(rootDir, 'global', 'grading-schema.json'))
   ]);
   const errors = validateResult(result, schema);
+  if (result.repte_extension) {
+    try {
+      validateProposal(result.repte_extension);
+      const metadata = await readChallengeMetadata(rootDir);
+      if (!metadata.get(result.challenge_id)?.repte_extension) throw new Error('Ampliació fora de l’últim microrepte');
+    } catch (error) { errors.push(error.message); }
+  }
 
   if (errors.length > 0) {
     console.error('Resultat d_autograding invalid:');

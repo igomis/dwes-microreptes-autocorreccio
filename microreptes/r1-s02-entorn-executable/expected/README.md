@@ -15,3 +15,5 @@ Evidències mínimes:
 - commit o traçabilitat equivalent de l'entorn i de la landing.
 
 L'entorn pot no estar completament resolt si hi ha un bloqueig real, però el bloqueig ha d'estar documentat amb log, hipòtesi i pròxima acció concreta. El repte no queda tancat si només hi ha infraestructura sense cap resposta funcional del backend.
+
+Ampliació opcional del repte: declaració en `docs/r1-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R1M2; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

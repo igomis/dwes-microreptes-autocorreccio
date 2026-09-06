@@ -1,11 +1,12 @@
-import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import process from 'node:process';
 
+import { calculateRepteExtension, readChallengeMetadata } from './lib/repte-extension.mjs';
+
 const rootDir = process.cwd();
 const gradesDir = path.join(rootDir, 'grades');
-const microreptesDir = path.join(rootDir, 'microreptes');
 
 function parseArgs(argv) {
   const args = {};
@@ -33,15 +34,6 @@ function printUsage() {
   console.log('');
   console.log('Aquesta script agrupa les notes de microreptes per repte i RA, i genera fitxers agregats.');
   console.log('Si es passa --teacher-input, s_inclou la nota docent de repte en conjunt.');
-}
-
-async function fileExists(filePath) {
-  try {
-    await stat(filePath);
-    return true;
-  } catch (error) {
-    return false;
-  }
 }
 
 async function readJson(filePath) {
@@ -72,6 +64,7 @@ function normalizeTeacherGrades(teacherGrades) {
     }
     const key = `${grade.repo}\u0000${grade.repte_id}`;
     map.set(key, {
+      extension_review: grade.extension_review || null,
       teacher_score: typeof grade.teacher_score === 'number' ? grade.teacher_score : null,
       teacher_comment: grade.teacher_comment || '',
       teacher_review_required: Boolean(grade.teacher_review_required),
@@ -120,46 +113,12 @@ function normalizeRaScores(value) {
     }));
 }
 
-async function readMicrorepteMetadata() {
-  const entries = await readdir(microreptesDir, { withFileTypes: true });
-  const metadata = new Map();
-
-  for (const entry of entries) {
-    if (!entry.isDirectory()) {
-      continue;
-    }
-
-    const challengePath = path.join(microreptesDir, entry.name, 'challenge.json');
-    if (!(await fileExists(challengePath))) {
-      continue;
-    }
-
-    try {
-      const challenge = await readJson(challengePath);
-      if (challenge?.challenge_id) {
-        metadata.set(challenge.challenge_id, {
-          repte_id: challenge.repte_id || null,
-          repte_title: challenge.title || null,
-          primary_ra: challenge.primary_ra || null,
-          assessed_ra: Array.isArray(challenge.assessed_ra) ? challenge.assessed_ra : null,
-          repte_weight: typeof challenge.repte_weight === 'number' ? challenge.repte_weight : null,
-          assessment_model: challenge.assessment_model || null
-        });
-      }
-    } catch (error) {
-      console.warn(`Avís: no s'ha pogut llegir ${challengePath}: ${error.message}`);
-    }
-  }
-
-  return metadata;
-}
-
 export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGrades) {
   const raGroups = new Map();
 
   for (const grade of latestGrades) {
     const metadata = challengeMetadata.get(grade.challenge_id);
-    if (!metadata || !metadata.repte_id) {
+    if (!metadata || !metadata.repte_id || metadata.deprecated) {
       continue;
     }
 
@@ -258,6 +217,14 @@ export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGra
 
     repteRecord.auto_score = null;
     repteRecord.auto_score_mode = 'not_calculated_without_ra_weights';
+    const extension = calculateRepteExtension(latestGrades.filter(g => (g.repo || g.student) === repteRecord.repo), challengeMetadata, repteRecord.repte_id, teacherData?.extension_review);
+    if (extension) {
+      repteRecord.extension = extension;
+      repteRecord.auto_score = extension.base_score;
+      repteRecord.final_score = extension.final_score;
+      repteRecord.provisional = extension.provisional;
+      repteRecord.auto_score_mode = 'core_weighted_times_0.9_plus_validated_extension';
+    }
 
     if (teacherData) {
       repteRecord.teacher_score = teacherData.teacher_score;
@@ -282,7 +249,7 @@ async function main() {
   const inputPath = path.join(gradesDir, 'latest-grades.json');
   const latestGrades = await readJson(inputPath);
   const teacherGrades = args['teacher-input'] ? normalizeTeacherGrades(await readJson(path.resolve(args['teacher-input']))) : new Map();
-  const challengeMetadata = await readMicrorepteMetadata();
+  const challengeMetadata = await readChallengeMetadata(rootDir);
 
   const { raRecords, repteRecords } = aggregateRepteGrades(latestGrades, challengeMetadata, teacherGrades);
   const outputDir = args['output-dir'] ? path.resolve(args['output-dir']) : gradesDir;
@@ -302,6 +269,9 @@ async function main() {
     record_type: record.record_type,
     auto_score: formatNumber(record.auto_score),
     auto_score_mode: record.auto_score_mode,
+    final_score: formatNumber(record.final_score),
+    extension_status: record.extension?.status || '',
+    extension_validated: record.extension?.validated_score ?? '',
     teacher_score: formatNumber(record.teacher_score),
     teacher_comment: record.teacher_comment,
     teacher_review_required: record.teacher_review_required,
@@ -317,6 +287,9 @@ async function main() {
     'record_type',
     'auto_score',
     'auto_score_mode',
+    'final_score',
+    'extension_status',
+    'extension_validated',
     'teacher_score',
     'teacher_comment',
     'teacher_review_required',

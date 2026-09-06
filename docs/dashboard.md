@@ -118,3 +118,7 @@ La font docent principal continua sent `dwes-restructuracio-modul/docs/01_progra
 - Obrir ràpidament la pàgina d'Actions del workflow.
 
 El dashboard no substitueix el workflow. Només és una capa més còmoda damunt de GitHub Actions.
+
+## Ampliació global
+
+Consulta [càlcul i validació de l’ampliació](ampliacio-repte.md). Es gestiona només des de l’últim microrepte i suma una sola vegada al repte complet.

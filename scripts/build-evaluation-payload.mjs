@@ -139,6 +139,7 @@ async function main() {
     readJson(path.join(challengeDir, 'challenge.json')),
     readJson(path.join(challengeDir, 'rubric.json'))
   ]);
+  if (challenge.deprecated) throw new Error(`Autocorrecció retirada; usa ${challenge.replacement_challenge_id}`);
   const [repoSignals, evidenceSummary] = await Promise.all([
     readOptionalJson(rootDir, args['repo-signals']),
     readOptionalJson(rootDir, args['evidence-summary'])
@@ -162,6 +163,7 @@ async function main() {
       }
     ],
     context_ra: challenge.context_ra,
+    repte_extension: challenge.repte_extension || null,
     rubric_id: rubric.rubric_id,
     policies_version: policies.version,
     expected_signals: challenge.expected_signals,

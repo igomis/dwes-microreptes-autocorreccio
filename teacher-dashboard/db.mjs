@@ -7,8 +7,8 @@ const DB_PATH = path.join(__dirname, '..', 'grades', 'dashboard.db');
 
 let db = null;
 
-export function initDb() {
-  db = new Database(DB_PATH);
+export function initDb(dbPath = DB_PATH) {
+  db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
 
   // Taula d'alumnes/repositoris
@@ -65,6 +65,10 @@ export function initDb() {
   const gradeColumns = db.prepare('PRAGMA table_info(grades)').all().map((column) => column.name);
   if (!gradeColumns.includes('ra_scores')) {
     db.exec('ALTER TABLE grades ADD COLUMN ra_scores TEXT');
+  }
+
+  if (!gradeColumns.includes('repte_extension')) {
+    db.exec('ALTER TABLE grades ADD COLUMN repte_extension TEXT');
   }
 
   // Taula de criteris avaluació (per a desglossar la nota)
@@ -292,6 +296,7 @@ export function insertGrade(gradeData) {
     challenge_id,
     score,
     ra_scores,
+    repte_extension,
     confidence,
     feedback,
     teacher_review_required,
@@ -305,14 +310,14 @@ export function insertGrade(gradeData) {
 
   const stmt = db.prepare(`
     INSERT INTO grades (
-      student_id, challenge_id, score, ra_scores, confidence, feedback,
+      student_id, challenge_id, score, ra_scores, repte_extension, confidence, feedback,
       teacher_review_required, provisional, commit_hash, source,
       batch_id, timestamp, history_dir
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   return stmt.run(
-    student_id, challenge_id, score, JSON.stringify(Array.isArray(ra_scores) ? ra_scores : []), confidence, feedback,
+    student_id, challenge_id, score, JSON.stringify(Array.isArray(ra_scores) ? ra_scores : []), JSON.stringify(repte_extension || null), confidence, feedback,
     teacher_review_required ? 1 : 0, provisional ? 1 : 0, commit_hash, source,
     batch_id, timestamp, history_dir
   );
@@ -328,6 +333,7 @@ export function getLatestGrades(limit = 100, filters = {}) {
       c.challenge_id,
       g.score,
       g.ra_scores,
+      g.repte_extension,
       g.confidence,
       g.feedback,
       g.teacher_review_required,
@@ -400,6 +406,7 @@ export function getGradeById(gradeId) {
       c.challenge_id,
       g.score,
       g.ra_scores,
+      g.repte_extension,
       g.confidence,
       g.feedback,
       g.teacher_review_required,
@@ -486,14 +493,22 @@ export function migrateFromJson(jsonGrades) {
     // Insert grade
     db.prepare(`
       INSERT OR IGNORE INTO grades (
-        student_id, challenge_id, score, ra_scores, confidence, teacher_review_required,
+        student_id, challenge_id, score, ra_scores, repte_extension, confidence, teacher_review_required,
         provisional, commit_hash, source, batch_id, timestamp, history_dir
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(student_id, challenge_id, commit_hash) DO UPDATE SET
+        score = excluded.score, ra_scores = excluded.ra_scores,
+        repte_extension = excluded.repte_extension, confidence = excluded.confidence,
+        teacher_review_required = excluded.teacher_review_required, provisional = excluded.provisional,
+        source = excluded.source, batch_id = excluded.batch_id,
+        timestamp = excluded.timestamp, history_dir = excluded.history_dir
+      WHERE excluded.timestamp >= grades.timestamp
     `).run(
       studentId,
       challengeId,
       grade.score,
       JSON.stringify(Array.isArray(grade.ra_scores) ? grade.ra_scores : []),
+      JSON.stringify(grade.repte_extension || null),
       grade.confidence,
       grade.teacher_review_required ? 1 : 0,
       grade.provisional ? 1 : 0,

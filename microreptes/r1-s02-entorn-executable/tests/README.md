@@ -14,3 +14,5 @@ Estratègia de comprovació manual:
 - demanar a l'alumne què fa cada servei, quin fitxer respon a la petició i què ha adaptat respecte del model docent.
 
 Si l'entorn no arranca, comprova que hi ha log d'error, hipòtesi de causa, canvi intentat i pròxima acció. Si no hi ha landing inicial servida pel backend, la sessió no acredita el tancament de R1.
+
+Ampliació opcional del repte: declaració en `docs/r1-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R1M2; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

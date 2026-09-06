@@ -7,3 +7,5 @@
 5. Revisar decisions.
 6. Revisar backlog.
 7. Comprovar proposta de pas a R4.
+
+Ampliació opcional del repte: declaració en `docs/r3-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R3M7; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

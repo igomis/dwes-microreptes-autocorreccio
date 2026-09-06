@@ -51,5 +51,12 @@
   "context_ra": [
     "RA7.h"
   ],
-  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció.",
+  "repte_extension": {
+    "scope": "repte",
+    "max_score": 1,
+    "requires_teacher_validation": true,
+    "declaration_path": "docs/r5-ampliacio.md",
+    "criteria": " 9→10\n\n**Finalitat**  \nAprofundir en la integració híbrida i demostrar més control sobre fluxos, fonts externes, errors i traçabilitat tècnica.\n\n**Condició prèvia**  \nEl nucli del repte ha d'estar complet, funcional i validat.\n\n**Opcions d'ampliació**\n\n- Fer més robust el mapa d'integració: font, contracte, mapping, resultat i errors.\n- Afegir reintents, cache, fallback, observabilitat bàsica o comparació entre dues estratègies d'integració.\n- Automatitzar una part del flux si aporta valor real i continua sent defensable.\n\n**Proposta pròpia**  \nTambé es pot proposar una ampliació pròpia si té valor tècnic real sobre la integració i es valida prèviament.\n\n**Evidències mínimes**\n\n- commit o branca identificable;\n- esquema o nota breu del flux híbrid;\n- demo funcional de la integració;\n- rastre de l'ús assistit per IA, si l'has usat.\n\n**Ús assistit per IA**  \nLa IA pot servir per contrastar estratègies, revisar transformacions o suggerir millores, però no substituïx la teua comprensió del flux ni la teua validació.\n\n**Defensa**  \nL'ampliació només compta si pots explicar què s'integra, com circula la informació i per què la solució està ben resolta.\n\n"
+  }
 }

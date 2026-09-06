@@ -46,7 +46,12 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "score", "max_score", "reason"],
+        "required": [
+          "id",
+          "score",
+          "max_score",
+          "reason"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -71,7 +76,12 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["ra_id", "score", "assessed_ca", "reason"],
+        "required": [
+          "ra_id",
+          "score",
+          "assessed_ca",
+          "reason"
+        ],
         "properties": {
           "ra_id": {
             "type": "string"
@@ -121,6 +131,47 @@
     },
     "short_feedback_md": {
       "type": "string"
+    },
+    "repte_extension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposed_score",
+        "core_ready",
+        "reason",
+        "evidence",
+        "presentation_checks"
+      ],
+      "properties": {
+        "proposed_score": {
+          "type": "number",
+          "enum": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "core_ready": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "presentation_checks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }
