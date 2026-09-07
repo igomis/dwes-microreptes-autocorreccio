@@ -149,7 +149,7 @@ Els microreptes no tenen recuperació individual. La recuperació del repte comp
 
 En Programació, selecciona una sessió amb microrepte propi. El bloc «Consolidació» permet editar la fitxa en Markdown, guardar un esborrany i publicar-lo per a tot l’alumnat. No hi ha selecció de grup per a esta publicació.
 
-La fitxa model R2M1 està preparada en `consolidation-drafts/r2m1.md`, fora de la web d’alumnat. La resta comencen amb l’editor buit. Els esborranys editats es guarden en `tmp/consolidacio/` del servidor, sobreviuen als reinicis i tenen preferència sobre el model versionat: inclou esta carpeta en les còpies de seguretat i no l’esborres en neteges de temporals. Guardar no publica. Els models versionats poden ser consultables en el repositori docent si és públic; no són un sistema de control d’accés.
+Les 28 fitxes de R1M1–R5M5 estan preparades en `consolidation-drafts/`, fora de la web d’alumnat. Cada sessió amb microrepte propi carrega el seu model. Els esborranys editats es guarden en `tmp/consolidacio/` del servidor, sobreviuen als reinicis i tenen preferència sobre el model versionat: inclou esta carpeta en les còpies de seguretat i no l’esborres en neteges de temporals. Guardar no publica. Els models versionats poden ser consultables en el repositori docent si és públic; no són un sistema de control d’accés.
 
 «Publicar» guarda el text de l’editor i crea un únic commit en `cipfpbatoi/dwes2627`, branca `master`, amb la pàgina i el seu enllaç en l’índex de consolidació. El menú d’alumnat enllaça eixe índex; només hi apareixen fitxes publicades. No cal clonar la documentació en el servidor del dashboard. Publicar una altra vegada actualitza la mateixa fitxa; si no hi ha canvis, no crea un commit buit.
 
