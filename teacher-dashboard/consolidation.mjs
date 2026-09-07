@@ -45,17 +45,24 @@ export async function recordConsolidationPublication(root, code, publication) {
 
 // One commit updates both the sheet and its index. A concurrent remote edit
 // rejects the non-fast-forward update; it never gets overwritten.
-export async function publishConsolidation({ code, markdown, token, request = fetch }) {
-  const content = validate(code, markdown);
+export async function publishConsolidation(options) {
+  return changeConsolidation(options, false);
+}
+export async function withdrawConsolidation(options) {
+  return changeConsolidation(options, true);
+}
+async function changeConsolidation({ code, markdown, token, request = fetch }, withdraw) {
+  const content = validate(code, withdraw ? 'valid' : markdown);
   if (!token) throw new Error('Cal GITHUB_TOKEN amb permís Contents: write en cipfpbatoi/dwes2627.');
   const repo = 'cipfpbatoi/dwes2627';
-  const api = async (route, method = 'GET', body) => {
+  const api = async (route, method = 'GET', body, allowMissing = false) => {
     const result = await request(`https://api.github.com/repos/${repo}/${route}`, {
       method, headers: { accept: 'application/vnd.github+json', authorization: `Bearer ${token}`,
         'content-type': 'application/json', 'x-github-api-version': '2022-11-28' },
       ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(30000)
     });
-    if (!result.ok) throw new Error(`No s’ha pogut publicar (GitHub ${result.status}). Comprova permisos i torna a provar si la branca ha canviat.`);
+    if (allowMissing && result.status === 404) return null;
+    if (!result.ok) throw new Error(`No s’ha pogut actualitzar la publicació (GitHub ${result.status}). Comprova permisos i torna a provar si la branca ha canviat.`);
     return result.json();
   };
   const ref = await api('git/ref/heads/master');
@@ -64,16 +71,26 @@ export async function publishConsolidation({ code, markdown, token, request = fe
   const indexFile = await api(`contents/${folder}/index.md?ref=${head}`);
   const originalIndex = Buffer.from(indexFile.content, 'base64').toString('utf8');
   const link = `- [${code.toUpperCase()}. Consolidació](${code}.md)`;
-  const index = originalIndex.includes(`](${code}.md)`) ? originalIndex : originalIndex.trimEnd() + '\n\n' + link + '\n';
-  const tree = await api('git/trees', 'POST', { base_tree: commit.tree.sha, tree: [
-    { path: `${folder}/${code}.md`, mode: '100644', type: 'blob', content },
-    { path: `${folder}/index.md`, mode: '100644', type: 'blob', content: index }
-  ] });
+  let entries;
+  if (withdraw) {
+    const sheet = await api(`contents/${folder}/${code}.md?ref=${head}`, 'GET', undefined, true);
+    const index = originalIndex.split('\n').filter(line => !line.includes(`](${code}.md)`)).join('\n');
+    entries = [{ path: `${folder}/index.md`, mode: '100644', type: 'blob', content: index }];
+    if (sheet) entries.push({ path: `${folder}/${code}.md`, mode: '100644', type: 'blob', sha: null });
+  } else {
+    const index = originalIndex.includes(`](${code}.md)`) ? originalIndex : originalIndex.trimEnd() + '\n\n' + link + '\n';
+    entries = [
+      { path: `${folder}/${code}.md`, mode: '100644', type: 'blob', content },
+      { path: `${folder}/index.md`, mode: '100644', type: 'blob', content: index }
+    ];
+  }
+  const tree = await api('git/trees', 'POST', { base_tree: commit.tree.sha, tree: entries });
+  const links = withdraw ? { withdrawn: true, actions_url: publicationLinks(repo, code).actions_url } : publicationLinks(repo, code);
   // GitHub returns the existing tree for identical files; avoid empty commits.
-  if (tree.sha === commit.tree.sha) return { unchanged: true, commit: head, ...publicationLinks(repo, code) };
-  const next = await api('git/commits', 'POST', { message: `docs: publica consolidació de ${code.toUpperCase()}`, tree: tree.sha, parents: [head] });
+  if (tree.sha === commit.tree.sha) return { unchanged: true, commit: head, ...links };
+  const next = await api('git/commits', 'POST', { message: `docs: ${withdraw ? 'retira' : 'publica'} consolidació de ${code.toUpperCase()}`, tree: tree.sha, parents: [head] });
   await api('git/refs/heads/master', 'PATCH', { sha: next.sha, force: false });
-  return { unchanged: false, commit: next.sha, ...publicationLinks(repo, code) };
+  return { unchanged: false, commit: next.sha, ...links };
 }
 function publicationLinks(repo, code) {
   return { url: `https://cipfpbatoi.github.io/dwes2627/04_materials/consolidacio/${code}.html`,

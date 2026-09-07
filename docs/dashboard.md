@@ -156,3 +156,11 @@ Les 28 fitxes de R1M1–R5M5 estan preparades en `consolidation-drafts/`, fora d
 Cal que `GITHUB_TOKEN` tinga accés a eixe repositori amb **Contents: write**. Es respecten les proteccions de branca; no es força l’actualització si hi ha canvis concurrents. La publicació usa l’API Git de GitHub i conserva la resta de l’arbre del repositori. El workflow existent reconstrueix la web després del commit. El missatge diferencia enviament a GitHub de construcció acabada, amb enllaços a la fitxa i a Actions. Si falla, l’esborrany es conserva i es pot tornar a provar.
 
 La publicació no envia missatges a l’alumnat, no llança autocorreccions i no modifica qualificacions. Els microreptes continuen sent treball d’aula sense recuperació individual.
+
+## Retirar una fitxa de la web
+
+En el bloc de consolidació de la sessió, «Retirar de la web» demana confirmació i elimina la pàgina publicada i el seu enllaç de l’índex en un únic commit. Conserva el model i l’esborrany local; es pot tornar a publicar amb el botó habitual. No cal que l’editor tinga text per retirar una fitxa.
+
+La retirada serà visible quan acabe la construcció de la web; el dashboard enllaça Actions per comprovar-la. L’historial Git conserva les versions anteriors i no es poden retirar còpies que algú ja haja descarregat. Si fallen els permisos o la branca canvia, no es dona la retirada per completada ni es força el push.
+
+Els noms de repositori en Alumnes i les taules de qualificacions són enllaços a GitHub. Permeten obrir el codi i copiar la URL per clonar; no equivalen a una web PHP desplegada.

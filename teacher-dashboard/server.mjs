@@ -1,4 +1,4 @@
-import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, recordConsolidationPublication } from './consolidation.mjs';
+import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, withdrawConsolidation, recordConsolidationPublication } from './consolidation.mjs';
 import { calculateRepteExtension, makeExtensionReview, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
@@ -2279,6 +2279,12 @@ function pageHtml() {
       return html + escapeHtml(value.slice(cursor));
     }
 
+    function repositoryLink(repo) {
+      const value = String(repo || '');
+      if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(value)) return '<code>' + escapeHtml(value) + '</code>';
+      return '<a href="https://github.com/' + value + '" target="_blank" rel="noopener noreferrer"><code>' + escapeHtml(value) + '</code></a>';
+    }
+
     function renderInlineMarkdown(value, baseUrl) {
       const source = String(value || '');
       const segments = [];
@@ -2614,10 +2620,10 @@ function pageHtml() {
         panel.innerHTML = '<h4>Consolidació de ' + escapeHtml(data.code.toUpperCase()) + '</h4>' +
           '<p>Material posterior a classe, comú per a tot l’alumnat. Guardar conserva l’esborrany; publicar el fa accessible en la web.</p>' +
           '<textarea id="consolidationEditor" aria-label="Fitxa de consolidació en Markdown" placeholder="Escriu la fitxa: aprenentatges, exemple explicat, errors, pràctica, comprovació i connexió següent.">' + escapeHtml(data.markdown) + '</textarea>' +
-          '<div class="actions"><button type="button" data-consolidation-action="save">Guardar esborrany</button><button type="button" data-consolidation-action="publish">Publicar fitxa per a tot l’alumnat</button></div>' +
+          '<div class="actions"><button type="button" data-consolidation-action="save">Guardar esborrany</button><button type="button" data-consolidation-action="publish">Publicar fitxa per a tot l’alumnat</button><button type="button" data-consolidation-action="withdraw">Retirar de la web</button></div>' +
           '<p data-consolidation-status class="status">' + (data.has_draft ? 'Esborrany carregat.' : 'Encara no hi ha cap fitxa preparada.') + '</p>';
-        if (data.publication) {
-          const previous = document.createElement('p'); previous.textContent = 'Darrera publicació des d’este dashboard: ';
+        if (data.publication && !data.publication.withdrawn) {
+          const previous = document.createElement('p'); previous.dataset.publicationLink = ''; previous.textContent = 'Darrera publicació des d’este dashboard: ';
           const link = document.createElement('a'); link.href = data.publication.url; link.textContent = 'Obrir fitxa'; link.target = '_blank'; link.rel = 'noopener noreferrer'; previous.append(link); panel.append(previous);
         }
         panel.querySelectorAll('[data-consolidation-action]').forEach(button => button.addEventListener('click', async () => {
@@ -2625,21 +2631,24 @@ function pageHtml() {
           const buttons = panel.querySelectorAll('button');
           const editor = panel.querySelector('textarea');
           const markdown = editor.value;
-          if (!markdown.trim()) { status.textContent = 'Escriu la fitxa abans de guardar o publicar.'; return; }
+          const withdrawing = button.dataset.consolidationAction === 'withdraw';
+          if (withdrawing && !confirm('Retirar la fitxa de la web de tot l’alumnat? L’esborrany es conserva.')) return;
+          if (!withdrawing && !markdown.trim()) { status.textContent = 'Escriu la fitxa abans de guardar o publicar.'; return; }
           buttons.forEach(item => item.disabled = true);
           editor.disabled = true;
-          status.textContent = button.dataset.consolidationAction === 'publish' ? 'Publicant...' : 'Guardant...';
+          status.textContent = withdrawing ? 'Retirant...' : button.dataset.consolidationAction === 'publish' ? 'Publicant...' : 'Guardant...';
           try {
             const result = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId) + '/consolidacio', {
-              method: button.dataset.consolidationAction === 'publish' ? 'POST' : 'PUT',
+              method: withdrawing ? 'DELETE' : button.dataset.consolidationAction === 'publish' ? 'POST' : 'PUT',
               headers: {'content-type': 'application/json'}, body: JSON.stringify({markdown})
             });
             const payload = await result.json();
             if (!result.ok) throw new Error(payload.error || 'No s’ha pogut completar l’acció.');
-            status.textContent = payload.url ? (payload.unchanged ? 'La mateixa versió ja està en GitHub. ' : 'Enviada a GitHub. La web s’actualitzarà quan acabe la construcció. ') : 'Esborrany guardat.';
-            if (payload.url) {
+            if (payload.withdrawn) panel.querySelector('[data-publication-link]')?.remove();
+            status.textContent = payload.withdrawn ? (payload.unchanged ? 'La fitxa ja estava retirada. L’esborrany es conserva. ' : 'Retirada enviada a GitHub. Desapareixerà de la web quan acabe la construcció. L’esborrany es conserva. ') : payload.url ? (payload.unchanged ? 'La mateixa versió ja està en GitHub. ' : 'Enviada a GitHub. La web s’actualitzarà quan acabe la construcció. ') : 'Esborrany guardat.';
+            if (payload.url || payload.withdrawn) {
               if (payload.warning) status.append(document.createTextNode(payload.warning + ' '));
-              const link = document.createElement('a'); link.href = payload.url; link.textContent = 'Obrir fitxa'; link.target = '_blank'; link.rel = 'noopener noreferrer'; status.append(link);
+              if (payload.url) { const link = document.createElement('a'); link.href = payload.url; link.textContent = 'Obrir fitxa'; link.target = '_blank'; link.rel = 'noopener noreferrer'; status.append(link); }
               const actions = document.createElement('a'); actions.href = payload.actions_url; actions.textContent = ' · Comprovar publicació'; actions.target = '_blank'; actions.rel = 'noopener noreferrer'; status.append(actions);
             }
           } catch (error) { status.textContent = error.message; }
@@ -2949,7 +2958,7 @@ function pageHtml() {
 
       document.querySelector('#resultViewer').innerHTML =
         '<div class="result-header">' +
-          '<div class="metric"><span>Repositori</span><strong><code>' + escapeHtml(grade.repo) + '</code></strong><p class="status">' + escapeHtml(grade.challenge_id) + '</p></div>' +
+          '<div class="metric"><span>Repositori</span><strong>' + repositoryLink(grade.repo) + '</strong><p class="status">' + escapeHtml(grade.challenge_id) + '</p></div>' +
           '<div class="metric"><span>Nota</span><strong class="' + getScoreClass(Number(score) || 0) + '">' + escapeHtml(score) + '/10</strong></div>' +
           '<div class="metric"><span>Confiança</span><strong>' + Math.round((Number(confidence) || 0) * 100) + '%</strong></div>' +
           '<div class="metric"><span>Revisió</span><strong class="' + (reviewRequired ? 'error' : 'ok') + '">' + (reviewRequired ? 'Sí' : 'No') + '</strong></div>' +
@@ -3056,7 +3065,7 @@ function pageHtml() {
         const rows = students.map((student) => (
           '<tr>' +
             '<td>' + escapeHtml(student.student_name || '') + '</td>' +
-            '<td><code>' + escapeHtml(student.repo || '') + '</code></td>' +
+            '<td>' + repositoryLink(student.repo || '') + '</td>' +
             '<td>' + escapeHtml(student.group_name || '') + '</td>' +
             '<td>' + escapeHtml(student.grade_count ?? 0) + '</td>' +
             '<td><div class="compact-actions">' +
@@ -3334,7 +3343,7 @@ function pageHtml() {
         const group = item.group || (target === 'all' ? '' : target);
         const challengeId = challengeFor(item.repo, group);
         return '<tr>' +
-          '<td><code>' + escapeHtml(item.repo) + '</code></td>' +
+          '<td>' + repositoryLink(item.repo) + '</td>' +
           '<td>' + escapeHtml(group || 'n/d') + '</td>' +
           '<td><code>' + escapeHtml(branch) + '</code></td>' +
           '<td>' + microrepteLabel(challengeId) + '</td>' +
@@ -3403,7 +3412,7 @@ function pageHtml() {
           const reviewClass = grade.teacher_review_required ? 'review-required' : '';
           return '<tr class="' + reviewClass + '">' +
             '<td>' + formatTimestamp(grade.timestamp) + '</td>' +
-            '<td><code>' + escapeHtml(grade.repo || '') + '</code></td>' +
+            '<td>' + repositoryLink(grade.repo || '') + '</td>' +
             '<td>' + escapeHtml(grade.group_name || '') + '</td>' +
             '<td><code>' + escapeHtml(grade.challenge_id || '') + '</code></td>' +
             '<td class="' + scoreClass + '">' + escapeHtml(grade.score ?? '-') + '</td>' +
@@ -3506,7 +3515,7 @@ function pageHtml() {
         )).join(', ');
 
         return '<tr>' +
-          '<td><code>' + escapeHtml(item.repo || '') + '</code></td>' +
+          '<td>' + repositoryLink(item.repo || '') + '</td>' +
           '<td>' + escapeHtml(item.group_name || '') + '</td>' +
           '<td><code>' + escapeHtml(item.repte_id || '') + '</code></td>' +
           '<td><code>' + escapeHtml(item.primary_ra || '') + '</code></td>' +
@@ -3553,7 +3562,7 @@ function pageHtml() {
           : '';
 
         return '<tr>' +
-          '<td><code>' + escapeHtml(item.repo || '') + '</code></td>' +
+          '<td>' + repositoryLink(item.repo || '') + '</td>' +
           '<td>' + escapeHtml(item.group_name || '') + '</td>' +
           '<td><code>' + escapeHtml(item.repte_id || '') + '</code></td>' +
           '<td>' + escapeHtml(raText || 'Sense notes RA') + '</td>' +
@@ -3863,7 +3872,7 @@ async function handleRequest(request, response) {
     }
 
     const consolidationMatch = url.pathname.match(/^\/api\/programacio-aula\/([^/]+)\/consolidacio$/);
-    if (consolidationMatch && ['GET', 'PUT', 'POST'].includes(request.method)) {
+    if (consolidationMatch && ['GET', 'PUT', 'POST', 'DELETE'].includes(request.method)) {
       const session = await readClassroomSession(decodeURIComponent(consolidationMatch[1]));
       if (!session) { sendJson(response, 404, { error: 'Sessió no trobada.' }); return; }
       const code = consolidationCode(session);
@@ -3871,6 +3880,13 @@ async function handleRequest(request, response) {
         sendJson(response, request.method === 'GET' ? 200 : 400, { code: null, error: 'Esta sessió no té microrepte propi.' }); return;
       }
       if (request.method === 'GET') { sendJson(response, 200, await readConsolidation(rootDir, code)); return; }
+      if (request.method === 'DELETE') {
+        const withdrawn = await withdrawConsolidation({ code, token: process.env.GITHUB_TOKEN });
+        try { await recordConsolidationPublication(rootDir, code, withdrawn); }
+        catch { withdrawn.warning = 'Retirada enviada, però no s’ha pogut actualitzar el registre local.'; }
+        sendJson(response, 200, withdrawn);
+        return;
+      }
       const body = await readRequestJson(request);
       const draft = await saveConsolidation(rootDir, code, body.markdown);
       if (request.method === 'PUT') { sendJson(response, 200, draft); return; }

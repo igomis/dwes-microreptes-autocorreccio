@@ -62,6 +62,13 @@ test('dashboard: només l’últim microrepte valida; proposta → nota global s
  assert.equal((await fetch(base+'/api/programacio-aula/NO/consolidacio')).status,404);
  assert.equal((await (await fetch(base+'/api/programacio-aula/R2S0/consolidacio')).json()).code,null);
  assert.ok(html.includes('Publicar fitxa per a tot l’alumnat'));
+ assert.ok(html.includes('Retirar de la web'));
+ const linkRenderer=new Function('escapeHtml',script.slice(script.indexOf('    function repositoryLink('),script.indexOf('    function renderInlineMarkdown('))+'; return repositoryLink;')(value=>String(value).replaceAll('<','&lt;'));
+ assert.ok(linkRenderer('test/alumne').includes('href="https://github.com/test/alumne"'));
+ assert.ok(!linkRenderer('javascript:alert(1)').includes('<a '));
+ const removal=await fetch(consolidationUrl,{method:'DELETE'});
+ assert.notEqual(removal.status,200);
+ assert.equal((await (await fetch(consolidationUrl)).json()).markdown,'# Fitxa de prova\n');
  const noteUrl = base + '/api/programacio-aula/R1S1/notes';
  const saveNote = body => fetch(noteUrl, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
  for (const group_name of [undefined, '', 'all', 'desconegut']) {
