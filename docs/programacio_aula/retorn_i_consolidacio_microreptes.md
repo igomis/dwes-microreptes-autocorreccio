@@ -57,7 +57,7 @@ Les sessions sense microrepte propi mantenen eixa condició. En el tram inicial 
 
 En el comentari docent de sessió, indicar grup, errors comuns, ajust del ritme i ajuda prevista. El detall individual es conserva en el registre docent. No es crea un formulari ni un estat automàtic nou.
 
-L’alumnat conserva les correccions de codi per continuar aprenent, amb traça de la seua procedència i de l’ús real d’IA si n’hi ha. Les branques i etiquetes del microrepte preserven el treball d’aula original. Una recuperació del repte complet ha de quedar identificada com a tal i acordada amb el professorat, sense sobreescriure versions anteriors ni restaurar tot `main` a un punt antic.
+L’alumnat conserva les correccions de codi per continuar aprenent, amb traça de la seua procedència i de l’ús real d’IA si n’hi ha. Les branques dels microreptes preserven el treball d’aula original. Una recuperació del repte complet ha de quedar identificada com a tal i acordada amb el professorat, sense sobreescriure versions anteriors ni restaurar tot `main` a un punt antic.
 
 L’autocorrecció ordinària continua llegint `main` i el microrepte seleccionat pel professorat. La consolidació diària no llança recorreccions ni modifica notes. La recuperació del repte requereix valoració docent global.
 
