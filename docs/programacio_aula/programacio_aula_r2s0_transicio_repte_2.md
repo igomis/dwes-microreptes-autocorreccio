@@ -40,7 +40,7 @@ $nom = 'Aina';
 ```php
 <?php
 $edat = 18;
-$missatge = $edat >= 18 ? 'Pot continuar' : 'Cal revisar l'edat';
+$missatge = $edat >= 18 ? 'Pot continuar' : "Cal revisar l’edat";
 ?>
 <p><?= htmlspecialchars($missatge) ?></p>
 ```
@@ -58,51 +58,74 @@ $opcions = ['alta', 'consulta', 'modificacio'];
 
 Punt docent important: `htmlspecialchars` s'introdueix com a hàbit de seguretat i higiene en eixida, sense convertir encara la sessió en una classe completa de seguretat.
 
-## Seqüència d'aula de 3 hores
+## Seqüenciació de la sessió: 3 hores
 
-### 0:00-0:20. Revisió del punt de partida
+| Temps | Activitat |
+|---|---|
+| 0:00–0:15 | Comprovar l’entorn i modelar PHP → HTML, sintaxi mínima i execució. |
+| 0:15–1:00 | Exercicis 1–3: execució, fitxa i càlcul; l’alumnat escriu i prova variacions. |
+| 1:00–1:45 | Exercicis 4–5: condicions, estils, arrays i bucles. |
+| 1:45–1:55 | Pausa i resolució de dubtes comuns. |
+| 1:55–2:10 | Exercici 6: depuració guiada d’errors de sintaxi i lògica. |
+| 2:10–2:35 | Exercici 7: pàgina dinàmica aplicada al projecte. |
+| 2:35–2:50 | Demostracions breus: canviar dades, explicar el resultat i compartir errors. |
+| 2:50–3:00 | Situar el mapa de R2 i triar la dada que entrarà per formulari en R2S1. |
 
-Cada equip comprova que el projecte de `R1` arranca i que el README permet reproduir-lo.
+## Tasques concretes de l’alumnat
 
-### 0:20-1:15. Introducció pràctica a PHP dins d'HTML
-
-El professorat mostra com el servidor executa `PHP` i retorna `HTML`. Es modelen exemples molt curts: variable, condició, llista i missatge generat.
-
-### 1:15-1:45. Barreja controlada de codi HTML i PHP
-
-Es treballen bones pràctiques mínimes: separar càlcul inicial de presentació, evitar blocs llargs dins de l'HTML i escapar eixides amb `htmlspecialchars`.
-
-### 1:45-2:10. Modelatge del flux de dades
-
-El professorat mostra un recorregut senzill de formulari a servidor i resposta.
-
-### 2:10-2:35. Elecció del primer flux del producte
-
-L'alumnat decideix quin cas d'ús real convertirà en formulari o entrada de dades.
-
-### 2:35-2:50. Mapa de `R2`
-
-Cada equip dibuixa com creixerà el flux: validació, reintent, estat i operació protegida.
-
-### 2:50-3:00. Checkpoint de pas
-
-Validació docent de l'abast abans d'entrar en `R2S1`.
+Seguir la [bateria de 7 exercicis de PHP i HTML](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/practica_php_html/), amb resultats esperats i variacions. Conservar els fitxers de pràctica i notes dels errors per a revisió formativa a classe. Esta sessió introductòria no genera lliurament, nota ni autocorrecció pròpia.
 
 ## Evidències mínimes
 
 | Evidència | Mínim acceptable |
 |---|---|
 | Base `R1` | arranca i està documentada |
-| Exemple `PHP` | l'alumnat ha executat o entés un exemple curt amb eixida `HTML` |
+| Exemple `PHP` | l’alumnat ha escrit, executat i modificat codi amb eixida `HTML` |
 | Primer flux | cas d'ús real identificat |
-| Mapa de `R2` | inclou entrada, validació, estat i protecció |
+| Comprensió | distingix PHP del servidor i HTML del navegador; explica un error corregit |
 | Riscos | punts de bloqueig anotats |
 
 ## Checklist de tancament
 
 - [ ] Projecte de `R1` verificat.
 - [ ] Sintaxi mínima de `PHP` situada.
-- [ ] Barreja `HTML/PHP` mostrada amb exemples simples.
+- [ ] Barreja `HTML/PHP` practicada per l’alumnat amb variables, condicions i bucles.
 - [ ] Primer flux funcional triat.
-- [ ] Mapa de `R2` preparat.
+- [ ] Pàgina de pràctica provada amb dos casos i un error explicat.
 - [ ] Preparat per a `R2S1`.
+
+## Relació amb RA, CA i criteris de treball
+
+Prepara els criteris de RA2 relatius a codi embegut, sintaxi, variables, operadors i sentències, que es treballaran en el flux de R2. Es fa observació formativa, sense afegir pesos ni criteris d’autocorrecció als microreptes existents.
+
+## Producte esperat
+
+Fitxers curts de pràctica i una pàgina del domini amb dades fictícies, càlcul, condició i llista. L’alumnat pot executar-la i explicar dos resultats diferents.
+
+## Preparació prèvia del professorat
+
+Comprovar que l’entorn PHP de classe funciona, obrir la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple per a qui necessite suport.
+
+## Criteris d’èxit
+
+L’alumnat escriu i modifica codi, comprova resultats, diferencia codi servidor i resposta HTML, i explica almenys un error corregit. Usar `htmlspecialchars` per a text variable i separar càlcul de presentació són hàbits inicials.
+
+## Què no és suficient
+
+Mirar una demostració, copiar una solució sense executar-la o mostrar una captura sense poder canviar les dades i explicar el resultat.
+
+## Ús de la IA
+
+Demanar pistes concretes, provar els suggeriments i anotar les consultes reals i la verificació en les notes o el registre habitual `ai.log`. No exigir ni inventar ús d’IA.
+
+## Suport per a l’alumnat amb dificultats
+
+Començar pel fitxer executable de l’exercici 1, introduir un canvi cada vegada i revisar errors al terminal. En parella, alternar escriptura i explicació; prioritzar comprensió i execució abans de la velocitat.
+
+## Ampliació per a l’alumnat més avançat
+
+Recompte d’elements disponibles o extracció d’un càlcul a una funció. És pràctica opcional, sense punts d’ampliació del repte. No s’avancen autenticació, persistència ni frameworks.
+
+## Connexió amb el microrepte posterior
+
+En R2S1/R2M1, algunes dades ara escrites al codi arribaran d’un formulari i necessitaran validació. La pràctica de R2S0 prepara eixe pas i no substituïx el flux real que demana R2M1.
