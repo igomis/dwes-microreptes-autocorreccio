@@ -128,3 +128,7 @@ Consulta [càlcul i validació de l’ampliació](ampliacio-repte.md). Es gestio
 En Programació d’aula, cada comentari nou indica el grup (2DAW-A, 2DAW-B, 2DAW-C o 2DAW-D), la data i el text. El grup és obligatori i es mostra al costat de la data en l’historial. Això permet distingir com ha anat la mateixa sessió amb grups diferents.
 
 En reiniciar el dashboard, la base de dades incorpora automàticament el camp `group_name`. Els comentaris anteriors es conserven i apareixen com a «Grup no indicat (comentari anterior)»; no se’ls assigna un grup per defecte.
+
+## Enllaços de la programació d’aula
+
+La sessió seleccionada inclou un enllaç directe a la seua pàgina en la documentació publicada del professorat. Els enllaços Markdown de la vista docent són clicables i s’obrin en una pestanya nova. Els camins relatius es resolen respecte del document original del professorat i els fitxers `.md` es convertixen en les pàgines del lloc web, conservant els fragments. La documentació publicada reflectix l’última publicació del lloc; guardar el Markdown al dashboard no publica eixe lloc automàticament.

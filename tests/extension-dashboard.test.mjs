@@ -38,6 +38,19 @@ test('dashboard: només l’últim microrepte valida; proposta → nota global s
  const html=await (await fetch(base)).text();
  for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(()=>new Function(match[1]));
  assert.ok(html.includes('data-extension-score'));
+ const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0][1];
+ const renderer = new Function('window', 'escapeHtml', script.slice(script.indexOf('    function renderMarkdownLinks('), script.indexOf('    function compareMicrorepteOrder(')) + '; return renderMarkdown;')(
+  {location:{href:base}}, value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;')
+ );
+ const source = 'https://igomis.github.io/reestructuracioModul/01_programacio_modul/session.md';
+ const rendered = renderer('[Rúbrica](../03_avaluacio/rubrica.md#criteris) i [PDF](https://example.org/material.pdf) i [Apartat](#final)', source);
+ assert.ok(rendered.includes('href="https://igomis.github.io/reestructuracioModul/03_avaluacio/rubrica/#criteris"'));
+ assert.ok(rendered.includes('href="https://example.org/material.pdf"'));
+ assert.ok(rendered.includes('href="https://igomis.github.io/reestructuracioModul/01_programacio_modul/session/#final"'));
+ assert.ok(!renderer('[Maliciós](javascript:alert) [Dades](data:text/html,test)', source).includes('<a '));
+ assert.ok(!renderer('`[Codi](https://example.org)`', source).includes('<a '));
+ assert.ok(html.includes('Obrir la sessió en la documentació del professorat'));
+
  const noteUrl = base + '/api/programacio-aula/R1S1/notes';
  const saveNote = body => fetch(noteUrl, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
  for (const group_name of [undefined, '', 'all', 'desconegut']) {

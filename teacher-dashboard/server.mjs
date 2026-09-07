@@ -437,6 +437,8 @@ async function readClassroomProgramming() {
       microrepte: extractInlineField(markdown, 'Microrepte'),
       duration: extractSessionDuration(markdown),
       focus: extractInlineField(markdown, 'Focus'),
+      documentation_url: 'https://igomis.github.io/reestructuracioModul/01_programacio_modul/' + fileName.replace(/\.md$/, '/'),
+      markdown_url: 'https://igomis.github.io/reestructuracioModul/01_programacio_modul/' + fileName,
       file: path.relative(rootDir, absolutePath),
       source: classroomProgrammingDir === localClassroomProgrammingDir ? 'snapshot' : 'external',
       markdown
@@ -2254,7 +2256,29 @@ function pageHtml() {
       )).join('');
     }
 
-    function renderInlineMarkdown(value) {
+    function renderMarkdownLinks(value, baseUrl) {
+      const pattern = /\\[([^\\]]+)\\]\\(([^\\s)]+)\\)/g;
+      let html = '';
+      let cursor = 0;
+      for (const match of value.matchAll(pattern)) {
+        html += escapeHtml(value.slice(cursor, match.index));
+        let url;
+        try {
+          url = new URL(match[2], baseUrl || window.location.href);
+          if (!['https:', 'http:', 'mailto:'].includes(url.protocol)) url = null;
+          if (url && baseUrl && url.origin === new URL(baseUrl).origin) {
+            url.pathname = url.pathname.replace(/\\.md$/, '/');
+          }
+        } catch { url = null; }
+        html += url
+          ? '<a href="' + escapeHtml(url.href) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(match[1]) + '</a>'
+          : escapeHtml(match[0]);
+        cursor = match.index + match[0].length;
+      }
+      return html + escapeHtml(value.slice(cursor));
+    }
+
+    function renderInlineMarkdown(value, baseUrl) {
       const source = String(value || '');
       const segments = [];
       const tick = String.fromCharCode(96);
@@ -2262,7 +2286,7 @@ function pageHtml() {
       let cursor = 0;
 
       for (const match of source.matchAll(pattern)) {
-        segments.push(escapeHtml(source.slice(cursor, match.index)));
+        segments.push(renderMarkdownLinks(source.slice(cursor, match.index), baseUrl));
         const token = match[0];
         if (token.startsWith('**')) {
           segments.push('<strong>' + escapeHtml(token.slice(2, -2)) + '</strong>');
@@ -2272,11 +2296,11 @@ function pageHtml() {
         cursor = match.index + token.length;
       }
 
-      segments.push(escapeHtml(source.slice(cursor)));
+      segments.push(renderMarkdownLinks(source.slice(cursor), baseUrl));
       return segments.join('');
     }
 
-    function renderMarkdown(markdown) {
+    function renderMarkdown(markdown, baseUrl) {
       const lines = String(markdown || '').split('\\n');
       const html = [];
       let listOpen = false;
@@ -2294,7 +2318,7 @@ function pageHtml() {
         const renderedRows = rows.map((line, index) => {
           const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
           const tag = index === 0 ? 'th' : 'td';
-          return '<tr>' + cells.map((cell) => '<' + tag + '>' + renderInlineMarkdown(cell) + '</' + tag + '>').join('') + '</tr>';
+          return '<tr>' + cells.map((cell) => '<' + tag + '>' + renderInlineMarkdown(cell, baseUrl) + '</' + tag + '>').join('') + '</tr>';
         });
         html.push('<table>' + renderedRows.join('') + '</table>');
         tableLines = [];
@@ -2326,11 +2350,11 @@ function pageHtml() {
             html.push('<ul>');
             listOpen = true;
           }
-          html.push('<li>' + renderInlineMarkdown(bullet[1]) + '</li>');
+          html.push('<li>' + renderInlineMarkdown(bullet[1], baseUrl) + '</li>');
           continue;
         }
         closeList();
-        html.push('<p>' + renderInlineMarkdown(trimmed) + '</p>');
+        html.push('<p>' + renderInlineMarkdown(trimmed, baseUrl) + '</p>');
       }
       closeList();
       flushTable();
@@ -2552,8 +2576,9 @@ function pageHtml() {
 
       target.innerHTML =
         '<div class="toolbar"><h3>' + escapeHtml(session.title) + '</h3><span class="file-note">' + escapeHtml(session.file) + '</span></div>' +
+        '<p><a href="' + escapeHtml(session.documentation_url) + '" target="_blank" rel="noopener noreferrer">Obrir la sessió en la documentació del professorat</a></p>' +
         '<div class="feedback-grid">' +
-          '<div><h4>Vista docent</h4><div class="markdown-rendered">' + renderMarkdown(session.markdown) + '</div></div>' +
+          '<div><h4>Vista docent</h4><div class="markdown-rendered">' + renderMarkdown(session.markdown, session.markdown_url) + '</div></div>' +
           '<div><h4>Edició del Markdown font</h4>' +
             '<textarea id="programacioMarkdownEditor" data-session-id="' + escapeHtml(session.id) + '">' + escapeHtml(session.markdown) + '</textarea>' +
             '<div class="actions"><button id="saveProgramacioMarkdown" type="button">Guardar Markdown</button><span id="programacioMarkdownStatus" class="status"></span></div>' +
