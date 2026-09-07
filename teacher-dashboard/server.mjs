@@ -1,3 +1,4 @@
+import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, recordConsolidationPublication } from './consolidation.mjs';
 import { calculateRepteExtension, makeExtensionReview, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
@@ -2577,6 +2578,7 @@ function pageHtml() {
       target.innerHTML =
         '<div class="toolbar"><h3>' + escapeHtml(session.title) + '</h3><span class="file-note">' + escapeHtml(session.file) + '</span></div>' +
         '<p><a href="' + escapeHtml(session.documentation_url) + '" target="_blank" rel="noopener noreferrer">Obrir la sessió en la documentació del professorat</a></p>' +
+        '<div id="consolidationPanel" class="feedback-box"></div>' +
         '<div class="feedback-grid">' +
           '<div><h4>Vista docent</h4><div class="markdown-rendered">' + renderMarkdown(session.markdown, session.markdown_url) + '</div></div>' +
           '<div><h4>Edició del Markdown font</h4>' +
@@ -2597,6 +2599,53 @@ function pageHtml() {
       document.querySelector('#saveProgramacioMarkdown').addEventListener('click', saveProgramacioMarkdown);
       document.querySelector('#saveProgramacioNote').addEventListener('click', saveProgramacioNote);
       loadProgramacioNotes(session.id);
+      loadConsolidation(session.id);
+    }
+
+    async function loadConsolidation(sessionId) {
+      const panel = document.querySelector('#consolidationPanel');
+      panel.textContent = 'Carregant fitxa de consolidació...';
+      try {
+        const response = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId) + '/consolidacio');
+        const data = await response.json();
+        if (!panel.isConnected) return;
+        if (!response.ok) throw new Error(data.error || 'No s’ha pogut carregar la fitxa.');
+        if (!data.code) { panel.textContent = 'Sessió sense fitxa de microrepte pròpia.'; return; }
+        panel.innerHTML = '<h4>Consolidació de ' + escapeHtml(data.code.toUpperCase()) + '</h4>' +
+          '<p>Material posterior a classe, comú per a tot l’alumnat. Guardar conserva l’esborrany; publicar el fa accessible en la web.</p>' +
+          '<textarea id="consolidationEditor" aria-label="Fitxa de consolidació en Markdown" placeholder="Escriu la fitxa: aprenentatges, exemple explicat, errors, pràctica, comprovació i connexió següent.">' + escapeHtml(data.markdown) + '</textarea>' +
+          '<div class="actions"><button type="button" data-consolidation-action="save">Guardar esborrany</button><button type="button" data-consolidation-action="publish">Publicar fitxa per a tot l’alumnat</button></div>' +
+          '<p data-consolidation-status class="status">' + (data.has_draft ? 'Esborrany carregat.' : 'Encara no hi ha cap fitxa preparada.') + '</p>';
+        if (data.publication) {
+          const previous = document.createElement('p'); previous.textContent = 'Darrera publicació des d’este dashboard: ';
+          const link = document.createElement('a'); link.href = data.publication.url; link.textContent = 'Obrir fitxa'; link.target = '_blank'; link.rel = 'noopener noreferrer'; previous.append(link); panel.append(previous);
+        }
+        panel.querySelectorAll('[data-consolidation-action]').forEach(button => button.addEventListener('click', async () => {
+          const status = panel.querySelector('[data-consolidation-status]');
+          const buttons = panel.querySelectorAll('button');
+          const editor = panel.querySelector('textarea');
+          const markdown = editor.value;
+          if (!markdown.trim()) { status.textContent = 'Escriu la fitxa abans de guardar o publicar.'; return; }
+          buttons.forEach(item => item.disabled = true);
+          editor.disabled = true;
+          status.textContent = button.dataset.consolidationAction === 'publish' ? 'Publicant...' : 'Guardant...';
+          try {
+            const result = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId) + '/consolidacio', {
+              method: button.dataset.consolidationAction === 'publish' ? 'POST' : 'PUT',
+              headers: {'content-type': 'application/json'}, body: JSON.stringify({markdown})
+            });
+            const payload = await result.json();
+            if (!result.ok) throw new Error(payload.error || 'No s’ha pogut completar l’acció.');
+            status.textContent = payload.url ? (payload.unchanged ? 'La mateixa versió ja està en GitHub. ' : 'Enviada a GitHub. La web s’actualitzarà quan acabe la construcció. ') : 'Esborrany guardat.';
+            if (payload.url) {
+              if (payload.warning) status.append(document.createTextNode(payload.warning + ' '));
+              const link = document.createElement('a'); link.href = payload.url; link.textContent = 'Obrir fitxa'; link.target = '_blank'; link.rel = 'noopener noreferrer'; status.append(link);
+              const actions = document.createElement('a'); actions.href = payload.actions_url; actions.textContent = ' · Comprovar publicació'; actions.target = '_blank'; actions.rel = 'noopener noreferrer'; status.append(actions);
+            }
+          } catch (error) { status.textContent = error.message; }
+          finally { buttons.forEach(item => item.disabled = false); editor.disabled = false; }
+        }));
+      } catch (error) { if (panel.isConnected) panel.textContent = error.message; }
     }
 
     async function saveProgramacioMarkdown() {
@@ -3810,6 +3859,25 @@ async function handleRequest(request, response) {
       sendJson(response, 200, {
         sessions: repte ? sessions.filter((session) => session.repte_id === repte) : sessions
       });
+      return;
+    }
+
+    const consolidationMatch = url.pathname.match(/^\/api\/programacio-aula\/([^/]+)\/consolidacio$/);
+    if (consolidationMatch && ['GET', 'PUT', 'POST'].includes(request.method)) {
+      const session = await readClassroomSession(decodeURIComponent(consolidationMatch[1]));
+      if (!session) { sendJson(response, 404, { error: 'Sessió no trobada.' }); return; }
+      const code = consolidationCode(session);
+      if (!code) {
+        sendJson(response, request.method === 'GET' ? 200 : 400, { code: null, error: 'Esta sessió no té microrepte propi.' }); return;
+      }
+      if (request.method === 'GET') { sendJson(response, 200, await readConsolidation(rootDir, code)); return; }
+      const body = await readRequestJson(request);
+      const draft = await saveConsolidation(rootDir, code, body.markdown);
+      if (request.method === 'PUT') { sendJson(response, 200, draft); return; }
+      const published = await publishConsolidation({ code, markdown: draft.markdown, token: process.env.GITHUB_TOKEN });
+      try { await recordConsolidationPublication(rootDir, code, published); }
+      catch { published.warning = 'Publicació enviada, però no s’ha pogut guardar l’enllaç local. Consulta l’índex web.'; }
+      sendJson(response, 200, published);
       return;
     }
 

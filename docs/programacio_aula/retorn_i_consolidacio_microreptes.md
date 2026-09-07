@@ -60,3 +60,9 @@ En el comentari docent de sessió, indicar grup, errors comuns, ajust del ritme 
 L’alumnat conserva les correccions de codi per continuar aprenent, amb traça de la seua procedència i de l’ús real d’IA si n’hi ha. Les branques i etiquetes del microrepte preserven el treball d’aula original. Una recuperació del repte complet ha de quedar identificada com a tal i acordada amb el professorat, sense sobreescriure versions anteriors ni restaurar tot `main` a un punt antic.
 
 L’autocorrecció ordinària continua llegint `main` i el microrepte seleccionat pel professorat. La consolidació diària no llança recorreccions ni modifica notes. La recuperació del repte requereix valoració docent global.
+
+## Material posterior a classe
+
+Després del microrepte, revisar una fitxa curta amb aprenentatges essencials, exemple mínim explicat, errors habituals, modificació per practicar, comprovació i connexió amb la sessió següent. Afegir els errors observats sense dades personals i publicar-la des del bloc de consolidació de la sessió en el dashboard. La publicació és única per a tot l’alumnat.
+
+El material es consulta en l’[índex de fitxes publicades](https://cipfpbatoi.github.io/dwes2627/04_materials/consolidacio/index.html) i s’usa durant el retorn i la correcció guiada. R2M1 és el primer model preparat; la resta es poden redactar i publicar amb el mateix editor. Les fitxes no generen lliurament ni recuperació individual del microrepte.

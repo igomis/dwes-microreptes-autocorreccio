@@ -10,6 +10,9 @@ import { once } from 'node:events';
 test('dashboard: només l’últim microrepte valida; proposta → nota global sense alterar RA', { timeout: 20000 }, async t => {
  const fixture=mkdtempSync(path.join(tmpdir(),'dwes-extension-http-'));
  for(const dir of ['teacher-dashboard','scripts','microreptes','global']) cpSync(dir,path.join(fixture,dir),{recursive:true});
+ mkdirSync(path.join(fixture,'docs/programacio_aula'),{recursive:true});
+ writeFileSync(path.join(fixture,'docs/programacio_aula/programacio_aula_r2s1_test.md'),'# R2S1. Test\n\n- **Microrepte**: `R2M1`\n');
+ writeFileSync(path.join(fixture,'docs/programacio_aula/programacio_aula_r2s0_test.md'),'# R2S0. Introducció\n');
  mkdirSync(path.join(fixture,'grades'));mkdirSync(path.join(fixture,'course'));
  symlinkSync(path.resolve('node_modules'),path.join(fixture,'node_modules'),'dir');
  const first='r1-s01-model-client-servidor-stack',last='r1-s02-entorn-executable';
@@ -51,6 +54,14 @@ test('dashboard: només l’últim microrepte valida; proposta → nota global s
  assert.ok(!renderer('`[Codi](https://example.org)`', source).includes('<a '));
  assert.ok(html.includes('Obrir la sessió en la documentació del professorat'));
 
+ const consolidationUrl=base+'/api/programacio-aula/R2S1/consolidacio';
+ const saveSheet=markdown=>fetch(consolidationUrl,{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({markdown})});
+ assert.equal((await (await fetch(consolidationUrl)).json()).has_draft,false);
+ assert.equal((await saveSheet('# Fitxa de prova')).status,200);
+ assert.equal((await (await fetch(consolidationUrl)).json()).markdown,'# Fitxa de prova\n');
+ assert.equal((await fetch(base+'/api/programacio-aula/NO/consolidacio')).status,404);
+ assert.equal((await (await fetch(base+'/api/programacio-aula/R2S0/consolidacio')).json()).code,null);
+ assert.ok(html.includes('Publicar fitxa per a tot l’alumnat'));
  const noteUrl = base + '/api/programacio-aula/R1S1/notes';
  const saveNote = body => fetch(noteUrl, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
  for (const group_name of [undefined, '', 'all', 'desconegut']) {

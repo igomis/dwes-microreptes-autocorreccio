@@ -144,3 +144,15 @@ Consulta el [procediment de l’alumnat](https://cipfpbatoi.github.io/dwes2627/0
 La programació incorpora retorn, correcció guiada i diagnòstic dins de les tres hores. Consulta el [protocol docent](programacio_aula/retorn_i_consolidacio_microreptes.md). En el comentari de sessió, registra grup, errors comuns, ajustos i ajuda prevista. El seguiment individual es conserva en el registre docent. No s’han afegit estats automàtics, recorreccions ni canvis de notes.
 
 Els microreptes no tenen recuperació individual. La recuperació del repte complet requereix valoració docent global i no substituïx automàticament les notes dels microreptes.
+
+## Publicar fitxes de consolidació
+
+En Programació, selecciona una sessió amb microrepte propi. El bloc «Consolidació» permet editar la fitxa en Markdown, guardar un esborrany i publicar-lo per a tot l’alumnat. No hi ha selecció de grup per a esta publicació.
+
+La fitxa model R2M1 està preparada en `consolidation-drafts/r2m1.md`, fora de la web d’alumnat. La resta comencen amb l’editor buit. Els esborranys editats es guarden en `tmp/consolidacio/` del servidor, sobreviuen als reinicis i tenen preferència sobre el model versionat: inclou esta carpeta en les còpies de seguretat i no l’esborres en neteges de temporals. Guardar no publica. Els models versionats poden ser consultables en el repositori docent si és públic; no són un sistema de control d’accés.
+
+«Publicar» guarda el text de l’editor i crea un únic commit en `cipfpbatoi/dwes2627`, branca `master`, amb la pàgina i el seu enllaç en l’índex de consolidació. El menú d’alumnat enllaça eixe índex; només hi apareixen fitxes publicades. No cal clonar la documentació en el servidor del dashboard. Publicar una altra vegada actualitza la mateixa fitxa; si no hi ha canvis, no crea un commit buit.
+
+Cal que `GITHUB_TOKEN` tinga accés a eixe repositori amb **Contents: write**. Es respecten les proteccions de branca; no es força l’actualització si hi ha canvis concurrents. La publicació usa l’API Git de GitHub i conserva la resta de l’arbre del repositori. El workflow existent reconstrueix la web després del commit. El missatge diferencia enviament a GitHub de construcció acabada, amb enllaços a la fitxa i a Actions. Si falla, l’esborrany es conserva i es pot tornar a provar.
+
+La publicació no envia missatges a l’alumnat, no llança autocorreccions i no modifica qualificacions. Els microreptes continuen sent treball d’aula sense recuperació individual.
