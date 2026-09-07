@@ -38,5 +38,17 @@ test('dashboard: només l’últim microrepte valida; proposta → nota global s
  const html=await (await fetch(base)).text();
  for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(()=>new Function(match[1]));
  assert.ok(html.includes('data-extension-score'));
+ const noteUrl = base + '/api/programacio-aula/R1S1/notes';
+ const saveNote = body => fetch(noteUrl, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+ for (const group_name of [undefined, '', 'all', 'desconegut']) {
+  assert.equal((await saveNote({session_date:'2026-09-07',comment:'Nota',group_name})).status,400);
+ }
+ for (const group_name of ['2DAW-A','2DAW-C']) {
+  assert.equal((await saveNote({session_date:'2026-09-07',comment:'Comentari de '+group_name,group_name})).status,200);
+ }
+ const notes=(await get('/api/programacio-aula/R1S1/notes')).notes;
+ assert.equal(notes.length,2);
+ assert.deepEqual(notes.map(n=>n.group_name).sort(),['2DAW-A','2DAW-C']);
+ assert.ok(html.includes('programacioNoteGroup'));
  const choices=await get('/api/microreptes');assert.ok(!choices.microreptes.some(m=>m.id==='r2-ampliacio-9-10'));
 });

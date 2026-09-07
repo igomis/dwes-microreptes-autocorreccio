@@ -94,6 +94,11 @@ export function initDb(dbPath = DB_PATH) {
     )
   `);
 
+  const noteColumns = db.prepare('PRAGMA table_info(classroom_session_notes)').all().map(column => column.name);
+  if (!noteColumns.includes('group_name')) {
+    db.exec('ALTER TABLE classroom_session_notes ADD COLUMN group_name TEXT');
+  }
+
   // Índexs per rendiment
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_grades_student ON grades(student_id);
@@ -279,13 +284,14 @@ export function getClassroomSessionNotes(sessionId) {
   return stmt.all(sessionId);
 }
 
-export function insertClassroomSessionNote(sessionId, sessionDate, comment) {
+export function insertClassroomSessionNote(sessionId, sessionDate, comment, groupName) {
+  if (typeof groupName !== 'string' || !groupName.trim()) throw new Error('Cal indicar el grup del comentari.');
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO classroom_session_notes (session_id, session_date, comment)
-    VALUES (?, ?, ?)
+    INSERT INTO classroom_session_notes (session_id, session_date, comment, group_name)
+    VALUES (?, ?, ?, ?)
   `);
-  return stmt.run(sessionId, sessionDate, comment);
+  return stmt.run(sessionId, sessionDate, comment, groupName.trim());
 }
 
 // Operacions de notes

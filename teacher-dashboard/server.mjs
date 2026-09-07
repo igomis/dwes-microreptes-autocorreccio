@@ -2562,6 +2562,7 @@ function pageHtml() {
         '<div class="feedback-box">' +
           '<h4>Comentari docent de la sessió</h4>' +
           '<div class="grid">' +
+            '<label>Grup<select id="programacioNoteGroup" required><option value="">Selecciona un grup</option>${Object.keys(groupFiles).filter(group => group !== 'all').map(group => '<option value="' + group + '">' + group + '</option>').join('')}</select></label>' +
             '<label>Dia de realització<input id="programacioNoteDate" type="date" value="' + escapeHtml(today) + '"></label>' +
             '<label>Comentari<textarea id="programacioNoteComment" placeholder="Com ha anat la sessió, ajustos, incidències, ritme, acords o canvis per a la pròxima vegada."></textarea></label>' +
           '</div>' +
@@ -2612,7 +2613,7 @@ function pageHtml() {
         }
         target.innerHTML = notes.map((note) => (
           '<div class="feedback-box">' +
-            '<p><strong>' + escapeHtml(note.session_date) + '</strong> <span class="status">' + escapeHtml(formatTimestamp(note.created_at)) + '</span></p>' +
+            '<p><strong>' + escapeHtml(note.session_date) + '</strong> · ' + escapeHtml(note.group_name || 'Grup no indicat (comentari anterior)') + ' <span class="status">' + escapeHtml(formatTimestamp(note.created_at)) + '</span></p>' +
             '<p>' + escapeHtml(note.comment) + '</p>' +
           '</div>'
         )).join('');
@@ -2624,17 +2625,19 @@ function pageHtml() {
     async function saveProgramacioNote() {
       const editor = document.querySelector('#programacioMarkdownEditor');
       const date = document.querySelector('#programacioNoteDate');
+      const group = document.querySelector('#programacioNoteGroup');
       const comment = document.querySelector('#programacioNoteComment');
       const status = document.querySelector('#programacioNoteStatus');
       const sessionId = editor?.dataset.sessionId;
-      if (!sessionId || !date || !comment) return;
+      if (!sessionId || !date || !comment || !group) return;
+      if (!group.reportValidity()) return;
       status.textContent = 'Guardant...';
 
       try {
         const response = await fetch('/api/programacio-aula/' + encodeURIComponent(sessionId) + '/notes', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ session_date: date.value, comment: comment.value })
+          body: JSON.stringify({ session_date: date.value, group_name: group.value, comment: comment.value })
         });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || 'No s’ha pogut guardar el comentari.');
@@ -3809,6 +3812,11 @@ async function handleRequest(request, response) {
       const sessionId = decodeURIComponent(classroomNotesMatch[1]);
       const body = await readRequestJson(request);
       const sessionDate = String(body.session_date || '').trim();
+      const groupName = typeof body.group_name === 'string' ? body.group_name.trim() : '';
+      if (!groupName || groupName === 'all' || !Object.hasOwn(groupFiles, groupName)) {
+        sendJson(response, 400, { error: 'Selecciona un grup vàlid per al comentari.' });
+        return;
+      }
       const comment = String(body.comment || '').trim();
       if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)) {
         sendJson(response, 400, { error: 'La data ha de tindre format YYYY-MM-DD.' });
@@ -3818,7 +3826,7 @@ async function handleRequest(request, response) {
         sendJson(response, 400, { error: 'El comentari no pot estar buit.' });
         return;
       }
-      insertClassroomSessionNote(sessionId, sessionDate, comment);
+      insertClassroomSessionNote(sessionId, sessionDate, comment, groupName);
       sendJson(response, 200, { notes: getClassroomSessionNotes(sessionId) });
       return;
     }

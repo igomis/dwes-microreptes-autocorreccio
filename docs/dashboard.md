@@ -112,7 +112,7 @@ El dashboard està separat en aquestes vistes:
 - Consultar microreptes per repte, sessió, codi, pes dins del repte, dimensions de rúbrica i criteris que comprova cada dimensió.
 - Editar microreptes de forma guiada: títol, resum, objectiu, pes dins del repte, evidències, senyals esperats, regles dures i dimensions de rúbrica.
 - Validar abans de guardar que els pesos de la rúbrica sumen `1`; si la validació general falla, es restauren els JSON originals.
-- Consultar la programació d'aula real d'un repte agrupada per sessions, amb vista docent renderitzada, edició directa del Markdown font i comentaris docents amb data sobre com ha anat cada sessió.
+- Consultar la programació d'aula real d'un repte agrupada per sessions, amb vista docent renderitzada, edició directa del Markdown font i comentaris docents amb grup i data sobre com ha anat cada sessió.
 
 La font docent principal continua sent `dwes-restructuracio-modul/docs/01_programacio_modul`. La carpeta `docs/programacio_aula` és una còpia sincronitzada dins d'este repositori perquè el dashboard no depenga d'un directori germà local per mostrar la vista `Programació`.
 - Obrir ràpidament la pàgina d'Actions del workflow.
@@ -122,3 +122,9 @@ El dashboard no substitueix el workflow. Només és una capa més còmoda damunt
 ## Ampliació global
 
 Consulta [càlcul i validació de l’ampliació](ampliacio-repte.md). Es gestiona només des de l’últim microrepte i suma una sola vegada al repte complet.
+
+## Grup en els comentaris de sessió
+
+En Programació d’aula, cada comentari nou indica el grup (2DAW-A, 2DAW-B, 2DAW-C o 2DAW-D), la data i el text. El grup és obligatori i es mostra al costat de la data en l’historial. Això permet distingir com ha anat la mateixa sessió amb grups diferents.
+
+En reiniciar el dashboard, la base de dades incorpora automàticament el camp `group_name`. Els comentaris anteriors es conserven i apareixen com a «Grup no indicat (comentari anterior)»; no se’ls assigna un grup per defecte.
