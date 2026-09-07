@@ -13,7 +13,7 @@ Esta sessió obri el curs abans d'entrar en els microreptes de `R1`. La seua fun
 - **Focus**: model de curs, repositori que s'activarà en `R1S1`, evidències, ús d'IA, criteri de defensa i primer mapa provisional del producte
 - **No entra encara**: implementació tècnica del backend
 
-Nota important: en `R1S0` l'alumnat encara no ha de tindre necessàriament el repositori de GitHub Classroom clonat. Per tant, no es demana omplir `README.md` en esta sessió. El producte de `R1S0` és una fitxa provisional o notes guiades que es traslladaran al `README.md` en `R1S1`, després d'acceptar i clonar el repositori.
+Nota important: en `R1S0` l'alumnat encara no ha de tindre necessàriament el repositori assignat pel professorat clonat. Per tant, no es demana omplir `README.md` en esta sessió. El producte de `R1S0` és una fitxa provisional o notes guiades que es traslladaran al `README.md` en `R1S1`, després d'acceptar i clonar el repositori.
 
 ## Seqüència d'aula de 3 hores
 
@@ -35,7 +35,7 @@ Revisar com funcionarà el repositori individual del curs, sense exigir encara q
 
 Punts a deixar clars:
 
-- el professorat donarà l'enllaç de GitHub Classroom en `R1S1`;
+- el professorat crearà el repositori i enviarà la invitació de col·laboració per a `R1S1`;
 - cada alumne acceptarà l'encàrrec i GitHub crearà el seu repositori individual;
 - el repositori base no s'ha de clonar directament;
 - `README.md` serà el document viu de cada microrepte a partir de `R1S1`;
@@ -86,7 +86,7 @@ Preguntes de comprovació:
 | Quin producte vas a construir? | Una frase concreta, no "una web" o "un CRUD" |
 | Qui l'usarà? | Un actor inicial recognoscible |
 | Quina serà la primera acció real? | Una operació funcional que després es puga validar |
-| On deixaràs les evidències quan comence el treball tècnic? | Repositori Classroom individual, `README.md`, `docs/` i `evidence/` |
+| On deixaràs les evidències quan comence el treball tècnic? | Repositori individual assignat, `README.md`, `docs/` i `evidence/` |
 | Com registraràs l'ús d'IA si apareix? | Criteri o plantilla d'`AI log` entés |
 | Què has de portar a `R1S1`? | Idea acotada, fitxa provisional, compte GitHub operatiu i decisió tècnica inicial pendent o iniciada |
 
@@ -94,7 +94,7 @@ Preguntes de comprovació:
 
 | Evidència | Mínim acceptable |
 |---|---|
-| Preparació de repositori | l'alumnat entén que acceptarà GitHub Classroom i clonarà el repositori en `R1S1` |
+| Preparació de repositori | l'alumnat entén que acceptarà la invitació de col·laboració i clonarà el repositori en `R1S1` |
 | Fitxa provisional | conté el primer mapa del producte i es podrà traslladar al `README.md` en `R1S1` |
 | AI log | plantilla preparada o criteri clar sobre quan registrar ajuda d'IA |
 | Primer mapa del producte | producte, usuari, necessitat, primera acció, dades i risc inicial |
@@ -102,7 +102,7 @@ Preguntes de comprovació:
 
 ## Checklist de tancament
 
-- [ ] L'alumnat sap que el repositori Classroom es crearà i clonarà en `R1S1`.
+- [ ] L'alumnat sap que el repositori individual es crearà i clonarà en `R1S1`.
 - [ ] Fitxa provisional amb primer mapa del producte.
 - [ ] Criteri d'evidències entés.
 - [ ] Ús d'IA explicat.

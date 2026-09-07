@@ -4,7 +4,7 @@
 
 Esta sessió tanca el `Repte 1` i treballa el microrepte `R1M2` convertint la decisió tècnica inicial en una base executable real. L'objectiu no és avançar funcionalitats de `R2`, sinó deixar un repositori que arranque, servisca una landing inicial del producte des del backend i tinga documentació suficient perquè una altra persona puga repetir l'arrencada.
 
-Al final de la sessió, cada alumne o parella ha de poder ensenyar un entorn executable o un bloqueig tècnic ben documentat dins del mateix repositori individual de GitHub Classroom iniciat en `R1S1`, obrir una landing inicial amb CSS senzill servida pel backend, assenyalar quin fitxer respon a una petició i explicar què queda preparat per al primer formulari de `R2`.
+Al final de la sessió, cada alumne o parella ha de poder ensenyar un entorn executable o un bloqueig tècnic ben documentat dins del mateix repositori individual creat pel professorat iniciat en `R1S1`, obrir una landing inicial amb CSS senzill servida pel backend, assenyalar quin fitxer respon a una petició i explicar què queda preparat per al primer formulari de `R2`.
 
 ## Encaix dins del Repte 1
 
@@ -32,7 +32,7 @@ Al final de la sessió, cada alumne o parella ha de poder ensenyar un entorn exe
 
 Un repositori que permeta:
 
-- continuar sobre el repositori individual de GitHub Classroom clonat en `R1S1`;
+- continuar sobre el repositori individual creat pel professorat clonat en `R1S1`;
 - arrancar un entorn amb `Docker` o equivalent;
 - executar `PHP` darrere d'un servidor web;
 - disposar de base de dades i phpMyAdmin quan corresponga al model docent;
@@ -88,12 +88,12 @@ El professorat mostra els serveis mínims, com es comproven i on mirar errors.
 
 Resultat del tram: el grup té una referència clara de què vol dir "entorn executable".
 
-### 1:00-1:25. Adaptació del repositori Classroom
+### 1:00-1:25. Adaptació del repositori individual
 
 Tasques:
 
 - recuperar el repositori individual clonat en `R1S1`;
-- comprovar `git status` i que el remot apunta al repositori de Classroom;
+- comprovar `git status` i que el remot apunta al repositori assignat pel professorat;
 - obrir issue mare de `R1`;
 - crear o adaptar la configuració d'entorn;
 - ordenar l'estructura inicial.
@@ -141,7 +141,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 ## Tasques concretes de l'alumnat
 
-- Recuperar el repositori individual de GitHub Classroom iniciat en `R1S1`.
+- Recuperar el repositori individual creat pel professorat iniciat en `R1S1`.
 - Comprovar que el treball es pujarà al remot correcte.
 - Obrir issue mare de `R1` amb tasques de `R1M2`.
 - Crear o adaptar la configuració d'entorn.
@@ -157,7 +157,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 | Evidència | Mínim acceptable |
 |---|---|
-| Repositori | és el repositori Classroom del curs, amb estructura clara i commits significatius |
+| Repositori | és el repositori individual del curs, amb estructura clara i commits significatius |
 | Entorn | arranca o documenta un bloqueig amb log, hipòtesi i pròxima acció |
 | Landing inicial | URL documentada, contingut propi del producte i CSS senzill servit pel backend |
 | Comprovació tècnica | `healthcheck` o endpoint d'estat opcional, sense substituir la landing |

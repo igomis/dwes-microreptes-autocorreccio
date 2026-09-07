@@ -30,7 +30,7 @@ La tria de stack en `R1M1` no és una decisió definitiva de framework ni una in
 
 ### Producte esperat
 
-Un repositori Classroom ja operatiu amb un primer `push`, més una fitxa breu d'exploració tècnica inicial amb:
+Un repositori individual ja operatiu amb un primer `push`, més una fitxa breu d'exploració tècnica inicial amb:
 
 - esquema client/servidor aplicat al producte propi;
 - exemples de què fa el client i què fa el servidor;
@@ -43,7 +43,7 @@ La fitxa ha de deixar explícit què es farà en `R1M2` i què queda ajornat fin
 ### Preparació prèvia del professorat
 
 - Tindre localitzats els materials d'arquitectura web, client/servidor, backend i llenguatges/frameworks.
-- Tindre preparat l'enllaç de GitHub Classroom i el repositori base de l'alumnat.
+- Crear els repositoris individuals des de la plantilla, inicialitzar `main` i enviar les invitacions de col·laboració.
 - Preparar un exemple docent de producte senzill per modelar la fitxa.
 - Preparar una pregunta oral curta per comprovar comprensió individual.
 
@@ -60,8 +60,8 @@ La fitxa ha de deixar explícit què es farà en `R1M2` i què queda ajornat fin
 
 | Temps | Activitat |
 |---:|---|
-| `0:00-0:15` | Presentació del repte, repositori Classroom, producte esperat i relació amb `R2`. |
-| `0:15-0:35` | Acceptació i clonatge del repositori Classroom. |
+| `0:00-0:15` | Presentació del repte, repositori individual, producte esperat i relació amb `R2`. |
+| `0:15-0:35` | Acceptació i clonatge del repositori individual. |
 | `0:35-0:55` | Explicació guiada del flux client/servidor amb un exemple concret. |
 | `0:55-1:15` | Modelatge docent de la fitxa d'exploració tècnica i del `README.md` inicial. |
 | `1:15-1:55` | Treball individual: esquema, exemples i primera comparació tècnica. |
@@ -73,7 +73,7 @@ La fitxa ha de deixar explícit què es farà en `R1M2` i què queda ajornat fin
 ### Tasques concretes de l'alumnat
 
 - Escriure quin producte vol iniciar i quin paper tindrà el backend.
-- Acceptar l'enllaç de GitHub Classroom, clonar el repositori individual i identificar `README.md`, `ENTREGA.md`, `docs/` i `evidence/`.
+- Acceptar la invitació de col·laboració, clonar el repositori individual i identificar `README.md`, `ENTREGA.md`, `docs/` i `evidence/`.
 - Dibuixar o descriure el flux client/servidor.
 - Escriure tres exemples del projecte: acció del client, acció del servidor i resposta.
 - Comparar de manera breu dues o tres opcions tècniques del marc docent.
@@ -84,7 +84,7 @@ La fitxa ha de deixar explícit què es farà en `R1M2` i què queda ajornat fin
 
 ### Evidències mínimes
 
-- Repositori Classroom acceptat, clonat i amb primer `push`.
+- Repositori individual amb invitació acceptada, clonat i amb primer `push`.
 - `README.md` inicial amb `R1M1`, projecte base, flux client/servidor i decisió inicial.
 - Fitxa d'exploració tècnica inicial localitzable.
 - Esquema client/servidor aplicat al producte.
@@ -127,7 +127,7 @@ La IA pot ajudar a comparar opcions i aclarir conceptes, però la fitxa ha d'est
 ### Checklist de tancament
 
 - [ ] La fitxa està completa.
-- [ ] El repositori Classroom està acceptat, clonat i amb primer `push`.
+- [ ] El repositori individual està amb invitació acceptada, clonat i amb primer `push`.
 - [ ] Hi ha esquema client/servidor.
 - [ ] Hi ha decisió tècnica i alternativa descartada.
 - [ ] La decisió diferencia què es farà en `R1M2` i què queda per a `R3`.
@@ -184,7 +184,7 @@ Un repositori que permeta:
 
 ### Tasques concretes de l'alumnat
 
-- Recuperar el repositori individual de GitHub Classroom iniciat en `R1S1`.
+- Recuperar el repositori individual creat pel professorat iniciat en `R1S1`.
 - Comprovar que el treball es pujarà al remot correcte.
 - Obrir issue mare de `R1` amb tasques de `R1M2`.
 - Crear o adaptar la configuració d'entorn.
