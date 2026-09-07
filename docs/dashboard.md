@@ -132,3 +132,9 @@ En reiniciar el dashboard, la base de dades incorpora automàticament el camp `g
 ## Enllaços de la programació d’aula
 
 La sessió seleccionada inclou un enllaç directe a la seua pàgina en la documentació publicada del professorat. Els enllaços Markdown de la vista docent són clicables i s’obrin en una pestanya nova. Els camins relatius es resolen respecte del document original del professorat i els fitxers `.md` es convertixen en les pàgines del lloc web, conservant els fragments. La documentació publicada reflectix l’última publicació del lloc; guardar el Markdown al dashboard no publica eixe lloc automàticament.
+
+## Branques de treball i entregues de l’alumnat
+
+Es recomana el flux `microrepte/r2m1 → repte/r2 → main`, amb una PR en cada pas i integració en `main` en cada microrepte. L’alumnat revisa i fa el merge de les seues PR; conserva les branques i etiqueta el commit de cada entrega. La correcció continua llegint `main`, sense afegir requisits de rúbrica ni punts per usar branques.
+
+Consulta el [procediment de l’alumnat](https://cipfpbatoi.github.io/dwes2627/04_materials/guia_branques_i_entregues/). Per a treball individual, comprovar permisos de merge, permetre merge commits i evitar regles que exigisquen una aprovació externa; convé desactivar l’eliminació automàtica de branques. No s’han modificat permisos ni regles dels repositoris existents.
