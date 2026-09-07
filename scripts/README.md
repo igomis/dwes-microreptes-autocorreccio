@@ -80,3 +80,13 @@ alumne02,2DAW-B,Pau Garcia
 ```
 
 Per cada fila crea `ORG/microreptes-github_user`, convida l'usuari amb permís `push` i actualitza el fitxer del grup corresponent, per exemple `course/student-repositories-2dawa.txt`, a més del fitxer global `course/student-repositories.txt`. Usa sempre `--dry-run` abans de la primera execució real.
+
+## Clonar o actualitzar els repositoris de l’alumnat
+
+```bash
+./scripts/sincronitza-repositoris.sh "$HOME/repositoris-alumnat" --dry-run
+./scripts/sincronitza-repositoris.sh "$HOME/repositoris-alumnat"
+```
+
+Llig `course/student-repositories.txt`; admet `--group 2DAW-C`, `--file LLISTA` i `--ssh`.
+Consulta la [guia del professorat](https://igomis.github.io/reestructuracioModul/professorat/clonar_repositoris_alumnat/) per a autenticació, ús i incidències.
