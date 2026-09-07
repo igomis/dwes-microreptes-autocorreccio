@@ -46,29 +46,47 @@ Un document curt de disseny d'integració que incloga:
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:20. Entrada a R5 i canvi de centre
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Entrada a R5 i canvi de centre
 
 El professorat explica que `R4` publicava serveis i `R5` integra fonts externes o fluxos híbrids. La pregunta no és "quina API puc cridar?", sinó "quina informació o servei extern millora el meu producte?".
 
-### 0:20-0:45. Modelatge d'una integració acceptable
+### 0:50-1:10. Modelatge d'una integració acceptable
 
 Es mostra un exemple amb font externa, contracte, dades rebudes, transformació mínima, ús dins del producte i cas d'error.
 
-### 0:45-1:25. Exploració guiada de fonts
+### 1:10-1:40. Exploració guiada de fonts
 
 L'alumnat localitza fonts candidates i comprova si tenen documentació, accés viable, límits i dades útils.
 
-### 1:25-2:05. Comparativa i decisió
+### 1:40-2:10. Comparativa i decisió
 
 Cada equip compara opcions, descarta les no viables i tria una font principal.
 
-### 2:05-2:40. Mapa inicial del flux híbrid
+### 2:10-2:35. Mapa inicial del flux híbrid
 
 Es dibuixa el recorregut: entrada, crida externa, transformació, integració en producte, resposta visible i error previst.
 
-### 2:40-3:00. Checkpoint docent
+### 2:35-2:50. Checkpoint docent
 
 Cada equip defensa la tria i rep validació, reducció d'abast o canvi de font.
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

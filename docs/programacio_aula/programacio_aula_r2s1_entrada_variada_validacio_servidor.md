@@ -99,7 +99,21 @@ Exemples d'accions assumibles:
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:15. Entrada al repte i acotació del formulari
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:45. Entrada al repte i acotació del formulari
 
 El professorat recorda que `R2` no comença per autenticació. Primer cal una entrada real que arribe al backend amb dades de formats diferents.
 
@@ -114,7 +128,7 @@ Tasques:
 
 Resultat del tram: cada equip té una acció vinculada a la landing, un conjunt mínim de controls i una dada candidata per a una regla futura.
 
-### 0:15-0:45. Modelatge docent
+### 0:45-1:10. Modelatge docent
 
 El professorat mostra un flux mínim:
 
@@ -133,7 +147,7 @@ Si el grup està preparat o el docent vol deixar-ho vist com a ampliació, el mo
 
 Resultat del tram: l'alumnat veu que cada control genera una forma diferent de dada i que la validació s'ha de fer en servidor.
 
-### 0:45-1:30. Implementació guiada
+### 1:10-1:45. Implementació guiada
 
 L'alumnat implementa o adapta el seu formulari.
 
@@ -148,7 +162,7 @@ Tasques:
 
 Resultat del tram: hi ha dades variades recuperades i validacions inicials executant-se.
 
-### 1:30-2:05. Error visible i reenviament corregit
+### 1:45-2:10. Error visible i reenviament corregit
 
 L'alumnat força un cas incorrecte i ajusta la resposta. Si el grup va bé, pot afegir un segon cas, però no cal construir encara una col·lecció d'errors.
 
@@ -163,7 +177,7 @@ Tasques:
 
 Resultat del tram: el flux diferencia almenys un cas incorrecte i un cas correcte, amb un error visible generat en servidor.
 
-### 2:05-2:30. Revisió per parelles
+### 2:10-2:25. Revisió per parelles
 
 Una altra persona prova el formulari.
 
@@ -177,7 +191,7 @@ Pauta de revisió:
 
 Resultat del tram: cada equip rep una observació concreta i corregeix almenys una confusió o omissió.
 
-### 2:30-2:45. Traçabilitat i documentació mínima
+### 2:25-2:40. Traçabilitat i documentació mínima
 
 L'alumnat deixa rastre del que ha fet.
 
@@ -190,7 +204,7 @@ Tasques:
 
 Resultat del tram: el flux és reproduïble per una altra persona.
 
-### 2:45-3:00. Checkpoint docent
+### 2:40-2:50. Checkpoint docent
 
 El professorat fa una comprovació curta.
 
@@ -203,6 +217,10 @@ Cada equip mostra:
 - fragment de codi de fitxer només si s'ha treballat com a ampliació.
 
 Pregunta de tancament: què passa exactament quan falta la dada que has decidit validar?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

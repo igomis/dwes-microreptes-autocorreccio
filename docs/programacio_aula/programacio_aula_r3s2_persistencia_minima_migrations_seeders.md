@@ -53,7 +53,21 @@ Esta sessio converteix la base arrancable de `R3M1` en una aplicacio amb BBDD re
 
 ## Sequencia d'aula de 3 hores
 
-### 0:00-0:25. Recuperacio de R3M1 i fluxos
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:55. Recuperacio de R3M1 i fluxos
 
 Tasques:
 
@@ -62,7 +76,7 @@ Tasques:
 - identificar entitats o taules minimes;
 - descartar camps que no s'usaran.
 
-### 0:25-0:55. Modelatge docent
+### 0:55-1:15. Modelatge docent
 
 El professorat mostra:
 
@@ -72,7 +86,7 @@ El professorat mostra:
 - una lectura real;
 - reset complet de BBDD.
 
-### 0:55-1:45. Implementacio d'esquema
+### 1:15-1:55. Implementacio d'esquema
 
 Tasques:
 
@@ -82,7 +96,7 @@ Tasques:
 - revisar estructura creada;
 - registrar decisions de camps.
 
-### 1:45-2:25. Dades inicials i lectura
+### 1:55-2:25. Dades inicials i lectura
 
 Tasques:
 
@@ -91,7 +105,7 @@ Tasques:
 - recuperar un conjunt de dades;
 - preparar-lo per a vista, llistat, filtre, detall o resposta.
 
-### 2:25-2:50. Verificacio i documentacio
+### 2:25-2:45. Verificacio i documentacio
 
 Tasques:
 
@@ -100,7 +114,7 @@ Tasques:
 - documentar comandes;
 - registrar evidencies i temps.
 
-### 2:50-3:00. Checkpoint
+### 2:45-2:50. Checkpoint
 
 Cada equip mostra:
 
@@ -109,6 +123,10 @@ Cada equip mostra:
 - dades carregades;
 - lectura real;
 - instruccions de reset.
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

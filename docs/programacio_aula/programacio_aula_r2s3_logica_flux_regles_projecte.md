@@ -98,7 +98,21 @@ En la pàgina del flux:
 
 ## Seqüencia d'aula de 3 hores
 
-### 0:00-0:20. Recuperacio del flux i tria de la regla
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Recuperacio del flux i tria de la regla
 
 El professorat demana executar el cas correcte de `R2M2` i observar quines dades ja arriben i quines es guarden funcionalment.
 
@@ -112,7 +126,7 @@ Tasques:
 
 Resultat del tram: cada equip té una regla mínima i dos casos previstos.
 
-### 0:20-0:45. Modelatge docent
+### 0:50-1:10. Modelatge docent
 
 El professorat mostra un exemple curt:
 
@@ -126,7 +140,7 @@ El professorat mostra un exemple curt:
 
 Resultat del tram: l'alumnat veu que arrays, funcions i condicions no són decoracio, sinó peces que fan explícita una regla del producte.
 
-### 0:45-1:30. Implementacio de la regla
+### 1:10-1:45. Implementacio de la regla
 
 L'alumnat implementa la regla sobre el seu flux.
 
@@ -142,7 +156,7 @@ Tasques:
 
 Resultat del tram: hi ha codi executable que pren una decisio i mostra una resposta diferenciada.
 
-### 1:30-2:05. Dos casos de prova
+### 1:45-2:10. Dos casos de prova
 
 L'alumnat prova la regla.
 
@@ -156,7 +170,7 @@ Tasques:
 
 Resultat del tram: la regla queda demostrada amb dos casos reproduïbles.
 
-### 2:05-2:30. Revisio de qualitat minima
+### 2:10-2:25. Revisio de qualitat minima
 
 El professorat o una parella revisa la logica.
 
@@ -171,7 +185,7 @@ Pauta de revisio:
 
 Resultat del tram: cada equip fa almenys un ajust de claredat o deixa anotada una millora futura.
 
-### 2:30-2:50. Traçabilitat i documentacio minima
+### 2:25-2:45. Traçabilitat i documentacio minima
 
 L'alumnat deixa rastre del que ha fet.
 
@@ -187,7 +201,7 @@ Tasques:
 
 Resultat del tram: la regla es pot revisar sense dependre d'una explicacio improvisada.
 
-### 2:50-3:00. Checkpoint docent
+### 2:45-2:50. Checkpoint docent
 
 Cada equip mostra:
 
@@ -199,6 +213,10 @@ Cada equip mostra:
 - punt de la resposta on es veu l'efecte.
 
 Pregunta de tancament: quina decisio pren ara el servidor que abans no prenia, i com ho demostres amb dos casos?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

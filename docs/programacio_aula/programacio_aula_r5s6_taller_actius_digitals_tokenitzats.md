@@ -190,3 +190,7 @@ Este taller pot aparéixer en la defensa final com a ampliació avançada. La de
 - **Microtaller**: `MT18. Actius digitals tokenitzats`
 - **Moment recomanat**: com a obertura del taller, abans de decidir si l'actiu realment mereix ser tokenitzat.
 - **Evidència mínima**: actiu o dret definit, frontera backend/token i comparació amb una alternativa no blockchain.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

@@ -74,7 +74,21 @@ Abans de la sessió convé tindre preparat:
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:20. Recuperació de R2M1
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Recuperació de R2M1
 
 El professorat demana executar el formulari de la sessió anterior amb un cas incorrecte.
 
@@ -88,7 +102,7 @@ Tasques:
 
 Resultat del tram: cada equip sap quin problema d'usabilitat resoldrà en el reintent.
 
-### 0:20-0:45. Modelatge docent
+### 0:50-1:10. Modelatge docent
 
 El professorat mostra un flux mínim:
 
@@ -101,7 +115,7 @@ El professorat mostra un flux mínim:
 
 Resultat del tram: l'alumnat veu que el servidor no només valida, sinó que també reconstrueix una resposta útil per a corregir.
 
-### 0:45-1:30. Conservació de dades de text i opció tancada
+### 1:10-1:45. Conservació de dades de text i opció tancada
 
 L'alumnat adapta el formulari perquè conserve almenys les dades més simples.
 
@@ -115,7 +129,7 @@ Tasques:
 
 Resultat del tram: el formulari ja no torna completament buit després d'un error.
 
-### 1:30-2:05. Checkbox i cas d'error
+### 1:45-2:10. Checkbox i cas d'error
 
 L'alumnat revisa com es comporta el checkbox simple.
 
@@ -129,7 +143,7 @@ Tasques:
 
 Resultat del tram: el reintent conserva text, opció tancada i, si correspon, checkbox simple.
 
-### 2:05-2:30. Reenviament corregit i guardat funcional
+### 2:10-2:25. Reenviament corregit i guardat funcional
 
 L'alumnat prova el cicle complet.
 
@@ -145,7 +159,7 @@ Tasques:
 
 Resultat del tram: el flux d'error i reintent és demostrable, i el cas correcte no es perd.
 
-### 2:30-2:50. Traçabilitat i documentació mínima
+### 2:25-2:45. Traçabilitat i documentació mínima
 
 L'alumnat deixa rastre del que ha fet.
 
@@ -159,7 +173,7 @@ Tasques:
 
 Resultat del tram: una altra persona pot repetir el reintent.
 
-### 2:50-3:00. Checkpoint docent
+### 2:45-2:50. Checkpoint docent
 
 Cada equip mostra:
 
@@ -172,6 +186,10 @@ Cada equip mostra:
 - fragment de codi on es preparen els valors que tornen al formulari.
 
 Pregunta de tancament: quines dades conserva el servidor per ajudar l'usuari a corregir, i en quin punt del codi es tornen a pintar?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

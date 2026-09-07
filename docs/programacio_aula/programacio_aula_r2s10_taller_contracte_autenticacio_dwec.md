@@ -187,3 +187,7 @@ Regla docent recomanada:
 `DWEC` implementarà el client, el formulari, el `fetch`, el guardat del token en el client i la gestió visual dels errors. `DWES` ha de deixar el backend i el contracte preparats.
 
 En `R4`, este contracte mínim es convertirà en treball d'API més formal: endpoints, contracte ampliat, protecció, documentació i consum complet.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

@@ -121,3 +121,7 @@ Preguntes de comprovació:
 - **Microtaller**: `MT19. IA responsable aplicada al repte`
 - **Moment recomanat**: en l'obertura del curs i de manera recurrent abans dels checkpoints quan aparega ús intensiu d'IA.
 - **Evidència mínima**: primera pauta d'AI log i criteri clar sobre què ha de poder defensar l'alumnat.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

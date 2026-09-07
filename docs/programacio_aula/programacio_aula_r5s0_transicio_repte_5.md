@@ -57,3 +57,7 @@ Validació de la idea abans de `R5S1`.
 - [ ] Font externa candidata.
 - [ ] Valor funcional justificat.
 - [ ] Preparat per a `R5S1`.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

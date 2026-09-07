@@ -63,7 +63,21 @@ composer.json
 
 ## Seqüencia d'aula de 3 hores
 
-### 0:00-0:20. Tria de la peça testable
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Tria de la peça testable
 
 Tasques:
 
@@ -74,7 +88,7 @@ Tasques:
 
 Resultat: cada equip té una peça acotada per convertir en classe.
 
-### 0:20-0:50. Modelatge docent
+### 0:50-1:15. Modelatge docent
 
 Mostrar:
 
@@ -86,7 +100,7 @@ Mostrar:
 
 Resultat: l'alumnat veu que Composer i POO s'usen per fer una peça més testable, no per reescriure-ho tot.
 
-### 0:50-1:30. Creacio de Composer i classe mínima
+### 1:15-1:45. Creacio de Composer i classe mínima
 
 Tasques:
 
@@ -99,7 +113,7 @@ Tasques:
 
 Resultat: la classe es pot carregar amb Composer.
 
-### 1:30-2:10. Primera prova unitària
+### 1:45-2:15. Primera prova unitària
 
 Tasques:
 
@@ -111,7 +125,7 @@ Tasques:
 
 Resultat: hi ha una prova unitària inicial real.
 
-### 2:10-2:35. No regressio del flux
+### 2:15-2:30. No regressio del flux
 
 Tasques:
 
@@ -121,7 +135,7 @@ Tasques:
 
 Resultat: la nova classe no trenca el flux web.
 
-### 2:35-3:00. Tancament i pont cap a R3
+### 2:30-2:50. Tancament i pont cap a R3
 
 Tasques:
 
@@ -131,6 +145,10 @@ Tasques:
 - indicar què queda pendent per a `R3`.
 
 Pregunta de checkpoint: quina part del teu backend pots provar ara sense passar pel formulari ni pel navegador?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

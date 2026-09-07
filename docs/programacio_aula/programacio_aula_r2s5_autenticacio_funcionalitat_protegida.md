@@ -57,7 +57,21 @@ Convé preparar:
 
 ## Seqüencia d'aula de 3 hores
 
-### 0:00-0:25. Marc conceptual
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:55. Marc conceptual
 
 Diferenciar:
 
@@ -69,7 +83,7 @@ Diferenciar:
 
 Resultat: cada equip tria una operacio a protegir.
 
-### 0:25-0:55. Modelatge docent
+### 0:55-1:15. Modelatge docent
 
 Mostrar:
 
@@ -84,7 +98,7 @@ Mostrar:
 
 Resultat: queda clar que el control ha d'estar en servidor.
 
-### 0:55-1:25. Registre i guardat de credencial segura
+### 1:15-1:40. Registre i guardat de credencial segura
 
 Tasques:
 
@@ -96,7 +110,7 @@ Tasques:
 
 Resultat: hi ha una credencial de prova guardada amb hash.
 
-### 1:25-1:55. Implementacio d'autenticacio
+### 1:40-2:00. Implementacio d'autenticacio
 
 Tasques:
 
@@ -109,7 +123,7 @@ Tasques:
 
 Resultat: hi ha sessio autenticada comprovable.
 
-### 1:55-2:25. Proteccio d'una operacio real
+### 2:00-2:25. Proteccio d'una operacio real
 
 Tasques:
 
@@ -120,7 +134,7 @@ Tasques:
 
 Resultat: l'operacio queda protegida al servidor.
 
-### 2:25-2:45. Prova de casos
+### 2:25-2:40. Prova de casos
 
 Casos mínims:
 
@@ -133,7 +147,7 @@ Casos mínims:
 
 Resultat: hi ha cas permés i denegat reproduïbles.
 
-### 2:45-3:00. Checkpoint docent
+### 2:40-2:50. Checkpoint docent
 
 Cada equip mostra:
 
@@ -147,6 +161,10 @@ Cada equip mostra:
 - codi on es comprova la restriccio.
 
 Pregunta: on es crea o guarda el hash de la contrasenya, on es verifica i quina operacio real queda protegida?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

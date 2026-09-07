@@ -47,29 +47,47 @@ Un tancament tècnic que incloga:
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:20. Inventari d'evidències
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Inventari d'evidències
 
 Cada equip comprova què té: connector, mapping, funcionalitat, proves, documentació i registre d'IA.
 
-### 0:20-0:55. Prova positiva reproduïble
+### 0:50-1:15. Prova positiva reproduïble
 
 Es documenta o automatitza la prova del flux correcte i es registra el resultat esperat.
 
-### 0:55-1:30. Prova d'error
+### 1:15-1:45. Prova d'error
 
 Es comprova una fallada significativa: font no disponible, credencial absent, paràmetre invàlid, resposta buida o dades inesperades.
 
-### 1:30-2:05. Documentació final
+### 1:45-2:10. Documentació final
 
 L'alumnat redacta el mapa final, configuració, passos d'execució, límits i decisions.
 
-### 2:05-2:35. Preparació de mini defensa
+### 2:10-2:30. Preparació de mini defensa
 
 Cada persona prepara una explicació curta: font, contracte, transformació, ús en producte, error i valor.
 
-### 2:35-3:00. Microdefensa i acta de tancament
+### 2:30-2:50. Microdefensa i acta de tancament
 
 El professorat escolta defenses breus o selecciona equips per mostra guiada i deixa constància de tancament, correcció o recuperació.
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

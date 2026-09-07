@@ -65,7 +65,21 @@ src/
 
 ## Seqüencia d'aula de 3 hores
 
-### 0:00-0:20. Del login web al login consumible
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Del login web al login consumible
 
 Tasques:
 
@@ -76,7 +90,7 @@ Tasques:
 
 Resultat: cada equip sap què ha de respondre el backend.
 
-### 0:20-0:50. Modelatge docent de `JSON` i codis HTTP
+### 0:50-1:15. Modelatge docent de `JSON` i codis HTTP
 
 Mostrar:
 
@@ -89,7 +103,7 @@ Mostrar:
 
 Resultat: l'alumnat entén que no està fent una pantalla nova, sinó una resposta per a un altre programa.
 
-### 0:50-1:25. Endpoint `POST /api/login`
+### 1:15-1:40. Endpoint `POST /api/login`
 
 Tasques:
 
@@ -101,7 +115,7 @@ Tasques:
 
 Resultat: el client pot demanar autenticació i rebre una resposta interpretable.
 
-### 1:25-2:05. Endpoint protegit
+### 1:40-2:10. Endpoint protegit
 
 Tasques:
 
@@ -113,7 +127,7 @@ Tasques:
 
 Resultat: hi ha una ruta protegida consumible des de client.
 
-### 2:05-2:35. Prova des de fora del navegador
+### 2:10-2:30. Prova des de fora del navegador
 
 Tasques:
 
@@ -124,7 +138,7 @@ Tasques:
 
 Resultat: DWEC pot consumir el contracte bàsic.
 
-### 2:35-3:00. Tancament i límits
+### 2:30-2:50. Tancament i límits
 
 Tasques:
 
@@ -134,6 +148,10 @@ Tasques:
 - deixar un commit clar.
 
 Pregunta de checkpoint: què ha de fer el client quan rep `401`?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

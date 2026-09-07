@@ -71,3 +71,7 @@ La IA pot ajudar a preparar una col·lecció de proves, revisar codis d'estat, c
 ## Adaptació realista a l'aula
 
 Si el temps és curt, cada alumne defensa un endpoint crític i una prova negativa. El contracte complet pot quedar com a evidència escrita, però el docent ha de veure almenys una execució real i una pregunta individual de control.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

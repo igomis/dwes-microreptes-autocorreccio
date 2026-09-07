@@ -77,3 +77,7 @@ La IA pot haver ajudat a comparar controls, escriure casos de prova, revisar mis
 ## Adaptació realista a l'aula
 
 Si el grup és gran, prioritza defensa completa de l'alumnat amb dubtes d'autoria i defensa abreujada de la resta. Qui no acredite comprensió no obri `R3` amb normalitat: tanca abans un flux mínim, documenta prova i repetix contrast curt.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

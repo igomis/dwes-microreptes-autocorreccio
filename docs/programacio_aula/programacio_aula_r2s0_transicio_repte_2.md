@@ -73,7 +73,7 @@ Punt docent important: `htmlspecialchars` s'introdueix com a hàbit de seguretat
 
 ## Tasques concretes de l’alumnat
 
-Seguir la [bateria de 7 exercicis de PHP i HTML](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/practica_php_html/), amb resultats esperats i variacions. Conservar els fitxers de pràctica i notes dels errors per a revisió formativa a classe. Esta sessió introductòria no genera lliurament, nota ni autocorrecció pròpia.
+Seguir la [bateria de 7 exercicis de PHP i HTML](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/practica_php_html.html), amb resultats esperats i variacions. Conservar els fitxers de pràctica i notes dels errors per a revisió formativa a classe. Esta sessió introductòria no genera lliurament, nota ni autocorrecció pròpia.
 
 ## Evidències mínimes
 
@@ -129,3 +129,7 @@ Recompte d’elements disponibles o extracció d’un càlcul a una funció. És
 ## Connexió amb el microrepte posterior
 
 En R2S1/R2M1, algunes dades ara escrites al codi arribaran d’un formulari i necessitaran validació. La pràctica de R2S0 prepara eixe pas i no substituïx el flux real que demana R2M1.
+
+## Seguiment dels pendents
+
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md) en els trams de revisió i checkpoint d’esta sessió. Identificar els bloquejos abans del treball que en depén, donar ajuda concreta per continuar i comprovar la comprensió. Els microreptes són treball d’aula i no es recuperen individualment; la recuperació correspon al repte complet. Si és una sessió inicial sense treball previ, comprovar el punt de partida. Esta actuació no crea un microrepte propi ni una nota addicional.

@@ -57,7 +57,21 @@ Al final de la sessio, cada equip ha de tindre stack triat, comparativa curta, D
 
 ## Sequencia d'aula de 3 hores
 
-### 0:00-0:25. Obertura de R3 i abast
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:55. Obertura de R3 i abast
 
 El professorat recorda que `R3` parteix de `R2`, pero no el reescriu sencer.
 
@@ -68,7 +82,7 @@ Tasques:
 - marcar quin cas sera server-rendered;
 - obrir issue principal de `R3`.
 
-### 0:25-0:55. Tria i justificacio de stack
+### 0:55-1:15. Tria i justificacio de stack
 
 El professorat modela una comparativa curta.
 
@@ -79,7 +93,7 @@ Tasques:
 - escriure un avantatge concret de separacio de responsabilitats;
 - fer esquema abans/despres respecte a `R2`.
 
-### 0:55-1:45. Arrencada tecnica
+### 1:15-1:55. Arrencada tecnica
 
 L'alumnat crea o estabilitza el projecte base.
 
@@ -91,7 +105,7 @@ Tasques:
 - crear `.env.example`;
 - verificar arrencada.
 
-### 1:45-2:20. Primera ruta
+### 1:55-2:20. Primera ruta
 
 L'alumnat crea una ruta o vista minima.
 
@@ -102,7 +116,7 @@ Tasques:
 - comprovar-ho des del navegador o terminal;
 - registrar com executar-ho.
 
-### 2:20-2:45. Traçabilitat
+### 2:20-2:40. Traçabilitat
 
 Tasques:
 
@@ -111,7 +125,7 @@ Tasques:
 - deixar issue amb microtasques;
 - registrar ajuda d'IA si ha afectat arrencada o decisio.
 
-### 2:45-3:00. Checkpoint
+### 2:40-2:50. Checkpoint
 
 Cada equip mostra:
 
@@ -120,6 +134,10 @@ Cada equip mostra:
 - `.env.example`;
 - comparativa curta;
 - `2` casos d'us declarats.
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

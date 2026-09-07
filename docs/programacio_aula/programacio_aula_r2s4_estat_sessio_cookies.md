@@ -59,7 +59,21 @@ Convé tindre preparat:
 
 ## Seqüencia d'aula de 3 hores
 
-### 0:00-0:25. Aclariment conceptual
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:55. Aclariment conceptual
 
 El professorat separa quatre idees:
 
@@ -70,7 +84,7 @@ El professorat separa quatre idees:
 
 Resultat: cada equip identifica una dada temporal per a sessio i una dada no sensible per a cookie.
 
-### 0:25-0:50. Modelatge docent
+### 0:55-1:15. Modelatge docent
 
 Mostrar:
 
@@ -85,7 +99,7 @@ Mostrar:
 
 Resultat: l'alumnat veu on viu cada part del mecanisme.
 
-### 0:50-1:20. Implementacio de sessio significativa
+### 1:15-1:35. Implementacio de sessio significativa
 
 Tasques:
 
@@ -96,7 +110,7 @@ Tasques:
 
 Resultat: el flux recupera informacio de sessio entre peticions.
 
-### 1:20-1:50. Cookie pròpia i context de client
+### 1:35-1:55. Cookie pròpia i context de client
 
 Tasques:
 
@@ -109,7 +123,7 @@ Tasques:
 
 Resultat: el projecte diferencia estat de servidor, dada en client i context de peticio.
 
-### 1:50-2:15. Base comuna per a includes
+### 1:55-2:15. Base comuna per a includes
 
 Tasques:
 
@@ -121,7 +135,7 @@ Tasques:
 
 Resultat: els includes parteixen d'un punt estable del projecte.
 
-### 2:15-2:40. Invalidacio i comprovacio
+### 2:15-2:35. Invalidacio i comprovacio
 
 Tasques:
 
@@ -133,7 +147,7 @@ Tasques:
 
 Resultat: hi ha invalidacio controlada.
 
-### 2:40-2:50. Contrast amb guardat funcional
+### 2:35-2:45. Contrast amb guardat funcional
 
 Tasques:
 
@@ -143,7 +157,7 @@ Tasques:
 
 Resultat: queda clara la frontera conceptual.
 
-### 2:50-3:00. Checkpoint docent
+### 2:45-2:50. Checkpoint docent
 
 Cada equip mostra:
 
@@ -155,6 +169,10 @@ Cada equip mostra:
 - explicacio de què queda en client, què queda en servidor i què només és context de peticio.
 
 Pregunta: quina informacio recorda el sistema en sessio, quina queda en cookie, quina ve de `$_SERVER` i com evites que els includes depenguen de rutes fràgils?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

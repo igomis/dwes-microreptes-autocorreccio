@@ -137,4 +137,10 @@ La sessió seleccionada inclou un enllaç directe a la seua pàgina en la docume
 
 Es recomana el flux `microrepte/r2m1 → repte/r2 → main`, amb una PR en cada pas i integració en `main` en cada microrepte. L’alumnat revisa i fa el merge de les seues PR; conserva les branques i etiqueta el commit de cada entrega. La correcció continua llegint `main`, sense afegir requisits de rúbrica ni punts per usar branques.
 
-Consulta el [procediment de l’alumnat](https://cipfpbatoi.github.io/dwes2627/04_materials/guia_branques_i_entregues/). Per a treball individual, comprovar permisos de merge, permetre merge commits i evitar regles que exigisquen una aprovació externa; convé desactivar l’eliminació automàtica de branques. No s’han modificat permisos ni regles dels repositoris existents.
+Consulta el [procediment de l’alumnat](https://cipfpbatoi.github.io/dwes2627/04_materials/guia_branques_i_entregues.html). Per a treball individual, comprovar permisos de merge, permetre merge commits i evitar regles que exigisquen una aprovació externa; convé desactivar l’eliminació automàtica de branques. No s’han modificat permisos ni regles dels repositoris existents.
+
+## Consolidació del treball d’aula
+
+La programació incorpora retorn, correcció guiada i diagnòstic dins de les tres hores. Consulta el [protocol docent](programacio_aula/retorn_i_consolidacio_microreptes.md). En el comentari de sessió, registra grup, errors comuns, ajustos i ajuda prevista. El seguiment individual es conserva en el registre docent. No s’han afegit estats automàtics, recorreccions ni canvis de notes.
+
+Els microreptes no tenen recuperació individual. La recuperació del repte complet requereix valoració docent global i no substituïx automàticament les notes dels microreptes.

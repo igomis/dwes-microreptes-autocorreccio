@@ -71,13 +71,27 @@ Convé preparar:
 
 ## Seqüencia d'aula de 3 hores
 
-### 0:00-0:25. Bateria mínima comuna
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:55. Bateria mínima comuna
 
 Presentar la bateria i els camps de registre.
 
 Resultat: cada equip té una taula o checklist preparada.
 
-### 0:25-0:50. Modelatge de registre, depuracio i prova automàtica mínima
+### 0:55-1:15. Modelatge de registre, depuracio i prova automàtica mínima
 
 Mostrar com anotar:
 
@@ -97,7 +111,7 @@ Mostrar també una prova automàtica mínima:
 
 Resultat: l'alumnat sap què vol dir provar de manera reproduïble.
 
-### 0:50-1:30. Execucio de proves manuals
+### 1:15-1:45. Execucio de proves manuals
 
 Tasques:
 
@@ -108,7 +122,7 @@ Tasques:
 
 Resultat: hi ha una primera bateria executada.
 
-### 1:30-1:55. Primera prova automàtica lleugera
+### 1:45-2:00. Primera prova automàtica lleugera
 
 Tasques:
 
@@ -120,7 +134,7 @@ Tasques:
 
 Resultat: hi ha almenys una comprovacio executable del flux.
 
-### 1:55-2:20. Depuracio guiada
+### 2:00-2:20. Depuracio guiada
 
 Tasques:
 
@@ -131,7 +145,7 @@ Tasques:
 
 Resultat: els bloquejos principals queden resolts o documentats.
 
-### 2:20-2:40. Documentacio mínima
+### 2:20-2:35. Documentacio mínima
 
 Tasques:
 
@@ -144,13 +158,17 @@ Tasques:
 
 Resultat: la demo és reproduïble.
 
-### 2:40-3:00. Checkpoint tecnic
+### 2:35-2:50. Checkpoint tecnic
 
 El professorat tria un cas de la taula i demana executar-lo.
 
 També pot demanar executar o llegir la prova automàtica lleugera.
 
 Pregunta: quins casos demostren que el flux complet és reproduïble amb errors, estat i permisos controlats, i quin cas has començat a automatitzar?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

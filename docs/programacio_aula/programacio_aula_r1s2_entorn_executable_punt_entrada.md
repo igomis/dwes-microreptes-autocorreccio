@@ -62,19 +62,33 @@ Un repositori que permeta:
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:15. Recuperació de R1M1
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:45. Recuperació de R1M1
 
 L'alumnat recupera la decisió tècnica de `R1M1` i confirma quina base construirà.
 
 Resultat del tram: cada equip sap quin entorn intenta arrancar i per què.
 
-### 0:15-0:35. Modelatge docent de l'entorn mínim
+### 0:45-1:00. Modelatge docent de l'entorn mínim
 
 El professorat mostra els serveis mínims, com es comproven i on mirar errors.
 
 Resultat del tram: el grup té una referència clara de què vol dir "entorn executable".
 
-### 0:35-1:10. Adaptació del repositori Classroom
+### 1:00-1:25. Adaptació del repositori Classroom
 
 Tasques:
 
@@ -86,19 +100,19 @@ Tasques:
 
 Resultat del tram: el mateix repositori del curs queda preparat per arrancar serveis.
 
-### 1:10-1:40. Arrencada i lectura d'errors
+### 1:25-1:50. Arrencada i lectura d'errors
 
 L'alumnat arranca l'entorn, revisa ports, serveis i logs, i documenta qualsevol bloqueig.
 
 Resultat del tram: l'entorn arranca o hi ha un error amb log, hipòtesi i pròxima acció.
 
-### 1:40-2:20. Landing inicial servida pel backend
+### 1:50-2:20. Landing inicial servida pel backend
 
 L'alumnat crea una landing inicial del producte amb contingut propi i CSS senzill. Pot usar IA per obtindre una primera proposta d'HTML/CSS, però ha d'adaptar-la al seu projecte i verificar que la resposta està servida pel backend.
 
 Resultat del tram: hi ha una URL documentada que mostra la landing del producte i que el professorat pot obrir des de l'entorn executat.
 
-### 2:20-2:35. README executable
+### 2:20-2:30. README executable
 
 Tasques:
 
@@ -109,17 +123,21 @@ Tasques:
 
 Resultat del tram: una altra persona podria repetir l'arrencada sense informació oral oculta.
 
-### 2:35-2:50. Documentació i evidències de R1
+### 2:30-2:45. Documentació i evidències de R1
 
 L'alumnat deixa dins del repositori la fitxa de `R1M1`, la decisió tècnica, incidències i evidències.
 
 Resultat del tram: la documentació de `R1` és localitzable i prepara el pas a `R2`.
 
-### 2:50-3:00. Checkpoint docent
+### 2:45-2:50. Checkpoint docent
 
 Cada equip fa una demo curta o mostra el bloqueig documentat.
 
 Pregunta de tancament: quin fitxer respon a la petició que estàs ensenyant i quin servei l'executa?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

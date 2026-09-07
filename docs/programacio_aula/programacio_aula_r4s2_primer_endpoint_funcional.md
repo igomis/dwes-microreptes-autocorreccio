@@ -42,29 +42,47 @@ Al final de la sessió, cada equip ha de poder executar una petició, veure una 
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:20. Recuperació del contracte
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit el microrepte anterior pel fet d’haver canviat de sessió.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:50. Recuperació del contracte
 
 Cada equip selecciona l'endpoint que implementarà primer.
 
-### 0:20-0:45. Modelatge docent
+### 0:50-1:10. Modelatge docent
 
 El professorat mostra ruta, controlador/handler, accés a dades i resposta.
 
-### 0:45-1:40. Implementació guiada
+### 1:10-1:50. Implementació guiada
 
 L'alumnat implementa l'endpoint i comprova que respon.
 
-### 1:40-2:15. Coherència contracte-resposta
+### 1:50-2:15. Coherència contracte-resposta
 
 Es compara la resposta real amb el contracte escrit en `R4S1`.
 
-### 2:15-2:40. Prova i evidència
+### 2:15-2:35. Prova i evidència
 
 Cada equip guarda captura, comanda, col·lecció o registre de prova.
 
-### 2:40-3:00. Checkpoint docent
+### 2:35-2:50. Checkpoint docent
 
 Demo curta de l'endpoint i pregunta sobre l'origen de dades.
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 

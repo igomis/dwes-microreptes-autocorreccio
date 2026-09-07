@@ -94,7 +94,21 @@ Esta resposta no és suficient perquè no connecta la decisió amb el producte, 
 
 ## Seqüència d'aula de 3 hores
 
-### 0:00-0:15. Presentació del curs, repositori i producte esperat
+Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+
+### 0:00-0:15. Retorn i explicació dels errors anteriors
+
+Revisar les evidències i els dubtes de R1S0 i del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit cap microrepte anterior: R1M1 és el primer.
+
+### 0:15-0:30. Correcció guiada o consolidació
+
+Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
+
+### 0:30-0:35. Comprovació de la base per continuar
+
+Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
+
+### 0:35-0:45. Presentació del curs, repositori i producte esperat
 
 El professorat presenta el funcionament del curs, el `Repte 1`, el sentit del kickoff backend i la relació amb els reptes posteriors.
 
@@ -102,7 +116,7 @@ També explica que el repositori de GitHub Classroom serà el repositori individ
 
 Resultat del tram: l'alumnat sap que la sessió acaba amb repositori creat, clonat i pujat, més una fitxa tècnica breu; no amb un projecte ja implementat.
 
-### 0:15-0:35. Acceptació i clonatge del repositori Classroom
+### 0:45-1:00. Acceptació i clonatge del repositori Classroom
 
 Tasques:
 
@@ -114,19 +128,19 @@ Tasques:
 
 Resultat del tram: cada alumne té el seu repositori individual en local i sap que no ha de clonar el repositori base directament.
 
-### 0:35-0:55. Model client/servidor amb un exemple concret
+### 1:00-1:15. Model client/servidor amb un exemple concret
 
 El professorat explica el flux bàsic d'una petició web: navegador, servidor, codi de servidor i resposta.
 
 Resultat del tram: l'alumnat pot separar, en un cas senzill, què fa el client i què fa el servidor.
 
-### 0:55-1:15. Modelatge docent de la fitxa i del `README.md` inicial
+### 1:15-1:30. Modelatge docent de la fitxa i del `README.md` inicial
 
 El professorat mostra una fitxa d'exploració tècnica mínima amb un producte exemple i com deixar en `README.md` el microrepte actual, el producte triat i la primera decisió de treball.
 
 Resultat del tram: l'alumnat veu el nivell de concreció esperat i evita llistes genèriques de frameworks.
 
-### 1:15-1:55. Treball individual o per parelles
+### 1:30-2:00. Treball individual o per parelles
 
 Tasques:
 
@@ -137,19 +151,19 @@ Tasques:
 
 Resultat del tram: cada equip té una primera fitxa amb producte, flux i opcions tècniques.
 
-### 1:55-2:20. Contrast per parelles
+### 2:00-2:20. Contrast per parelles
 
 Una altra persona revisa si la fitxa diferencia realment client, servidor i dades.
 
 Resultat del tram: cada equip detecta una confusió, omissió o decisió massa genèrica.
 
-### 2:20-2:40. Decisió inicial de stack
+### 2:20-2:35. Decisió inicial de stack
 
 L'alumnat tanca una decisió tècnica inicial i una alternativa descartada.
 
 Resultat del tram: la decisió queda escrita amb un motiu relacionat amb el producte, amb el marc del curs i amb el que realment s'ha de construir en `R1S2`.
 
-### 2:40-2:55. Commit i `push` inicial
+### 2:35-2:45. Commit i `push` inicial
 
 Tasques:
 
@@ -160,11 +174,15 @@ Tasques:
 
 Resultat del tram: GitHub mostra el primer canvi i el professorat pot comprovar que el repositori queda operatiu.
 
-### 2:55-3:00. Checkpoint docent
+### 2:45-2:50. Checkpoint docent
 
 Cada equip mostra el repositori en GitHub, la fitxa i respon una pregunta breu.
 
 Pregunta de tancament: què passa exactament al navegador i què passa al servidor en una acció bàsica del teu producte?
+
+### 2:50-3:00. Diagnòstic individual i següent pas
+
+Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 
