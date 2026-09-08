@@ -118,7 +118,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 ## Ús de la IA
 
-La IA pot ajudar amb esquelets de ruta o serialització, però la resposta s'ha de provar i contrastar amb el contracte.
+La IA pot donar pistes sobre un intent propi de ruta o serialització; l’alumnat implementa i prova la resposta segons el contracte.
 
 ## Suport i ampliació
 

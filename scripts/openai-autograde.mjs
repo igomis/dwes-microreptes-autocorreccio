@@ -157,6 +157,7 @@ function buildMessages(payload, schema, promptText) {
         'Has de tornar exclusivament un objecte JSON compatible amb l_esquema proporcionat.',
         'No canvies el contracte d_eixida. Marca sempre provisional=true si no hi ha revisio docent final.',
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
+        'No penalitzes no usar IA: una declaració de no ús satisfà el registre d’IA quan es demana, sense exigir consultes fictícies. La generació declarada d’HTML estàtic i CSS de presentació està permesa; no inclou lògica de servidor. La norma prohibix delegar el backend, la configuració avaluable o les proves en xats o agents. No inferisques infraccions per estil del codi o nom de ferramenta: descriu només evidències concretes per a revisió docent, sense deduccions automàtiques noves per sospita d’IA.',
         'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu. Excepció: la proposta separada repte_extension usa evidències del repte complet, només quan el payload l’habilita. Mai suma a les dimensions ni a les notes del microrepte.',
         'Si el payload no conte evidencia especifica vinculada al challenge_id o microrepte_code actiu, la nota maxima orientativa es 2/10 encara que el repositori tinga treball anterior.',
         'Interpreta README.md de l_arrel com la fitxa de l_entrega actual: ha d_orientar la correccio i enllacar docs, evidence i tests concrets del microrepte actiu.',

@@ -7,7 +7,7 @@
     {"id": "verification", "label": "Verificació", "weight": 0.2, "must_check": "Inclou prova del cas positiu i d'almenys un error o validacio controlada."},
     {"id": "traceability", "label": "Traçabilitat", "weight": 0.1, "must_check": "Hi ha commits útils o registre equivalent del flux, integracio de BBDD i prova, amb temps aproximat si s'ha demanat."},
     {"id": "documentation", "label": "Documentació", "weight": 0.15, "must_check": "Documenta quin flux ve de R2, com s'executa, quines dades usa i quin error es pot provar."},
-    {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra esquelets acceptats/modificats i comprovacio pròpia del flux real."},
+    {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra pistes, ajuda real i comprovació pròpia del flux; no delega la implementació. La declaració de no ús és vàlida."},
     {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "Les responsabilitats no estan totes en una ruta o controlador i el codi usa convencions del framework de manera explicable."}
   ],
   "hard_rules": [

@@ -115,7 +115,7 @@ Tasques:
 - provocar error;
 - documentar recorregut;
 - registrar commits i temps aproximat;
-- registrar IA si ha generat esquelets rellevants.
+- registrar les pistes i l’ajuda real d’IA, o declarar que no s’ha usat.
 
 ### 2:45-2:50. Checkpoint
 
@@ -173,7 +173,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 ## Us de la IA
 
-La IA pot ajudar amb esquelets de ruta, controlador, servei, vista o validacio. L'alumnat ha de contrastar el resultat amb el flux real de `R2` i explicar cada responsabilitat.
+La IA pot explicar responsabilitats i donar pistes sobre un intent propi, sense implementar ruta, controlador, servei ni validació. L’alumnat implementa i contrasta el flux real de `R2`.
 
 ## Suport per a alumnat amb dificultats
 

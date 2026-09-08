@@ -191,3 +191,11 @@ Una nota validada es la qualificacio revisada i confirmada pel professorat. Les 
 ## Ampliació global
 
 Consulta [càlcul i validació de l’ampliació](ampliacio-repte.md). Es gestiona només des de l’últim microrepte i suma una sola vegada al repte complet.
+
+## Ús d’IA i revisió docent
+
+La norma del curs permet explicacions conceptuals, pistes sobre intents propis i suggeriments de casos límit; no permet delegar el backend, la configuració avaluable ni les proves en xats o agents autònoms. Generar HTML estàtic/CSS de presentació està permés si es declara i revisa; no inclou PHP ni lògica funcional avaluable.
+
+No penalitzar la declaració de no ús d’IA ni exigir consultes fictícies. Si el registre està requerit, la declaració de no ús és vàlida. No confondre una plantilla buida amb esta declaració. L’AI log i l’estil del codi no proven autoria ni infracció per si sols: les incoherències concretes s’han de descriure per a contrast docent, sense acusacions ni deduccions automàtiques noves.
+
+Referència: [norma docent d’ús d’IA](https://igomis.github.io/reestructuracioModul/us-ia-professorat-i-alumnat/).
