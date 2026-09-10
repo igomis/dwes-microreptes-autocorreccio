@@ -133,7 +133,7 @@ export function upsertStudent(repo, groupName, studentName = null) {
     VALUES (?, ?, ?)
     ON CONFLICT(repo) DO UPDATE SET
       group_name = excluded.group_name,
-      student_name = excluded.student_name
+      student_name = COALESCE(NULLIF(TRIM(excluded.student_name), ''), students.student_name)
   `);
   return stmt.run(repo, groupName, studentName);
 }
