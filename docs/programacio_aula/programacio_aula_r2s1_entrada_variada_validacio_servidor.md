@@ -2,7 +2,7 @@
 
 ## Finalitat de la sessió 
 
-Esta sessió obri el `Repte 2` i treballa el microrepte `R2M1` amb una primera entrada real de dades del producte. L'objectiu no és practicar un camp solt ni fer tots els controls possibles, sinó entendre bé el recorregut mínim d'un formulari: text, llista o opció tancada, checkbox, recepció en servidor, una validació bàsica amb `if/else`, error visible i reenviament corregit.
+Esta sessió obri el `Repte 2` i treballa el microrepte `R2M1` amb una primera entrada real de dades del producte. L'objectiu no és practicar un camp solt ni fer tots els controls possibles, sinó entendre bé el recorregut mínim i segur d'un formulari: text, llista o opció tancada, checkbox, recepció defensiva en servidor, validació bàsica amb `if/else`, escapament de l'eixida, error visible i reenviament corregit.
 
 Al final de la sessió, cada alumne o parella ha de poder explicar quines dades envia cada control mínim, com arriben al servidor, quines validacions s'apliquen i què passa quan alguna dada no és acceptable.
 
@@ -57,7 +57,12 @@ Un primer flux executable del producte amb un formulari o entrada equivalent que
 - una llista desplegable o selecció equivalent;
 - un checkbox simple amb sentit dins del flux;
 - una dada tancada o classificada que puga alimentar una regla posterior;
+- lectura defensiva de camps que poden no arribar;
+- comprovació en servidor de les opcions contra un catàleg permés;
 - una validació bàsica en servidor sobre una dada clau o sobre el conjunt mínim;
+- escapament de qualsevol dada de l'usuari que es mostre en HTML;
+- absència de bolcats de petició i de dades sensibles en la resposta, captures,
+  URL o repositori;
 - un missatge d'error clar quan el cas no és acceptable;
 - un reenviament corregit que deixe continuar el flux;
 - una nota breu al `README`, issue o registre de treball indicant com provar el cas correcte i els casos incorrectes.
@@ -76,6 +81,9 @@ Abans de la sessió convé tindre preparat:
 - un exemple mínim de formulari amb `method="post"` i controls diversos;
 - una variant curta amb `enctype="multipart/form-data"` només per mostrar fitxers si el grup va ràpid, sense exigir-ho al mínim;
 - un error controlat per a text buit o llista sense selecció;
+- un valor de llista manipulat que el servidor rebutge;
+- un text com `<script>alert(1)</script>` o equivalent que es mostre com a text
+  inert i no s'execute ni s'interprete com a HTML;
 - una pauta curta per ajudar l'alumnat a triar una acció real del seu producte;
 - una pauta curta per comprovar que el formulari deixa una dada útil per a una decisió posterior;
 - el criteri de tancament: no es passa a processament ni guardat si no hi ha validació visible en servidor.
@@ -96,6 +104,16 @@ Exemples d'accions assumibles:
 | Checkbox simple | pot no aparéixer en la petició si no està marcat | mostrar què passa i, si és obligatori, comprovar presència |
 | Checkbox múltiple | ampliació posterior: arriba com a array si el `name` està ben definit | almenys una opció i opcions dins del catàleg permés |
 | Fitxer | ampliació/modelatge: arriba per `$_FILES` i pot fallar abans de validar contingut | error de pujada, mida, extensió o MIME permés |
+
+Cal distingir dos controls complementaris: la validació decidix si una entrada
+és acceptable per al domini; l'escapament s'aplica en el moment de mostrar-la
+perquè no s'interprete com a HTML. Cap valor enviat pel navegador és fiable pel
+fet de provindre d'un `select`, un camp ocult o un control amb `required`.
+
+La protecció CSRF serà obligatòria quan el flux canvie estat o depenga d'una
+sessió autenticada. No forma part del mínim de `R2M1`, que encara no exigix
+guardat funcional, però convé deixar explícit el motiu per no convertir esta
+excepció temporal en un hàbit insegur.
 
 ## Seqüència d'aula de 3 hores
 
@@ -135,7 +153,9 @@ El professorat mostra un flux mínim:
 - formulari amb text, select i checkbox;
 - recepció amb `$_POST`;
 - diferència entre dada absent i cadena buida;
+- manipulació d'una opció tancada i validació contra una llista permesa;
 - una validació amb `if/else` i una variable d'error simple;
+- escapament d'eixida amb `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')`;
 - resposta d'error o resposta correcta.
 
 Si el grup està preparat o el docent vol deixar-ho vist com a ampliació, el modelatge inclou una pujada de fitxer:
@@ -156,7 +176,8 @@ Tasques:
 - crear o revisar el formulari;
 - comprovar que el botó envia realment una petició;
 - recuperar text, llista i checkbox en `PHP`;
-- mostrar temporalment les dades rebudes per verificar què arriba;
+- inspeccionar temporalment les dades rebudes només en desenvolupament i
+  retirar el bolcat abans de l'entrega;
 - afegir una validació bàsica en servidor amb una variable d'error simple;
 - deixar checkbox múltiple o fitxer per a ampliació si el mínim encara no està tancat.
 
@@ -170,6 +191,8 @@ Tasques:
 
 - provar text buit o massa curt;
 - provar llista sense selecció o valor no permés si està preparat;
+- manipular una opció tancada i comprovar que el servidor la rebutja;
+- introduir marques HTML en un text i comprovar que es mostren com a text inert;
 - observar què passa amb el checkbox quan no està marcat;
 - provar checkbox múltiple o fitxer només si s'han implementat com a ampliació;
 - mostrar un missatge d'error concret;
@@ -188,6 +211,8 @@ Pauta de revisió:
 - quin error es veu si la dada triada és incorrecta?
 - es pot corregir sense reiniciar el projecte?
 - on està la condició que genera l'error?
+- on es valida una opció manipulada i on s'escapa l'eixida?
+- queda algun bolcat de la petició o alguna dada sensible visible?
 
 Resultat del tram: cada equip rep una observació concreta i corregeix almenys una confusió o omissió.
 
@@ -214,6 +239,7 @@ Cada equip mostra:
 - reenviament corregit;
 - fragment de codi on es recupera text, llista i checkbox;
 - fragment de codi on es genera l'error amb una condició simple;
+- fragment on es valida una opció tancada i s'escapa una dada abans de mostrar-la;
 - fragment de codi de fitxer només si s'ha treballat com a ampliació.
 
 Pregunta de tancament: què passa exactament quan falta la dada que has decidit validar?
@@ -228,6 +254,8 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 - Connectar-la amb la landing page i amb una decisió futura possible.
 - Crear o adaptar un formulari amb controls diversos.
 - Recuperar dades de text, llista i checkbox en `PHP`.
+- Tractar els camps absents, validar opcions manipulades i escapar les dades
+  abans de mostrar-les en HTML.
 - Validar en servidor almenys una dada clau amb una condició simple.
 - Mostrar un error útil i comprensible.
 - Provar un cas incorrecte i un cas correcte.
@@ -241,6 +269,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 | Connexió amb landing | es pot explicar quin botó, enllaç o promesa obri el flux |
 | Dada per a decisió | hi ha una opció, categoria, prioritat, franja, estat o dada semblant que podrà alimentar R2S3 |
 | Recuperació de dades | el codi mostra on es llig text, select/radio i checkbox |
+| Seguretat de l'entrada i l'eixida | els camps absents es controlen, les opcions es validen contra valors permesos i les dades mostrades s'escapen |
 | Validació | una dada clau té una regla simple en servidor |
 | Error visible | el cas incorrecte queda bloquejat amb missatge concret |
 | Reenviament | la persona pot corregir i enviar de nou |
@@ -255,6 +284,9 @@ El microrepte està aconseguit si:
 - el formulari no és genèric ni desconnectat de la landing;
 - hi ha més d'un tipus de control treballat;
 - la validació no depén només del navegador;
+- una opció manipulada queda rebutjada pel servidor;
+- el text aportat per l'usuari es mostra escapat i no s'interpreta com a HTML;
+- no queden bolcats de la petició ni dades sensibles exposades;
 - hi ha almenys una condició de servidor que bloqueja un cas incorrecte;
 - l'alumnat veu que el checkbox pot no arribar si no està marcat;
 - el cas incorrecte no continua com si fora correcte;
@@ -267,6 +299,10 @@ El microrepte està aconseguit si:
 - Tindre només `HTML` sense tractament en servidor.
 - Fer un formulari amb un únic camp de text.
 - Usar només `required` o validació de client.
+- Confiar en opcions tancades o camps ocults sense comprovar-los en servidor.
+- Mostrar directament dades de `$_POST` sense escapar-les.
+- Deixar `var_dump`, `print_r` o depuració equivalent accessible en l'entrega.
+- Incloure contrasenyes, tokens o dades sensibles en URL, captures o repositori.
 - Fer una validació tan complexa que l'alumnat no puga explicar-la.
 - Començar per arrays d'errors abans d'entendre una condició simple.
 - Afegir fitxers abans de tindre validats text, llista i checkbox.
@@ -325,6 +361,10 @@ L'ampliació no ha d'obrir encara autenticació, rols ni arquitectura completa.
 - [ ] El formulari envia dades al servidor.
 - [ ] He usat almenys text, llista i checkbox.
 - [ ] Puc assenyalar on recupere cada dada en `PHP`.
+- [ ] Controle els camps absents i valide en servidor els valors tancats.
+- [ ] Escape qualsevol dada de l'usuari abans de mostrar-la en HTML.
+- [ ] He retirat els bolcats de la petició i no expose dades sensibles.
+- [ ] He provat una opció manipulada i text amb marques HTML.
 - [ ] Valide almenys una dada clau en servidor amb una condició simple.
 - [ ] He provat almenys un cas incorrecte.
 - [ ] L'error indica què cal corregir.
