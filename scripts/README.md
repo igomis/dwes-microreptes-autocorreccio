@@ -21,7 +21,9 @@ Scripts Node.js per mantindre el repositori central.
   requerix `--apply` per publicar-los.
 - `audit-student-agent-rules.mjs`: comprova que els sis fitxers d'instruccions
   coincidixen byte a byte amb la plantilla, no són enllaços simbòlics i no hi ha
-  overrides ni configuracions alternatives conegudes.
+  overrides ni configuracions alternatives conegudes. El workflow massiu
+  d'auditoria només s'executa manualment per no consumir minuts d'Actions que es
+  necessiten per a l'autocorrecció.
 
 Execució recomanada:
 
