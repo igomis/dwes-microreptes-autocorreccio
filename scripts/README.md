@@ -19,6 +19,9 @@ Scripts Node.js per mantindre el repositori central.
   `CLAUDE.md`, `GEMINI.md` i les tres versions equivalents dins de `src/` en la
   branca `main` dels repositoris d'alumnat. Per defecte només simula els canvis;
   requerix `--apply` per publicar-los.
+- `audit-student-agent-rules.mjs`: comprova que els sis fitxers d'instruccions
+  coincidixen byte a byte amb la plantilla, no són enllaços simbòlics i no hi ha
+  overrides ni configuracions alternatives conegudes.
 
 Execució recomanada:
 
@@ -57,6 +60,10 @@ npm run students:create-repos -- \
   --dry-run
 npm run students:deploy-agents
 npm run students:deploy-agents -- --apply
+npm run students:audit-agents -- \
+  --repo-dir /ruta/al/repositori-alumne \
+  --policy-dir ../dwes-microreptes-alumnes \
+  --repo organitzacio/repositori
 ```
 
 El resolver imprimeix només el `challenge_id` quan tot va bé. Si no troba assignació específica d'alumne ni assignació de grup, mostra un error i ix amb codi `1`.

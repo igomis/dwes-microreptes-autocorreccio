@@ -19,6 +19,7 @@
     "dashboard": "node teacher-dashboard/server.mjs",
     "students:create-repos": "node scripts/create-student-repos.mjs",
     "students:deploy-agents": "bash scripts/desplega-agents-alumnat.sh",
+    "students:audit-agents": "node scripts/audit-student-agent-rules.mjs",
     "grades:append": "node scripts/append-grade-result.mjs",
     "grades:import": "node scripts/import-autograde-result.mjs",
     "grades:download-latest": "node scripts/download-latest-batch-results.mjs",
