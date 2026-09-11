@@ -35,7 +35,8 @@ const rootDir = path.resolve(__dirname, '..');
 const localClassroomProgrammingDir = path.resolve(rootDir, 'docs/programacio_aula');
 const externalClassroomProgrammingDir = path.resolve(rootDir, '../dwes-restructuracio-modul/docs/01_programacio_modul');
 const execFileAsync = promisify(execFile);
-const workflowFile = 'batch-autograde-students.yml';
+const correctionWorkflowFile = 'batch-autograde-students.yml';
+const agentRulesAuditWorkflowFile = 'audit-student-agent-rules.yml';
 const defaultPort = 4173;
 const groupFiles = {
   all: 'course/student-repositories.txt',
@@ -917,7 +918,7 @@ function resolveWorkflowInputs(body) {
   };
 }
 
-async function dispatchWorkflow(inputs) {
+async function dispatchWorkflow(inputs, selectedWorkflowFile = correctionWorkflowFile) {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER || 'igomis';
   const repo = process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio';
@@ -928,7 +929,7 @@ async function dispatchWorkflow(inputs) {
     throw new Error('Falta GITHUB_TOKEN en .env o en l_entorn del dashboard. Este token ha de poder llançar workflows en el repositori docent.');
   }
 
-  const url = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowFile}/dispatches`;
+  const url = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${selectedWorkflowFile}/dispatches`;
   const githubResponse = await fetch(url, {
     method: 'POST',
     headers: {
@@ -945,10 +946,10 @@ async function dispatchWorkflow(inputs) {
     throw new Error(`GitHub ha retornat ${githubResponse.status}: ${errorText}`);
   }
 
-  const run = await findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt });
+  const run = await findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt, selectedWorkflowFile });
 
   return {
-    actions_url: `https://github.com/${owner}/${repo}/actions/workflows/${workflowFile}`,
+    actions_url: `https://github.com/${owner}/${repo}/actions/workflows/${selectedWorkflowFile}`,
     run_url: run?.html_url || '',
     run_status: run?.status || '',
     owner,
@@ -957,8 +958,8 @@ async function dispatchWorkflow(inputs) {
   };
 }
 
-async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt }) {
-  const url = new URL(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs`);
+async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt, selectedWorkflowFile }) {
+  const url = new URL(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/${selectedWorkflowFile}/runs`);
   url.searchParams.set('branch', ref);
   url.searchParams.set('event', 'workflow_dispatch');
   url.searchParams.set('per_page', '5');
@@ -1837,6 +1838,15 @@ function pageHtml() {
       <div class="actions">
         <button id="runButton">Llançar workflow</button>
         <span class="status" id="runStatus"></span>
+      </div>
+    </section>
+
+    <section class="view-panel" data-view="correction">
+      <h2>Auditoria de regles d’IA</h2>
+      <p>Comprova manualment que les instruccions dels agents no han sigut eliminades, modificades o substituïdes als repositoris de l’alumnat.</p>
+      <div class="actions">
+        <button id="auditAgentRulesButton" type="button">Auditar regles d’IA</button>
+        <span class="status" id="auditAgentRulesStatus"></span>
       </div>
     </section>
 
@@ -3753,6 +3763,25 @@ function pageHtml() {
       }
     }
 
+    async function auditAgentRules() {
+      const button = document.querySelector('#auditAgentRulesButton');
+      const status = document.querySelector('#auditAgentRulesStatus');
+      button.disabled = true;
+      status.className = 'status';
+      status.textContent = 'Llançant auditoria...';
+      try {
+        const response = await fetch('/api/audit-agent-rules', { method: 'POST' });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Error desconegut');
+        const targetUrl = result.run_url || result.actions_url;
+        status.innerHTML = '<span class="ok">Auditoria llançada.</span> <a href="' + targetUrl + '" target="_blank" rel="noreferrer">Veure execució</a>';
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + error.message + '</span>';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     document.querySelector('#targetGroup').addEventListener('change', refreshTable);
     document.querySelector('#studentRef').addEventListener('input', refreshTable);
     document.querySelector('#correctionChallenge').addEventListener('change', refreshTable);
@@ -3762,6 +3791,7 @@ function pageHtml() {
       button.addEventListener('click', () => showView(button.dataset.navView));
     });
     document.querySelector('#runButton').addEventListener('click', runWorkflow);
+    document.querySelector('#auditAgentRulesButton').addEventListener('click', auditAgentRules);
     document.querySelector('#refreshGrades').addEventListener('click', importLatestGrades);
     document.querySelector('#recalculateFilteredGrades').addEventListener('click', recalculateFilteredGrades);
     document.querySelector('#buildClassReport').addEventListener('click', buildClassReport);
@@ -4065,6 +4095,17 @@ async function handleRequest(request, response) {
       const body = await readRequestJson(request);
       const inputs = resolveWorkflowInputs(body);
       const result = await dispatchWorkflow(inputs);
+      sendJson(response, 200, { ...result, inputs });
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/audit-agent-rules') {
+      const inputs = {
+        organization: process.env.GITHUB_CLASSROOM_ORG || 'batoi-dwes-2026',
+        repository_prefix: 'microreptes-',
+        student_ref: 'main'
+      };
+      const result = await dispatchWorkflow(inputs, agentRulesAuditWorkflowFile);
       sendJson(response, 200, { ...result, inputs });
       return;
     }
