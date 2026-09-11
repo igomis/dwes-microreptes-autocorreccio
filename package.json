@@ -18,6 +18,7 @@
     "publish:student-autograde": "node scripts/publish-student-autograde.mjs",
     "dashboard": "node teacher-dashboard/server.mjs",
     "students:create-repos": "node scripts/create-student-repos.mjs",
+    "students:deploy-agents": "bash scripts/desplega-agents-alumnat.sh",
     "grades:append": "node scripts/append-grade-result.mjs",
     "grades:import": "node scripts/import-autograde-result.mjs",
     "grades:download-latest": "node scripts/download-latest-batch-results.mjs",

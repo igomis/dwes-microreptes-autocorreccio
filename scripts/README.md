@@ -15,6 +15,9 @@ Scripts Node.js per mantindre el repositori central.
 - `list-grades.mjs`: mostra les notes provisionals agregades en format llegible.
 - `publish-student-autograde.mjs`: publica `autograde/latest.*`, guarda una còpia en `autograde/history/` i regenera `autograde/README.md` en el repositori de l'alumne.
 - `create-student-repos.mjs`: crea repositoris privats d'alumnes des d'una plantilla, dona permisos i actualitza `course/student-repositories*.txt`.
+- `desplega-agents-alumnat.sh`: sincronitza exclusivament `AGENTS.md` i
+  `src/AGENTS.md` en la branca `main` dels repositoris d'alumnat. Per defecte
+  només simula els canvis; requerix `--apply` per publicar-los.
 
 Execució recomanada:
 
@@ -51,6 +54,8 @@ npm run students:create-repos -- \
   --org batoi-dwes-2026 \
   --template igomis/dwes-microreptes-alumnes \
   --dry-run
+npm run students:deploy-agents
+npm run students:deploy-agents -- --apply
 ```
 
 El resolver imprimeix només el `challenge_id` quan tot va bé. Si no troba assignació específica d'alumne ni assignació de grup, mostra un error i ix amb codi `1`.
