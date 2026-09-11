@@ -16,9 +16,9 @@ Scripts Node.js per mantindre el repositori central.
 - `publish-student-autograde.mjs`: publica `autograde/latest.*`, guarda una còpia en `autograde/history/` i regenera `autograde/README.md` en el repositori de l'alumne.
 - `create-student-repos.mjs`: crea repositoris privats d'alumnes des d'una plantilla, dona permisos i actualitza `course/student-repositories*.txt`.
 - `desplega-agents-alumnat.sh`: sincronitza exclusivament `AGENTS.md`,
-  `CLAUDE.md`, `src/AGENTS.md` i `src/CLAUDE.md` en la branca `main` dels
-  repositoris d'alumnat. Per defecte només simula els canvis; requerix `--apply`
-  per publicar-los.
+  `CLAUDE.md`, `GEMINI.md` i les tres versions equivalents dins de `src/` en la
+  branca `main` dels repositoris d'alumnat. Per defecte només simula els canvis;
+  requerix `--apply` per publicar-los.
 
 Execució recomanada:
 
