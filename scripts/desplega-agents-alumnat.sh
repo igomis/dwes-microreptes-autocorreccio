@@ -15,7 +15,7 @@ usage() {
     "Ús: $0 [--apply] [--org ORG] [--prefix PREFIX] [--branch BRANCA] [--source DIRECTORI]" \
     "" \
     "Sense --apply, clona els repositoris i mostra els canvis sense publicar-los." \
-    "Amb --apply, commiteja exclusivament AGENTS.md i src/AGENTS.md i fa push."
+    "Amb --apply, commiteja exclusivament els AGENTS.md i CLAUDE.md i fa push."
 }
 
 while [[ $# -gt 0 ]]; do
@@ -47,7 +47,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 source_root="$(cd "$source_root" && pwd)"
-for required in "$source_root/AGENTS.md" "$source_root/src/AGENTS.md"; do
+for required in \
+  "$source_root/AGENTS.md" \
+  "$source_root/CLAUDE.md" \
+  "$source_root/src/AGENTS.md" \
+  "$source_root/src/CLAUDE.md"; do
   [[ -f "$required" ]] || { echo "Falta el fitxer font: $required" >&2; exit 1; }
 done
 
@@ -85,8 +89,10 @@ while IFS= read -r repo; do
 
   mkdir -p "$repo_dir/src"
   cp "$source_root/AGENTS.md" "$repo_dir/AGENTS.md"
+  cp "$source_root/CLAUDE.md" "$repo_dir/CLAUDE.md"
   cp "$source_root/src/AGENTS.md" "$repo_dir/src/AGENTS.md"
-  git -C "$repo_dir" add -f AGENTS.md src/AGENTS.md
+  cp "$source_root/src/CLAUDE.md" "$repo_dir/src/CLAUDE.md"
+  git -C "$repo_dir" add -f AGENTS.md CLAUDE.md src/AGENTS.md src/CLAUDE.md
 
   staged="$(git -C "$repo_dir" diff --cached --name-only)"
   if [[ -z "$staged" ]]; then
@@ -95,7 +101,13 @@ while IFS= read -r repo; do
     continue
   fi
 
-  if [[ "$staged" != $'AGENTS.md\nsrc/AGENTS.md' && "$staged" != "AGENTS.md" && "$staged" != "src/AGENTS.md" ]]; then
+  invalid="$(printf '%s\n' "$staged" | sed \
+    -e '/^AGENTS\.md$/d' \
+    -e '/^CLAUDE\.md$/d' \
+    -e '/^src\/AGENTS\.md$/d' \
+    -e '/^src\/CLAUDE\.md$/d' \
+    -e '/^$/d')"
+  if [[ -n "$invalid" ]]; then
     echo "[$repo] ERROR: staging inesperat:" >&2
     echo "$staged" >&2
     failed=$((failed + 1))
