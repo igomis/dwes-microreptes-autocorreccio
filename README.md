@@ -1,48 +1,4 @@
-# Evidències del Projecte Intermodular de DAW
-
-## Nou nucli simplificat
-
-L'aplicatiu analitza una versió concreta d'un **projecte amb nom** i genera un informe de comprovacions i evidències candidates. No gestiona parelles, custòdies ni qualificacions individuals: el professorat contrasta l'informe i trasllada a Aules allò que corresponga.
-
-Les ferramentes antigues de DWES es conserven temporalment com a compatibilitat durant la migració.
-
-### Configuració
-
-Els projectes es registren en `course/projects.json` amb `id`, `name` i `repository`:
-
-```bash
-npm run projects:register -- \
-  --id hort-urba \
-  --name "Hort urbà col·laboratiu" \
-  --repository cipfpbatoi/pi-hort-urba
-```
-
-Cada repositori també conté `project.json` amb el mateix identificador i nom. Els punts de control estan en `pi/checkpoints/`.
-
-### Recopilar una entrega
-
-```bash
-npm run validate:pi
-npm run evidence:collect -- \
-  --repo-dir ../pi-hort-urba \
-  --project-id hort-urba \
-  --checkpoint b1-dossier-0 \
-  --ref dossier-0-v1.0
-npm run evidence:render -- \
-  --input tmp/pi/hort-urba-b1-dossier-0.json
-```
-
-L'informe sempre conté `qualification: null` i `teacher_review_required: true`. Els RA/CA són candidats per a revisió docent, no assoliments automàtics.
-
-### Dashboard
-
-```bash
-npm run dashboard
-```
-
-Mostra els projectes pel nom, els punts de control i els informes locals. El dashboard anterior continua disponible amb `npm run dashboard:legacy`.
-
-## Sistema anterior de DWES
+# DWES Microreptes Autocorreccio
 
 Nom proposat del repositori: `dwes-microreptes-autocorreccio`.
 

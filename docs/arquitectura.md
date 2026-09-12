@@ -1,32 +1,5 @@
 # Arquitectura
 
-## Nucli del Projecte Intermodular
-
-La nova unitat de treball és el projecte, identificat obligatòriament per `id`, nom i repositori. L'aplicatiu no conserva parelles, canvis de custòdia ni notes individuals.
-
-```text
-course/projects.json
-  -> projecte amb nom i repositori
-pi/checkpoints/*.json
-  -> fitxers, evidències i RA/CA candidats
-repositori del projecte + release/commit
-  -> recopilador
-  -> informe JSON immutable
-  -> revisió del professorat
-  -> Aules
-```
-
-Entitats conceptuals mínimes:
-
-- `project`: identificació i nom;
-- `checkpoint`: fase i evidències esperades;
-- `evaluation_run`: projecte, punt de control i commit;
-- `evidence_report`: comprovacions, avisos i evidències candidates.
-
-No formen part del nucli `student`, `team`, `custody` ni `grade`. Els membres declarats poden aparéixer dins de les evidències del repositori, però l'atribució oficial es resol en Aules.
-
-La resta d'esta pàgina descriu l'arquitectura anterior de DWES, conservada temporalment.
-
 ## Visio conceptual
 
 El sistema es planteja amb una separacio clara entre configuracio docent i treball de l'alumnat.

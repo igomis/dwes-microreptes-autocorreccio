@@ -1,8 +1,8 @@
 {
-  "name": "pi2627-evidencies",
-  "version": "0.3.0",
+  "name": "dwes-microreptes-autocorreccio",
+  "version": "0.2.0",
   "private": true,
-  "description": "Recopilació d'evidències del Projecte Intermodular de 2n DAW.",
+  "description": "Repositori central per a microreptes DWES, rubriques i autocorreccio assistida.",
   "type": "module",
   "scripts": {
     "validate": "node scripts/validate-config.mjs",
@@ -16,8 +16,7 @@
     "render:autograde": "node scripts/render-autograde-markdown.mjs",
     "store:batch-result": "node scripts/store-batch-autograde-result.mjs",
     "publish:student-autograde": "node scripts/publish-student-autograde.mjs",
-    "dashboard": "node teacher-dashboard/pi-server.mjs",
-    "dashboard:legacy": "node teacher-dashboard/server.mjs",
+    "dashboard": "node teacher-dashboard/server.mjs",
     "students:create-repos": "node scripts/create-student-repos.mjs",
     "students:deploy-agents": "bash scripts/desplega-agents-alumnat.sh",
     "students:audit-agents": "node scripts/audit-student-agent-rules.mjs",
@@ -28,12 +27,7 @@
     "grades:list": "node scripts/list-grades.mjs",
     "grades:aggregate-repte": "node scripts/aggregate-repte-grades.mjs",
     "grades:class-report": "node scripts/build-class-followup-report.mjs",
-    "test": "node --test tests/*.test.mjs",
-    "validate:pi": "node scripts/pi/validate-config.mjs",
-    "test:pi": "node --test tests/pi-*.test.mjs",
-    "projects:register": "node scripts/pi/register-project.mjs",
-    "evidence:collect": "node scripts/pi/collect-evidence.mjs",
-    "evidence:render": "node scripts/pi/render-report.mjs"
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^9.x",

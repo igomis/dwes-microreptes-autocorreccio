@@ -1,16 +1,5 @@
 # Scripts
 
-## Projecte Intermodular
-
-- `pi/validate-config.mjs`: valida projectes amb nom i punts de control.
-- `pi/register-project.mjs`: registra o actualitza un projecte sense gestionar membres.
-- `pi/collect-evidence.mjs`: revisa una referència Git immutable i genera un informe sense qualificació.
-- `pi/render-report.mjs`: presenta l'informe en Markdown per a la revisió docent.
-
-Les ordres són `npm run validate:pi`, `projects:register`, `evidence:collect` i `evidence:render`.
-
-## Compatibilitat DWES
-
 Scripts Node.js per mantindre el repositori central.
 
 - `validate-config.mjs`: valida fitxers globals, `course/active-challenges.json` i coherència bàsica entre `challenge.json` i `rubric.json`.
