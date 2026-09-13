@@ -157,6 +157,8 @@ main
 
 L'alumnat pot treballar en branques pròpies si li ajuda a organitzar-se, per exemple `r2m3`, `r3m5` o `feature/auth`, però abans de demanar correcció ha d'integrar el lliurament en `main`.
 
+Quan es publica la correcció de `R1M1`, una nota provisional igual o superior a `5/10` desbloqueja en `autograde/README.md` l’enllaç al PDF teòric detallat, allotjat al web de documentació però no enllaçat des de les pàgines públiques. Amb una nota inferior l’enllaç no es mostra. El recurs està pensat per explicar i consolidar la tria de stack en la classe posterior; no forma part de les evidències que es corregeixen en `R1M1`.
+
 El camp `student_ref` del workflow i el camp **Branca alumne** del dashboard només s'han de canviar en estos casos:
 
 - recuperació puntual corregida en una branca pactada;

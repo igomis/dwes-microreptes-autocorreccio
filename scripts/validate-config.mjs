@@ -211,6 +211,41 @@ async function validateChallenge(challengeName, errors) {
   validateRaAssessment(challenge, challengeName, errors);
   validateRubricDimensions(rubric, challengeName, errors);
 
+  for (const [field, resources] of [
+    ['student_resources', challenge.student_resources],
+    ['completion_resources', challenge.completion_resources]
+  ]) {
+    if (resources === undefined) continue;
+    if (!Array.isArray(resources)) {
+      errors.push(`${challengeName}: ${field} ha de ser un array`);
+      continue;
+    }
+    for (const [index, resource] of resources.entries()) {
+      if (!resource?.title || (!resource?.source && !resource?.url)) {
+        errors.push(`${challengeName}: ${field}[${index}] necessita title i source o url`);
+        continue;
+      }
+      if (resource.source) {
+        const resourcePath = path.resolve(rootDir, resource.source);
+        if (!resourcePath.startsWith(`${rootDir}${path.sep}`) || !(await pathExists(resourcePath))) {
+          errors.push(`${challengeName}: no existeix el recurs ${resource.source}`);
+        }
+      }
+      if (field === 'completion_resources') {
+        if (resource.source && (!resource.target || path.basename(resource.target) !== resource.target)) {
+          errors.push(`${challengeName}: ${field}[${index}].target ha de ser un nom de fitxer`);
+        }
+        if (resource.url && !/^https:\/\//.test(resource.url)) {
+          errors.push(`${challengeName}: ${field}[${index}].url ha d'usar HTTPS`);
+        }
+        const minimum = Number(resource.minimum_score);
+        if (!Number.isFinite(minimum) || minimum < 0 || minimum > 10) {
+          errors.push(`${challengeName}: ${field}[${index}].minimum_score ha d'estar entre 0 i 10`);
+        }
+      }
+    }
+  }
+
   return {
     id: challenge.challenge_id,
     title: challenge.title || '(sense titol)'

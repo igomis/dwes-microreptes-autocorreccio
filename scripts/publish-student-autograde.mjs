@@ -54,6 +54,49 @@ async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, 'utf8'));
 }
 
+function resolveInside(baseDir, relativePath, label) {
+  const resolved = path.resolve(baseDir, relativePath);
+  if (!resolved.startsWith(`${path.resolve(baseDir)}${path.sep}`)) {
+    throw new Error(`${label} ix del directori permés: ${relativePath}`);
+  }
+  return resolved;
+}
+
+async function unlockCompletionResources(studentDir, result, teacherDir) {
+  const challengeId = safeName(result.challenge_id);
+  const challengePath = path.join(teacherDir, 'microreptes', challengeId, 'challenge.json');
+  let challenge;
+
+  try {
+    challenge = await readJson(challengePath);
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+
+  const score = Number(result.final_score_over_10);
+  const resources = Array.isArray(challenge.completion_resources) ? challenge.completion_resources : [];
+  const unlocked = [];
+
+  for (const resource of resources) {
+    if (!Number.isFinite(score) || score < Number(resource.minimum_score)) continue;
+
+    if (resource.url) {
+      unlocked.push({ title: resource.title, href: resource.url });
+      continue;
+    }
+
+    const source = resolveInside(teacherDir, resource.source, 'El recurs');
+    const targetName = path.basename(resource.target);
+    const targetDir = path.join(studentDir, 'autograde', 'resources');
+    await mkdir(targetDir, { recursive: true });
+    await copyFile(source, path.join(targetDir, targetName));
+    unlocked.push({ title: resource.title, href: `resources/${targetName}` });
+  }
+
+  return unlocked;
+}
+
 async function readHistoryEntries(historyDir) {
   let files = [];
 
@@ -117,6 +160,18 @@ async function renderIndex(autogradeDir, context) {
   lines.push(`- Grup: \`${context.group}\``);
   lines.push(`- Última correcció: [autograde/latest.md](latest.md)`);
   lines.push('');
+
+  if (context.unlockedResources.length > 0) {
+    lines.push('## Recursos desbloquejats');
+    lines.push('');
+    lines.push('Estos materials s’han habilitat després de superar el microrepte i servixen per al retorn i l’explicació de la classe posterior.');
+    lines.push('');
+    for (const resource of context.unlockedResources) {
+      lines.push(`- [${resource.title}](${resource.href})`);
+    }
+    lines.push('');
+  }
+
   lines.push('## Historial');
   lines.push('');
 
@@ -164,11 +219,13 @@ export async function publishStudentAutograde(args) {
   await copyFile(markdownPath, path.join(autogradeDir, 'latest.md'));
   await copyFile(resultPath, path.join(historyDir, `${attemptName}.json`));
   await copyFile(markdownPath, path.join(historyDir, `${attemptName}.md`));
+  const unlockedResources = await unlockCompletionResources(studentDir, result, path.resolve(args['teacher-dir'] || process.cwd()));
   await renderIndex(autogradeDir, {
     repo: args.repo,
     group: args.group,
     batchId: args['batch-id'],
-    source: args.source
+    source: args.source,
+    unlockedResources
   });
 
   return {

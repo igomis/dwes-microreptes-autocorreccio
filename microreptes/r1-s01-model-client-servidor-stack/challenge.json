@@ -49,5 +49,19 @@
     "RA1.g"
   ],
   "context_ra": [],
-  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció.",
+  "student_resources": [
+    {
+      "title": "Guia breu: com triar el teu stack tecnològic de servidor",
+      "source": "resources/r1m1/R1M1-Com-triar-el-teu-stack-tecnologic-de-servidor.pdf",
+      "url": "https://cipfpbatoi.github.io/dwes2627/recursos/Repte1/R1M1-Com-triar-el-teu-stack-tecnologic-de-servidor.pdf"
+    }
+  ],
+  "completion_resources": [
+    {
+      "title": "Teoria: com triar un llenguatge i un framework per al backend",
+      "url": "https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R1-Com-triar-un-llenguatge-i-un-framework-per-al-backend.pdf",
+      "minimum_score": 5
+    }
+  ]
 }

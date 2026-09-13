@@ -86,6 +86,8 @@ Els scripts de notes provisionals treballen amb fitxers locals dins de `grades/`
 
 Quan es publica una correcció en un repositori d'alumne, `publish-student-autograde.mjs` manté `autograde/latest.md` i `autograde/latest.json` com a còpia vigent, però també deixa cada intent en `autograde/history/` i actualitza `autograde/README.md` amb una taula visible d'intents anteriors.
 
+Si el `challenge.json` declara `completion_resources`, la publicació mostra cada enllaç —o copia un recurs local a `autograde/resources/`— només quan `final_score_over_10` arriba a `minimum_score`. L’índex mostra els materials desbloquejats perquè es puguen usar en el retorn de la classe posterior. En `R1M1`, l’enllaç a la teoria detallada sobre llenguatges i frameworks es desbloqueja a partir de `5/10`; la guia breu d’investigació continua disponible des de l’inici en la documentació de l’alumnat.
+
 El script `create-student-repos.mjs` accepta un CSV amb alumnes de diversos grups:
 
 ```csv
