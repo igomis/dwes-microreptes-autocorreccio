@@ -164,7 +164,7 @@ function buildMessages(payload, schema, promptText) {
         'No tractes ENTREGA.md ni docs/README.md, evidence/README.md o tests/README.md com a evidencia puntuable del microrepte; son guies del template.',
         'Valora positivament que docs, evidence i tests usen noms del microrepte actiu, com docs/r2m3.md, evidence/r2m3/ o tests/r2m3.test.php.',
         'Els tests nomes compten com a tests si son executables o descriuen una prova manual reproduible amb passos, dades i resultat esperat quan encara no toca automatitzar.',
-        'Ompli sempre ra_scores: una entrada per cada RA present en assessed_ra del payload; si nomes hi ha un RA, torna una sola entrada.'
+        'Ompli ra_scores amb una única entrada per al primary_ra del microrepte. Els context_ra no generen nota.'
       ].join(' ')
     },
     {

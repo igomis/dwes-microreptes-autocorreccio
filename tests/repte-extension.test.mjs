@@ -10,8 +10,8 @@ import { initDb, closeDb, migrateFromJson, getLatestGrades } from '../teacher-da
 
 const repte = 'r1';
 const metadata = new Map([
- ['m1', { challenge_id: 'm1', repte_id: repte, microrepte_code: 'R1M1', primary_ra: 'RA1', repte_weight: .25 }],
- ['m2', { challenge_id: 'm2', repte_id: repte, microrepte_code: 'R1M2', primary_ra: 'RA1', repte_weight: .75, repte_extension: { scope: 'repte' } }]
+ ['m1', { challenge_id: 'm1', repte_id: repte, microrepte_code: 'R1M1', primary_ra: 'RA1' }],
+ ['m2', { challenge_id: 'm2', repte_id: repte, microrepte_code: 'R1M2', primary_ra: 'RA1', repte_extension: { scope: 'repte' } }]
 ]);
 const proposal = { proposed_score: 1, core_ready: true, reason: 'Demo navegable', evidence: ['src/about.php'], presentation_checks: ['Explica la ruta'] };
 const grades = (a = 10, b = 10) => [
@@ -23,23 +23,18 @@ function review(gs, score = 1, core = true) {
  return makeExtensionReview({ source_challenge_id: 'm2', snapshot: c.snapshot, validated_score: score, core_requirements_met: core, comment: 'Demo i defensa comprovades.' }, c);
 }
 
-test('nucli perfecte: 9 sense ampliació, 10 amb ampliació validada', () => {
+test('l’ampliació es manté separada de les notes dels microreptes', () => {
  const gs = grades();
- assert.equal(calc(gs, metadata, repte, review(gs, 0)).final_score, 9);
- assert.equal(calc(gs, metadata, repte, review(gs, 1)).final_score, 10);
- assert.equal(calc(gs, metadata, repte).final_score, null);
- assert.equal(calc(gs, metadata, repte).proposed_score, 1);
+ const pending=calc(gs, metadata, repte);
+ assert.equal(pending.proposed_score,1);assert.equal(pending.validated_score,null);assert.equal(pending.status,'pending');
+ const validated=calc(gs,metadata,repte,review(gs,.75));
+ assert.equal(validated.validated_score,.75);assert.equal(validated.status,'validated');
+ assert.equal(validated.final_score,undefined);assert.equal(validated.core_score,undefined);
+ assert.equal(gs[0].score,10);assert.equal(gs[1].score,10);
 });
-test('els sis casos usen els pesos i s’arredonix al final', () => {
- for (const [a, b, base] of [[3.3,1.1,1.49],[3.6,1.5,1.82],[6.7,3.2,3.67],[6.1,8.1,6.84],[8.9,8.8,7.94],[8.9,8.85,7.98]]) {
-  const gs = grades(a,b);assert.equal(calc(gs, metadata, repte,review(gs,0)).final_score,base);
- }
- const gs = grades(8.9, 8.85);assert.equal(calc(gs, metadata, repte,review(gs,1)).final_score,8.98);
-});
-test('microrepte pendent no és un zero ni permet validació', () => {
+test('sense proposta no inventa un zero ni una nota de repte', () => {
  const c = calc(grades().slice(0,1),metadata,repte);
- assert.equal(c.status,'incomplete');assert.equal(c.final_score,null);assert.deepEqual(c.missing_microreptes,['R1M2']);
- assert.throws(() => makeExtensionReview({source_challenge_id:'m2'},c));
+ assert.equal(c.status,'not_proposed');assert.equal(c.proposed_score,null);assert.equal(c.final_score,undefined);
 });
 test('només l’últim microrepte pot proposar i validar', () => {
  const gs=grades();gs[0].repte_extension=proposal;delete gs[1].repte_extension;
@@ -49,29 +44,28 @@ test('només l’últim microrepte pot proposar i validar', () => {
  const invalid=structuredClone(metadata);invalid.get('m1').repte_extension={};
  assert.throws(()=>validateExtensionOwners(invalid));
 });
-test('una correcció canviada invalida la revisió, també si és anterior a l’últim microrepte', () => {
+test('una nota de microrepte anterior no altera la validació independent de l’ampliació', () => {
  const gs=grades();const r=review(gs);gs[0].score=9;
- const c=calc(gs,metadata,repte,r);assert.equal(c.status,'stale');assert.equal(c.final_score,null);
- assert.throws(()=>makeExtensionReview({...r,comment:'vella'},c));
+ const c=calc(gs,metadata,repte,r);assert.equal(c.status,'validated');assert.equal(c.validated_score,1);
 });
-test('no suma punts sense mínims confirmats i valida escala i comentari', () => {
+test('valida l’escala, l’evidència defensable i el comentari', () => {
  const gs=grades();assert.throws(()=>review(gs,1,false));assert.throws(()=>review(gs,2));assert.throws(()=>review(gs,NaN));
- assert.equal(calc(gs,metadata,repte,review(gs,0,false)).final_score,9);
+ assert.equal(calc(gs,metadata,repte,review(gs,0,false)).validated_score,0);
  assert.throws(()=>validateProposal({...proposal,proposed_score:.3}));
  assert.throws(()=>validateProposal({...proposal,core_ready:false}));
  assert.throws(()=>validateProposal({...proposal,evidence:[]}));
  const c=calc(gs,metadata,repte);assert.throws(()=>makeExtensionReview({...review(gs),comment:''},c));
 });
-test('la proposta IA no s’aplica i la validació manual funciona amb resultats antics', () => {
+test('la proposta IA no s’aplica i la validació manual queda separada', () => {
  const gs=grades(8,8);delete gs[1].repte_extension;
  assert.equal(calc(gs,metadata,repte).proposed_score,null);
- assert.equal(calc(gs,metadata,repte,review(gs,.5)).final_score,7.7);
+ assert.equal(calc(gs,metadata,repte,review(gs,.5)).validated_score,.5);
 });
-test('no altera RA ni duplica la suma en agregació CLI', () => {
+test('no calcula nota de repte ni altera la nota del microrepte', () => {
  const gs=grades();const r=review(gs);const teacher=new Map([['a/b\u0000r1',{extension_review:r}]]);
  const result=aggregateRepteGrades(gs,metadata,teacher);
- assert.equal(result.raRecords[0].auto_score,10);assert.equal(result.repteRecords[0].final_score,10);
- assert.equal(result.repteRecords[0].auto_score,9);
+ assert.equal(result.repteRecords[0].final_score,undefined);assert.equal(result.repteRecords[0].auto_score,null);
+ assert.equal(result.repteRecords[0].extension.validated_score,1);
  assert.equal(gs[1].score,10);
 });
 test('configuració real: propietari únic en el darrer microrepte de cada repte',async()=>{
@@ -119,7 +113,7 @@ test('proposta incoherent no elimina la nota del nucli ni valida punts',()=>{
   assert.equal(result.teacher_review_required,true);
   assert.doesNotThrow(()=>validateProposal(result.repte_extension));
   const gs=grades();gs[1].repte_extension=result.repte_extension;
-  assert.equal(calc(gs,metadata,repte).final_score,null);
+  assert.equal(calc(gs,metadata,repte).final_score,undefined);
  }
  const valid={repte_extension:structuredClone(proposal)};
  const before=structuredClone(valid);normalizeExtensionProposal(valid);assert.deepEqual(valid,before);

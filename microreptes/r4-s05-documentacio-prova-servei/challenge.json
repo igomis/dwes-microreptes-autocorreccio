@@ -43,10 +43,8 @@
   "source_alignment": [
     "Repte 4 R4M5",
     "Programacio d'aula R4S5",
-    "Documentacio d'alumnat del Repte 4",
-    "Pes orientatiu dins del repte: 25%"
+    "Documentacio d'alumnat del Repte 4"
   ],
-  "repte_weight": 0.25,
   "primary_ra": "RA7",
   "assessed_ca": [
     "RA7.f",

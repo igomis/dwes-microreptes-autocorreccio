@@ -77,14 +77,13 @@ export function normalizeExtensionProposal(result) {
   }
 }
 
-const round = value => Math.round((value + Number.EPSILON) * 100) / 100;
-function scoreOf(grade) { return grade.score ?? grade.final_score_over_10; }
 function parseProposal(value) {
   if (typeof value !== 'string') return value || null;
   try { return JSON.parse(value); } catch { return null; }
 }
 
-// One calculation for the whole repte; RA scores and microrepte scores are untouched.
+// The extension is an independent 0-1 indicator for the teacher's oral defence.
+// It never calculates or modifies a whole-repte, RA or microrepte score.
 export function calculateRepteExtension(grades, metadata, repteId, review = null) {
   const required = [...metadata.values()].filter(m => m.repte_id === repteId && /^R\d+M\d+$/.test(m.microrepte_code || ''));
   const owner = required.find(m => m.repte_extension);
@@ -92,44 +91,33 @@ export function calculateRepteExtension(grades, metadata, repteId, review = null
   const latest = new Map();
   // Caller supplies preferred records first (same source preference as the dashboard).
   for (const grade of grades) if (!latest.has(grade.challenge_id)) latest.set(grade.challenge_id, grade);
-  const available = required.map(m => ({ m, g: latest.get(m.challenge_id) })).filter(({ g }) =>
-    g && Number.isFinite(scoreOf(g)) && scoreOf(g) >= 0 && scoreOf(g) <= 10);
-  const complete = available.length === required.length;
-  const weight = available.reduce((sum, { m }) => sum + (m.repte_weight ?? 1), 0);
-  const core = weight > 0 ? available.reduce((sum, { m, g }) => sum + scoreOf(g) * (m.repte_weight ?? 1), 0) / weight : null;
   const ownerGrade = latest.get(owner.challenge_id);
   let proposal = ownerGrade?.repte_extension || null;
   if (typeof proposal === 'string') { try { proposal = JSON.parse(proposal); } catch { proposal = null; } }
   if (proposal) { try { validateProposal(proposal); } catch { proposal = null; } }
   const snapshot = createHash('sha256').update(JSON.stringify(required.map(m => {
     const g = latest.get(m.challenge_id);
-    return [m.challenge_id, m.repte_weight, m.repte_extension, g?.commit || g?.commit_hash, scoreOf(g || {}), g?.timestamp, parseProposal(g?.repte_extension)];
+    return [m.challenge_id, m.repte_extension, g?.commit || g?.commit_hash, g?.timestamp, parseProposal(g?.repte_extension)];
   }).sort((a, b) => a[0].localeCompare(b[0])))).digest('hex');
   const validReview = review?.source_challenge_id === owner.challenge_id && review.snapshot === snapshot
     && extensionSteps.includes(review.validated_score) && typeof review.core_requirements_met === 'boolean'
     && (review.validated_score === 0 || review.core_requirements_met === true);
-  const applied = complete && validReview ? review.validated_score : null;
   return {
     source_challenge_id: owner.challenge_id, source_microrepte_code: owner.microrepte_code,
-    snapshot, core_complete: complete,
-    missing_microreptes: required.filter(m => !available.some(a => a.m === m)).map(m => m.microrepte_code),
-    core_score: core === null ? null : round(core),
-    base_score: core === null ? null : round(core * 0.9),
+    snapshot,
     proposed_score: proposal?.proposed_score ?? null,
     proposal, validated_score: validReview ? review.validated_score : null,
     review: review || null,
-    status: !complete ? 'incomplete' : validReview ? 'validated' : review ? 'stale' : 'pending',
-    final_score: applied === null || core === null ? null : round(Math.min(10, core * 0.9 + applied)),
-    provisional: !complete || !validReview || available.some(({ g }) => g.provisional || g.teacher_review_required)
+    status: validReview ? 'validated' : review ? 'stale' : proposal ? 'pending' : 'not_proposed',
+    provisional: !validReview
   };
 }
 
 export function makeExtensionReview(body, calculation) {
   if (!calculation || body.source_challenge_id !== calculation.source_challenge_id) throw new Error('L’ampliació només es valida des de l’últim microrepte.');
-  if (!calculation.core_complete) throw new Error('Falten correccions de microreptes obligatoris.');
   if (body.snapshot !== calculation.snapshot) throw new Error('Les correccions han canviat. Recarrega abans de validar.');
   if (!extensionSteps.includes(body.validated_score)) throw new Error('La puntuació ha de ser 0, 0.25, 0.5, 0.75 o 1.');
-  if (typeof body.core_requirements_met !== 'boolean' || (body.validated_score > 0 && !body.core_requirements_met)) throw new Error('Cal confirmar els mínims del nucli abans de sumar ampliació.');
+  if (typeof body.core_requirements_met !== 'boolean' || (body.validated_score > 0 && !body.core_requirements_met)) throw new Error('Cal confirmar que l’ampliació és verificable abans de validar-la per a la defensa.');
   if (typeof body.comment !== 'string' || !body.comment.trim()) throw new Error('Cal una observació docent de la presentació.');
   return { source_challenge_id: calculation.source_challenge_id, snapshot: calculation.snapshot,
     validated_score: body.validated_score, core_requirements_met: body.core_requirements_met,

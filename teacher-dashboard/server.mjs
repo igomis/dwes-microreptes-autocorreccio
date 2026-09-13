@@ -228,22 +228,6 @@ async function readTextIfExists(filePath) {
   return readFile(filePath, 'utf8');
 }
 
-function extractRepteWeight(challenge) {
-  if (typeof challenge.repte_weight === 'number') {
-    return challenge.repte_weight;
-  }
-
-  const sourceAlignment = Array.isArray(challenge.source_alignment) ? challenge.source_alignment : [];
-  for (const item of sourceAlignment) {
-    const match = String(item).match(/pes[^0-9]*(\d+(?:[.,]\d+)?)\s*%/i);
-    if (match) {
-      return Number(match[1].replace(',', '.')) / 100;
-    }
-  }
-
-  return null;
-}
-
 function criterionRaPrefix(criterion) {
   const match = String(criterion || '').match(/^(RA\d+)/i);
   return match ? match[1].toUpperCase() : null;
@@ -254,7 +238,6 @@ function validateMicrorepte(challenge, rubric, prompt) {
   const dimensionWeightSum = Array.isArray(rubric?.dimensions)
     ? rubric.dimensions.reduce((sum, dimension) => sum + Number(dimension.weight || 0), 0)
     : 0;
-  const repteWeight = challenge ? extractRepteWeight(challenge) : null;
 
   if (!challenge) {
     issues.push('Falta challenge.json.');
@@ -274,10 +257,6 @@ function validateMicrorepte(challenge, rubric, prompt) {
 
   if (rubric && Math.abs(dimensionWeightSum - 1) > 0.001) {
     issues.push(`Els pesos de la rúbrica sumen ${dimensionWeightSum.toFixed(3)} en lloc de 1.`);
-  }
-
-  if (challenge && repteWeight === null) {
-    issues.push('No hi ha pes estructurat del microrepte dins del repte.');
   }
 
   if (challenge && /^R\d+M\d+$/i.test(String(challenge.microrepte_code || ''))) {
@@ -300,8 +279,7 @@ function validateMicrorepte(challenge, rubric, prompt) {
   return {
     status: issues.length === 0 ? 'ok' : 'warning',
     issues,
-    dimension_weight_sum: Number(dimensionWeightSum.toFixed(3)),
-    repte_weight: repteWeight
+    dimension_weight_sum: Number(dimensionWeightSum.toFixed(3))
   };
 }
 
@@ -324,7 +302,6 @@ async function readMicrorepteDir(dirName) {
     microrepte_code: challenge?.microrepte_code || '',
     title: challenge?.title || '',
     summary: challenge?.summary || '',
-    repte_weight: validation.repte_weight,
     dimension_count: dimensions.length,
     dimension_weight_sum: validation.dimension_weight_sum,
     assessment_criteria: Array.isArray(challenge?.assessment_criteria) ? challenge.assessment_criteria : dimensions,
@@ -484,16 +461,6 @@ function normalizeTextList(value, fieldName) {
   throw new Error(`${fieldName} ha de ser una llista o text amb una entrada per línia.`);
 }
 
-function normalizeRepteWeight(value) {
-  const numberValue = Number(value);
-
-  if (!Number.isFinite(numberValue) || numberValue < 0 || numberValue > 1) {
-    throw new Error('El pes dins del repte ha de ser un número entre 0 i 1.');
-  }
-
-  return numberValue;
-}
-
 function normalizeRubricDimensions(dimensions) {
   if (!Array.isArray(dimensions) || dimensions.length === 0) {
     throw new Error('La rúbrica ha de tindre almenys una dimensió.');
@@ -538,36 +505,18 @@ function normalizeRubricDimensions(dimensions) {
   return normalized;
 }
 
-function updateSourceAlignmentWeight(sourceAlignment, repteWeight) {
-  const text = `Pes orientatiu dins del repte: ${Math.round(repteWeight * 1000) / 10}%`;
-  const alignment = Array.isArray(sourceAlignment) ? [...sourceAlignment] : [];
-  const index = alignment.findIndex((item) => /pes[^0-9]*\d+(?:[.,]\d+)?\s*%/i.test(String(item)));
-
-  if (index >= 0) {
-    alignment[index] = text;
-  } else {
-    alignment.push(text);
-  }
-
-  return alignment;
-}
-
 function buildUpdatedMicrorepte(current, body) {
   const challenge = { ...current.challenge };
   const rubric = { ...current.rubric };
-  const repteWeight = normalizeRepteWeight(body.repte_weight);
 
   challenge.title = String(body.title || '').trim();
   challenge.summary = String(body.summary || '').trim();
   challenge.pedagogical_goal = String(body.pedagogical_goal || '').trim();
   challenge.recommended_test_strategy = String(body.recommended_test_strategy || '').trim();
-  challenge.repte_weight = repteWeight;
+  delete challenge.repte_weight;
   challenge.required_evidence = normalizeTextList(body.required_evidence, 'Evidències requerides');
   challenge.expected_signals = normalizeTextList(body.expected_signals, 'Senyals esperats');
-  challenge.source_alignment = updateSourceAlignmentWeight(
-    normalizeTextList(body.source_alignment, 'Alineació d’origen'),
-    repteWeight
-  );
+  challenge.source_alignment = normalizeTextList(body.source_alignment, 'Alineació d’origen');
 
   if (!challenge.title || !challenge.summary || !challenge.pedagogical_goal) {
     throw new Error('Títol, resum i objectiu pedagògic són obligatoris.');
@@ -1155,9 +1104,7 @@ async function readRaGrades(filters = {}) {
       continue;
     }
 
-    const weight = Number.isFinite(microrepte.repte_weight) && microrepte.repte_weight > 0
-      ? microrepte.repte_weight
-      : 1;
+    const weight = 1;
 
     for (const scoreEntry of scoreEntries) {
       const groupKey = [
@@ -1891,14 +1838,9 @@ function pageHtml() {
       </table>
       <div id="gradesInfo" class="status"></div>
       <div id="classReportPanel" class="markdown-rendered hidden"></div>
-      <h3>Notes orientatives per RA</h3>
+      <h3>Ampliacions 9→10 per a considerar en la defensa</h3>
       <table>
-        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>RA</th><th>Nota RA</th><th>Microreptes computats</th></tr></thead>
-        <tbody id="raGradeRows"></tbody>
-      </table>
-      <h3>Notes per repte</h3>
-      <table>
-        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>Notes RA automàtiques</th><th>Nota del repte i ampliació</th><th>Nota docent</th><th>Comentari docent</th><th>Revisió</th><th>Accions</th></tr></thead>
+        <thead><tr><th>Repo</th><th>Grup</th><th>Repte</th><th>Ampliació</th><th>Accions</th></tr></thead>
         <tbody id="repteGradeRows"></tbody>
       </table>
     </section>
@@ -2029,7 +1971,7 @@ function pageHtml() {
         <button id="applyMicrorepteFilters" type="button">Aplicar filtres</button>
       </div>
       <table>
-        <thead><tr><th>Repte</th><th>Sessió</th><th>MP</th><th>RA</th><th>Títol</th><th>Pes repte</th><th>Rúbrica</th><th>Estat</th><th>Accions</th></tr></thead>
+        <thead><tr><th>Repte</th><th>Sessió</th><th>MP</th><th>RA</th><th>Títol</th><th>Rúbrica</th><th>Estat</th><th>Accions</th></tr></thead>
         <tbody id="microrepteRows"></tbody>
       </table>
       <div id="microreptesInfo" class="status"></div>
@@ -2443,7 +2385,6 @@ function pageHtml() {
         current.testStrategies.push(challenge.recommended_test_strategy || '');
         current.sourceAlignment.push(...(Array.isArray(challenge.source_alignment) ? challenge.source_alignment : []));
         current.dimensions.push(...(Array.isArray(rubric.dimensions) ? rubric.dimensions : []));
-        current.weight += Number(microrepte.repte_weight) || 0;
         groups.set(sessionCode, current);
       }
 
@@ -2489,12 +2430,10 @@ function pageHtml() {
     }
 
     function renderProgramacioMarkdown(repte, sessions) {
-      const totalWeight = sessions.reduce((sum, session) => sum + (Number(session.weight) || 0), 0);
       const lines = [
         '# Programació d’aula ' + repte,
         '',
         '- Sessions: ' + sessions.length,
-        '- Pes total documentat: ' + formatPercent(totalWeight),
         '',
         '## Sessions'
       ];
@@ -2504,7 +2443,6 @@ function pageHtml() {
           '',
           '### ' + session.code + ' · ' + session.title,
           '',
-          '- Pes dins del repte: ' + formatPercent(session.weight),
           '- Finalitat de la sessió: ' + (session.summary || 'No documentada.'),
           '- Verificació recomanada: ' + (session.testStrategies.join(' / ') || 'No documentada.'),
           '',
@@ -2781,7 +2719,6 @@ function pageHtml() {
         '<h3>Edició guiada</h3>' +
         '<div class="grid">' +
           '<label>Títol<input id="editMicrorepteTitle" value="' + escapeHtml(challenge.title || '') + '"></label>' +
-          '<label>Pes dins del repte (0-1)<input id="editMicrorepteWeight" type="number" min="0" max="1" step="0.01" value="' + escapeHtml(microrepte.repte_weight ?? '') + '"></label>' +
           '<label>Estratègia de prova<input id="editMicrorepteTestStrategy" value="' + escapeHtml(challenge.recommended_test_strategy || '') + '"></label>' +
         '</div>' +
         '<label>Resum<textarea id="editMicrorepteSummary">' + escapeHtml(challenge.summary || '') + '</textarea></label>' +
@@ -2817,7 +2754,6 @@ function pageHtml() {
 
       return {
         title: document.querySelector('#editMicrorepteTitle').value,
-        repte_weight: Number(document.querySelector('#editMicrorepteWeight').value),
         recommended_test_strategy: document.querySelector('#editMicrorepteTestStrategy').value,
         summary: document.querySelector('#editMicrorepteSummary').value,
         pedagogical_goal: document.querySelector('#editMicrorepteGoal').value,
@@ -2884,7 +2820,6 @@ function pageHtml() {
           '<div class="metric"><span>Microrepte</span><strong><code>' + escapeHtml(microrepte.id) + '</code></strong><p class="status">' + escapeHtml(microrepte.title || '') + '</p></div>' +
           '<div class="metric"><span>Repte</span><strong>' + escapeHtml(microrepte.repte_id || 'n/d') + '</strong></div>' +
           '<div class="metric"><span>RA avaluat</span><strong><code>' + escapeHtml(challenge.primary_ra || 'n/d') + '</code></strong></div>' +
-          '<div class="metric"><span>Pes dins repte</span><strong>' + formatPercent(microrepte.repte_weight) + '</strong></div>' +
           '<div class="metric"><span>Pes rúbrica</span><strong>' + escapeHtml(validation.dimension_weight_sum ?? 'n/d') + '</strong></div>' +
         '</div>' +
         '<div class="feedback-grid">' +
@@ -2898,7 +2833,6 @@ function pageHtml() {
           '<div class="feedback-box"><h3>RA i CA qualificables</h3>' +
             '<p><strong>RA avaluat:</strong> <code>' + escapeHtml(challenge.primary_ra || '') + '</code></p>' +
             '<h4>CA avaluats</h4>' + renderMicrorepteList(challenge.assessed_ca, 'Sense CA avaluats.') +
-            renderAssessedRaBlocks(challenge.assessed_ra) +
             '<h4>RA de context</h4>' + renderMicrorepteList(challenge.context_ra, 'Sense RA de context.') +
           '</div>' +
           '<div class="feedback-box"><h3>Validació</h3>' +
@@ -3252,7 +3186,6 @@ function pageHtml() {
           '<td>' + escapeHtml(microrepte.microrepte_code || '') + '</td>' +
           '<td><code>' + escapeHtml(microrepte.challenge?.primary_ra || '') + '</code></td>' +
           '<td>' + escapeHtml(microrepte.title || '') + '</td>' +
-          '<td>' + formatPercent(microrepte.repte_weight) + '</td>' +
           '<td>' + escapeHtml(microrepte.dimension_count) + ' dims · ' + escapeHtml(microrepte.dimension_weight_sum) + '</td>' +
           '<td>' + renderMicrorepteValidation(microrepte.validation) + '</td>' +
           '<td><div class="compact-actions">' +
@@ -3262,7 +3195,7 @@ function pageHtml() {
         '</tr>'
       ));
 
-      document.querySelector('#microrepteRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="9">No hi ha microreptes.</td></tr>';
+      document.querySelector('#microrepteRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha microreptes.</td></tr>';
       document.querySelectorAll('[data-microrepte-id]').forEach((button) => {
         button.addEventListener('click', () => showMicrorepteDetail(button.dataset.microrepteId));
       });
@@ -3446,7 +3379,6 @@ function pageHtml() {
           button.addEventListener('click', () => deleteGradeRow(button.dataset.gradeDelete, button.dataset.gradeRepo, button.dataset.gradeChallenge));
         });
         document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
-        await loadRaGrades(params);
         await loadRepteGrades(params);
       } catch (error) {
         document.querySelector('#gradesInfo').textContent = 'Error: ' + error.message;
@@ -3540,21 +3472,19 @@ function pageHtml() {
     function renderExtension(item) {
       const ext = item.extension;
       if (!ext) return 'Sense ampliació configurada';
-      const state = { pending: 'Pendent de presentació', stale: 'Revisió anterior desactualitzada', incomplete: 'Falten microreptes', validated: 'Ampliació validada' }[ext.status];
-      let html = '<p>Nucli /10: <strong>' + escapeHtml(ext.core_score ?? '—') + '</strong> · Base /9: ' + escapeHtml(ext.base_score ?? '—') + '</p>' +
-        '<p>Nota calculada /10: <strong>' + escapeHtml(ext.final_score ?? 'pendent') + '</strong>' + (ext.provisional ? ' · provisional' : '') + '</p>' +
-        '<p>' + escapeHtml(state) + ' · ' + escapeHtml(ext.source_microrepte_code) + '</p>';
+      const state = { pending: 'Pendent de defensa', stale: 'Revisió anterior desactualitzada', not_proposed: 'Sense proposta', validated: 'Validada per a la defensa' }[ext.status];
+      let html = '<p>' + escapeHtml(state || ext.status) + ' · ' + escapeHtml(ext.source_microrepte_code) + '</p>';
       if (!item.can_review_extension) return html;
       html += '<p>Proposta IA /1: ' + escapeHtml(ext.proposed_score ?? 'sense proposta') + '</p>';
       if (ext.proposal) {
         html += '<details><summary>Evidències i punts per a la presentació</summary><p>' + escapeHtml(ext.proposal.reason) + '</p><ul>' +
           [...ext.proposal.evidence, ...ext.proposal.presentation_checks].map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul></details>';
       }
-      const disabled = ext.core_complete ? '' : ' disabled';
-      html += '<label>Ampliació validada /1 <select data-extension-score data-source="' + escapeHtml(ext.source_challenge_id) + '" data-snapshot="' + escapeHtml(ext.snapshot) + '"' + disabled + '>' +
+      const disabled = '';
+      html += '<label>Ampliació 9→10 validada /1 <select data-extension-score data-source="' + escapeHtml(ext.source_challenge_id) + '" data-snapshot="' + escapeHtml(ext.snapshot) + '"' + disabled + '>' +
         '<option value="" disabled>Pendent</option>' + [0, 0.25, 0.5, 0.75, 1].map(x => '<option value="' + x + '"' + (ext.validated_score === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></label>' +
-        '<label><input type="checkbox" data-extension-core' + (ext.review?.core_requirements_met ? ' checked' : '') + disabled + '> Mínims del repte comprovats</label>' +
-        '<label>Observació de la presentació<textarea data-extension-comment rows="2"' + disabled + '>' + escapeHtml(ext.review?.comment || '') + '</textarea></label>';
+        '<label><input type="checkbox" data-extension-core' + (ext.review?.core_requirements_met ? ' checked' : '') + disabled + '> Ampliació verificable i defensable</label>' +
+        '<label>Observació per a la defensa<textarea data-extension-comment rows="2"' + disabled + '>' + escapeHtml(ext.review?.comment || '') + '</textarea></label>';
       return html;
     }
 
@@ -3564,22 +3494,11 @@ function pageHtml() {
       if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar les notes per repte.');
 
       const rows = (payload.repte_grades || []).map((item) => {
-        const raText = item.ra_scores.map((raScore) => (
-          raScore.ra_id + ': ' + Number(raScore.auto_score ?? 0).toFixed(2)
-        )).join(', ');
-        const teacherScore = typeof item.teacher_score === 'number'
-          ? Number(item.teacher_score).toFixed(2)
-          : '';
-
         return '<tr>' +
           '<td>' + repositoryLink(item.repo || '') + '</td>' +
           '<td>' + escapeHtml(item.group_name || '') + '</td>' +
           '<td><code>' + escapeHtml(item.repte_id || '') + '</code></td>' +
-          '<td>' + escapeHtml(raText || 'Sense notes RA') + '</td>' +
           '<td>' + renderExtension(item) + '</td>' +
-          '<td><input data-teacher-score type="number" min="0" max="10" step="0.01" value="' + escapeHtml(teacherScore) + '"></td>' +
-          '<td><textarea data-teacher-comment rows="2">' + escapeHtml(item.teacher_comment || '') + '</textarea></td>' +
-          '<td><input data-teacher-review type="checkbox"' + (item.teacher_review_required ? ' checked' : '') + '></td>' +
           '<td><button class="secondary" type="button" data-save-teacher-repte data-repo="' + escapeHtml(item.repo || '') + '" data-group="' + escapeHtml(item.group_name || '') + '" data-repte="' + escapeHtml(item.repte_id || '') + '">Guardar</button></td>' +
         '</tr>';
       });
@@ -3609,9 +3528,9 @@ function pageHtml() {
             repo: button.dataset.repo,
             group_name: button.dataset.group,
             repte_id: button.dataset.repte,
-            teacher_score: scoreInput.value,
-            teacher_comment: commentInput.value,
-            teacher_review_required: reviewInput.checked,
+            teacher_score: scoreInput?.value || '',
+            teacher_comment: commentInput?.value || '',
+            teacher_review_required: reviewInput?.checked || false,
             extension_review: extensionInput && extensionInput.value !== '' ? {
               source_challenge_id: extensionInput.dataset.source,
               snapshot: extensionInput.dataset.snapshot,
@@ -3623,7 +3542,7 @@ function pageHtml() {
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || 'No s’ha pogut guardar la nota docent.');
-        status.innerHTML = '<span class="ok">Nota docent guardada.</span>';
+        status.innerHTML = '<span class="ok">Ampliació guardada per a la defensa.</span>';
         await loadGrades();
       } catch (error) {
         status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';

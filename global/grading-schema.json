@@ -73,6 +73,7 @@
     },
     "ra_scores": {
       "type": "array",
+      "maxItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,

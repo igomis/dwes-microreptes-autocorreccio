@@ -159,7 +159,7 @@ export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGra
         challenge_id: grade.challenge_id,
         score: Number(scoreEntry.score),
         assessed_ca: scoreEntry.assessed_ca,
-        weight: metadata.repte_weight || 1,
+        weight: 1,
         assessment_model: metadata.assessment_model
       });
 
@@ -177,9 +177,7 @@ export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGra
   for (const record of raGroups.values()) {
     const score = averageScores(record.microrepte_scores);
     record.auto_score = score !== null ? Number(score.toFixed(2)) : null;
-    record.auto_score_mode = record.microrepte_scores.some((item) => item.weight && item.weight !== 1)
-      ? 'weighted_by_repte_weight'
-      : 'equal';
+    record.auto_score_mode = 'informative_equal_average';
 
     const repteKey = `${record.repo}\u0000${record.group}\u0000${record.repte_id}`;
     const currentRepte = repteGroups.get(repteKey) || {
@@ -191,7 +189,7 @@ export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGra
       record_type: 'repte',
       ra_scores: [],
       auto_score: null,
-      auto_score_mode: 'average_of_ra',
+      auto_score_mode: 'not_calculated',
       teacher_score: null,
       teacher_comment: '',
       teacher_review_required: false,
@@ -216,14 +214,12 @@ export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGra
     const teacherData = teacherGrades.get(teacherKey);
 
     repteRecord.auto_score = null;
-    repteRecord.auto_score_mode = 'not_calculated_without_ra_weights';
+    repteRecord.auto_score_mode = 'not_calculated';
     const extension = calculateRepteExtension(latestGrades.filter(g => (g.repo || g.student) === repteRecord.repo), challengeMetadata, repteRecord.repte_id, teacherData?.extension_review);
     if (extension) {
       repteRecord.extension = extension;
-      repteRecord.auto_score = extension.base_score;
-      repteRecord.final_score = extension.final_score;
       repteRecord.provisional = extension.provisional;
-      repteRecord.auto_score_mode = 'core_weighted_times_0.9_plus_validated_extension';
+      repteRecord.auto_score_mode = 'extension_only';
     }
 
     if (teacherData) {

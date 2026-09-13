@@ -22,4 +22,4 @@ No valores positivament una API externa, llibreria o codi avançat només perqu�
 
 Marca revisio docent si la candidatura sembla viable però cal confirmar defensa, autoria o qualitat de la integracio.
 
-Recorda la regla de nota: sense ampliacio validada, la nota final del Repte 2 queda limitada a 9 encara que la mitjana dels microreptes siga 10.
+Recorda que la valoració de l’ampliació queda separada de les notes dels microreptes i servix com a evidència per a la defensa.

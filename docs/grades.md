@@ -39,14 +39,7 @@ Aquest script genera:
 - `grades/latest-repte-grades.json`
 - `grades/latest-repte-grades.csv`
 
-En aquests fitxers apareix:
-
-- `ra_id`: RA principal del repte.
-- `auto_score`: nota automàtica agregada per RA.
-- `repte_id`: identificador del repte.
-- `teacher_score`: nota docent global de repte si s'ha proporcionat.
-
-El càlcul automàtic només consolida microreptes dins del mateix RA. No calcula una nota automàtica final del repte fent mitjana entre RA, perquè eixe pes no està definit. La nota global del repte queda reservada a la valoració docent (`teacher_score`).
+Estos fitxers permeten consultar els microreptes associats a cada RA i, sobretot, la proposta i validació de l’ampliació 9→10 de cada repte. No calculen una nota global del repte.
 
 Un microrepte pot continuar usant el model simple:
 
@@ -57,33 +50,12 @@ Un microrepte pot continuar usant el model simple:
 }
 ```
 
-Si ha d'avaluar més d'un RA, pot declarar blocs diferenciats:
-
-```json
-{
-  "primary_ra": "RA2",
-  "assessed_ca": ["RA2.a", "RA2.b"],
-  "assessed_ra": [
-    {
-      "ra_id": "RA2",
-      "assessed_ca": ["RA2.a", "RA2.b"],
-      "weight": 1
-    },
-    {
-      "ra_id": "RA3",
-      "assessed_ca": ["RA3.e", "RA3.f"],
-      "weight": 1
-    }
-  ]
-}
-```
-
-En eixe cas, l'autocorrecció pot retornar `ra_scores` amb una nota independent per RA. Estes notes no es barregen entre elles: cada una alimenta l'agregat del seu RA dins del repte.
+Cada microrepte qualifica un únic `primary_ra`. Altres RA poden aparéixer en `context_ra`, però no generen nota.
 
 El dashboard mostra estes dades en la secció `Resultats`:
 
-- `Notes orientatives per RA`: una nota automàtica per cada RA avaluat dins del repte.
-- `Notes per repte`: resum de les notes RA i nota docent global editable del repte.
+- notes provisionals independents per microrepte;
+- ampliació 9→10 proposada i validada per a considerar en la defensa.
 
 Quan guardes una nota docent des del dashboard, es desa en `grades/teacher-repte-grades.json`. També pots preparar o revisar el fitxer manualment amb este format:
 

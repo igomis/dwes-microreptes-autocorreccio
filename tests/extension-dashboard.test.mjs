@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 
 // Entirely isolated course/database: never touches real grades or calls external APIs.
-test('dashboard: només l’últim microrepte valida; proposta → nota global sense alterar RA', { timeout: 20000 }, async t => {
+test('dashboard: només l’últim microrepte valida l’ampliació separada de les notes', { timeout: 20000 }, async t => {
  const fixture=mkdtempSync(path.join(tmpdir(),'dwes-extension-http-'));
  for(const dir of ['teacher-dashboard','scripts','microreptes','global']) cpSync(dir,path.join(fixture,dir),{recursive:true});
  mkdirSync(path.join(fixture,'docs/programacio_aula'),{recursive:true});
@@ -30,13 +30,13 @@ test('dashboard: només l’últim microrepte valida; proposta → nota global s
  const earlier=(await get('/api/repte-grades?challenge='+first)).repte_grades[0];
  assert.equal(earlier.can_review_extension,false);
  let record=(await get('/api/repte-grades?challenge='+last)).repte_grades[0];
- assert.equal(record.can_review_extension,true);assert.equal(record.extension.base_score,9);assert.equal(record.extension.final_score,null);
+ assert.equal(record.can_review_extension,true);assert.equal(record.extension.proposed_score,1);assert.equal(record.extension.final_score,undefined);
  const body={repo:'test/alumne',repte_id:'r1-kickoff-backend',teacher_score:'',extension_review:{source_challenge_id:first,snapshot:record.extension.snapshot,validated_score:1,core_requirements_met:true,comment:'Demo comprovada'}};
  const post=()=>fetch(base+'/api/repte-grades/teacher',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
  assert.notEqual((await post()).status,200);
  body.extension_review.source_challenge_id=last;assert.equal((await post()).status,200);
  record=(await get('/api/repte-grades?challenge='+last)).repte_grades[0];
- assert.equal(record.extension.final_score,10);assert.equal(record.extension.status,'validated');
+ assert.equal(record.extension.validated_score,1);assert.equal(record.extension.status,'validated');assert.equal(record.extension.final_score,undefined);
  assert.equal((await get('/api/ra-grades')).ra_grades[0].score,10);
  const html=await (await fetch(base)).text();
  for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(()=>new Function(match[1]));

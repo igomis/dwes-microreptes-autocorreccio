@@ -41,10 +41,8 @@
   "source_alignment": [
     "Repte 5 R5M2",
     "Programacio d'aula R5S2",
-    "Documentacio d'alumnat del Repte 5",
-    "Pes orientatiu dins del repte: 20%"
+    "Documentacio d'alumnat del Repte 5"
   ],
-  "repte_weight": 0.2,
   "primary_ra": "RA9",
   "assessed_ca": [
     "RA9.c",

@@ -1,7 +1,6 @@
 {
   "challenge_id": "r1-s02-entorn-executable",
   "repte_id": "r1-kickoff-backend",
-  "repte_weight": 0.75,
   "session_code": "R1-S02",
   "microrepte_code": "R1M2",
   "microreptes_covered": [
@@ -56,8 +55,7 @@
   "source_alignment": [
     "Repte 1 R1M2",
     "Programació d'aula R1 S02",
-    "Repte 1 organitzat en 2 microreptes",
-    "Pes orientatiu dins del repte: 75%"
+    "Repte 1 organitzat en 2 microreptes"
   ],
   "primary_ra": "RA1",
   "assessed_ca": [

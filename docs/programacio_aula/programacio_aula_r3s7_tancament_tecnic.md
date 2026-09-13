@@ -196,4 +196,4 @@ Després de `R3M7`, l'equip pot entrar a `R4`: contracte d'API i exposicio de fu
 
 ## Registre de l’ampliació global al final de R3
 
-En R3M7 es recull una única proposta d’ampliació del repte (0–1), amb declaració `docs/r3-ampliacio.md`. En la presentació el professorat comprova mínims, demo i comprensió, valida els punts i deixa observació. El programa calcula `0,9 × mitjana ponderada del nucli + ampliació validada`; no suma en les dimensions del microrepte ni en cada RA. Pendent de revisió no és zero.
+En R3M7 es recull una única proposta d’ampliació 9→10 del repte (0–1), amb declaració `docs/r3-ampliacio.md`. L’autocorrecció la mostra separada de la nota del microrepte. En la defensa, el professorat comprova l’evidència, la demo i la comprensió, valida o ajusta la valoració i deixa una observació. No es calcula cap nota global del repte ni se suma automàticament a cap RA.

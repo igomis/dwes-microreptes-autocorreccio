@@ -48,10 +48,8 @@
   "source_alignment": [
     "Repte 2 R2M8",
     "Programacio d'aula R2S8",
-    "Documentacio d'alumnat del Repte 2",
-    "Pes orientatiu dins del repte: 8%"
+    "Documentacio d'alumnat del Repte 2"
   ],
-  "repte_weight": 0.08,
   "primary_ra": "RA3",
   "assessed_ca": [
     "RA3.d",
