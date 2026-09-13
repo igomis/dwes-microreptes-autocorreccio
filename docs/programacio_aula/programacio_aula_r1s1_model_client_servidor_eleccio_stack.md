@@ -77,7 +77,7 @@ Esta resposta no és suficient perquè no connecta la decisió amb el producte, 
 ## Preparació prèvia del professorat
 
 - Tindre localitzats els materials d'arquitectura web, client/servidor, backend i llenguatges/frameworks.
-- Tindre preparada la presentació inicial del curs per explicar repositori, evidències, avaluació i forma de treball.
+- Tindre preparada la guia breu de `R1M1` perquè l'alumnat investigue els criteris de tria del stack sense avançar-li la teoria detallada.
 - Crear els repositoris individuals des de la base correcta, comprovar que tenen `main` inicialitzada i convidar cada alumne com a col·laborador.
 - Preparar un exemple docent de producte senzill per modelar la fitxa.
 - Preparar una pregunta oral curta per comprovar comprensió individual.
@@ -94,21 +94,9 @@ Esta resposta no és suficient perquè no connecta la decisió amb el producte, 
 
 ## Seqüència d'aula de 3 hores
 
-Aplicar el [protocol de retorn i consolidació](retorn_i_consolidacio_microreptes.md). Els blocs següents ja incorporen la consolidació dins de les tres hores: prioritzar mínims i proves, i reajustar el treball nou si persistixen bloquejos del grup.
+`R1M1` és el primer microrepte, per tant esta sessió no reserva cap bloc per repassar o consolidar un microrepte anterior.
 
-### 0:00-0:15. Retorn i explicació dels errors anteriors
-
-Revisar les evidències i els dubtes de R1S0 i del punt de partida, explicar dos o tres errors comuns amb un exemple breu i fer predir el resultat. No donar per assolit cap microrepte anterior: R1M1 és el primer.
-
-### 0:15-0:30. Correcció guiada o consolidació
-
-Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda. Qui ja ha assolit el mínim comprova variants o millora les proves. Si falta treball, començar per la peça mínima necessària; si falta comprensió, modificar i explicar un exemple.
-
-### 0:30-0:35. Comprovació de la base per continuar
-
-Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
-
-### 0:35-0:45. Presentació del curs, repositori i producte esperat
+### 0:00-0:10. Presentació del repte, repositori i producte esperat
 
 El professorat presenta el funcionament del curs, el `Repte 1`, el sentit del kickoff backend i la relació amb els reptes posteriors.
 
@@ -116,7 +104,7 @@ També explica que el repositori assignat pel professorat serà el repositori in
 
 Resultat del tram: l'alumnat sap que la sessió acaba amb repositori creat, clonat i pujat, més una fitxa tècnica breu; no amb un projecte ja implementat.
 
-### 0:45-1:00. Acceptació i clonatge del repositori individual
+### 0:10-0:25. Acceptació i clonatge del repositori individual
 
 Tasques:
 
@@ -128,42 +116,43 @@ Tasques:
 
 Resultat del tram: cada alumne té el seu repositori individual en local i sap que no ha de clonar el repositori base directament.
 
-### 1:00-1:15. Model client/servidor amb un exemple concret
+### 0:25-0:45. Model client/servidor amb un exemple concret
 
 El professorat explica el flux bàsic d'una petició web: navegador, servidor, codi de servidor i resposta.
 
 Resultat del tram: l'alumnat pot separar, en un cas senzill, què fa el client i què fa el servidor.
 
-### 1:15-1:30. Modelatge docent de la fitxa i del `README.md` inicial
+### 0:45-1:05. Modelatge docent de la fitxa i del `README.md` inicial
 
 El professorat mostra una fitxa d'exploració tècnica mínima amb un producte exemple i com deixar en `README.md` el microrepte actual, el producte triat i la primera decisió de treball.
 
 Resultat del tram: l'alumnat veu el nivell de concreció esperat i evita llistes genèriques de frameworks.
 
-### 1:30-2:00. Treball individual o per parelles
+### 1:05-1:50. Investigació i treball individual o per parelles
 
 Tasques:
 
 - escriure quin producte vol iniciar;
 - dibuixar o descriure el flux client/servidor;
 - escriure tres exemples del projecte: acció del client, acció del servidor i resposta;
+- consultar la guia breu de criteris per triar el stack i contrastar les opcions amb fonts pròpies;
 - iniciar una comparació breu de dues o tres opcions tècniques.
 
 Resultat del tram: cada equip té una primera fitxa amb producte, flux i opcions tècniques.
 
-### 2:00-2:20. Contrast per parelles
+### 1:50-2:10. Contrast per parelles
 
 Una altra persona revisa si la fitxa diferencia realment client, servidor i dades.
 
 Resultat del tram: cada equip detecta una confusió, omissió o decisió massa genèrica.
 
-### 2:20-2:35. Decisió inicial de stack
+### 2:10-2:35. Decisió inicial de stack
 
 L'alumnat tanca una decisió tècnica inicial i una alternativa descartada.
 
 Resultat del tram: la decisió queda escrita amb un motiu relacionat amb el producte, amb el marc del curs i amb el que realment s'ha de construir en `R1S2`.
 
-### 2:35-2:45. Commit i `push` inicial
+### 2:35-2:50. Commit i `push` inicial
 
 Tasques:
 
@@ -174,13 +163,13 @@ Tasques:
 
 Resultat del tram: GitHub mostra el primer canvi i el professorat pot comprovar que el repositori queda operatiu.
 
-### 2:45-2:50. Checkpoint docent
+### 2:50-2:55. Checkpoint docent
 
 Cada equip mostra el repositori en GitHub, la fitxa i respon una pregunta breu.
 
 Pregunta de tancament: què passa exactament al navegador i què passa al servidor en una acció bàsica del teu producte?
 
-### 2:50-3:00. Diagnòstic individual i següent pas
+### 2:55-3:00. Diagnòstic individual i següent pas
 
 Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
@@ -272,7 +261,7 @@ Frase guia: "Primer explica el viatge d'una petició; després ja decidirem amb 
 ## Materials associats per a portar a l'aula
 
 - **Presentació associada**: [MT01. Projecte no CRUD](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT01-Projecte-no-CRUD.pdf)
-- **Presentació inicial del curs**: [Benvinguda al curs](https://cipfpbatoi.github.io/dwes2627/recursos/Presentacions/Benvinguda-al-curs.pdf)
+- **Guia breu per a la investigació de R1M1**: [Com triar el teu stack tecnològic de servidor](https://cipfpbatoi.github.io/dwes2627/recursos/Repte1/R1M1-Com-triar-el-teu-stack-tecnologic-de-servidor.pdf)
 - **Teoria o material associat**: [Backend, client-servidor i arquitectura web](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R1-Backend-client-servidor-i-arquitectura-web.pdf)
 - **Guia operativa**: [Com pujar el treball per a l'autocorrecció](https://cipfpbatoi.github.io/dwes2627/04_materials/guia_pujar_treball_autocorreccio/)
 
