@@ -834,7 +834,7 @@ function resolveWorkflowInputs(body) {
   const challengeId = String(body.challenge_id || '').trim();
   const mode = body.mode || 'mock';
   const studentRef = body.student_ref || 'main';
-  const publishToStudentRepo = String(body.publish_to_student_repo ?? false);
+  const publishToStudentRepo = String(body.publish_to_student_repo ?? true);
   const defaultGroup = body.group || (targetGroup === 'all' ? '2DAW-A' : targetGroup);
 
   if (!Object.hasOwn(groupFiles, targetGroup)) {
@@ -1773,8 +1773,8 @@ function pageHtml() {
         </label>
         <label>Publicar en repo alumne
           <select id="publish">
-            <option value="false">No</option>
             <option value="true">Sí</option>
+            <option value="false">No</option>
           </select>
         </label>
       </div>
@@ -3603,7 +3603,7 @@ function pageHtml() {
         challenge_id: challengeId,
         mode,
         student_ref: 'main',
-        publish_to_student_repo: false,
+        publish_to_student_repo: true,
         repositories: repo + ' ' + (groupName || targetGroup || 'all')
       }, status);
     }
@@ -3626,7 +3626,7 @@ function pageHtml() {
           challenge_id: challenge,
           mode,
           student_ref: 'main',
-          publish_to_student_repo: false,
+          publish_to_student_repo: true,
           repositories: repo + ' ' + group
         }, status);
         return;
