@@ -1,3 +1,15 @@
 # Repositoris d'alumnes de 2DAW-B per a correccio massiva.
 # Format: repositori grup
 
+batoi-dwes-2026/microreptes-albertocarri 2DAW-B
+batoi-dwes-2026/microreptes-avalerobatoi 2DAW-B
+batoi-dwes-2026/microreptes-alonsospain 2DAW-B
+batoi-dwes-2026/microreptes-arnau-carbonell 2DAW-B
+batoi-dwes-2026/microreptes-davidtorro 2DAW-B
+batoi-dwes-2026/microreptes-gercar3 2DAW-B
+batoi-dwes-2026/microreptes-ivanpuig 2DAW-B
+batoi-dwes-2026/microreptes-javaleper2 2DAW-B
+batoi-dwes-2026/microreptes-joan357 2DAW-B
+batoi-dwes-2026/microreptes-lucsolpic 2DAW-B
+batoi-dwes-2026/microreptes-rubenbalag 2DAW-B
+batoi-dwes-2026/microreptes-alvaro-galera-cortell 2DAW-B

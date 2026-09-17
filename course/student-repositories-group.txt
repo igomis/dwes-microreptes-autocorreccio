@@ -1,0 +1,4 @@
+# Repositoris d'alumnes de GROUP per a correccio massiva.
+# Format: repositori grup nom
+
+batoi-dwes-2026/microreptes-a-github_user GROUP student_namerafaestudioson

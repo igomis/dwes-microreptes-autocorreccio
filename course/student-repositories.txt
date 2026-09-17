@@ -1,5 +1,30 @@
 # Repositoris de tots els grups per a correccio massiva.
 # Format: repositori grup
 
-batoi-dwes-2026/microreptes-fakeigomis 2DAW-C
-batoi-dwes-2026/microreptes-igomis 2DAW-C
+batoi-dwes-2026/microreptes-a-angelbatoi 2DAW-A
+batoi-dwes-2026/microreptes-a-carlos-svg510 2DAW-A
+batoi-dwes-2026/microreptes-a-ctav97 2DAW-A
+batoi-dwes-2026/microreptes-a-quicocolomina 2DAW-A
+batoi-dwes-2026/microreptes-a-iker2102 2DAW-A
+batoi-dwes-2026/microreptes-a-javiermartinez-code 2DAW-A
+batoi-dwes-2026/microreptes-a-julia272007 2DAW-A
+batoi-dwes-2026/microreptes-a-nehuenpolizzilkifner1 2DAW-A
+batoi-dwes-2026/microreptes-a-paulloretgisbert 2DAW-A
+batoi-dwes-2026/microreptes-a-rafaestudioson 2DAW-A
+batoi-dwes-2026/microreptes-a-rustambulibekov 2DAW-A
+batoi-dwes-2026/microreptes-a-unaimarpin 2DAW-A
+batoi-dwes-2026/microreptes-a-bastard2 2DAW-A
+batoi-dwes-2026/microreptes-albertocarri 2DAW-B
+batoi-dwes-2026/microreptes-avalerobatoi 2DAW-B
+batoi-dwes-2026/microreptes-alonsospain 2DAW-B
+batoi-dwes-2026/microreptes-arnau-carbonell 2DAW-B
+batoi-dwes-2026/microreptes-davidtorro 2DAW-B
+batoi-dwes-2026/microreptes-gercar3 2DAW-B
+batoi-dwes-2026/microreptes-ivanpuig 2DAW-B
+batoi-dwes-2026/microreptes-javaleper2 2DAW-B
+batoi-dwes-2026/microreptes-joan357 2DAW-B
+batoi-dwes-2026/microreptes-lucsolpic 2DAW-B
+batoi-dwes-2026/microreptes-rubenbalag 2DAW-B
+batoi-dwes-2026/microreptes-alvaro-galera-cortell 2DAW-B
+batoi-dwes-2026/microreptes-c-igomis 2DAW-C
+batoi-dwes-2026/microreptes-r-linares 2DAW-C

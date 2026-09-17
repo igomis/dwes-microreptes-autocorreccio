@@ -1,0 +1,4 @@
+# Repositoris d'alumnes de ZAPE per a correccio massiva.
+# Format: repositori grup nom
+
+batoi-dwes-2026/microreptes-c-igomisd2daw-c ZAPE
