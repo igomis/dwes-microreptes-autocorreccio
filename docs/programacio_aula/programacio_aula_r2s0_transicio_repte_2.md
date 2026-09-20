@@ -4,7 +4,7 @@
 
 Esta sessió obri `R2` sense crear un microrepte nou. La seua funció és fer la transició des de la base executable de `R1` cap al primer flux funcional amb dades, validació, estat i autenticació.
 
-Com que `R2` es treballa sobre una base comuna en `PHP`, esta sessió dedica temps explícit a una introducció pràctica a `PHP`: sintaxi mínima, barreja controlada de codi `HTML` i `PHP`, variables, condicions i exemples fàcils d'ús dins d'una pàgina generada pel servidor.
+Com que `R2` es treballa sobre una base comuna en `PHP`, esta sessió dedica temps explícit a una introducció pràctica a `PHP`: sintaxi mínima, barreja controlada de codi `HTML` i `PHP`, variables, condicions i exemples fàcils d'ús dins d'una pàgina generada pel servidor. L’alumnat que ha triat `Python` pot resoldre la mateixa bateria amb `Flask` i plantilles `Jinja`, mantenint els mateixos conceptes, resultats i criteris d’èxit.
 
 ## Encaix dins del Repte 2
 
@@ -12,7 +12,7 @@ Com que `R2` es treballa sobre una base comuna en `PHP`, esta sessió dedica tem
 - **Microrepte**: `Sessió sense microrepte propi`
 - **Sessió**: `R2S0`
 - **Duració orientativa**: `3 hores`
-- **Focus**: lectura de `R1`, introducció pràctica a `PHP`, barreja `HTML/PHP`, formularis, recorregut de dades, errors i abast de `R2`
+- **Focus**: lectura de `R1`, introducció pràctica a `PHP` o equivalent en `Python`, generació d’`HTML` al servidor, formularis, recorregut de dades, errors i abast de `R2`
 - **No entra encara**: implementar el primer microrepte complet
 
 ## Conceptes a explicar
@@ -20,6 +20,7 @@ Com que `R2` es treballa sobre una base comuna en `PHP`, esta sessió dedica tem
 - Diferència entre punt d'entrada de `R1` i flux funcional de `R2`.
 - Què fa `PHP` al servidor abans que el navegador reba l'`HTML`.
 - Com s'intercala `PHP` dins d'una pàgina `HTML` sense convertir-la en un fitxer desordenat.
+- Equivalència en la via Python: la ruta prepara les dades i una plantilla `Jinja` genera l’`HTML`; `{{ ... }}` mostra valors i `{% ... %}` controla condicions i bucles.
 - Sintaxi mínima: variables, concatenació o interpolació simple, `if/else`, arrays bàsics i `foreach` senzill si cal.
 - Exemples fàcils: saludar amb una variable, mostrar una llista d'opcions, pintar un missatge condicional i generar una xicoteta taula.
 - Recorregut mínim: formulari, petició, servidor, validació, resposta i reintent.
@@ -62,7 +63,7 @@ Punt docent important: `htmlspecialchars` s'introdueix com a hàbit de seguretat
 
 | Temps | Activitat |
 |---|---|
-| 0:00–0:15 | Comprovar l’entorn i modelar PHP → HTML, sintaxi mínima i execució. |
+| 0:00–0:15 | Comprovar l’entorn i modelar PHP → HTML o Python/Flask → Jinja → HTML, sintaxi mínima i execució. |
 | 0:15–1:00 | Exercicis 1–3: execució, fitxa i càlcul; l’alumnat escriu i prova variacions. |
 | 1:00–1:45 | Exercicis 4–5: condicions, estils, arrays i bucles. |
 | 1:45–1:55 | Pausa i resolució de dubtes comuns. |
@@ -73,14 +74,14 @@ Punt docent important: `htmlspecialchars` s'introdueix com a hàbit de seguretat
 
 ## Tasques concretes de l’alumnat
 
-Seguir la [bateria de 7 exercicis de PHP i HTML](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/practica_php_html.html), amb resultats esperats i variacions. Conservar els fitxers de pràctica i notes dels errors per a revisió formativa a classe. Esta sessió introductòria no genera lliurament, nota ni autocorrecció pròpia.
+Seguir la bateria de 7 exercicis en la [via PHP i HTML](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/practica_php_html.html) o resoldre [els mateixos problemes amb Python, Flask i Jinja](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/practica_python_html.html), amb els mateixos resultats esperats i variacions. Cada alumne manté la via tecnològica triada durant tota la bateria. Conservar els fitxers de pràctica i notes dels errors per a revisió formativa a classe. Esta sessió introductòria no genera lliurament, nota ni autocorrecció pròpia.
 
 ## Evidències mínimes
 
 | Evidència | Mínim acceptable |
 |---|---|
 | Base `R1` | arranca i està documentada |
-| Exemple `PHP` | l’alumnat ha escrit, executat i modificat codi amb eixida `HTML` |
+| Exemple de servidor | l’alumnat ha escrit, executat i modificat codi PHP o Python amb eixida `HTML` |
 | Primer flux | cas d'ús real identificat |
 | Comprensió | distingix PHP del servidor i HTML del navegador; explica un error corregit |
 | Riscos | punts de bloqueig anotats |
@@ -88,8 +89,8 @@ Seguir la [bateria de 7 exercicis de PHP i HTML](https://cipfpbatoi.github.io/dw
 ## Checklist de tancament
 
 - [ ] Projecte de `R1` verificat.
-- [ ] Sintaxi mínima de `PHP` situada.
-- [ ] Barreja `HTML/PHP` practicada per l’alumnat amb variables, condicions i bucles.
+- [ ] Sintaxi mínima de `PHP` o `Python` situada.
+- [ ] Generació d’HTML practicada amb variables, condicions i bucles en la via triada.
 - [ ] Primer flux funcional triat.
 - [ ] Pàgina de pràctica provada amb dos casos i un error explicat.
 - [ ] Preparat per a `R2S1`.
@@ -104,7 +105,7 @@ Fitxers curts de pràctica i una pàgina del domini amb dades fictícies, càlcu
 
 ## Preparació prèvia del professorat
 
-Comprovar que l’entorn PHP de classe funciona, obrir la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple per a qui necessite suport.
+Comprovar que l’entorn PHP de classe funciona i, per a la via Python, que es pot crear un entorn virtual i instal·lar o usar `Flask`. Obrir les dues versions de la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple de cada via per a qui necessite suport.
 
 ## Criteris d’èxit
 
