@@ -105,7 +105,7 @@ Fitxers curts de pràctica i una pàgina del domini amb dades fictícies, càlcu
 
 ## Preparació prèvia del professorat
 
-Comprovar que l’entorn PHP de classe funciona i, per a la via Python, que es pot crear un entorn virtual i instal·lar o usar `Flask`. Obrir les dues versions de la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple de cada via per a qui necessite suport.
+Comprovar que l’entorn Docker de classe funciona en les dues vies i que la imatge de la via Python pot instal·lar i executar `Flask`. Obrir les dues versions de la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple de cada via per a qui necessite suport.
 
 ## Criteris d’èxit
 
