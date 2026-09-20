@@ -105,7 +105,7 @@ Fitxers curts de pràctica i una pàgina del domini amb dades fictícies, càlcu
 
 ## Preparació prèvia del professorat
 
-Comprovar que l’entorn Docker de classe funciona en les dues vies i que la imatge de la via Python pot instal·lar i executar `Flask`. Obrir les dues versions de la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple de cada via per a qui necessite suport.
+Comprovar que els entorns Docker construïts per l’alumnat en `R1` continuen funcionant en les dues vies i que la imatge de la via Python pot executar `Flask`. La pràctica ha de reutilitzar eixe entorn, no imposar-ne un de nou. Tindre disponible la configuració mínima de recuperació només per a qui no va aconseguir completar l’entorn anterior. Obrir les dues versions de la bateria i preparar una demostració de petició i resposta. Reservar temps per a errors d’arrancada i tindre disponible el primer exemple de cada via per a qui necessite suport.
 
 ## Criteris d’èxit
 
