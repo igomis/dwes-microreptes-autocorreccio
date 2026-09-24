@@ -14,6 +14,15 @@ El feedback automàtic ha de ser breu, concret i orientat a millora.
 - Explica què falta i com es podria verificar.
 - Penalitza l'absència de prova o evidència.
 
+## Bones pràctiques de programació
+
+- Quan hi haja codi inspeccionable, proposa entre una i tres millores concretes i assumibles per al nivell actual de l'alumnat.
+- Cada proposta ha d'indicar el fitxer o fragment observat, explicar per què convé millorar-lo i donar una acció concreta.
+- Prioritza llegibilitat, noms expressius, funcions curtes amb una responsabilitat, evitar duplicació, validació d'entrada, gestió d'errors, separació entre presentació i lògica, configuració segura i proves.
+- No inventes defectes ni dones consells genèrics que no es puguen relacionar amb el codi entregat.
+- No penalitzes patrons o tècniques que encara no s'han treballat ni convertisques una recomanació formativa en un requisit nou de la rúbrica.
+- Si el codi ja resol bé una pràctica, es pot reconéixer com a punt fort en lloc de forçar una millora.
+
 ## Alertes
 
 - Marca com a alerta qualsevol incoherència, absència crítica, codi no executable o possible dependència no declarada.

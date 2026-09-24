@@ -17,6 +17,7 @@
     "ra_scores",
     "strengths",
     "weaknesses",
+    "programming_practices",
     "blocking_flags",
     "teacher_review_required",
     "confidence",
@@ -137,6 +138,24 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "programming_practices": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["priority", "source", "observation", "recommendation"],
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["alta", "mitjana", "baixa"]
+          },
+          "source": { "type": "string" },
+          "observation": { "type": "string" },
+          "recommendation": { "type": "string" }
+        }
       }
     },
     "blocking_flags": {

@@ -64,7 +64,7 @@ function validateBasicTypes(result, errors) {
     errors.push('"applied_cap" ha de ser number o null');
   }
 
-  for (const field of ['strengths', 'weaknesses', 'blocking_flags', 'applied_hard_rules']) {
+  for (const field of ['strengths', 'weaknesses', 'programming_practices', 'blocking_flags', 'applied_hard_rules']) {
     if (field in result && !Array.isArray(result[field])) {
       errors.push(`"${field}" ha de ser array`);
     }
@@ -77,6 +77,22 @@ function validateBasicTypes(result, errors) {
   if ('ra_scores' in result && !Array.isArray(result.ra_scores)) {
     errors.push('"ra_scores" ha de ser array');
   }
+}
+
+function validateProgrammingPractices(result, errors) {
+  if (!Array.isArray(result.programming_practices)) return;
+  if (result.programming_practices.length > 3) errors.push('"programming_practices" no pot tindre més de 3 elements');
+  result.programming_practices.forEach((practice, index) => {
+    const prefix = `programming_practices[${index}]`;
+    if (!isPlainObject(practice)) {
+      errors.push(`${prefix} ha de ser objecte`);
+      return;
+    }
+    for (const field of ['priority', 'source', 'observation', 'recommendation']) {
+      if (typeof practice[field] !== 'string' || practice[field].trim() === '') errors.push(`${prefix}.${field} ha de ser text no buit`);
+    }
+    if (!['alta', 'mitjana', 'baixa'].includes(practice.priority)) errors.push(`${prefix}.priority no és vàlida`);
+  });
 }
 
 function validateNumberRanges(result, errors) {
@@ -197,6 +213,7 @@ function validateResult(result, schema) {
   validateNumberRanges(result, errors);
   validateDimensionScores(result, errors);
   validateRaScores(result, errors);
+  validateProgrammingPractices(result, errors);
   validateScoringConsistency(result, errors);
 
   return errors;

@@ -119,6 +119,15 @@ async function main() {
   lines.push(list(result.weaknesses, 'Sense millores concretes en aquesta execució.').trimEnd());
   lines.push('');
 
+  if (Array.isArray(result.programming_practices) && result.programming_practices.length > 0) {
+    lines.push('## Com millorar les bones pràctiques de programació');
+    lines.push('');
+    for (const practice of result.programming_practices) {
+      lines.push(`- **Prioritat ${value(practice.priority)} — ${value(practice.source)}:** ${value(practice.observation)} ${value(practice.recommendation)}`);
+    }
+    lines.push('');
+  }
+
   if (Array.isArray(result.blocking_flags) && result.blocking_flags.length > 0) {
     lines.push('## Bloquejos detectats');
     lines.push('');

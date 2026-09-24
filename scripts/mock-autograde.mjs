@@ -126,6 +126,7 @@ function buildResult(payload) {
         ? 'No s_han detectat evidencies especifiques del microrepte actiu.'
         : 'Resultat simulat: encara no revisa codi real ni executa proves del repositori de l_alumne.'
     ],
+    programming_practices: [],
     blocking_flags: blockingFlags,
     teacher_review_required: !hasRequiredEvidence || (guardrails.active_microrepte_only && !hasActiveEvidence),
     confidence: hasEnoughDimensions && hasActiveEvidence ? 0.78 : 0.48,

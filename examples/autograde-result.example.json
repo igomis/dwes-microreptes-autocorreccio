@@ -67,6 +67,14 @@
   "weaknesses": [
     "Resultat simulat: encara no revisa codi real ni executa proves del repositori de l_alumne."
   ],
+  "programming_practices": [
+    {
+      "priority": "mitjana",
+      "source": "src/index.php",
+      "observation": "La validació i la generació de la resposta comparteixen el mateix bloc.",
+      "recommendation": "Extrau la validació a una funció amb un nom descriptiu i prova-la amb una entrada vàlida i una d'invàlida."
+    }
+  ],
   "blocking_flags": [],
   "teacher_review_required": false,
   "confidence": 0.78,

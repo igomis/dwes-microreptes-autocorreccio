@@ -83,7 +83,7 @@ function validateResult(result, schema) {
     errors.push('"applied_cap" ha de ser number o null');
   }
 
-  for (const field of ['dimension_scores', 'ra_scores', 'strengths', 'weaknesses', 'blocking_flags', 'applied_hard_rules']) {
+  for (const field of ['dimension_scores', 'ra_scores', 'strengths', 'weaknesses', 'programming_practices', 'blocking_flags', 'applied_hard_rules']) {
     if (field in result && !Array.isArray(result[field])) {
       errors.push(`"${field}" ha de ser array`);
     }
@@ -162,6 +162,7 @@ function buildMessages(payload, schema, promptText) {
         'Has de tornar exclusivament un objecte JSON compatible amb l_esquema proporcionat.',
         'No canvies el contracte d_eixida. Marca sempre provisional=true si no hi ha revisio docent final.',
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
+        'Quan hi haja codi inspeccionable, ompli programming_practices amb entre 1 i 3 millores formatives prioritzades. Cada millora ha de citar un path o fragment real, descriure l_observacio i proposar una accio concreta i assumible. Prioritza llegibilitat, noms, responsabilitats curtes, duplicacio, validacio, errors, separacio de presentacio i logica, configuracio segura i proves. No inventes defectes, no dones consells generics i no penalitzes tècniques encara no treballades. Estes recomanacions no creen requisits nous ni alteren la nota fora de la rubrica. Si no hi ha codi suficient per observar una millora real, torna un array buit.',
         'Consulta repository_manifest abans d_afirmar que falta un fitxer. Si present=true i included=false, digues "present però no inspeccionat" i demana revisió docent; no afirmes que no existeix. relevant_files conte els fitxers estructurals i els relevant_paths que sí s_han pogut inspeccionar.',
         'Abans de puntuar, contrasta cada criteri amb paths i fragments concrets del payload. Distingix entre verificat, present però no verificat, no aportat i contradictori. Una afirmació del README no prova funcionalitat si no concorda amb codi, configuració, prova o log.',
         'Indica en applied_hard_rules els índexs de totes les hard_rules amb límit numèric que corresponguen i una raó basada en evidències. No hi inclogues regles de mera revisió sense límit numèric. El programa calcularà la suma i aplicarà després el límit més restrictiu.',
