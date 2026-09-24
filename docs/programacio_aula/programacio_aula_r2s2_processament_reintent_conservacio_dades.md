@@ -307,8 +307,10 @@ Quina regla del teu projecte podrà aplicar el backend quan el flux d'entrada i 
 
 ## Materials associats per a portar a l'aula
 
-- **Presentació associada**: [MT03. Validació de servidor amb casos roïns](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT03-Validacio-de-servidor-amb-casos-roins.pdf)
-- **Teoria o material associat**: [Reintent, conservació de dades i guardat funcional](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Reintent-conservacio-de-dades-i-guardat-funcional.pdf)
+- **Material principal, després del microrepte**: [Reintent, conservació de dades i guardat funcional](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Reintent-conservacio-de-dades-i-guardat-funcional.pdf), resum de `5-6` diapositives amb un únic patró en PHP i Python.
+- **Material opcional de reforç**: [MT03. Validació de servidor amb casos roïns](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT03-Validacio-de-servidor-amb-casos-roins.pdf), només si les proves de casos invàlids continuen bloquejant el grup.
+
+No s'han d'usar els dos materials seguits com una explicació llarga. El retorn posterior ha de partir d'un error observat, mostrar el patró mínim i tornar de seguida a la prova del projecte.
 
 ## Microtaller associat
 
