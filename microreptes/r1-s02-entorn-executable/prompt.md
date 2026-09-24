@@ -7,12 +7,14 @@ Esta autocorrecció correspon a la sessió `R1-S02` i al microrepte `R1M2` del `
 Comprova si el repositori inclou una base tècnica adaptada al producte:
 
 - `docker-compose.yml`, `compose.yaml` o configuració equivalent;
-- servei web i execució de `PHP`;
-- servei de base de dades i phpMyAdmin, o justificació si encara no s'ha pogut completar;
+- servei web i execució del backend en `PHP` o en `Python` (`Flask`, `FastAPI` o equivalent);
+- servei de base de dades i phpMyAdmin o eina d'administració equivalent, quan formen part de l'entorn triat, o justificació si encara no s'han pogut completar;
 - `README` amb requisits, arrencada, parada, ports, URL i comprovacions;
 - prova d'arrencada, captura, log o error documentat amb hipòtesi de causa;
 - issue mare, microtasques, commits o registre d'incidències;
 - explicació de què s'ha adaptat respecte del model docent.
+
+Avalua les vies PHP i Python amb els mateixos criteris funcionals. En Python accepta, entre altres opcions equivalents, un servidor Flask/FastAPI, `requirements.txt` o `pyproject.toml`, plantilles Jinja i un connector de BBDD adequat. No exigisques PHP, Composer, fitxers `.php` ni phpMyAdmin pel seu nom si l'entorn Python aporta serveis equivalents i els documenta.
 
 Comprova també si hi ha una landing inicial del producte servida pel backend:
 

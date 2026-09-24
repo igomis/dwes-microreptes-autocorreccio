@@ -2,7 +2,7 @@
 
 - registre o alta mínima d'usuari;
 - usuari guardat en array, fitxer o estructura equivalent;
-- contrasenya guardada amb hash;
+- contrasenya guardada amb hash (`password_hash` en PHP, Werkzeug o equivalent segur en Python);
 - login o mecanisme equivalent;
 - comprovacio de credencials en servidor amb verificacio de hash;
 - sessio autenticada o equivalent;

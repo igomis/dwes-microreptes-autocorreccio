@@ -6,8 +6,8 @@ Evidencies minimes:
 - regla del projecte escrita o explicada en llenguatge natural;
 - decisio de servidor connectada a dades reals del flux;
 - array o estructura equivalent usada amb sentit funcional;
-- fitxer separat de llibreria pròpia, per exemple `src/regles.php`, `includes/regles.php`, `lib/funcions.php` o equivalent;
-- import real de la llibreria amb `require_once`, `include_once` o mecanisme equivalent;
+- fitxer separat de llibreria o mòdul propi, per exemple `src/regles.php`, `app/regles.py` o equivalent;
+- import real amb `require_once`/`include_once` en PHP, `import` en Python o mecanisme equivalent;
 - funcio útil dins de la llibreria pròpia, amb nom clar i responsabilitat recognoscible;
 - dos casos de prova amb resultats visibles diferents;
 - resposta, pantalla, resum o missatge on es veja la decisio presa;

@@ -13,7 +13,7 @@
       "id": "verification",
       "label": "Verificació",
       "weight": 0.2,
-      "must_check": "Inclou prova d'arrencada, URL, captura o log, i comprovació reproduïble del servei web, BBDD/phpMyAdmin quan corresponga, landing inicial i ruta tècnica si n'hi ha."
+      "must_check": "Inclou prova d'arrencada, URL, captura o log, i comprovació reproduïble del backend PHP o Python, servei web, BBDD i eina d'administració quan corresponga, landing inicial i ruta tècnica si n'hi ha."
     },
     {
       "id": "traceability",

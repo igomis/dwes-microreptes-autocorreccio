@@ -28,6 +28,8 @@
     "views/",
     "templates/",
     "composer.json",
+    "requirements.txt",
+    "pyproject.toml",
     "ai-log.md"
   ],
   "required_evidence": [
@@ -44,7 +46,7 @@
   "ai_log_required": false,
   "expected_signals": [
     "El treball base de R2 no queda incomplet ni ocult per l'ampliacio",
-    "L'ampliacio millora validacio, errors, autenticacio, autoritzacio, proves, Composer, llibreria externa o API amb sentit real",
+    "L'ampliacio millora validacio, errors, autenticacio, autoritzacio, proves, dependències gestionades amb Composer o eines Python, llibreria externa o API amb sentit real",
     "Si l'ampliacio és R2S10, deixa un contracte d'autenticacio consumible per DWEC amb endpoints, headers, respostes, dades demo i prova creuada",
     "La millora afecta el flux del projecte i no només una pantalla decorativa",
     "Hi ha prova reproduïble o evidència tècnica concreta",

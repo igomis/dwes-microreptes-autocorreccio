@@ -3,7 +3,7 @@
 Evidències mínimes:
 
 - formulari o entrada equivalent amb text, llista/opció tancada i checkbox simple;
-- recepció de dades en `PHP` amb `$_POST` o mecanisme equivalent;
+- recepció de dades en `PHP` amb `$_POST`, en Python/Flask amb `request.form` o mecanisme equivalent;
 - lectura defensiva dels camps que poden no arribar;
 - opció tancada validada en servidor contra una llista permesa;
 - dada de l'usuari escapada abans de mostrar-la en HTML;

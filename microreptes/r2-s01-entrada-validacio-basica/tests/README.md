@@ -7,7 +7,7 @@ Estratègia de comprovació manual:
 - comprovar que el servidor mostra un error visible;
 - enviar un cas corregit;
 - comprovar que la resposta correcta es genera;
-- revisar el fragment que llig `$_POST` o equivalent;
+- revisar el fragment que llig `$_POST`, `request.form` o equivalent;
 - enviar un valor manipulat fora del catàleg permés i comprovar que el servidor
   el rebutja;
 - enviar text amb marques HTML i comprovar que apareix com a text inert;

@@ -3,12 +3,12 @@
 Un lliurament acceptable hauria de mostrar:
 
 - `database/schema.sql` o instruccions equivalents per crear la taula.
-- Un fitxer de configuració de connexió separat, per exemple `config/database.php`.
+- Un fitxer de configuració de connexió separat, per exemple `config/database.php`, `config/database.py` o equivalent.
 - Cap credencial real en fitxers versionats.
-- Codi que connecta amb `PDO` o mecanisme equivalent justificat.
+- Codi que connecta amb `PDO` en PHP, `sqlite3` o un connector DB-API en Python, o mecanisme equivalent justificat.
 - Un `INSERT` amb dades que venen del flux validat.
 - Un `SELECT` que recupera dades persistides.
-- Ús de `prepare` i `execute` quan hi ha dades d'usuari.
+- Ús de consultes preparades o parametritzades quan hi ha dades d'usuari, amb l'API pròpia del connector PHP o Python.
 - `README` amb passos per crear la BBDD i provar alta/lectura.
 - Evidència que el flux principal de R2 continua funcionant.
 

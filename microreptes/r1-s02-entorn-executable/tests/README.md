@@ -4,8 +4,8 @@ Estratègia de comprovació manual:
 
 - executar o revisar `docker compose up` o ordre equivalent;
 - obrir la URL del servei web documentada;
-- comprovar que existeixen serveis per a `PHP`, servidor web, BBDD i phpMyAdmin quan corresponga;
-- obrir phpMyAdmin o revisar que el servei està definit i accessible;
+- comprovar que existeixen serveis per al backend en `PHP` o `Python`, servidor web, BBDD i eina d'administració quan corresponga;
+- obrir phpMyAdmin o l'eina equivalent triada, o revisar que el servei està definit i accessible;
 - obrir la URL de la landing documentada;
 - comprovar que la landing ve del backend, té contingut propi del producte i no és només una maqueta estàtica oberta fora del servidor;
 - revisar el `healthcheck` o endpoint d'estat només com a comprovació tècnica auxiliar, si existeix;

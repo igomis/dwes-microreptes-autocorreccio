@@ -31,7 +31,7 @@
     "Diferencia què s'executa al navegador i què s'executa al servidor",
     "Relaciona el model client/servidor amb exemples del producte propi",
     "Identifica navegador, servidor web, runtime, backend i tecnologies de client i servidor",
-    "Compara de manera acotada opcions com PHP, Laravel, Symfony o NestJS",
+    "Compara de manera acotada opcions com PHP amb Laravel o Symfony, Python amb Flask o FastAPI, o altres alternatives de servidor com NestJS",
     "Tanca una opció preferent per a R1M2, una alternativa descartada, què queda ajornat fins a R3 i un dubte pendent"
   ],
   "recommended_test_strategy": "Revisar la fitxa i la documentació entregada, i contrastar-la amb preguntes sobre client, servidor, runtime, valor del backend dinàmic i alternatives descartades.",

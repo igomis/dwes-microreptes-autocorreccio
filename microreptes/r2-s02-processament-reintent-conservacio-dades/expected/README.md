@@ -8,6 +8,7 @@ Evidències mínimes:
 - conservació d'almenys un camp de text i una opció tancada;
 - comprovació del comportament del checkbox simple;
 - valors conservats a partir de dades enviades, no de literals fixos;
+- en PHP, valors escapats i reconstruïts des de `$_POST`; en Python/Flask, dades de `request.form` passades a Jinja amb escapament automàtic o mecanisme equivalent;
 - reenviament corregit amb resposta correcta;
 - processament i guardat funcional simple del cas correcte;
 - pantalla, llista, resum o resposta posterior on la dada correcta es mostra o recupera;

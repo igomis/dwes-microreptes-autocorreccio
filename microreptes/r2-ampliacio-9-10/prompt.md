@@ -4,7 +4,7 @@ Avalua `r2-ampliacio-9-10` només amb evidencies del repositori.
 
 Esta autocorreccio no posa automàticament la nota final del Repte 2. Ha de decidir si l'ampliacio pot optar a la franja `9-10`, si no pot optar o si necessita revisio docent.
 
-Primer comprova si el nucli obligatori de R2 està complet, funcional i validat: entrada, processament, logica, estat, autenticacio, proves/checkpoint i primera peça testable amb POO i Composer. Si el nucli no està complet, indica que l'ampliacio no pot comptar i que cal reparar el repte base.
+Primer comprova si el nucli obligatori de R2 està complet, funcional i validat: entrada, processament, logica, estat, autenticacio, proves/checkpoint i primera peça testable amb POO i dependències controlades. Accepta Composer/autoload en PHP o `requirements.txt`/`pyproject.toml` i paquets importables en Python. Si el nucli no està complet, indica que l'ampliacio no pot comptar i que cal reparar el repte base.
 
 Després revisa l'ampliacio:
 

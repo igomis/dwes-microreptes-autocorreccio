@@ -1,7 +1,7 @@
 # Proves recomanades
 
 1. Registrar un usuari o revisar l'estructura d'usuaris de prova.
-2. Comprovar que la contrasenya està guardada amb hash i no en clar.
+2. Comprovar que la contrasenya està guardada amb hash i no en clar, amb l'API segura pròpia de PHP, Werkzeug/Python o equivalent.
 3. Intentar login amb credencial incorrecta.
 4. Intentar executar l'operacio protegida sense autenticar.
 5. Comprovar denegacio o redireccio coherent.

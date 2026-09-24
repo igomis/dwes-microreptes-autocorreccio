@@ -2,13 +2,13 @@
 
 Evidències mínimes:
 
-- configuració Docker o equivalent amb servei web, `PHP`, BBDD i phpMyAdmin, o bloqueig real documentat;
+- configuració Docker o equivalent amb servei web i backend en `PHP` o `Python`, BBDD i phpMyAdmin o eina equivalent quan corresponga, o bloqueig real documentat;
 - estructura inicial del projecte adaptada;
 - `README` amb requisits, ordres d'arrencada, ordres de parada, ports, URL i comprovacions;
 - landing inicial del producte servida pel backend, amb contingut propi i CSS senzill;
 - `healthcheck` o endpoint d'estat només com a comprovació tècnica auxiliar, si n'hi ha;
 - comprovació del servei web i de la landing;
-- comprovació de BBDD i phpMyAdmin, o error documentat amb pla de correcció;
+- comprovació de BBDD i de l'eina d'administració triada quan corresponga, o error documentat amb pla de correcció;
 - documentació localitzable dins del repositori;
 - justificació tècnica curta o nota tècnica de decisió inicial;
 - registre d'una incidència, dubte o pendent de pas a R2;

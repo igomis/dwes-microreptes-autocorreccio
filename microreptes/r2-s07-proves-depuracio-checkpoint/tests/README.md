@@ -18,6 +18,7 @@ Prova automàtica mínima:
 - una comanda `curl` documentada;
 - o un script `.sh` en `tests/`;
 - o un script PHP senzill;
+- o un script Python senzill o el client de proves de Flask;
 - o una col·leccio de peticions documentada.
 
 Exemples acceptables:
@@ -31,4 +32,4 @@ curl -c cookies.txt -d "email=a@a.com&password=secret" http://localhost:8000/log
 curl -b cookies.txt http://localhost:8000/protegida.php
 ```
 
-No cal exigir `PHPUnit` ni proves unitàries en este microrepte.
+No cal exigir `PHPUnit`, `pytest` ni proves unitàries en este microrepte.

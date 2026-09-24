@@ -3,7 +3,7 @@
 Comprovacions recomanades:
 
 1. Revisar que existix taula o schema reproduïble.
-2. Revisar que la connexió està separada del codi de pantalla.
+2. Revisar que la connexió PHP o Python està separada del codi de pantalla o plantilla.
 3. Buscar secrets reals en fitxers versionats.
 4. Executar o revisar una alta amb dades del flux.
 5. Executar o revisar una lectura posterior.

@@ -5,12 +5,12 @@
 - cookie pròpia no sensible amb sentit funcional;
 - lectura de la cookie en una peticio posterior;
 - prova que la cookie és observable en client;
-- lectura acotada d'una dada de `$_SERVER`;
-- fitxer comú de configuracio o bootstrap amb ruta base per a includes;
-- ús de la ruta base en almenys un `include` o `require`;
+- lectura acotada d'una dada de `$_SERVER`, de `request` en Flask o equivalent;
+- fitxer comú de configuracio o bootstrap, o mòdul/paquet Python equivalent;
+- ús real de la ruta base amb `include`/`require` en PHP o d'una importació estable en Python;
 - demo de recuperacio de sessio i cookie;
 - accio de neteja o invalidacio;
-- explicacio de client, servidor, `$_SERVER`, includes i persistencia;
+- explicacio de client, servidor, context de petició, includes/importacions i persistencia;
 - README.md, issue o registre amb passos abans/després;
 - commit o traçabilitat.
 
