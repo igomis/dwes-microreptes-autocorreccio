@@ -6,9 +6,9 @@
   "microreptes_covered": [
     "R2M8"
   ],
-  "title": "Primera peça testable amb POO i Composer",
-  "summary": "Convertir una regla o comprovacio del flux de R2 en una classe simple carregada amb Composer i verificar-la amb una prova unitària mínima, mantenint el flux web funcional.",
-  "pedagogical_goal": "Introduir POO, Composer, autoload i proves automàtiques de manera acotada abans d'entrar en l'arquitectura més formal de R3.",
+  "title": "Primera peça testable amb POO i dependències controlades",
+  "summary": "Convertir una regla o comprovacio del flux de R2 en una classe simple carregada o importada amb el mecanisme de l'entorn i verificar-la amb una prova unitària mínima, mantenint el flux web funcional.",
+  "pedagogical_goal": "Introduir POO, dependències controlades, càrrega o importació i proves automàtiques de manera acotada abans d'entrar en l'arquitectura més formal de R3.",
   "relevant_paths": [
     "README.md",
     "README.md",
@@ -25,11 +25,11 @@
   ],
   "required_evidence": [
     "Flux de R2M7 provat com a punt de partida",
-    "composer.json amb autoload configurat o alternativa equivalent justificada",
-    "Ús de vendor/autoload.php o mecanisme equivalent per carregar la classe",
+    "composer.json amb autoload o requirements.txt/pyproject.toml amb una estructura de paquets equivalent",
+    "Ús de vendor/autoload.php en PHP o importació reproduïble del mòdul en Python",
     "Classe simple en src/ o carpeta equivalent vinculada al domini o servei del projecte",
-    "La classe encapsula una regla, comprovacio o càlcul real i no depén directament de $_POST, $_SESSION, $_COOKIE ni HTML",
-    "Prova unitària mínima amb PHPUnit, Pest o script automàtic equivalent",
+    "La classe encapsula una regla, comprovacio o càlcul real i no depén directament de superglobals PHP, request/session de Flask ni HTML/Jinja",
+    "Prova unitària mínima amb PHPUnit, Pest, pytest, unittest o script automàtic equivalent",
     "Execucio documentada de la prova i resultat obtingut",
     "Prova de no regressio d'un cas clau del flux web",
     "Nota de què queda per reorganitzar o ampliar en R3",
@@ -38,13 +38,13 @@
   ],
   "ai_log_required": false,
   "expected_signals": [
-    "Composer carrega la classe sense require manual dispers",
+    "Composer o el sistema de paquets Python carrega o importa la classe sense dependències disperses",
     "La classe es pot provar sense navegador",
     "La prova automàtica comprova una regla concreta",
     "El flux complet continua funcionant després del canvi",
     "L'alumne pot explicar la diferència entre prova unitària i prova de flux"
   ],
-  "recommended_test_strategy": "Executar la prova unitària, revisar composer.json i autoload, comprovar que la classe no depén d'entrada web directa i repetir un cas clau del flux de R2M7.",
+  "recommended_test_strategy": "Executar la prova unitària, revisar la declaració de dependències i la càrrega/importació, comprovar que la classe no depén d'entrada web directa i repetir un cas clau del flux de R2M7.",
   "source_alignment": [
     "Repte 2 R2M8",
     "Programacio d'aula R2S8",

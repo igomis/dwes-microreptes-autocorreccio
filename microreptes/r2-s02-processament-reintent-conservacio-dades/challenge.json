@@ -26,7 +26,7 @@
     "Flux que parteix del formulari o entrada equivalent de R2M1",
     "Evolució directa de la mateixa acció del projecte, no formulari nou desconnectat",
     "Manteniment de la dada tancada o classificada que podrà alimentar una regla posterior",
-    "Recepció de dades enviades en servidor amb `$_POST` o mecanisme equivalent",
+    "Recepció de dades enviades en servidor amb `$_POST`, `request.form` o mecanisme equivalent",
     "Error visible generat per una condició de servidor",
     "Formulari regenerat després de l'error amb dades aprofitables conservades",
     "Conservació d'almenys un camp de text i una opció tancada",

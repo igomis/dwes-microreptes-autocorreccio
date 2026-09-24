@@ -33,6 +33,10 @@ Comprova les estructures i funcions:
 - la funcio encapsula una comprovacio, calcul, classificacio, preparacio de dades o generacio de resultat;
 - la funcio no és només un embolcall ornamental sense responsabilitat recognoscible.
 
+## Compatibilitat amb Python
+
+Si el projecte usa Python, accepta llistes o diccionaris, una funció en un mòdul propi com `app/regles.py` i un `import` real com a equivalents d'array, llibreria PHP i `require_once`. Comprova que el mòdul s'usa i que la regla rep dades reals del flux.
+
 Comprova la verificacio:
 
 - hi ha dos casos documentats o demostrables;

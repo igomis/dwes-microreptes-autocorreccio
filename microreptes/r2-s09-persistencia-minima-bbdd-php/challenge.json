@@ -6,9 +6,9 @@
   "microreptes_covered": [
     "R2M9"
   ],
-  "title": "Persistència mínima amb BBDD en PHP",
-  "summary": "Afegir una persistència mínima real al flux de R2 amb PHP pur: connexió, taula, alta, lectura i consultes preparades, sense entrar encara en ORM ni framework.",
-  "pedagogical_goal": "Introduir l'accés a BBDD des de PHP abans de R3, de manera acotada i vinculada a una dada significativa del projecte.",
+  "title": "Persistència mínima amb BBDD",
+  "summary": "Afegir una persistència mínima real al flux de R2 amb PHP o Python: connexió, taula, alta, lectura i consultes preparades o parametritzades, sense entrar encara en ORM ni framework.",
+  "pedagogical_goal": "Introduir l'accés a BBDD des del llenguatge de servidor abans de R3, de manera acotada i vinculada a una dada significativa del projecte.",
   "relevant_paths": [
     "README.md",
     "README.md",
@@ -30,7 +30,7 @@
     "Taula, schema.sql o instruccions reproduïbles de creació",
     "Configuració de connexió separada del codi principal",
     "Absència de secrets reals al repositori",
-    "Connexió a BBDD amb PDO o mecanisme equivalent justificat",
+    "Connexió a BBDD amb PDO, un connector DB-API o mecanisme equivalent justificat",
     "Alta funcional amb dades ja validades pel flux",
     "Lectura, llistat o detall funcional de dades persistides",
     "Ús de consultes preparades quan entren dades d'usuari",

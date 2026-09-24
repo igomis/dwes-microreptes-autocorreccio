@@ -15,4 +15,8 @@ No valores com a obligatori cap API completa, CRUD, OpenAPI, OAuth, JWT professi
 
 Comprova especialment que no es retornen contrasenyes ni hashes, i que el token no és només decoratiu.
 
+## Compatibilitat amb Python
+
+Si el projecte usa Flask, accepta `request.get_json()`, `jsonify()` i una ruta decorada com a implementació equivalent. Exigix els mateixos codis `200`/`401`, comprovació real del token i contracte documentat.
+
 Sense contracte mínim consumible per DWEC, recomana no superar el 8 encara que els endpoints funcionen.

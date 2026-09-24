@@ -8,6 +8,10 @@ Comprova que es llig almenys una dada de `$_SERVER` amb una finalitat clara, com
 
 Comprova que hi ha un fitxer comú de configuracio o bootstrap amb ruta base del projecte, i que eixa ruta s'usa per fer almenys un `include`, `require`, `include_once` o `require_once` estable.
 
+## Compatibilitat amb Python
+
+Si el projecte usa Flask, accepta `session`, `request.cookies`, `response.set_cookie()`, `request.method`/`request.headers` i una estructura estable de paquets i importacions. No exigisques `$_SERVER` ni `include`; comprova les mateixes responsabilitats i que `SECRET_KEY` no siga un secret real versionat.
+
 Revisa si l'alumne diferencia estat temporal, sessio, cookie, `$_SERVER`, includes i guardat funcional. No exigisques login, rols, autoritzacio, MVC ni base de dades. Penalitza variables que no sobreviuen entre peticions, cookies amb dades sensibles, absencia d'invalidacio, rutes d'include fràgils o documentacio que diga que la sessio és persistencia formal.
 
 Marca revisio docent si no pots executar o verificar la recuperacio i invalidacio.

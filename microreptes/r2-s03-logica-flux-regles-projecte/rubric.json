@@ -37,7 +37,7 @@
       "id": "code_quality",
       "label": "Qualitat tècnica",
       "weight": 0.2,
-      "must_check": "El codi és explicable: noms clars, llibreria pròpia mínima importada amb `require_once`, `include_once` o equivalent, funcio amb responsabilitat real, array o estructura consultada amb sentit i logica acotada al nivell de R2M3."
+      "must_check": "El codi és explicable: noms clars, llibreria o mòdul propi importat amb el mecanisme de l'entorn, funcio amb responsabilitat real, array/llista/diccionari o estructura consultada amb sentit i logica acotada al nivell de R2M3."
     }
   ],
   "hard_rules": [
@@ -48,7 +48,7 @@
     "Sense array o estructura equivalent usada amb sentit, la puntuacio maxima recomanada és 8.",
     "Sense funcio útil amb responsabilitat recognoscible, la puntuacio maxima recomanada és 8.",
     "Sense fitxer separat de llibreria pròpia importat pel flux, la puntuacio maxima recomanada és 8.",
-    "Si hi ha `include` o `require` però el fitxer importat no s'usa realment, la puntuacio maxima recomanada és 8.",
+    "Si hi ha `include`, `require` o `import` però el fitxer o mòdul no s'usa realment, la puntuacio maxima recomanada és 8.",
     "Si el resultat depén de literals fixos i no de dades reals del flux, la puntuacio maxima recomanada és 7.",
     "No penalitzes l'absencia d'errors acumulats en array, sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal o base de dades obligatoria en esta sessio.",
     "Els errors acumulats en array són una ampliació coherent de R2M3 si el nucli ja està resolt, però no compensen una regla de domini absent, ornamental o no verificable.",

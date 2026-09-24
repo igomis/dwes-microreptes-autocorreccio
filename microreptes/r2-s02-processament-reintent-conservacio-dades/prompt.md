@@ -37,6 +37,10 @@ Comprova el processament en servidor:
 - el codi diferencia el reintent amb error del guardat funcional del cas correcte;
 - si es mostra text de l'usuari, hi ha algun tractament o escapament raonable segons el nivell.
 
+## Compatibilitat amb Python
+
+Si el projecte usa Flask, accepta `request.form`, valors passats a Jinja i el seu escapament automàtic com a equivalents de `$_POST`, `value` i l'escapament PHP. El guardat simple pot estar implementat en una funció o mòdul Python. Avalua el comportament, no la sintaxi del llenguatge.
+
 Comprova la documentació i traçabilitat:
 
 - `README`, issue o registre explica com provocar l'error;

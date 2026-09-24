@@ -13,6 +13,10 @@ Comprova si hi ha un formulari o entrada equivalent amb:
 - enviament real al servidor;
 - recepció en `PHP` amb `$_POST` o mecanisme equivalent.
 
+## Compatibilitat amb Python
+
+Si el projecte usa Flask, accepta `request.form`, una funció de ruta i una plantilla Jinja com a equivalents. Comprova la mateixa recepció defensiva, validació en servidor i escapament; no penalitzes l'absència de sintaxi PHP.
+
 Comprova les condicions mínimes de seguretat:
 
 - els camps que poden faltar es lligen de manera defensiva;

@@ -7,7 +7,7 @@
     "R2M1"
   ],
   "title": "Entrada de dades i validació bàsica",
-  "summary": "Crear un formulari mínim nascut d'una acció de la landing, amb text, llista o opció tancada i checkbox, recuperar les dades en PHP i aplicar una validació bàsica de servidor amb error visible i reenviament corregit.",
+  "summary": "Crear un formulari mínim nascut d'una acció de la landing, amb text, llista o opció tancada i checkbox, recuperar les dades en PHP o Python i aplicar una validació bàsica de servidor amb error visible i reenviament corregit.",
   "pedagogical_goal": "Comprovar que l'alumne entén el recorregut bàsic d'una petició de formulari abans d'introduir arrays, acumulació d'errors, fitxers, estat o autenticació.",
   "relevant_paths": [
     "public/",
@@ -26,7 +26,7 @@
     "Formulari o entrada equivalent amb text, llista/opció i checkbox",
     "Connexió del formulari amb una acció visible o esperable de la landing page",
     "Almenys una dada tancada o classificada que puga alimentar una decisió posterior del projecte",
-    "Recepció de dades en PHP amb `$_POST` o mecanisme equivalent",
+    "Recepció de dades en PHP amb `$_POST`, en Flask amb `request.form` o mecanisme equivalent",
     "Explicació o codi que mostre què arriba com a cadena i què pot no arribar si el checkbox no està marcat",
     "Lectura defensiva de camps absents i validació en servidor de les opcions contra una llista de valors permesos",
     "Escapament de qualsevol dada de l'usuari mostrada en HTML i absència de bolcats de petició o dades sensibles exposades",

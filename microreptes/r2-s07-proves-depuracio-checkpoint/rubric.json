@@ -17,7 +17,7 @@
     "Sense cap prova automàtica lleugera de flux, la puntuacio maxima recomanada és 8.",
     "Si la prova automàtica no té instruccions d'execucio, la puntuacio maxima recomanada és 8.",
     "Sense README.md o guia reproduïble, la puntuacio maxima recomanada és 8.",
-    "No exigisques proves unitàries, PHPUnit, mocks ni suite formal com a mínim.",
+    "No exigisques proves unitàries, PHPUnit, pytest, mocks ni suite formal com a mínim.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }
