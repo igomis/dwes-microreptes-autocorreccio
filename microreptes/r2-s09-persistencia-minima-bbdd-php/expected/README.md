@@ -14,4 +14,4 @@ Un lliurament acceptable hauria de mostrar:
 
 No cal que hi haja ORM, migrations, seeders, framework ni una capa completa de repositori.
 
-Ampliació opcional del repte: declaració en `docs/r2-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R2M9; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.
+Ampliació opcional del repte: si es presenta, és obligatori crear `docs/r2-ampliacio.md` amb descripció, referències a la implementació i proves. Sense este fitxer no es considera presentada la candidatura 9→10. Es revisa separadament en R2M9; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

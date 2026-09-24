@@ -52,7 +52,7 @@ test('valida l’escala, l’evidència defensable i el comentari', () => {
  const gs=grades();assert.throws(()=>review(gs,1,false));assert.throws(()=>review(gs,2));assert.throws(()=>review(gs,NaN));
  assert.equal(calc(gs,metadata,repte,review(gs,0,false)).validated_score,0);
  assert.throws(()=>validateProposal({...proposal,proposed_score:.3}));
- assert.throws(()=>validateProposal({...proposal,core_ready:false}));
+ assert.doesNotThrow(()=>validateProposal({...proposal,core_ready:false}));
  assert.throws(()=>validateProposal({...proposal,evidence:[]}));
  const c=calc(gs,metadata,repte);assert.throws(()=>makeExtensionReview({...review(gs),comment:''},c));
 });
@@ -104,7 +104,7 @@ test('recull fitxers enllaçats de l’ampliació sense exigir-los el codi del m
 });
 
 test('proposta incoherent no elimina la nota del nucli ni valida punts',()=>{
- for (const invalid of [{...proposal,core_ready:false}, {...proposal,evidence:[]}, null, {...proposal,proposed_score:2}]) {
+ for (const invalid of [{...proposal,evidence:[]}, null, {...proposal,proposed_score:2}]) {
   const result={final_score_over_10:8.1,ra_scores:[{ra_id:'RA1',score:8.1}],repte_extension:invalid,blocking_flags:[]};
   normalizeExtensionProposal(result);
   assert.equal(result.final_score_over_10,8.1);
@@ -117,4 +117,13 @@ test('proposta incoherent no elimina la nota del nucli ni valida punts',()=>{
  }
  const valid={repte_extension:structuredClone(proposal)};
  const before=structuredClone(valid);normalizeExtensionProposal(valid);assert.deepEqual(valid,before);
+});
+
+test('conserva una candidatura amb evidències encara que el nucli necessite revisió',()=>{
+ const candidate={...proposal,proposed_score:.25,core_ready:false,reason:'Millora detectada; falta confirmar el nucli.'};
+ assert.doesNotThrow(()=>validateProposal(candidate));
+ const result={repte_extension:structuredClone(candidate),blocking_flags:[]};
+ normalizeExtensionProposal(result);
+ assert.deepEqual(result.repte_extension,candidate);
+ assert.equal(result.teacher_review_required,undefined);
 });

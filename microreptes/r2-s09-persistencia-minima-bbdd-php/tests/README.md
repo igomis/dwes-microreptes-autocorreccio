@@ -13,4 +13,4 @@ Comprovacions recomanades:
 
 Si no es pot executar la BBDD en l'entorn de correcció, la revisió pot basar-se en evidència documentada i defensa tècnica breu.
 
-Ampliació opcional del repte: declaració en `docs/r2-ampliacio.md`, amb referències a implementació i proves. Es revisa separadament en R2M9; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.
+Ampliació opcional del repte: si es presenta, comprovar que existix `docs/r2-ampliacio.md` i que enllaça implementació i proves reals. Sense este fitxer no es considera presentada la candidatura 9→10. Es revisa separadament en R2M9; el professorat valida 0–1 en la presentació. No altera la nota del microrepte.

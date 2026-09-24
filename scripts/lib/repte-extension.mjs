@@ -47,8 +47,8 @@ export function validateProposal(proposal) {
       || ![...proposal.evidence, ...proposal.presentation_checks].every(x => typeof x === 'string')) {
     throw new Error('Proposta d’ampliació invàlida: cal puntuació 0–1, justificació i evidències.');
   }
-  if (proposal.proposed_score > 0 && (!proposal.core_ready || proposal.evidence.length === 0)) {
-    throw new Error('Una proposta positiva necessita nucli verificable i evidències.');
+  if (proposal.proposed_score > 0 && proposal.evidence.length === 0) {
+    throw new Error('Una candidatura positiva necessita evidències concretes.');
   }
   return proposal;
 }
