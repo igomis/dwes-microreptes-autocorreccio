@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import OpenAI from 'openai';
+import { applyDeterministicScoring } from './lib/grading-result.mjs';
 
 const defaultModel = 'gpt-4o-mini';
 
@@ -66,6 +67,7 @@ function validateResult(result, schema) {
     student: 'string',
     commit: 'string',
     final_score_over_10: 'number',
+    raw_score_over_10: 'number',
     provisional: 'boolean',
     teacher_review_required: 'boolean',
     confidence: 'number',
@@ -77,8 +79,11 @@ function validateResult(result, schema) {
       errors.push(`"${field}" ha de ser ${expectedType}`);
     }
   }
+  if ('applied_cap' in result && result.applied_cap !== null && typeof result.applied_cap !== 'number') {
+    errors.push('"applied_cap" ha de ser number o null');
+  }
 
-  for (const field of ['dimension_scores', 'ra_scores', 'strengths', 'weaknesses', 'blocking_flags']) {
+  for (const field of ['dimension_scores', 'ra_scores', 'strengths', 'weaknesses', 'blocking_flags', 'applied_hard_rules']) {
     if (field in result && !Array.isArray(result[field])) {
       errors.push(`"${field}" ha de ser array`);
     }
@@ -159,7 +164,7 @@ function buildMessages(payload, schema, promptText) {
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
         'Consulta repository_manifest abans d_afirmar que falta un fitxer. Si present=true i included=false, digues "present però no inspeccionat" i demana revisió docent; no afirmes que no existeix. relevant_files conte els fitxers estructurals i els relevant_paths que sí s_han pogut inspeccionar.',
         'Abans de puntuar, contrasta cada criteri amb paths i fragments concrets del payload. Distingix entre verificat, present però no verificat, no aportat i contradictori. Una afirmació del README no prova funcionalitat si no concorda amb codi, configuració, prova o log.',
-        'Calcula la nota com la suma dels score de dimension_scores i aplica després el límit més restrictiu de hard_rules que corresponga. Explica qualsevol límit aplicat en blocking_flags.',
+        'Indica en applied_hard_rules els índexs de totes les hard_rules amb límit numèric que corresponguen i una raó basada en evidències. No hi inclogues regles de mera revisió sense límit numèric. El programa calcularà la suma i aplicarà després el límit més restrictiu.',
         'No penalitzes no usar IA: una declaració de no ús satisfà el registre d’IA quan es demana, sense exigir consultes fictícies. La generació declarada d’HTML estàtic i CSS de presentació està permesa; no inclou lògica de servidor. La norma prohibix delegar el backend, la configuració avaluable o les proves en xats o agents. No inferisques infraccions per estil del codi o nom de ferramenta: descriu només evidències concretes per a revisió docent, sense deduccions automàtiques noves per sospita d’IA.',
         'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu. Excepció: la proposta separada repte_extension usa evidències del repte complet, només quan el payload l’habilita. Mai suma a les dimensions ni a les notes del microrepte.',
         'En repte_extension, proposed_score és una candidatura per a revisió docent, no una concessió automàtica. Si hi ha una millora real amb evidències, pots proposar més de 0 encara que core_ready siga false o falte el fitxer formal de declaració; explica clarament el pendent en reason i presentation_checks. La validació docent positiva continuarà exigint confirmar el nucli.',
@@ -254,6 +259,13 @@ async function main() {
   if (payload.repte_extension) {
     try { validateProposal(result.repte_extension); } catch (error) { errors.push(error.message); }
   } else if (result.repte_extension) errors.push('Ampliació fora de l’últim microrepte');
+  if (errors.length === 0) {
+    try {
+      applyDeterministicScoring(result, payload.hard_rules || [], payload.scoring_guardrails || {});
+    } catch (error) {
+      errors.push(error.message);
+    }
+  }
   if (errors.length > 0) {
     console.error('La resposta d_OpenAI no compleix l_esquema esperat:');
     for (const error of errors) {

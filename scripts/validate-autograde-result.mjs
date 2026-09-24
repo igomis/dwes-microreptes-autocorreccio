@@ -48,6 +48,7 @@ function validateBasicTypes(result, errors) {
     student: 'string',
     commit: 'string',
     final_score_over_10: 'number',
+    raw_score_over_10: 'number',
     provisional: 'boolean',
     teacher_review_required: 'boolean',
     confidence: 'number',
@@ -59,8 +60,11 @@ function validateBasicTypes(result, errors) {
       errors.push(`"${field}" ha de ser ${expectedType}`);
     }
   }
+  if ('applied_cap' in result && result.applied_cap !== null && typeof result.applied_cap !== 'number') {
+    errors.push('"applied_cap" ha de ser number o null');
+  }
 
-  for (const field of ['strengths', 'weaknesses', 'blocking_flags']) {
+  for (const field of ['strengths', 'weaknesses', 'blocking_flags', 'applied_hard_rules']) {
     if (field in result && !Array.isArray(result[field])) {
       errors.push(`"${field}" ha de ser array`);
     }
@@ -163,6 +167,24 @@ function validateRaScores(result, errors) {
   });
 }
 
+function validateScoringConsistency(result, errors) {
+  if (!Array.isArray(result.dimension_scores) || typeof result.raw_score_over_10 !== 'number') return;
+  const rawScore = Math.round((result.dimension_scores.reduce((sum, dimension) => sum + Number(dimension?.score || 0), 0) + Number.EPSILON) * 100) / 100;
+  if (result.raw_score_over_10 !== rawScore) {
+    errors.push(`"raw_score_over_10" (${result.raw_score_over_10}) no coincideix amb la suma de dimensions (${rawScore})`);
+  }
+  const expectedFinal = Math.min(rawScore, typeof result.applied_cap === 'number' ? result.applied_cap : rawScore, 10);
+  if (result.final_score_over_10 !== expectedFinal) {
+    errors.push(`"final_score_over_10" (${result.final_score_over_10}) no coincideix amb la suma i el límit (${expectedFinal})`);
+  }
+  if (Array.isArray(result.ra_scores) && result.ra_scores.length === 1 && result.ra_scores[0].score !== expectedFinal) {
+    errors.push(`ra_scores[0].score ha de coincidir amb la nota final (${expectedFinal})`);
+  }
+  if ((result.applied_hard_rules?.length || 0) > 0 && typeof result.applied_cap !== 'number') {
+    errors.push('"applied_cap" ha de ser numèric quan hi ha regles dures aplicades');
+  }
+}
+
 function validateResult(result, schema) {
   const errors = [];
 
@@ -175,6 +197,7 @@ function validateResult(result, schema) {
   validateNumberRanges(result, errors);
   validateDimensionScores(result, errors);
   validateRaScores(result, errors);
+  validateScoringConsistency(result, errors);
 
   return errors;
 }

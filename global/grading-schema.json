@@ -9,6 +9,9 @@
     "student",
     "commit",
     "final_score_over_10",
+    "raw_score_over_10",
+    "applied_cap",
+    "applied_hard_rules",
     "provisional",
     "dimension_scores",
     "ra_scores",
@@ -36,6 +39,26 @@
       "type": "number",
       "minimum": 0,
       "maximum": 10
+    },
+    "raw_score_over_10": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "applied_cap": {
+      "type": ["number", "null"]
+    },
+    "applied_hard_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_index", "reason"],
+        "properties": {
+          "rule_index": { "type": "integer" },
+          "reason": { "type": "string" }
+        }
+      }
     },
     "provisional": {
       "type": "boolean"

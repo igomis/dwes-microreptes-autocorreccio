@@ -3,6 +3,9 @@
   "student": "cipfpbatoi/dwes-ana-marti",
   "commit": "abc1234def5678",
   "final_score_over_10": 7.9,
+  "raw_score_over_10": 7.9,
+  "applied_cap": null,
+  "applied_hard_rules": [],
   "provisional": true,
   "dimension_scores": [
     {

@@ -162,6 +162,7 @@ async function main() {
     expected_signals: challenge.expected_signals,
     required_evidence: challenge.required_evidence,
     dimensions: rubric.dimensions,
+    hard_rules: rubric.hard_rules || [],
     scoring_guardrails: {
       active_microrepte_only: true,
       active_evidence_files_count: countEvidenceFiles(evidenceSummary),

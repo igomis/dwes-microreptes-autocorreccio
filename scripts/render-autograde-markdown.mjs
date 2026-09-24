@@ -64,6 +64,12 @@ async function main() {
   lines.push(`- Commit avaluat: \`${result.commit || 'n/d'}\``);
   lines.push(`- Motor: \`${args.source || 'n/d'}\``);
   lines.push(`- Nota provisional: **${value(result.final_score_over_10)}/10**`);
+  if (typeof result.raw_score_over_10 === 'number') {
+    lines.push(`- Suma de dimensions: **${value(result.raw_score_over_10)}/10**`);
+  }
+  if (typeof result.applied_cap === 'number') {
+    lines.push(`- Límit aplicat: **${value(result.applied_cap)}/10**`);
+  }
   lines.push(`- Confiança: **${value(result.confidence)}**`);
   lines.push(`- Requereix revisió docent: **${yesNo(result.teacher_review_required)}**`);
   lines.push('');
