@@ -21,7 +21,16 @@ const textExtensions = new Set([
   '.sh'
 ]);
 const maxFilesPerSection = 12;
+const maxRelevantFiles = 30;
 const maxExcerptChars = 4000;
+const structuralRootFiles = new Set([
+  'README.md',
+  'docker-compose.yml',
+  'docker-compose.yaml',
+  'compose.yml',
+  'compose.yaml',
+  'Dockerfile'
+]);
 const templateGuideFiles = new Set([
   'docs/README.md',
   'docs/autograde.md',
@@ -90,6 +99,16 @@ function requireArgs(args) {
 
 function resolveInRepo(repoDir, filePath) {
   return path.join(repoDir, filePath);
+}
+
+function normalizeRepoPath(filePath) {
+  return String(filePath || '').split(path.sep).join('/').replace(/^\.\//, '').replace(/\/$/, '');
+}
+
+function pathIsWithin(candidate, declaredPath) {
+  const normalizedCandidate = normalizeRepoPath(candidate);
+  const normalizedDeclared = normalizeRepoPath(declaredPath);
+  return normalizedCandidate === normalizedDeclared || normalizedCandidate.startsWith(`${normalizedDeclared}/`);
 }
 
 async function exists(filePath) {
@@ -178,7 +197,8 @@ async function listFiles(repoDir, dir, maxFiles = maxFilesPerSection) {
 }
 
 function isTextFile(filePath) {
-  return textExtensions.has(path.extname(filePath).toLowerCase());
+  return structuralRootFiles.has(normalizeRepoPath(filePath))
+    || textExtensions.has(path.extname(filePath).toLowerCase());
 }
 
 async function safeExcerpt(filePath) {
@@ -233,6 +253,46 @@ async function summarizeFiles(repoDir, files) {
     }
   }
   return summaries;
+}
+
+function selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles) {
+  const changed = new Set(changedFiles);
+  const candidates = trackedFiles.filter((filePath) =>
+    structuralRootFiles.has(filePath)
+    || relevantPaths.some((relevantPath) => pathIsWithin(filePath, relevantPath))
+  );
+
+  return candidates.sort((left, right) => {
+    const leftChanged = changed.has(left) ? 0 : 1;
+    const rightChanged = changed.has(right) ? 0 : 1;
+    if (leftChanged !== rightChanged) return leftChanged - rightChanged;
+    const leftRoot = structuralRootFiles.has(left) ? 0 : 1;
+    const rightRoot = structuralRootFiles.has(right) ? 0 : 1;
+    if (leftRoot !== rightRoot) return leftRoot - rightRoot;
+    return left.localeCompare(right);
+  });
+}
+
+function buildRepositoryManifest(trackedFiles, includedFiles, relevantPaths) {
+  const tracked = new Set(trackedFiles);
+  const included = new Set(includedFiles);
+  const manifestPaths = new Set([
+    ...structuralRootFiles,
+    ...relevantPaths.map(normalizeRepoPath),
+    ...trackedFiles.filter((filePath) => relevantPaths.some((relevantPath) => pathIsWithin(filePath, relevantPath)))
+  ]);
+
+  return [...manifestPaths].sort().map((manifestPath) => {
+    const matchingFiles = trackedFiles.filter((filePath) => pathIsWithin(filePath, manifestPath));
+    const isDirectoryDeclaration = matchingFiles.some((filePath) => filePath !== manifestPath);
+    return {
+      path: manifestPath,
+      present: tracked.has(manifestPath) || matchingFiles.length > 0,
+      type: isDirectoryDeclaration ? 'directory' : 'file',
+      included: matchingFiles.some((filePath) => included.has(filePath)) || included.has(manifestPath),
+      matched_files: isDirectoryDeclaration ? matchingFiles.length : undefined
+    };
+  });
 }
 
 async function summarizeActiveFiles(repoDir, files, tokens) {
@@ -295,11 +355,28 @@ async function main() {
   const evidenceSummaryPath = path.resolve(args['evidence-summary']);
   const activeTokens = buildActiveTokens(args);
   let extensionConfig = null;
+  let challengeConfig = null;
   if (args['challenge-id']) {
-    try { extensionConfig = JSON.parse(await readFile(path.join(process.cwd(), 'microreptes', args['challenge-id'], 'challenge.json'), 'utf8')).repte_extension; } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    try {
+      challengeConfig = JSON.parse(await readFile(path.join(process.cwd(), 'microreptes', args['challenge-id'], 'challenge.json'), 'utf8'));
+      extensionConfig = challengeConfig.repte_extension;
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
   }
-  const trackedFiles = await git(repoDir, ['ls-files']);
-  const trackedFilesCount = trackedFiles ? trackedFiles.split('\n').length : 0;
+  const trackedFilesOutput = await git(repoDir, ['ls-files']);
+  const trackedFiles = trackedFilesOutput ? trackedFilesOutput.split('\n').map(normalizeRepoPath) : [];
+  const trackedFilesCount = trackedFiles.length;
+  let changedFilesOutput = '';
+  try {
+    changedFilesOutput = await git(repoDir, ['show', '--pretty=format:', '--name-only', args.commit, '--']);
+  } catch {
+    // Some local/test callers use a descriptive commit label instead of a Git revision.
+  }
+  const changedFiles = changedFilesOutput ? [...new Set(changedFilesOutput.split('\n').filter(Boolean).map(normalizeRepoPath))] : [];
+  const relevantPaths = [...new Set((challengeConfig?.relevant_paths || []).map(normalizeRepoPath).filter(Boolean))];
+  const relevantTrackedFiles = selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles);
+  const includedRelevantFiles = relevantTrackedFiles
+    .filter((filePath) => isTextFile(filePath))
+    .slice(0, maxRelevantFiles);
 
   const signals = {
     generated_at: new Date().toISOString(),
@@ -340,9 +417,16 @@ async function main() {
         'Els tests han de ser executables o, si encara no toca automatitzar, proves manuals reproduibles amb passos, dades i resultat esperat.'
       ]
     },
+    repository_manifest: buildRepositoryManifest(trackedFiles, includedRelevantFiles, relevantPaths),
+    commit_evidence: {
+      sha: args.commit,
+      changed_files: changedFiles,
+      relevant_changed_files: changedFiles.filter((filePath) => relevantTrackedFiles.includes(filePath))
+    },
+    relevant_files: await summarizeFiles(repoDir, includedRelevantFiles.map((filePath) => resolveInRepo(repoDir, filePath))),
     repte_extension: extensionConfig ? {
       declaration: await fileSummary(repoDir, extensionConfig.declaration_path),
-      referenced_files: await declaredExtensionFiles(repoDir, extensionConfig, trackedFiles),
+      referenced_files: await declaredExtensionFiles(repoDir, extensionConfig, trackedFilesOutput),
       files: await summarizeActiveFiles(repoDir, [...await listFiles(repoDir, resolveInRepo(repoDir, 'docs'), Infinity), ...await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'), Infinity), ...await listFiles(repoDir, resolveInRepo(repoDir, 'tests'), Infinity), ...await listFiles(repoDir, resolveInRepo(repoDir, 'src'), Infinity)], [args['microrepte-code']?.split('M')[0].toLowerCase() || args['challenge-id'].split('-')[0], 'ampliacio', 'ampliació'])
     } : null,
     readme: await fileSummary(repoDir, 'README.md'),
