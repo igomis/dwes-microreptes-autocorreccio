@@ -254,6 +254,7 @@ Quina regla o comprovació del flux funciona ja i es podria provar millor si la 
 
 - **Presentació associada**: [MT06. Debugging i prova curta](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT06-Debugging-i-prova-curta.pdf)
 - **Teoria o material associat**: [Proves, depuració i checkpoint](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Proves-depuracio-i-checkpoint.pdf)
+- **Alternativa Python**: [R2M7 amb Flask: proves i depuració](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m7_proves_debug.html)
 
 ## Microtaller associat
 

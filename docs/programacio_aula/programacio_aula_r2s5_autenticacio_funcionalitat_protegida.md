@@ -252,6 +252,7 @@ Quins casos demostren que el flux no és una demo puntual?
 
 - **Presentació associada**: [MT05. Auth mínima defensable](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT05-Auth-minima-defensable.pdf)
 - **Teoria o material associat**: [Autenticació, autorització i operació protegida](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Autenticacio-autoritzacio-i-operacio-protegida.pdf)
+- **Alternativa Python**: [R2M5 amb Flask: autenticació i operació protegida](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m5_autenticacio.html)
 
 ## Microtaller associat
 

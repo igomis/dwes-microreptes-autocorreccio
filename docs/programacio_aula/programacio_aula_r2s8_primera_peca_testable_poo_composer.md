@@ -231,3 +231,7 @@ Una prova positiva i una negativa són suficients.
 ## Connexio amb R3
 
 `R3` aprofitarà esta primera peça testable per entrar en arquitectura, persistencia i frameworks amb una idea ja viscuda: separar responsabilitats no és només ordenar fitxers, és poder provar una part del backend de manera directa.
+
+## Material alternatiu Python
+
+[R2M8 amb Python: classe i prova unitària](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m8_poo_proves.html). Substituïx Composer, autoload i PHPUnit pels mecanismes equivalents de Python.

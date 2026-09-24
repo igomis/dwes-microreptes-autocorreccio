@@ -356,3 +356,7 @@ L'ampliacio no ha d'obrir encara autenticacio, autoritzacio ni refactoritzacio a
 `R2M4` només té sentit si `R2M3` deixa una decisio o resultat que puga formar part d'un flux continuat. La pregunta de pas és:
 
 Quina informació temporal del teu flux o de la regla aplicada necessita recordar el sistema en la peticio següent?
+
+## Material alternatiu Python
+
+[R2M3 amb Python: lògica, estructures i funcions](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m3_logica_funcions.html). S'usa en lloc dels exemples PHP, no com una tasca addicional.

@@ -233,6 +233,7 @@ DWEC pot començar a practicar consum autenticat amb `fetch` sense esperar a `R4
 
 - **Presentació associada**: [MT05. Auth mínima defensable](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT05-Auth-minima-defensable.pdf)
 - **Teoria o material associat**: [JSON, codis HTTP i autenticació mínima per a client](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-JSON-codis-HTTP-i-autenticacio-minima-per-a-client.pdf)
+- **Alternativa Python**: [R2M6 amb Flask: mini API i JSON](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m6_api_auth_json.html)
 
 ## Microtaller associat
 

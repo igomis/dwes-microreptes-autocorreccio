@@ -383,6 +383,7 @@ Quines dades del teu formulari convé tornar a mostrar perquè l'usuari no haja 
 
 - **Presentació associada**: [MT03. Validació de servidor amb casos roïns](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT03-Validacio-de-servidor-amb-casos-roins.pdf)
 - **Teoria o material associat**: [Formularis, petició POST i validació de servidor](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Formularis-peticio-POST-i-validacio-de-servidor.pdf)
+- **Alternativa Python**: [R2M1 amb Flask: formularis i validació](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m1_formularis_validacio.html)
 
 ## Microtaller associat
 

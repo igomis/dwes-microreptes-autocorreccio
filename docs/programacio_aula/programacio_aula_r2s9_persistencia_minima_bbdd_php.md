@@ -242,6 +242,10 @@ Una alta i un llistat són suficients si estan connectats al flux real.
 
 `R3` convertirà esta persistencia mínima en una persistencia més professional: migracions o equivalent, càrrega inicial reproduïble, models, validacions més ordenades i proves més sòlides. La idea important és que l'alumnat arribe a `R3` sabent ja què significa guardar i recuperar dades reals des del backend.
 
+## Material alternatiu Python
+
+[R2M9 amb Python: persistència mínima amb BBDD](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m9_bbdd.html). Substituïx PDO pel connector DB-API adequat i manté els mateixos criteris d'alta, lectura i consulta parametritzada.
+
 ## Registre de l’ampliació global al final de R2
 
 En R2M9 es recull una única proposta d’ampliació 9→10 del repte (0–1), amb declaració `docs/r2-ampliacio.md`. L’autocorrecció la mostra separada de la nota del microrepte. En la defensa, el professorat comprova l’evidència, la demo i la comprensió, valida o ajusta la valoració i deixa una observació. No es calcula cap nota global del repte ni se suma automàticament a cap RA.

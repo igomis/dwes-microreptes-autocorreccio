@@ -263,6 +263,7 @@ Quina operacio del teu projecte necessita saber qui està actuant o si pot conti
 
 - **Presentació associada**: [MT04. Sessió, cookies i estat](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT04-Sessio-cookies-i-estat.pdf)
 - **Teoria o material associat**: [Estat, sessió i cookies](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Estat-sessio-i-cookies.pdf)
+- **Alternativa Python**: [R2M4 amb Flask: sessió, cookies i context](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m4_sessio_cookies.html)
 
 ## Microtaller associat
 
