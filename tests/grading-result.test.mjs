@@ -37,3 +37,35 @@ test('rebutja índexs inventats o regles sense cap numèric', () => {
   assert.throws(() => applyDeterministicScoring({ ...base, applied_hard_rules: [{ rule_index: 3, reason: '' }] }, ['cap 5']), /no correspon/);
   assert.throws(() => applyDeterministicScoring({ ...base, applied_hard_rules: [{ rule_index: 0, reason: '' }] }, ['cal revisió']), /sense límit/);
 });
+
+test('calcula igual dimensions ponderades en punts directes o normalitzades sobre 10', () => {
+  const rubricDimensions = [
+    { id: 'functional', weight: 0.3 },
+    { id: 'verification', weight: 0.2 },
+    { id: 'documentation', weight: 0.5 }
+  ];
+  const direct = {
+    dimension_scores: [
+      { id: 'functional', score: 2.5, max_score: 3 },
+      { id: 'verification', score: 1.4, max_score: 2 },
+      { id: 'documentation', score: 4, max_score: 5 }
+    ],
+    ra_scores: [{ ra_id: 'RA1', score: 0 }]
+  };
+  const normalized = {
+    dimension_scores: [
+      { id: 'functional', score: 8.333333, max_score: 10 },
+      { id: 'verification', score: 7, max_score: 10 },
+      { id: 'documentation', score: 8, max_score: 10 }
+    ],
+    ra_scores: [{ ra_id: 'RA1', score: 0 }]
+  };
+
+  applyDeterministicScoring(direct, [], {}, rubricDimensions);
+  applyDeterministicScoring(normalized, [], {}, rubricDimensions);
+
+  assert.equal(direct.raw_score_over_10, 7.9);
+  assert.equal(normalized.raw_score_over_10, 7.9);
+  assert.equal(normalized.final_score_over_10, 7.9);
+  assert.equal(normalized.ra_scores[0].score, 7.9);
+});

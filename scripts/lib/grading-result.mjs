@@ -8,16 +8,35 @@ export function capFromHardRule(rule) {
   return match ? Number(match[1].replace(',', '.')) : null;
 }
 
-export function applyDeterministicScoring(result, hardRules = [], guardrails = {}) {
+function calculateRawScore(dimensionScores, rubricDimensions = []) {
+  const weights = new Map(rubricDimensions.map((dimension) => [dimension?.id, Number(dimension?.weight)]));
+  const canUseRubricWeights = dimensionScores.length > 0 && dimensionScores.every((dimension) => {
+    const score = Number(dimension?.score);
+    const maxScore = Number(dimension?.max_score);
+    const weight = weights.get(dimension?.id);
+    return Number.isFinite(score) && Number.isFinite(maxScore) && maxScore > 0
+      && score >= 0 && score <= maxScore && Number.isFinite(weight) && weight >= 0;
+  });
+
+  if (canUseRubricWeights) {
+    return dimensionScores.reduce((total, dimension) => (
+      total + (Number(dimension.score) / Number(dimension.max_score)) * weights.get(dimension.id) * 10
+    ), 0);
+  }
+
+  return dimensionScores.reduce((total, dimension) => {
+    const score = Number(dimension?.score);
+    if (!Number.isFinite(score)) throw new Error('Totes les dimensions han de tindre score numèric');
+    return total + score;
+  }, 0);
+}
+
+export function applyDeterministicScoring(result, hardRules = [], guardrails = {}, rubricDimensions = []) {
   if (!Array.isArray(result.dimension_scores)) {
     throw new Error('No es pot calcular la nota sense dimension_scores');
   }
 
-  const rawScore = roundScore(result.dimension_scores.reduce((total, dimension) => {
-    const score = Number(dimension?.score);
-    if (!Number.isFinite(score)) throw new Error('Totes les dimensions han de tindre score numèric');
-    return total + score;
-  }, 0));
+  const rawScore = roundScore(calculateRawScore(result.dimension_scores, rubricDimensions));
   const applied = Array.isArray(result.applied_hard_rules) ? result.applied_hard_rules : [];
   const resolvedCaps = applied.map((application, index) => {
     const ruleIndex = Number(application?.rule_index);

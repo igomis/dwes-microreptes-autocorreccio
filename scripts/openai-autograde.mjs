@@ -262,7 +262,12 @@ async function main() {
   } else if (result.repte_extension) errors.push('Ampliació fora de l’últim microrepte');
   if (errors.length === 0) {
     try {
-      applyDeterministicScoring(result, payload.hard_rules || [], payload.scoring_guardrails || {});
+      applyDeterministicScoring(
+        result,
+        payload.hard_rules || [],
+        payload.scoring_guardrails || {},
+        payload.dimensions || []
+      );
     } catch (error) {
       errors.push(error.message);
     }
