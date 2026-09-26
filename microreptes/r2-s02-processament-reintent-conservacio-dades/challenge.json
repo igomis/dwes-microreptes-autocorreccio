@@ -48,14 +48,16 @@
     "El cas corregit es pot reenviar i genera una resposta correcta",
     "El cas correcte es processa i mostra una confirmació o resum comprensible",
     "L'alumne diferencia conservar dades en el reintent de processar i confirmar un cas correcte",
-    "No es demanen encara guardat entre peticions, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers ni checkbox múltiples com a mínim de R2M2"
+    "No es demanen encara guardat entre peticions, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers ni checkbox múltiples com a mínim de R2M2",
+    "Com a ampliació opcional, es poden guardar casos correctes en JSON i recuperar-los en una petició posterior",
+    "Com a ampliació opcional, es pot pujar i guardar un fitxer relacionat amb el formulari amb validació de servidor, nom segur i proves d'acceptació i rebuig"
   ],
   "recommended_test_strategy": "Enviar un cas incorrecte, comprovar l'error visible, verificar que el formulari torna amb text i opció tancada conservats, revisar el checkbox simple, corregir només la dada errònia, reenviar, comprovar la confirmació o resum del cas correcte i revisar el fragment de codi que prepara els valors.",
   "source_alignment": [
     "Repte 2 R2M2",
     "Programació d'aula R2S2",
     "Documentació d'alumnat del Repte 2",
-    "Reintent amb dades conservades i confirmació del cas correcte; el guardat entre peticions, la persistència formal, els arrays d'errors, l'estat i l'autenticació queden fora del mínim de R2M2"
+    "Reintent amb dades conservades i confirmació del cas correcte; el guardat JSON, la pujada de fitxers, la persistència formal, els arrays d'errors, l'estat i l'autenticació queden fora del mínim de R2M2 i poden aparéixer com a ampliació"
   ],
   "primary_ra": "RA2",
   "assessed_ca": [

@@ -24,4 +24,11 @@ Queden fora del mínim de `R2M2`:
 - estat, sessió, cookies, login o rols;
 - MVC o arquitectura completa.
 
-Això no els deixa fora de tot el `Repte 2`: poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte. Si s'implementa guardat entre peticions com a ampliació, no compensa mancances del reintent obligatori.
+Això no els deixa fora de tot el `Repte 2`: poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte.
+
+Ampliacions opcionals reconegudes en `R2M2`:
+
+- guardar només els casos correctes en `JSON`, llegir-los en una petició posterior i mostrar una llista o resum;
+- pujar i guardar un fitxer relacionat amb el formulari, validant en servidor l'error, la mida i el tipus permés, generant un nom segur i demostrant un fitxer acceptat i un de rebutjat.
+
+Les ampliacions no compensen mancances del reintent obligatori. El fitxer, quan siga possible, s'ha de guardar fora de la zona pública i no ha de poder executar-se com a codi.

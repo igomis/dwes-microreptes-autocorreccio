@@ -15,3 +15,9 @@ Estratègia de comprovació manual:
 - preguntar a l'alumne la diferència entre conservar dades en el reintent, confirmar un cas correcte i guardar-lo entre peticions.
 
 No cal executar proves sobre guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers, checkbox múltiple ni autenticació com a mínim de `R2M2`.
+
+Si l'alumne presenta ampliació, comprovar addicionalment:
+
+- `JSON`: el cas invàlid no s'escriu, el vàlid sí i una nova petició el recupera;
+- fitxer: un tipus i mida permesos es guarden amb nom segur, un fitxer invàlid es rebutja amb error visible i el cas invàlid no deixa un fitxer residual;
+- el fitxer no queda en una ubicació des d'on es puga executar com a codi del servidor.

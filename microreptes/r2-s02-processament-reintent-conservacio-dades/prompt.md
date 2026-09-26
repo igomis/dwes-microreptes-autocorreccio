@@ -49,4 +49,15 @@ Comprova la documentació i traçabilitat:
 
 No penalitzes que no hi haja guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers, checkbox múltiples ni regla de `R2M3` implementada. Sí que has de penalitzar un formulari nou desconnectat de R2M1, la pèrdua de la dada classificada que havia de permetre una regla posterior, un formulari que torna buit després de l'error, valors fixos que simulen conservació, una confirmació d'èxit quan encara hi ha error, absència de confirmació o resum del cas correcte, validació només de client o codi massa avançat que l'alumne no pot explicar.
 
+## Ampliacions opcionals
+
+No les exigisques ni les uses per compensar mancances del mínim. Si apareixen, comprova:
+
+- `JSON`: només es guarden casos correctes; el fitxer conté dades coherents; una petició posterior el llig i mostra una llista o resum;
+- pujada de fitxer: està connectada amb el mateix formulari; el servidor comprova l'error de pujada, una mida màxima i un tipus MIME o extensió permesa; no confia en el nom del client, genera un nom segur i guarda el fitxer només si el cas complet és vàlid;
+- hi ha una prova reproduïble d'un fitxer acceptat i un de rebutjat;
+- quan siga possible, el fitxer queda fora de la zona pública i no es pot executar com a codi del servidor.
+
+Si l'ampliació de fitxer accepta qualsevol contingut, conserva el nom del client sense control o permet execució des de la web, marca revisió docent per risc de seguretat.
+
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisió docent si la confiança és baixa, si falta evidència crítica o si apareixen flags.

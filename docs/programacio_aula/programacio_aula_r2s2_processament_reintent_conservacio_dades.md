@@ -277,10 +277,12 @@ Si el mínim ja està tancat, l'alumnat pot:
 - acumular errors en un array i mostrar-los tots;
 - conservar checkbox múltiple amb opcions permeses;
 - millorar l'escapament i normalització de dades;
-- guardar una entrada correcta i recuperar-la en una petició posterior amb un mecanisme simple i explicable;
+- guardar entrades correctes en un fitxer `JSON`, llegir-les en una petició posterior i mostrar-les en una llista o resum;
+- afegir al mateix formulari la pujada d'un fitxer relacionat amb l'acció del projecte i guardar-lo només quan la resta de dades siga vàlida;
+- validar el fitxer en servidor: error de pujada, mida màxima i tipus MIME o extensió permesa; generar un nom segur en el servidor i, quan siga possible, guardar-lo fora de la zona pública;
 - documentar casos positius i negatius amb més precisió.
 
-L'ampliació no ha d'obrir encara sessió, autenticació ni arquitectura completa.
+Les ampliacions de `JSON` i fitxer han de ser reproduïbles: una petició posterior recupera la dada del `JSON`, i una prova accepta un fitxer vàlid i en rebutja un d'invàlid. No compensen mancances del reintent obligatori ni han d'obrir encara sessió, autenticació o arquitectura completa.
 
 ## Checklist de tancament
 

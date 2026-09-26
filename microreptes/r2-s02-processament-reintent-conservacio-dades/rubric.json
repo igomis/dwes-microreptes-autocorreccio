@@ -50,6 +50,8 @@
     "Sense reenviament corregit verificable, la puntuació màxima recomanada és 8.",
     "Sense confirmació o resum verificable del cas correcte, la puntuació màxima recomanada és 8.",
     "No penalitzes l'absència de guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples en esta sessió; no són mínim de R2M2, encara que poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte.",
+    "Si apareix l'ampliació JSON, valora com a evidència addicional que només guarde casos vàlids i que una petició posterior llija el JSON i mostre les dades; no la uses per compensar mancances del mínim.",
+    "Si apareix l'ampliació de fitxer, comprova validació de servidor de l'error, mida i tipus permés, nom segur generat pel servidor, guardat només del cas vàlid i proves d'un fitxer acceptat i un de rebutjat; si el tractament és insegur, marca revisió docent, però no exigisques esta ampliació.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
