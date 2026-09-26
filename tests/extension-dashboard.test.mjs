@@ -41,6 +41,8 @@ test('dashboard: només l’últim microrepte valida l’ampliació separada de 
  const html=await (await fetch(base)).text();
  for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(()=>new Function(match[1]));
  assert.ok(html.includes('data-extension-score'));
+ assert.ok(html.includes('id="filterStudent"'));
+ assert.ok(html.includes('Filtre per alumne'));
  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0][1];
  const renderer = new Function('window', 'escapeHtml', script.slice(script.indexOf('    function renderMarkdownLinks('), script.indexOf('    function compareMicrorepteOrder(')) + '; return renderMarkdown;')(
   {location:{href:base}}, value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;')

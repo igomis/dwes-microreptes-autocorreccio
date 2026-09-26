@@ -90,7 +90,7 @@ http://localhost:4173
 El dashboard està separat en aquestes vistes:
 
 - `Correcció`: previsualització del que es corregirà, llançament de workflows i repositoris seleccionats.
-- `Resultats`: últimes notes i visor del resultat complet.
+- `Resultats`: últimes notes i visor del resultat complet, amb filtres per grup, microrepte i alumne.
 - `Alumnes`: manteniment de nom, repositori i grup.
 - `Microreptes`: taula de microreptes, visor de `challenge.json`, `rubric.json`, `prompt.md` i validació de pesos.
 - `Programació`: consulta i edició de la programació d'aula per sessions llegida des de la còpia versionada `docs/programacio_aula`.

@@ -1827,8 +1827,10 @@ function pageHtml() {
             <option value="">Tots</option>
           </select>
         </label>
-        <label>Filtre per repositori
-          <input id="filterRepo" type="text" placeholder="Buscar repositori...">
+        <label>Filtre per alumne
+          <select id="filterStudent">
+            <option value="">Tots</option>
+          </select>
         </label>
         <button id="applyFilters" type="button">Aplicar filtres</button>
       </div>
@@ -2053,6 +2055,21 @@ function pageHtml() {
       const groupConfig = config.active_challenges.groups[group];
       if (groupConfig && groupConfig.challenge_id) return 'grup ' + group;
       return 'sense assignació';
+    }
+
+    function refreshResultsStudentSelect() {
+      const select = document.querySelector('#filterStudent');
+      if (!select || !config) return;
+      const current = select.value;
+      const group = document.querySelector('#filterGroup')?.value || '';
+      const repositories = (config.repositories_by_target?.all?.repositories || [])
+        .filter((student) => !group || student.group === group)
+        .sort((left, right) => String(left.name || left.repo).localeCompare(String(right.name || right.repo), 'ca'));
+      select.innerHTML = '<option value="">Tots</option>' + repositories.map((student) => {
+        const label = student.name ? student.name + ' · ' + student.repo : student.repo;
+        return '<option value="' + escapeHtml(student.repo) + '">' + escapeHtml(label) + '</option>';
+      }).join('');
+      select.value = repositories.some((student) => student.repo === current) ? current : '';
     }
 
     function microrepteLabel(challengeId) {
@@ -3318,6 +3335,7 @@ function pageHtml() {
         (config.github.token_configured ? '<span class="ok">sí</span>' : '<span class="error">no</span>');
       document.querySelector('#createReposOrg').value = config.github.classroom_org || '';
       document.querySelector('#createReposTemplate').value = config.github.student_template || '';
+      refreshResultsStudentSelect();
       refreshTable();
     }
 
@@ -3339,7 +3357,7 @@ function pageHtml() {
     async function loadGrades() {
       const group = document.querySelector('#filterGroup').value;
       const challenge = document.querySelector('#filterChallenge').value;
-      const repo = document.querySelector('#filterRepo').value;
+      const repo = document.querySelector('#filterStudent').value;
 
       const params = new URLSearchParams();
       if (group) params.append('group', group);
@@ -3612,7 +3630,7 @@ function pageHtml() {
       const status = document.querySelector('#gradesInfo');
       const group = document.querySelector('#filterGroup').value || 'all';
       const challenge = document.querySelector('#filterChallenge').value;
-      const repo = document.querySelector('#filterRepo').value.trim();
+      const repo = document.querySelector('#filterStudent').value;
 
       if (!challenge) {
         status.innerHTML = '<span class="error">Selecciona un repte per recalcular.</span>';
@@ -3715,6 +3733,7 @@ function pageHtml() {
     document.querySelector('#recalculateFilteredGrades').addEventListener('click', recalculateFilteredGrades);
     document.querySelector('#buildClassReport').addEventListener('click', buildClassReport);
     document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
+    document.querySelector('#filterStudent').addEventListener('change', loadGrades);
     document.querySelector('#clearViewer').addEventListener('click', clearViewer);
     document.querySelector('#saveStudent').addEventListener('click', saveStudent);
     document.querySelector('#clearStudentForm').addEventListener('click', clearStudentForm);
@@ -3729,6 +3748,8 @@ function pageHtml() {
     document.querySelector('#programacioFilterRepte').addEventListener('change', renderProgramacio);
     document.querySelector('#filterGroup').addEventListener('change', () => {
       document.querySelector('#filterChallenge').value = '';
+      refreshResultsStudentSelect();
+      loadGrades();
     });
 
     loadConfig().catch((error) => {
