@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
@@ -144,6 +144,30 @@ async function readHistoryEntries(historyDir) {
   return entries;
 }
 
+async function removePreviousChallengePublications(historyDir, challengeId) {
+  let files = [];
+  try {
+    files = await readdir(historyDir);
+  } catch (error) {
+    if (error.code === 'ENOENT') return;
+    throw error;
+  }
+
+  for (const file of files.filter((name) => name.endsWith('.json'))) {
+    try {
+      const previous = await readJson(path.join(historyDir, file));
+      if (previous.challenge_id !== challengeId) continue;
+      await Promise.all([
+        rm(path.join(historyDir, file), { force: true }),
+        rm(path.join(historyDir, file.replace(/\.json$/, '.md')), { force: true })
+      ]);
+    } catch (error) {
+      if (error instanceof SyntaxError) continue;
+      throw error;
+    }
+  }
+}
+
 function tableCell(input) {
   return String(input ?? '')
     .replace(/\r?\n/g, '<br>')
@@ -215,6 +239,7 @@ export async function publishStudentAutograde(args) {
   ].filter(Boolean).join('__');
 
   await mkdir(historyDir, { recursive: true });
+  await removePreviousChallengePublications(historyDir, result.challenge_id);
   await copyFile(resultPath, path.join(autogradeDir, 'latest.json'));
   await copyFile(markdownPath, path.join(autogradeDir, 'latest.md'));
   await copyFile(resultPath, path.join(historyDir, `${attemptName}.json`));
