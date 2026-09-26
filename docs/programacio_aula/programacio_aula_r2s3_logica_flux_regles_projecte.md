@@ -43,7 +43,7 @@ Una evolucio del flux de `R2M2` que incloga, com a minim:
 
 - una regla escrita en llenguatge natural abans o junt amb el codi;
 - continuïtat amb l'acció triada des de la landing i treballada en `R2M1`;
-- una decisio significativa connectada a dades reals del formulari o del guardat funcional;
+- una decisio significativa connectada a dades reals del formulari o del flux processat;
 - almenys dos casos de prova amb resultat diferent;
 - un array o estructura equivalent usada amb sentit, per exemple cataleg de valors permesos, llista d'elements, etiquetes, regles, prioritats o missatges;
 - una funcio útil amb nom clar, parametres comprensibles i valor retornat o efecte explicable;
@@ -120,7 +120,7 @@ Tasques:
 
 - comprovar que el flux no ha canviat d'acció respecte de la landing i `R2S1`;
 - identificar una dada del formulari que puga condicionar el comportament;
-- identificar una dada guardada o reutilitzada que puga participar en la decisio;
+- identificar una dada processada que puga participar en la decisio;
 - escriure una regla en una frase clara;
 - acotar la regla a dos resultats comprovables.
 
@@ -146,7 +146,7 @@ L'alumnat implementa la regla sobre el seu flux.
 
 Tasques:
 
-- connectar la regla amb dades reals de `$_POST`, del mecanisme equivalent o del guardat funcional;
+- connectar la regla amb dades reals de `$_POST` o del mecanisme equivalent;
 - crear o adaptar un array de valors, opcions, regles o elements;
 - crear un fitxer separat per a regles o funcions pròpies del projecte;
 - importar-lo amb `require_once`, `include_once` o equivalent;
@@ -237,7 +237,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 |---|---|
 | Regla del projecte | està escrita en una frase clara i connectada al domini |
 | Continuïtat del flux | la regla ix de l'acció treballada en `R2S1` i `R2S2`, no d'un formulari nou |
-| Dades reals | la decisio usa dades del formulari, del flux o del guardat funcional |
+| Dades reals | la decisio usa dades del formulari o del flux processat |
 | Array o estructura | representa opcions, cataleg, llista, regles o elements del producte |
 | Llibreria pròpia | hi ha un fitxer separat de regles o funcions importat pel flux |
 | Funcio | està en la llibreria pròpia, té nom clar i encapsula una comprovacio, calcul, classificacio o preparacio útil |
@@ -271,7 +271,7 @@ El microrepte està aconseguit si:
 - Escriure una regla al `README` que no està implementada.
 - Afegir sessio, login o rols per evitar resoldre la logica del flux.
 - Copiar una solucio gran amb classes o patrons que l'alumnat no pot explicar.
-- Trencar el reintent o el guardat funcional de `R2M2`.
+- Trencar el reintent o la confirmació de `R2M2`.
 
 ## Us de la IA
 
@@ -347,7 +347,7 @@ L'ampliacio no ha d'obrir encara autenticacio, autoritzacio ni refactoritzacio a
 - [ ] He creat una funcio útil amb nom clar dins de la llibreria pròpia.
 - [ ] He provat dos casos amb resultats diferents.
 - [ ] Puc assenyalar en el codi on es pren la decisio.
-- [ ] El reintent i el guardat funcional anterior continuen funcionant.
+- [ ] El reintent i la confirmació anterior continuen funcionant.
 - [ ] El `README`, issue o registre explica la regla i els casos.
 - [ ] Si he usat IA, he registrat què m'ha aportat i què he verificat.
 

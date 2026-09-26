@@ -2,7 +2,7 @@
 
 Avalua la sessió d'autocorrecció `r2-s01-entrada-validacio-basica` només amb les evidències disponibles al repositori de l'alumne.
 
-Esta autocorrecció correspon a `R2-S01` i al microrepte `R2M1`: entrada de dades i validació bàsica. El criteri és deliberadament inicial. No esperes encara arrays d'errors, checkbox múltiples, pujada de fitxers, persistència, sessió, login ni arquitectura completa. Tampoc exigisques encara conservació completa de valors després de l'error ni guardat funcional del cas correcte: això correspon a `R2M2`.
+Esta autocorrecció correspon a `R2-S01` i al microrepte `R2M1`: entrada de dades i validació bàsica. El criteri és deliberadament inicial. No esperes encara arrays d'errors, checkbox múltiples, pujada de fitxers, persistència, sessió, login ni arquitectura completa. Tampoc exigisques encara conservació completa de valors després de l'error ni confirmació completa del cas correcte: això correspon a `R2M2`.
 
 Comprova si hi ha un formulari o entrada equivalent amb:
 
@@ -53,6 +53,6 @@ Comprova la documentació i traçabilitat:
 - hi ha commit o canvi localitzable associat al formulari i a la validació;
 - si s'ha usat IA de manera rellevant, hi ha registre breu i verificació posterior.
 
-No penalitzes que no hi haja arrays d'errors, validació de tots els controls, conservació completa de valors, guardat funcional del cas correcte, protecció CSRF, checkbox múltiple, fitxers ni regla de `R2M3` implementada. La protecció CSRF serà exigible quan el flux canvie estat o depenga d'una sessió autenticada. Sí que has de penalitzar una validació massa avançada copiada que l'alumne no pot explicar, missatges d'error sense condició real, formularis decoratius, formularis genèrics sense efecte funcional, validació només de client, valors tancats no validats, eixida sense escapar o bolcats de petició accessibles.
+No penalitzes que no hi haja arrays d'errors, validació de tots els controls, conservació completa de valors, confirmació completa del cas correcte, protecció CSRF, checkbox múltiple, fitxers ni regla de `R2M3` implementada. La protecció CSRF serà exigible quan el flux canvie estat o depenga d'una sessió autenticada. Sí que has de penalitzar una validació massa avançada copiada que l'alumne no pot explicar, missatges d'error sense condició real, formularis decoratius, formularis genèrics sense efecte funcional, validació només de client, valors tancats no validats, eixida sense escapar o bolcats de petició accessibles.
 
 Sigues prudent: si no pots verificar un punt, no l'assumisques com a correcte. Marca revisió docent si la confiança és baixa, si falta evidència crítica o si apareixen flags.

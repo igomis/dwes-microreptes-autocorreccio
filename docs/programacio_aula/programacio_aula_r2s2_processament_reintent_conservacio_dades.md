@@ -1,12 +1,12 @@
-# R2S2. Processament, reintent i guardat funcional
+# R2S2. Processament, reintent i confirmació
 
 ## Finalitat de la sessió
 
 Esta sessió continua el microrepte `R2M1`: el formulari ja envia dades, el servidor les rep i almenys una condició simple pot mostrar un error. Ara el pas natural és millorar el reintent.
 
-El focus principal és que, quan hi ha un error, el servidor torne a generar el formulari conservant les dades aprofitables que l'usuari ja havia escrit o seleccionat. Quan l'entrada ja és correcta, també és coherent processar-la i guardar-la de manera funcional simple perquè el flux no quede en una demo efímera.
+El focus principal és que, quan hi ha un error, el servidor torne a generar el formulari conservant les dades aprofitables que l'usuari ja havia escrit o seleccionat. Quan l'entrada ja és correcta, el servidor la processa i mostra una confirmació o resum comprensible.
 
-Al final de la sessió, cada alumne o parella ha de poder demostrar dos camins: un enviament amb error que conserva dades per al reintent, i un enviament correcte que es processa i queda guardat funcionalment de manera simple.
+Al final de la sessió, cada alumne o parella ha de poder demostrar dos camins: un enviament amb error que conserva dades per al reintent, i un enviament correcte que es processa i genera una confirmació o resum.
 
 ## Encaix dins del Repte 2
 
@@ -14,10 +14,10 @@ Al final de la sessió, cada alumne o parella ha de poder demostrar dos camins: 
 - **Microrepte**: `R2M2`
 - **Sessió**: `R2S2`
 - **Duració orientativa**: `3 hores`
-- **Focus**: recuperació de dades enviades, tractament en servidor, resposta generada amb valors conservats, error visible, reintent corregit i guardat funcional simple quan l'entrada és correcta
+- **Focus**: recuperació de dades enviades, tractament en servidor, resposta generada amb valors conservats, error visible, reintent corregit i confirmació del cas correcte
 - **No entra encara**: persistència formal com a centre del treball, base de dades obligatòria, sessió, cookies, login, rols, arquitectura MVC, arrays d'errors com a mínim, checkbox múltiple o fitxers
 
-Esta frontera no expulsa els arrays d'errors ni la validació més completa del `Repte 2`; només indica que no són el mínim de `R2M2`. En esta sessió el criteri de tancament és demostrar el reintent amb dades conservades i el guardat funcional del cas correcte. La validació acumulada pot entrar com a ampliació o en una consolidació posterior del mateix repte.
+Esta frontera no expulsa el guardat entre peticions, els arrays d'errors ni la validació més completa del `Repte 2`; només indica que no són el mínim de `R2M2`. En esta sessió el criteri de tancament és demostrar el reintent amb dades conservades i la confirmació del cas correcte. El guardat entre peticions i la validació acumulada poden entrar com a ampliació o en una consolidació posterior.
 
 ## Frontera amb `R2S1`
 
@@ -28,7 +28,7 @@ Esta frontera no expulsa els arrays d'errors ni la validació més completa del 
 Per tant, la sessió només està ben tancada si es poden demostrar els dos camins:
 
 - cas amb error: formulari regenerat amb dades aprofitables conservades;
-- cas correcte: informació processada i guardada funcionalment amb un mecanisme simple.
+- cas correcte: informació processada i mostrada en una confirmació o resum.
 
 La sessió també ha de mantindre la dada que farà possible `R2S3`: categoria, franja, prioritat, tipus, quantitat, estat inicial o equivalent. Si eixa dada desapareix en el reintent o se substitueix per un literal fix, el flux queda pobre per a la sessió següent.
 
@@ -38,8 +38,8 @@ La sessió també ha de mantindre la dada que farà possible `R2S3`: categoria, 
 |---|---|
 | `RA2` | generació de resposta amb codi de servidor, ús de variables, sentències simples, valors calculats per a la vista i àmbits bàsics |
 | `RA3` | recuperació de dades de formulari, tractament de valors, error visible i reintent amb conservació de la informació aprofitable |
-| Evidència central | formulari que, després d'un error, torna carregat amb dades aprofitables; entrada correcta processada i guardada funcionalment |
-| Verificació docent | execució d'un cas amb error i d'un cas correcte, comprovant valors conservats, reenviament i guardat simple |
+| Evidència central | formulari que, després d'un error, torna carregat amb dades aprofitables; entrada correcta processada i confirmada |
+| Verificació docent | execució d'un cas amb error i d'un cas correcte, comprovant valors conservats, reenviament i resum final |
 
 ## Producte esperat
 
@@ -53,12 +53,11 @@ Una evolució del flux de `R2M1` que incloga, com a mínim:
 - correcció només de la dada errònia;
 - reenviament correcte amb resposta final;
 - processament de l'entrada correcta;
-- guardat funcional simple de la informació correcta;
-- reutilització mínima de la dada guardada, encara que siga en una llista, resum o pantalla posterior;
+- confirmació o resum de la informació correcta processada;
 - conservació o processament d'almenys una dada classificada que puga alimentar una regla en `R2S3`;
 - nota breu al `README`, issue o registre indicant com provar el cas amb error i el reintent.
 
-La conservació de dades en esta sessió té dos nivells diferents: conservar valors dins del formulari quan hi ha error, i guardar funcionalment la informació correcta quan el formulari ja passa la validació. Cap dels dos nivells obliga encara a una persistència formal o a una base de dades.
+Cal diferenciar conservar valors dins del formulari quan hi ha error de processar i confirmar la informació correcta. Conservar una entrada per recuperar-la en una petició posterior és una ampliació i requerix un mecanisme d'estat o persistència que no forma part del mínim.
 
 ## Preparació prèvia del professorat
 
@@ -143,7 +142,7 @@ Tasques:
 
 Resultat del tram: el reintent conserva text, opció tancada i, si correspon, checkbox simple.
 
-### 2:10-2:25. Reenviament corregit i guardat funcional
+### 2:10-2:25. Reenviament corregit i confirmació
 
 L'alumnat prova el cicle complet.
 
@@ -154,8 +153,7 @@ Tasques:
 - corregir només la dada errònia;
 - reenviar;
 - comprovar que la resposta correcta es genera.
-- guardar la informació correcta amb un mecanisme simple;
-- mostrar o recuperar la dada guardada en una resposta posterior.
+- mostrar una confirmació o resum amb la informació correcta processada.
 
 Resultat del tram: el flux d'error i reintent és demostrable, i el cas correcte no es perd.
 
@@ -169,7 +167,7 @@ Tasques:
 - escriure com provocar l'error;
 - indicar quines dades es conserven;
 - indicar què cal corregir per arribar al cas correcte.
-- indicar què es guarda quan el cas és correcte i on es pot veure.
+- indicar quines dades processades apareixen en la confirmació del cas correcte.
 
 Resultat del tram: una altra persona pot repetir el reintent.
 
@@ -182,7 +180,7 @@ Cada equip mostra:
 - formulari recarregat amb dades conservades;
 - correcció de la dada errònia;
 - reenviament correcte;
-- guardat funcional simple del cas correcte;
+- confirmació o resum del cas correcte;
 - fragment de codi on es preparen els valors que tornen al formulari.
 
 Pregunta de tancament: quines dades conserva el servidor per ajudar l'usuari a corregir, i en quin punt del codi es tornen a pintar?
@@ -199,9 +197,9 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 - Regenerar el formulari amb dades aprofitables conservades.
 - Mostrar un error visible.
 - Corregir només la dada errònia i reenviar.
-- Processar i guardar funcionalment el cas correcte.
+- Processar el cas correcte i mostrar-ne una confirmació o resum.
 - Mantindre visible o recuperable la dada que pot alimentar una regla posterior.
-- Reutilitzar o mostrar la dada guardada.
+- Mostrar les dades processades en la resposta correcta.
 - Documentar com provar el reintent.
 
 ## Evidències mínimes
@@ -214,7 +212,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 | Conservació | almenys text i opció tancada es mantenen després de l'error |
 | Checkbox | es comprova i, si té sentit, es conserva el seu estat |
 | Reintent | l'usuari corregeix només la dada errònia i reenvia |
-| Guardat funcional | el cas correcte es conserva amb un mecanisme simple i explicable |
+| Confirmació | el cas correcte mostra un resum comprensible de les dades processades |
 | Preparació per a R2S3 | una dada classificada del flux queda disponible per a una regla posterior |
 | Documentació | el repositori explica com provar l'error i el reintent |
 
@@ -227,7 +225,7 @@ El microrepte està aconseguit si:
 - les dades conservades corresponen a dades enviades realment;
 - el codi mostra com es preparen els valors de resposta;
 - el reintent permet corregir sense repetir-ho tot;
-- el cas correcte queda processat i guardat funcionalment;
+- el cas correcte queda processat i confirmat amb un resum;
 - el cas correcte acaba en una resposta final;
 - l'alumnat pot assenyalar on es rep, on es valida i on es torna a pintar cada dada.
 
@@ -256,7 +254,7 @@ Control obligatori:
 
 - l'alumnat ha de provar una dada pròpia;
 - ha de poder canviar un valor del formulari i explicar per què es conserva;
-- ha de diferenciar conservar en el reintent de guardar funcionalment un cas correcte;
+- ha de diferenciar conservar en el reintent de processar i confirmar un cas correcte;
 - si la IA ha generat codi rellevant, s'ha de registrar breument al `AI log` o registre equivalent.
 
 ## Suport per alumnat amb més dificultat
@@ -279,7 +277,7 @@ Si el mínim ja està tancat, l'alumnat pot:
 - acumular errors en un array i mostrar-los tots;
 - conservar checkbox múltiple amb opcions permeses;
 - millorar l'escapament i normalització de dades;
-- millorar el mecanisme de guardat funcional del cas correcte;
+- guardar una entrada correcta i recuperar-la en una petició posterior amb un mecanisme simple i explicable;
 - documentar casos positius i negatius amb més precisió.
 
 L'ampliació no ha d'obrir encara sessió, autenticació ni arquitectura completa.
@@ -294,8 +292,7 @@ L'ampliació no ha d'obrir encara sessió, autenticació ni arquitectura complet
 - [ ] Puc assenyalar on prepare els valors que tornen al formulari.
 - [ ] Corregisc només la dada errònia i reenvie.
 - [ ] El cas correcte genera resposta final.
-- [ ] El cas correcte queda guardat funcionalment amb un mecanisme simple.
-- [ ] Puc mostrar o recuperar la dada guardada.
+- [ ] El cas correcte mostra una confirmació o resum amb les dades processades.
 - [ ] El `README`, issue o registre explica com provar el reintent.
 - [ ] Si he usat IA, he registrat què m'ha aportat i què he verificat.
 
@@ -307,8 +304,8 @@ Quina regla del teu projecte podrà aplicar el backend quan el flux d'entrada i 
 
 ## Materials associats per a portar a l'aula
 
-- **Material principal, després del microrepte**: [Reintent, conservació de dades i guardat funcional](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Reintent-conservacio-de-dades-i-guardat-funcional.pdf), resum de `5-6` diapositives amb un únic patró en PHP i Python.
-- **Alternativa Python**: [R2M2 amb Flask: reintent i guardat](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m2_reintent_guardat.html)
+- **Material principal, després del microrepte**: [Reintent, conservació de dades i confirmació](https://cipfpbatoi.github.io/dwes2627/recursos/Teoria/Teoria-R2-Reintent-conservacio-de-dades-i-guardat-funcional.pdf), pendent de regenerar perquè el PDF encara conserva l'abast anterior.
+- **Alternativa Python**: [R2M2 amb Flask: reintent i confirmació](https://cipfpbatoi.github.io/dwes2627/04_materials/repte_02/python/r2m2_reintent_guardat.html)
 - **Material opcional de reforç**: [MT03. Validació de servidor amb casos roïns](https://cipfpbatoi.github.io/dwes2627/recursos/Tallers/MT03-Validacio-de-servidor-amb-casos-roins.pdf), només si les proves de casos invàlids continuen bloquejant el grup.
 
 No s'han d'usar els dos materials seguits com una explicació llarga. El retorn posterior ha de partir d'un error observat, mostrar el patró mínim i tornar de seguida a la prova del projecte.

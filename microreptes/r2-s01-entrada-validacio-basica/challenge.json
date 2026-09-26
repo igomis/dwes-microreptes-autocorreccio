@@ -51,7 +51,7 @@
     "L'error visible correspon a una condició real del codi",
     "El cas corregit es pot reenviar i genera una resposta correcta",
     "No es demanen arrays d'errors, checkbox múltiple, fitxers ni validació acumulada com a mínim",
-    "No s'exigeix encara reintent amb dades conservades ni guardat funcional del cas correcte; això correspon a R2M2",
+    "No s'exigeix encara reintent amb dades conservades ni confirmació completa del cas correcte; això correspon a R2M2",
     "L'alumne pot explicar què passa quan falta la dada validada"
   ],
   "recommended_test_strategy": "Executar el formulari, enviar un cas incorrecte, manipular una opció tancada, provar text amb marques HTML, comprovar que el servidor rebutja l'opció i mostra el text escapat, reenviar un cas correcte, revisar la recepció defensiva i confirmar que no queden bolcats ni dades sensibles exposades.",

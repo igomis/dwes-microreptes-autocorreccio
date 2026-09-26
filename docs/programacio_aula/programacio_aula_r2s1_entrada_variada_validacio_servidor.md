@@ -21,7 +21,7 @@ Al final de la sessió, cada alumne o parella ha de poder explicar quines dades 
 
 > El servidor rep dades reals del projecte i pot bloquejar un cas incorrecte amb una validació visible?
 
-No cal exigir encara que el formulari conserve tots els valors després de l'error ni que el cas correcte quede guardat funcionalment. Si apareix, pot quedar com a millora, però el criteri de tancament de `R2S1` és recepció, validació i reenviament corregit. La conservació de dades aprofitables i el guardat funcional són el centre de `R2S2`.
+No cal exigir encara que el formulari conserve tots els valors després de l'error ni que el cas correcte mostre una confirmació completa. Si apareix, pot quedar com a millora, però el criteri de tancament de `R2S1` és recepció, validació i reenviament corregit. La conservació de dades aprofitables i la confirmació són el centre de `R2S2`.
 
 ## De la landing al formulari
 

@@ -10,8 +10,7 @@ Evidències mínimes:
 - valors conservats a partir de dades enviades, no de literals fixos;
 - en PHP, valors escapats i reconstruïts des de `$_POST`; en Python/Flask, dades de `request.form` passades a Jinja amb escapament automàtic o mecanisme equivalent;
 - reenviament corregit amb resposta correcta;
-- processament i guardat funcional simple del cas correcte;
-- pantalla, llista, resum o resposta posterior on la dada correcta es mostra o recupera;
+- processament del cas correcte i confirmació o resum amb les dades processades;
 - nota al `README`, issue o registre indicant com provar l'error i el reintent;
 - commit o traçabilitat del canvi.
 
@@ -20,8 +19,9 @@ Queden fora del mínim de `R2M2`:
 - arrays d'errors;
 - checkbox múltiple;
 - fitxers;
+- guardat entre peticions;
 - persistència formal o base de dades obligatòria;
 - estat, sessió, cookies, login o rols;
 - MVC o arquitectura completa.
 
-Això no els deixa fora de tot el `Repte 2`: poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte.
+Això no els deixa fora de tot el `Repte 2`: poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte. Si s'implementa guardat entre peticions com a ampliació, no compensa mancances del reintent obligatori.

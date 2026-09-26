@@ -11,7 +11,7 @@ Els enllaços a rúbriques són relatius al destí de publicació `docs/04_mater
 - [R1M1. Model client/servidor i decisió tècnica inicial](r1m1.md)
 - [R1M2. Entorn executable, landing inicial i tancament de R1](r1m2.md)
 - [R2M1. Entrada de dades i validació bàsica](r2m1.md)
-- [R2M2. Processament, reintent i guardat funcional](r2m2.md)
+- [R2M2. Processament, reintent i confirmació](r2m2.md)
 - [R2M3. Logica del flux i regles del projecte](r2m3.md)
 - [R2M4. Estat, sessio i cookies](r2m4.md)
 - [R2M5. Autenticacio i funcionalitat protegida](r2m5.md)

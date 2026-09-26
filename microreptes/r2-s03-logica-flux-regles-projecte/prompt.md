@@ -2,7 +2,7 @@
 
 Avalua la sessio d'autocorreccio `r2-s03-logica-flux-regles-projecte` només amb les evidencies disponibles al repositori de l'alumne.
 
-Esta autocorreccio correspon a `R2-S03` i al microrepte `R2M3`: logica del flux i regles del projecte. El criteri és progressiu respecte de `R2M2`. Espera que ja hi haja un flux amb formulari, validacio, reintent o guardat funcional simple, però no esperes encara sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal ni base de dades obligatoria.
+Esta autocorreccio correspon a `R2-S03` i al microrepte `R2M3`: logica del flux i regles del projecte. El criteri és progressiu respecte de `R2M2`. Espera que ja hi haja un flux amb formulari, validacio, reintent i confirmació del cas correcte, però no esperes encara sessio, cookies, login, rols, autoritzacio, MVC, persistencia formal ni base de dades obligatoria.
 
 En esta versio de `R2M3`, la regla ha d'estar implementada amb una separacio mínima: una llibreria pròpia o fitxer separat de funcions/regles, per exemple `src/regles.php`, `includes/regles.php`, `lib/funcions.php` o equivalent, importat des del flux amb `require_once`, `include_once` o mecanisme equivalent.
 

@@ -2,7 +2,7 @@
 
 Evidencies minimes:
 
-- flux executable que continue el formulari, reintent o guardat funcional de `R2M2`;
+- flux executable que continue el formulari, reintent o confirmació de `R2M2`;
 - regla del projecte escrita o explicada en llenguatge natural;
 - decisio de servidor connectada a dades reals del flux;
 - array o estructura equivalent usada amb sentit funcional;
