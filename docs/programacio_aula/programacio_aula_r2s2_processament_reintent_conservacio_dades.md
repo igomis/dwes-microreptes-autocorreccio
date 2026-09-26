@@ -14,8 +14,8 @@ Al final de la sessió, cada alumne o parella ha de poder demostrar dos camins: 
 - **Microrepte**: `R2M2`
 - **Sessió**: `R2S2`
 - **Duració orientativa**: `3 hores`
-- **Focus**: recuperació de dades enviades, tractament en servidor, resposta generada amb valors conservats, error visible, reintent corregit i confirmació del cas correcte
-- **No entra encara**: persistència formal com a centre del treball, base de dades obligatòria, sessió, cookies, login, rols, arquitectura MVC, arrays d'errors com a mínim, checkbox múltiple o fitxers
+- **Focus**: recuperació de dades enviades, tractament en servidor, resposta generada amb valors conservats, error visible, reintent corregit, confirmació del cas correcte i pujada bàsica d'un fitxer del domini
+- **No entra encara**: persistència formal com a centre del treball, base de dades obligatòria, sessió, cookies, login, rols, arquitectura MVC, arrays d'errors com a mínim o checkbox múltiple
 
 Esta frontera no expulsa el guardat entre peticions, els arrays d'errors ni la validació més completa del `Repte 2`; només indica que no són el mínim de `R2M2`. En esta sessió el criteri de tancament és demostrar el reintent amb dades conservades i la confirmació del cas correcte. El guardat entre peticions i la validació acumulada poden entrar com a ampliació o en una consolidació posterior.
 
@@ -54,6 +54,10 @@ Una evolució del flux de `R2M1` que incloga, com a mínim:
 - reenviament correcte amb resposta final;
 - processament de l'entrada correcta;
 - confirmació o resum de la informació correcta processada;
+- camp de fitxer connectat amb la mateixa acció del projecte;
+- recepció i intent de guardat del fitxer en servidor, amb error visible si falla;
+- comprovació bàsica de mida i tipus o extensió permesa;
+- prova d'un fitxer acceptat i un de rebutjat;
 - conservació o processament d'almenys una dada classificada que puga alimentar una regla en `R2S3`;
 - nota breu al `README`, issue o registre indicant com provar el cas amb error i el reintent.
 
@@ -142,7 +146,7 @@ Tasques:
 
 Resultat del tram: el reintent conserva text, opció tancada i, si correspon, checkbox simple.
 
-### 2:10-2:25. Reenviament corregit i confirmació
+### 2:10-2:35. Reenviament corregit, confirmació i fitxer
 
 L'alumnat prova el cicle complet.
 
@@ -154,10 +158,13 @@ Tasques:
 - reenviar;
 - comprovar que la resposta correcta es genera.
 - mostrar una confirmació o resum amb la informació correcta processada.
+- afegir un fitxer relacionat amb l'acció del projecte;
+- comprovar en servidor l'error de pujada, una mida màxima i un tipus o extensió permesa;
+- guardar-lo amb un nom segur quan el cas és vàlid i mostrar un error quan es rebutja.
 
 Resultat del tram: el flux d'error i reintent és demostrable, i el cas correcte no es perd.
 
-### 2:25-2:45. Traçabilitat i documentació mínima
+### 2:35-2:45. Traçabilitat i documentació mínima
 
 L'alumnat deixa rastre del que ha fet.
 
@@ -181,6 +188,7 @@ Cada equip mostra:
 - correcció de la dada errònia;
 - reenviament correcte;
 - confirmació o resum del cas correcte;
+- prova mínima d'un fitxer acceptat i un de rebutjat;
 - fragment de codi on es preparen els valors que tornen al formulari.
 
 Pregunta de tancament: quines dades conserva el servidor per ajudar l'usuari a corregir, i en quin punt del codi es tornen a pintar?
@@ -198,6 +206,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 - Mostrar un error visible.
 - Corregir només la dada errònia i reenviar.
 - Processar el cas correcte i mostrar-ne una confirmació o resum.
+- Pujar un fitxer del domini, validar-lo bàsicament en servidor i intentar guardar-lo amb un nom segur.
 - Mantindre visible o recuperable la dada que pot alimentar una regla posterior.
 - Mostrar les dades processades en la resposta correcta.
 - Documentar com provar el reintent.
@@ -213,6 +222,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 | Checkbox | es comprova i, si té sentit, es conserva el seu estat |
 | Reintent | l'usuari corregeix només la dada errònia i reenvia |
 | Confirmació | el cas correcte mostra un resum comprensible de les dades processades |
+| Fitxer | hi ha un intent funcional de pujada vinculat al domini, amb validació bàsica i casos acceptat/rebutjat |
 | Preparació per a R2S3 | una dada classificada del flux queda disponible per a una regla posterior |
 | Documentació | el repositori explica com provar l'error i el reintent |
 
@@ -226,6 +236,7 @@ El microrepte està aconseguit si:
 - el codi mostra com es preparen els valors de resposta;
 - el reintent permet corregir sense repetir-ho tot;
 - el cas correcte queda processat i confirmat amb un resum;
+- el formulari intenta pujar un fitxer del domini i el servidor diferencia almenys un cas acceptat d'un de rebutjat;
 - el cas correcte acaba en una resposta final;
 - l'alumnat pot assenyalar on es rep, on es valida i on es torna a pintar cada dada.
 
@@ -238,7 +249,7 @@ El microrepte està aconseguit si:
 - Fer només validació de client.
 - Introduir arrays d'errors abans d'entendre un reintent simple.
 - Convertir la sessió en base de dades, login, sessió o arquitectura.
-- Fer checkbox múltiple o fitxers com a mínim obligatori.
+- Fer checkbox múltiple com a mínim obligatori.
 
 ## Ús de la IA
 
@@ -278,11 +289,10 @@ Si el mínim ja està tancat, l'alumnat pot:
 - conservar checkbox múltiple amb opcions permeses;
 - millorar l'escapament i normalització de dades;
 - guardar entrades correctes en un fitxer `JSON`, llegir-les en una petició posterior i mostrar-les en una llista o resum;
-- afegir al mateix formulari la pujada d'un fitxer relacionat amb l'acció del projecte i guardar-lo només quan la resta de dades siga vàlida;
-- validar el fitxer en servidor: error de pujada, mida màxima i tipus MIME o extensió permesa; generar un nom segur en el servidor i, quan siga possible, guardar-lo fora de la zona pública;
+- reforçar la pujada amb detecció MIME, noms no predictibles, emmagatzematge fora de la zona pública i neteja de fitxers residuals;
 - documentar casos positius i negatius amb més precisió.
 
-Les ampliacions de `JSON` i fitxer han de ser reproduïbles: una petició posterior recupera la dada del `JSON`, i una prova accepta un fitxer vàlid i en rebutja un d'invàlid. No compensen mancances del reintent obligatori ni han d'obrir encara sessió, autenticació o arquitectura completa.
+L'ampliació de `JSON` ha de ser reproduïble: una petició posterior recupera la dada. Les millores avançades del fitxer reforcen el requisit bàsic, però no compensen mancances del reintent ni han d'obrir encara sessió, autenticació o arquitectura completa.
 
 ## Checklist de tancament
 
@@ -295,6 +305,8 @@ Les ampliacions de `JSON` i fitxer han de ser reproduïbles: una petició poster
 - [ ] Corregisc només la dada errònia i reenvie.
 - [ ] El cas correcte genera resposta final.
 - [ ] El cas correcte mostra una confirmació o resum amb les dades processades.
+- [ ] He intentat pujar un fitxer relacionat amb el domini.
+- [ ] El servidor diferencia un fitxer acceptat d'un de rebutjat.
 - [ ] El `README`, issue o registre explica com provar el reintent.
 - [ ] Si he usat IA, he registrat què m'ha aportat i què he verificat.
 

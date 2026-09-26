@@ -11,13 +11,16 @@ Estratègia de comprovació manual:
 - corregir només la dada errònia;
 - reenviar i comprovar la resposta correcta;
 - comprovar que el cas correcte mostra una confirmació o resum amb les dades processades;
+- enviar un fitxer permés i comprovar l'intent de guardat amb nom segur;
+- enviar un fitxer de tipus o mida no permesos i comprovar l'error visible;
 - revisar el fragment PHP o Python/Jinja que prepara els valors per a `value`, `selected`, `checked` o equivalents;
 - preguntar a l'alumne la diferència entre conservar dades en el reintent, confirmar un cas correcte i guardar-lo entre peticions.
 
-No cal executar proves sobre guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers, checkbox múltiple ni autenticació com a mínim de `R2M2`.
+No cal executar proves sobre guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, checkbox múltiple ni autenticació com a mínim de `R2M2`.
 
-Si l'alumne presenta ampliació, comprovar addicionalment:
+Per al fitxer obligatori, comprovar:
 
-- `JSON`: el cas invàlid no s'escriu, el vàlid sí i una nova petició el recupera;
 - fitxer: un tipus i mida permesos es guarden amb nom segur, un fitxer invàlid es rebutja amb error visible i el cas invàlid no deixa un fitxer residual;
-- el fitxer no queda en una ubicació des d'on es puga executar com a codi del servidor.
+- si no hi ha cap intent verificable, la dimensió específica és `0/1` sense limitar la resta.
+
+Si presenta l'ampliació, comprovar addicionalment que el `JSON` només guarda casos vàlids i que una nova petició el recupera; i, per al fitxer, detecció MIME, nom no predictible i ubicació no executable.

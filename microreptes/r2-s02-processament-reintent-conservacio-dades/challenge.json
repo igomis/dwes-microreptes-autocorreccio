@@ -32,6 +32,9 @@
     "Comprovació del comportament d'un checkbox simple i conservació si té sentit",
     "Reenviament corregit amb resposta correcta",
     "Processament del cas correcte i confirmació o resum amb les dades processades",
+    "Camp de fitxer relacionat amb el domini, recepció i intent de guardat en servidor",
+    "Comprovació bàsica de mida i tipus o extensió permesa",
+    "Prova d'un fitxer acceptat i un de rebutjat",
     "README.md, issue o registre que explique com provar l'error i el reintent",
     "Commit o traçabilitat associada al processament, el reintent i la confirmació",
     "AI log si hi ha ús rellevant d'IA"
@@ -48,16 +51,16 @@
     "El cas corregit es pot reenviar i genera una resposta correcta",
     "El cas correcte es processa i mostra una confirmació o resum comprensible",
     "L'alumne diferencia conservar dades en el reintent de processar i confirmar un cas correcte",
-    "No es demanen encara guardat entre peticions, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers ni checkbox múltiples com a mínim de R2M2",
+    "No es demanen encara guardat entre peticions, base de dades obligatòria, sessió, cookies, login, rols, MVC, arrays d'errors ni checkbox múltiples com a mínim de R2M2",
     "Com a ampliació opcional, es poden guardar casos correctes en JSON i recuperar-los en una petició posterior",
-    "Com a ampliació opcional, es pot pujar i guardar un fitxer relacionat amb el formulari amb validació de servidor, nom segur i proves d'acceptació i rebuig"
+    "La pujada bàsica de fitxer és obligatòria amb pes reduït; la detecció MIME, noms no predictibles, emmagatzematge fora de la zona pública i neteja de residuals són ampliació"
   ],
   "recommended_test_strategy": "Enviar un cas incorrecte, comprovar l'error visible, verificar que el formulari torna amb text i opció tancada conservats, revisar el checkbox simple, corregir només la dada errònia, reenviar, comprovar la confirmació o resum del cas correcte i revisar el fragment de codi que prepara els valors.",
   "source_alignment": [
     "Repte 2 R2M2",
     "Programació d'aula R2S2",
     "Documentació d'alumnat del Repte 2",
-    "Reintent amb dades conservades i confirmació del cas correcte; el guardat JSON, la pujada de fitxers, la persistència formal, els arrays d'errors, l'estat i l'autenticació queden fora del mínim de R2M2 i poden aparéixer com a ampliació"
+    "Reintent amb dades conservades, confirmació del cas correcte i intent bàsic de pujada de fitxer; el guardat JSON, la persistència formal, els arrays d'errors, l'estat i l'autenticació queden fora del mínim de R2M2"
   ],
   "primary_ra": "RA2",
   "assessed_ca": [

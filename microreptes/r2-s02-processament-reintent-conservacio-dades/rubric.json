@@ -6,7 +6,7 @@
     {
       "id": "functional_resolution",
       "label": "Resolució funcional",
-      "weight": 0.3,
+      "weight": 0.25,
       "must_check": "Hi ha un flux executable que manté l'acció de R2M1, amb error visible, formulari regenerat amb dades aprofitables conservades, reenviament corregit i confirmació o resum del cas correcte."
     },
     {
@@ -36,8 +36,14 @@
     {
       "id": "code_quality",
       "label": "Qualitat tècnica",
-      "weight": 0.2,
+      "weight": 0.15,
       "must_check": "El codi és explicable: recupera dades, prepara valors per al formulari, processa i confirma el cas correcte i evita valors fixos o complexitat que desplace el focus de R2M2."
+    },
+    {
+      "id": "file_handling",
+      "label": "Tractament de fitxer",
+      "weight": 0.1,
+      "must_check": "Hi ha un intent funcional de pujada vinculat al domini: recepció en servidor, comprovació bàsica de mida i tipus o extensió, intent de guardat amb nom segur i proves d'un cas acceptat i un de rebutjat."
     }
   ],
   "hard_rules": [
@@ -49,9 +55,10 @@
     "Si els valors conservats són literals fixos i no dades de l'enviament, la puntuació màxima recomanada és 7.",
     "Sense reenviament corregit verificable, la puntuació màxima recomanada és 8.",
     "Sense confirmació o resum verificable del cas correcte, la puntuació màxima recomanada és 8.",
-    "No penalitzes l'absència de guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, fitxers o checkbox múltiples en esta sessió; no són mínim de R2M2, encara que poden aparéixer com a ampliació o consolidar-se en microreptes posteriors del mateix repte.",
+    "No penalitzes l'absència de guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors o checkbox múltiples en esta sessió; no són mínim de R2M2.",
+    "Sense cap intent verificable de pujada, la dimensió de tractament de fitxer és 0/1, però no limites la puntuació de la resta de dimensions.",
     "Si apareix l'ampliació JSON, valora com a evidència addicional que només guarde casos vàlids i que una petició posterior llija el JSON i mostre les dades; no la uses per compensar mancances del mínim.",
-    "Si apareix l'ampliació de fitxer, comprova validació de servidor de l'error, mida i tipus permés, nom segur generat pel servidor, guardat només del cas vàlid i proves d'un fitxer acceptat i un de rebutjat; si el tractament és insegur, marca revisió docent, però no exigisques esta ampliació.",
+    "Per damunt del mínim, valora detecció MIME, noms no predictibles, emmagatzematge fora de la zona pública i neteja de fitxers residuals, sense usar-ho per compensar mancances del reintent.",
     "Si el codi és massa avançat i l'alumne no el pot explicar, cal revisió docent.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
