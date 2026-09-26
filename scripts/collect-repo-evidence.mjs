@@ -22,6 +22,7 @@ const textExtensions = new Set([
 ]);
 const maxFilesPerSection = 12;
 const maxRelevantFiles = 30;
+const maxHistoryCommits = 50;
 const maxExcerptChars = 4000;
 const structuralRootFiles = new Set([
   'README.md',
@@ -113,6 +114,50 @@ function pathIsWithin(candidate, declaredPath) {
 
 async function exists(filePath) {
   return existsSync(filePath);
+}
+
+async function collectCommitHistory(repoDir, activeTokens) {
+  const output = await git(repoDir, [
+    'log',
+    `-${maxHistoryCommits}`,
+    '--date=iso-strict',
+    '--format=%x1e%H%x1f%aI%x1f%cI%x1f%s',
+    '--name-only'
+  ]);
+  const commits = output.split('\x1e').map((record) => record.trim()).filter(Boolean).map((record) => {
+    const [header, ...pathLines] = record.split('\n');
+    const [sha, authorDate, committerDate, subject] = header.split('\x1f');
+    const files = [...new Set(pathLines.map(normalizeRepoPath).filter(Boolean))];
+    const searchable = [subject, ...files].join(' ').toLowerCase();
+    const normalizedSearchable = normalizeToken(searchable);
+    return {
+      sha,
+      author_date: authorDate,
+      committer_date: committerDate,
+      subject,
+      files,
+      active_microrepte_candidate: activeTokens.some((token) => (
+        searchable.includes(token) || normalizedSearchable.includes(normalizeToken(token))
+      ))
+    };
+  });
+  const activeCommits = commits.filter((commit) => commit.active_microrepte_candidate);
+  const timestamps = activeCommits.map((commit) => Date.parse(commit.committer_date)).filter(Number.isFinite).sort((a, b) => a - b);
+  const first = timestamps[0] ?? null;
+  const last = timestamps.at(-1) ?? null;
+  const spanMinutes = first === null ? null : Math.round((last - first) / 60000);
+  return {
+    commits,
+    active_microrepte_candidates: activeCommits,
+    temporal_summary: {
+      candidate_count: activeCommits.length,
+      first_commit_at: first === null ? null : new Date(first).toISOString(),
+      last_commit_at: last === null ? null : new Date(last).toISOString(),
+      span_minutes: spanMinutes,
+      within_three_hours: spanMinutes === null ? null : spanMinutes <= 180,
+      interpretation: 'La concentració temporal és un indici, no prova presència física a classe. Les dates Git es poden modificar i s’han de contrastar amb la qualitat dels commits.'
+    }
+  };
 }
 
 async function isDirectory(filePath) {
@@ -377,6 +422,7 @@ async function main() {
   const includedRelevantFiles = relevantTrackedFiles
     .filter((filePath) => isTextFile(filePath))
     .slice(0, maxRelevantFiles);
+  const commitHistory = await collectCommitHistory(repoDir, activeTokens);
 
   const signals = {
     generated_at: new Date().toISOString(),
@@ -421,7 +467,10 @@ async function main() {
     commit_evidence: {
       sha: args.commit,
       changed_files: changedFiles,
-      relevant_changed_files: changedFiles.filter((filePath) => relevantTrackedFiles.includes(filePath))
+      relevant_changed_files: changedFiles.filter((filePath) => relevantTrackedFiles.includes(filePath)),
+      history: commitHistory.commits,
+      active_microrepte_candidates: commitHistory.active_microrepte_candidates,
+      temporal_summary: commitHistory.temporal_summary
     },
     relevant_files: await summarizeFiles(repoDir, includedRelevantFiles.map((filePath) => resolveInRepo(repoDir, filePath))),
     repte_extension: extensionConfig ? {
