@@ -1,4 +1,5 @@
 import { validateProposal, readChallengeMetadata } from './lib/repte-extension.mjs';
+import { calculateRawScore } from './lib/grading-result.mjs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -183,9 +184,9 @@ function validateRaScores(result, errors) {
   });
 }
 
-function validateScoringConsistency(result, errors) {
+function validateScoringConsistency(result, rubricDimensions, errors) {
   if (!Array.isArray(result.dimension_scores) || typeof result.raw_score_over_10 !== 'number') return;
-  const rawScore = Math.round((result.dimension_scores.reduce((sum, dimension) => sum + Number(dimension?.score || 0), 0) + Number.EPSILON) * 100) / 100;
+  const rawScore = Math.round((calculateRawScore(result.dimension_scores, rubricDimensions) + Number.EPSILON) * 100) / 100;
   if (result.raw_score_over_10 !== rawScore) {
     errors.push(`"raw_score_over_10" (${result.raw_score_over_10}) no coincideix amb la suma de dimensions (${rawScore})`);
   }
@@ -201,7 +202,7 @@ function validateScoringConsistency(result, errors) {
   }
 }
 
-function validateResult(result, schema) {
+function validateResult(result, schema, rubricDimensions = []) {
   const errors = [];
 
   if (!isPlainObject(result)) {
@@ -214,7 +215,7 @@ function validateResult(result, schema) {
   validateDimensionScores(result, errors);
   validateRaScores(result, errors);
   validateProgrammingPractices(result, errors);
-  validateScoringConsistency(result, errors);
+  validateScoringConsistency(result, rubricDimensions, errors);
 
   return errors;
 }
@@ -228,7 +229,10 @@ async function main() {
     readJson(path.resolve(rootDir, args.input)),
     readJson(path.join(rootDir, 'global', 'grading-schema.json'))
   ]);
-  const errors = validateResult(result, schema);
+  const rubric = result.challenge_id
+    ? await readJson(path.join(rootDir, 'microreptes', result.challenge_id, 'rubric.json'))
+    : { dimensions: [] };
+  const errors = validateResult(result, schema, rubric.dimensions || []);
   if (result.repte_extension) {
     try {
       validateProposal(result.repte_extension);

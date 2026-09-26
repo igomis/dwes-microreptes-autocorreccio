@@ -8,7 +8,7 @@ export function capFromHardRule(rule) {
   return match ? Number(match[1].replace(',', '.')) : null;
 }
 
-function calculateRawScore(dimensionScores, rubricDimensions = []) {
+export function calculateRawScore(dimensionScores, rubricDimensions = []) {
   const weights = new Map(rubricDimensions.map((dimension) => [dimension?.id, Number(dimension?.weight)]));
   const canUseRubricWeights = dimensionScores.length > 0 && dimensionScores.every((dimension) => {
     const score = Number(dimension?.score);
