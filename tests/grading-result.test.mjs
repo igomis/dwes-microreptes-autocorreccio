@@ -32,10 +32,22 @@ test('recalcula la suma i aplica en codi el límit més restrictiu', () => {
   ]);
 });
 
-test('rebutja índexs inventats o regles sense cap numèric', () => {
+test('rebutja índexs inventats i descarta regles de revisió sense cap numèric', () => {
   const base = { dimension_scores: [{ score: 5 }], ra_scores: [] };
   assert.throws(() => applyDeterministicScoring({ ...base, applied_hard_rules: [{ rule_index: 3, reason: '' }] }, ['cap 5']), /no correspon/);
-  assert.throws(() => applyDeterministicScoring({ ...base, applied_hard_rules: [{ rule_index: 0, reason: '' }] }, ['cal revisió']), /sense límit/);
+  const result = applyDeterministicScoring({
+    ...base,
+    applied_hard_rules: [
+      { rule_index: 0, reason: 'Cal revisar-ho' },
+      { rule_index: 1, reason: 'Falta README' }
+    ]
+  }, [
+    'Si hi ha indicis contradictoris, cal revisió docent.',
+    'Sense README, la puntuació màxima recomanada és 6.'
+  ]);
+  assert.deepEqual(result.applied_hard_rules, [{ rule_index: 1, reason: 'Falta README' }]);
+  assert.equal(result.applied_cap, 6);
+  assert.equal(result.final_score_over_10, 5);
 });
 
 test('calcula igual dimensions ponderades en punts directes o normalitzades sobre 10', () => {

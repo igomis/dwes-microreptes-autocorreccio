@@ -38,17 +38,14 @@ export function applyDeterministicScoring(result, hardRules = [], guardrails = {
 
   const rawScore = roundScore(calculateRawScore(result.dimension_scores, rubricDimensions));
   const applied = Array.isArray(result.applied_hard_rules) ? result.applied_hard_rules : [];
-  const resolvedCaps = applied.map((application, index) => {
+  const applicableRules = applied.filter((application, index) => {
     const ruleIndex = Number(application?.rule_index);
     if (!Number.isInteger(ruleIndex) || ruleIndex < 0 || ruleIndex >= hardRules.length) {
       throw new Error(`applied_hard_rules[${index}].rule_index no correspon a cap hard_rule`);
     }
-    const cap = capFromHardRule(hardRules[ruleIndex]);
-    if (cap === null) {
-      throw new Error(`applied_hard_rules[${index}] referencia una regla sense límit numèric`);
-    }
-    return cap;
+    return capFromHardRule(hardRules[ruleIndex]) !== null;
   });
+  const resolvedCaps = applicableRules.map((application) => capFromHardRule(hardRules[application.rule_index]));
   const evidenceCap = guardrails.active_microrepte_only
     && Number(guardrails.active_evidence_files_count || 0) === 0
     && Number.isFinite(guardrails.max_score_without_active_evidence)
@@ -60,6 +57,7 @@ export function applyDeterministicScoring(result, hardRules = [], guardrails = {
 
   result.raw_score_over_10 = rawScore;
   result.applied_cap = appliedCap;
+  result.applied_hard_rules = applicableRules;
   result.final_score_over_10 = finalScore;
   if (Array.isArray(result.ra_scores) && result.ra_scores.length === 1) {
     result.ra_scores[0].score = finalScore;
