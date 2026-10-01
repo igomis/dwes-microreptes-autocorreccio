@@ -3,10 +3,10 @@
   "challenge_id": "r2-s04-estat-sessio-cookies",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.3, "must_check": "Hi ha dada significativa en sessio, cookie pròpia no sensible, ús acotat del context de petició, base estable d'inclusions o importacions i invalidacio dins del flux."},
-    {"id": "verification", "label": "Verificació", "weight": 0.2, "must_check": "Inclou prova abans/després de la invalidacio, recuperacio en peticio posterior de sessio i cookie, inspeccio de cookie i revisio d'una inclusió o importació comuna."},
-    {"id": "traceability", "label": "Traçabilitat", "weight": 0.1, "must_check": "Hi ha traçabilitat del procés associada a sessio, cookie, context de petició, base comuna, recuperacio i invalidacio."},
-    {"id": "documentation", "label": "Documentació", "weight": 0.15, "must_check": "La documentacio explica què es guarda en sessio, què queda en cookie, què ve del context de petició, on està la base comuna, amb quina finalitat i com es neteja."},
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "Hi ha dada significativa en sessio, cookie pròpia no sensible, ús acotat del context de petició, base estable d'inclusions o importacions i invalidacio dins del flux."},
+    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Inclou prova abans/després de la invalidacio, recuperacio en peticio posterior de sessio i cookie, inspeccio de cookie i revisio d'una inclusió o importació comuna."},
+    {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha traçabilitat del procés associada a sessio, cookie, context de petició, base comuna, recuperacio i invalidacio."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "La documentacio explica què es guarda en sessio, què queda en cookie, què ve del context de petició, on està la base comuna, amb quina finalitat i com es neteja."},
     {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra què ha acceptat i verifica el comportament real."},
     {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "El codi és explicable, separa responsabilitats entre sessio i cookie, no usa dades sensibles en client i evita inclusions o importacions fràgils."}
   ],

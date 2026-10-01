@@ -3,10 +3,10 @@
   "challenge_id": "r3-s07-tancament-tecnic",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.3, "must_check": "El tancament mostra projecte arrancable, BBDD reproduïble i dos fluxos demostrables."},
-    {"id": "verification", "label": "Verificació", "weight": 0.2, "must_check": "Les instruccions permeten arrancar, migrar, seedar i executar els fluxos o revisar proves."},
-    {"id": "traceability", "label": "Traçabilitat", "weight": 0.1, "must_check": "Hi ha commits finals, registre de temps, decisions i relacio amb el backlog."},
-    {"id": "documentation", "label": "Documentació", "weight": 0.15, "must_check": "README explica arrencada, BBDD, fluxos, proteccio d'accessos, decisions, demo, backlog i pas a R4."},
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "El tancament mostra projecte arrancable, BBDD reproduïble i dos fluxos demostrables."},
+    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Les instruccions permeten arrancar, migrar, seedar i executar els fluxos o revisar proves."},
+    {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha commits finals, registre de temps, decisions i relacio amb el backlog."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "README explica arrencada, BBDD, fluxos, proteccio d'accessos, decisions, demo, backlog i pas a R4."},
     {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA per documentar, verifica que el text correspon al projecte real."},
     {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "El tancament és honest: no oculta mancances, diferencia migrat/ampliat/pendent i deixa base defensable."}
   ],

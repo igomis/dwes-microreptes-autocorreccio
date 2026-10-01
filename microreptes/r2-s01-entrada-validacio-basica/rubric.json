@@ -6,25 +6,25 @@
     {
       "id": "functional_resolution",
       "label": "Resolució funcional",
-      "weight": 0.35,
+      "weight": 0.5,
       "must_check": "Hi ha un formulari o entrada equivalent connectat amb una acció de la landing i del projecte, amb text, opció tancada i checkbox, i el servidor rep les dades."
     },
     {
       "id": "verification",
       "label": "Verificació",
-      "weight": 0.2,
+      "weight": 0.1,
       "must_check": "Inclou prova d'un cas incorrecte amb error visible i reenviament corregit amb resposta correcta."
     },
     {
       "id": "traceability",
       "label": "Traçabilitat",
-      "weight": 0.1,
+      "weight": 0.05,
       "must_check": "Hi ha traçabilitat del procés: idealment tres commits útils o registre equivalent associat a inici, progrés i prova/tancament del formulari, la recepció de dades i la validació bàsica, amb temps aproximat si s'ha demanat."
     },
     {
       "id": "documentation",
       "label": "Documentació",
-      "weight": 0.15,
+      "weight": 0.1,
       "must_check": "El fitxer `README.md`, issue o registre explica com provar un cas correcte i almenys un cas incorrecte."
     },
     {
@@ -36,7 +36,7 @@
     {
       "id": "code_quality",
       "label": "Qualitat tècnica i seguretat",
-      "weight": 0.15,
+      "weight": 0.2,
       "must_check": "La recepció controla camps absents, les opcions tancades es validen en servidor contra valors permesos, les dades de l'usuari es mostren escapades i no queden bolcats ni dades sensibles exposades, amb una solució simple i explicable."
     }
   ],

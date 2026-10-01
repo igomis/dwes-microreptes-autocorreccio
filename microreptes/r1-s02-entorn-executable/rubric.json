@@ -6,25 +6,25 @@
     {
       "id": "functional_resolution",
       "label": "Resolució funcional",
-      "weight": 0.35,
+      "weight": 0.5,
       "must_check": "L'entorn està definit i arranca amb Docker o equivalent, i hi ha una landing inicial o vista equivalent del producte servida pel backend, amb contingut propi i CSS senzill."
     },
     {
       "id": "verification",
       "label": "Verificació",
-      "weight": 0.2,
+      "weight": 0.1,
       "must_check": "Inclou prova d'arrencada, URL, captura o log, i comprovació reproduïble del backend PHP o Python, servei web, BBDD i eina d'administració quan corresponga, landing inicial i ruta tècnica si n'hi ha."
     },
     {
       "id": "traceability",
       "label": "Traçabilitat",
-      "weight": 0.1,
+      "weight": 0.05,
       "must_check": "Hi ha issue mare, microtasques, commits o registre de decisions vinculats a l'entorn, a la landing inicial, la documentació i el tancament de R1."
     },
     {
       "id": "documentation",
       "label": "Documentació",
-      "weight": 0.15,
+      "weight": 0.1,
       "must_check": "README.md o la documentació del microrepte indica requisits, arrencada, parada, ports, URL i comprovacions, i la documentació del repte és localitzable dins del repositori."
     },
     {
@@ -36,7 +36,7 @@
     {
       "id": "code_quality",
       "label": "Qualitat tècnica",
-      "weight": 0.15,
+      "weight": 0.2,
       "must_check": "La configuració i la landing inicial són simples, adaptades al projecte i explicables; no són una còpia opaca impossible de defensar."
     }
   ],

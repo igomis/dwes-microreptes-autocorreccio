@@ -3,10 +3,10 @@
   "challenge_id": "r2-s09-persistencia-minima-bbdd-php",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.3, "must_check": "Hi ha connexió, taula, alta i lectura vinculades a una dada significativa del projecte."},
-    {"id": "verification", "label": "Verificació", "weight": 0.2, "must_check": "Es pot executar o revisar una alta i una consulta posterior, i el resultat queda documentat."},
-    {"id": "traceability", "label": "Traçabilitat", "weight": 0.1, "must_check": "Hi ha traçabilitat del procés: idealment commits útils o registre equivalent associat a schema, connexió, alta, lectura i prova."},
-    {"id": "documentation", "label": "Documentació", "weight": 0.15, "must_check": "Documenta com crear la taula, configurar la connexió, provar alta/lectura i què queda per a R3."},
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "Hi ha connexió, taula, alta i lectura vinculades a una dada significativa del projecte."},
+    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Es pot executar o revisar una alta i una consulta posterior, i el resultat queda documentat."},
+    {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha traçabilitat del procés: idealment commits útils o registre equivalent associat a schema, connexió, alta, lectura i prova."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "Documenta com crear la taula, configurar la connexió, provar alta/lectura i què queda per a R3."},
     {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra proposta acceptada, adaptació pròpia i verificació de connexió/consulta."},
     {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "No hi ha secrets reals, les dades d'usuari van amb consulta preparada i la connexió no està duplicada sense control."}
   ],

@@ -6,25 +6,25 @@
     {
       "id": "functional_resolution",
       "label": "Resolució funcional",
-      "weight": 0.35,
+      "weight": 0.5,
       "must_check": "La fitxa resol el model client/servidor del producte i formula una decisió tècnica orientativa coherent."
     },
     {
       "id": "verification",
       "label": "Verificació",
-      "weight": 0.2,
+      "weight": 0.1,
       "must_check": "Inclou evidència revisable de la fitxa, fonts o contrast utilitzat, i punts que es poden defensar oralment."
     },
     {
       "id": "traceability",
       "label": "Traçabilitat",
-      "weight": 0.1,
+      "weight": 0.05,
       "must_check": "Els documents i decisions del microrepte són localitzables al repositori i no queden només en converses externes."
     },
     {
       "id": "documentation",
       "label": "Documentació",
-      "weight": 0.15,
+      "weight": 0.1,
       "must_check": "README.md o la documentació enllaça la fitxa, resumeix la decisió i deixa clars els dubtes oberts."
     },
     {
@@ -36,7 +36,7 @@
     {
       "id": "code_quality",
       "label": "Qualitat tècnica",
-      "weight": 0.15,
+      "weight": 0.2,
       "must_check": "La comparació de tecnologies és acotada, realista, orientada a R1M2 i deixa clar que el framework complet queda per a R3 o més avant."
     }
   ],

@@ -17,6 +17,12 @@ const requiredDimensions = [
   'code_quality'
 ];
 
+const performanceDimensions = new Set([
+  'functional_resolution',
+  'code_quality',
+  'file_handling'
+]);
+
 async function readJson(filePath) {
   const raw = await readFile(filePath, 'utf8');
   return JSON.parse(raw);
@@ -41,6 +47,18 @@ function validateRubricDimensions(rubric, challengeDir, errors) {
   for (const required of requiredDimensions) {
     if (!ids.has(required)) {
       errors.push(`${challengeDir}: falta la dimensio ${required}`);
+    }
+  }
+
+  const dimensions = new Map(rubric.dimensions.map((dimension) => [dimension.id, Number(dimension.weight)]));
+  if (dimensions.get('functional_resolution') < 0.5) {
+    errors.push(`${challengeDir}: Resolució funcional ha de ponderar almenys 5 punts sobre 10`);
+  }
+
+  for (const dimension of rubric.dimensions) {
+    const weight = Number(dimension.weight);
+    if (!performanceDimensions.has(dimension.id) && weight > 0.1) {
+      errors.push(`${challengeDir}: ${dimension.label || dimension.id} és una comprovació i no pot ponderar més d'1 punt sobre 10`);
     }
   }
 }

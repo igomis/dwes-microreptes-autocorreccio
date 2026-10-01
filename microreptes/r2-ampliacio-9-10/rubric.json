@@ -6,25 +6,25 @@
     {
       "id": "functional_resolution",
       "label": "Resolució funcional",
-      "weight": 0.25,
+      "weight": 0.5,
       "must_check": "El nucli de R2 està complet i l'ampliacio aporta una millora funcional o tècnica real sobre el flux."
     },
     {
       "id": "verification",
       "label": "Verificació",
-      "weight": 0.2,
+      "weight": 0.1,
       "must_check": "Hi ha prova funcional, demo, checklist o prova automatitzada que permet comprovar l'ampliacio."
     },
     {
       "id": "traceability",
       "label": "Traçabilitat",
-      "weight": 0.15,
+      "weight": 0.05,
       "must_check": "L'ampliacio està separada o identificada amb commit, branca, diff, issue o registre clar."
     },
     {
       "id": "documentation",
       "label": "Documentació",
-      "weight": 0.15,
+      "weight": 0.1,
       "must_check": "La documentacio explica què aporta l'ampliacio, com reproduir-la i per què està integrada en R2."
     },
     {
