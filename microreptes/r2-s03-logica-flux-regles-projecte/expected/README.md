@@ -31,4 +31,11 @@ Ampliació coherent:
 - mostrar tots els errors en el reintent;
 - processar o guardar només quan l'array d'errors està buit.
 
-Esta ampliació només compta com a millora si el nucli de `R2M3` ja està resolt i no substitueix la regla de domini obligatòria.
+Ampliació alternativa coherent:
+
+- definir una taula curta de decisions del domini amb opcions i resultat associat;
+- consultar-la des d'una funció pròpia de la llibreria importada;
+- mostrar l'estat, el motiu o l'acció que retorna la funció;
+- documentar dos casos vàlids amb resultat diferent i una dada desconeguda o no permesa.
+
+Qualsevol de les dos ampliacions només compta com a millora si el nucli de `R2M3` ja està resolt i no substitueix la regla de domini obligatòria.

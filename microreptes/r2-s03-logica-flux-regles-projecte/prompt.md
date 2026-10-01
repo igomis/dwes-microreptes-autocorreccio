@@ -47,6 +47,8 @@ Comprova la verificacio:
 
 Si l'alumne incorpora errors acumulats en array, tracta-ho com a ampliació coherent de `R2M3` només quan el nucli ja està resolt: regla de domini, array o estructura útil, funcio pròpia en llibreria importada i dos resultats visibles. No exigisques esta ampliació com a mínim i no la uses per compensar una regla de domini absent o ornamental.
 
+També és una ampliació coherent una taula curta de decisions del domini, consultada per una funcio pròpia de la llibreria importada. Valora-la només si usa dades validades del flux, produix dos resultats visibles diferents i tracta una dada desconeguda o no permesa. No exigisques esta ampliació ni la uses per compensar un nucli de `R2M3` absent.
+
 Comprova la documentacio i traçabilitat:
 
 - `README`, issue o registre explica la regla;
