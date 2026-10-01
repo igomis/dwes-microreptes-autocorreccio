@@ -79,3 +79,45 @@ test('recull la seqüència de commits del microrepte i calcula la finestra temp
     'R2M1 prova final', 'R2M1 validació', 'R2M1 inici'
   ]);
 });
+
+test('inclou el contingut dels fitxers locals enllaçats des del README encara que no porten el codi actiu', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-readme-links-'));
+  for (const directory of ['src', 'public', 'templates']) {
+    mkdirSync(path.join(repoDir, directory));
+  }
+  writeFileSync(path.join(repoDir, 'README.md'), [
+    '# R2M2',
+    '- Backend: [`src/server.py`](src/server.py)',
+    '- App: [src/app.py](src/app.py)',
+    '- Processador: [public/processar.php](public/processar.php)',
+    '- Formulari: [templates/form.html](templates/form.html)'
+  ].join('\n'));
+  writeFileSync(path.join(repoDir, 'src', 'server.py'), 'print("server")\n');
+  writeFileSync(path.join(repoDir, 'src', 'app.py'), 'print("app")\n');
+  writeFileSync(path.join(repoDir, 'public', 'processar.php'), '<?php echo "processar";\n');
+  writeFileSync(path.join(repoDir, 'templates', 'form.html'), '<form></form>\n');
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R2M2'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student',
+    '--commit', commit, '--challenge-id', 'r2-s02-processament-reintent-conservacio-dades', '--microrepte-code', 'R2M2',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  const paths = summary.relevant_files.map((file) => file.path);
+  assert.deepEqual(summary.readme_referenced_files.map((file) => file.path), [
+    'src/server.py', 'src/app.py', 'public/processar.php', 'templates/form.html'
+  ]);
+  for (const filePath of ['src/server.py', 'src/app.py', 'public/processar.php', 'templates/form.html']) {
+    assert.ok(paths.includes(filePath));
+    assert.ok(summary.relevant_files.find((file) => file.path === filePath).excerpt.length > 0);
+  }
+});

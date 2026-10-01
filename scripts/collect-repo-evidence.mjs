@@ -365,6 +365,41 @@ async function activeFileSummary(repoDir, filePath, tokens) {
   return fileSummary(repoDir, filePath);
 }
 
+function readmeLinkTargets(readmeContent) {
+  const targets = new Set();
+  for (const match of readmeContent.matchAll(/\[[^\]]*\]\(([^)\s]+)(?:\s+[^)]*)?\)/g)) {
+    const target = match[1].split('#')[0];
+    if (target && !/^[a-z][a-z0-9+.-]*:/i.test(target) && !target.startsWith('/')) {
+      targets.add(normalizeRepoPath(path.posix.normalize(target)));
+    }
+  }
+  return [...targets].filter((target) => target && target !== '.');
+}
+
+async function readmeReferencedFiles(repoDir, trackedFiles) {
+  const readmePath = resolveInRepo(repoDir, 'README.md');
+  if (!await isFile(readmePath)) {
+    return [];
+  }
+
+  const tracked = new Set(trackedFiles);
+  const canonicalRoot = await realpath(repoDir);
+  const targets = readmeLinkTargets(await readFile(readmePath, 'utf8'));
+  const files = [];
+  for (const target of targets) {
+    if (!tracked.has(target) || !isTextFile(target)) {
+      continue;
+    }
+
+    const fullPath = resolveInRepo(repoDir, target);
+    if (!await isFile(fullPath) || !(await realpath(fullPath)).startsWith(`${canonicalRoot}${path.sep}`)) {
+      continue;
+    }
+    files.push(target);
+  }
+  return files;
+}
+
 async function declaredExtensionFiles(repoDir, config, trackedFiles) {
   const declaration = await fileSummary(repoDir, config.declaration_path);
   if (!declaration) return [];
@@ -419,7 +454,11 @@ async function main() {
   const changedFiles = changedFilesOutput ? [...new Set(changedFilesOutput.split('\n').filter(Boolean).map(normalizeRepoPath))] : [];
   const relevantPaths = [...new Set((challengeConfig?.relevant_paths || []).map(normalizeRepoPath).filter(Boolean))];
   const relevantTrackedFiles = selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles);
-  const includedRelevantFiles = relevantTrackedFiles
+  const readmeReferencedPaths = await readmeReferencedFiles(repoDir, trackedFiles);
+  const includedRelevantFiles = [...new Set([
+    ...relevantTrackedFiles.filter((filePath) => isTextFile(filePath)),
+    ...readmeReferencedPaths
+  ])]
     .filter((filePath) => isTextFile(filePath))
     .slice(0, maxRelevantFiles);
   const commitHistory = await collectCommitHistory(repoDir, activeTokens);
@@ -455,7 +494,7 @@ async function main() {
       challenge_id: args['challenge-id'] || null,
       microrepte_code: args['microrepte-code'] || null,
       active_tokens: activeTokens,
-      rule: 'Els fitxers de docs, evidence, tests i src nomes es consideren evidencia directa si el path o el contingut referencia el microrepte actiu.',
+      rule: 'Els fitxers de docs, evidence, tests i src nomes es consideren evidencia directa si el path o el contingut referencia el microrepte actiu. Els fitxers de text enllacats localment des del README.md arrel s_inclouen sempre com a evidencia declarada.',
       delivery_contract: [
         'README.md de l_arrel es la fitxa de l_entrega actual i pot sobreescriure el microrepte anterior.',
         'docs/README.md, evidence/README.md i tests/README.md son guies de carpeta, no evidencia puntuable.',
@@ -473,6 +512,7 @@ async function main() {
       temporal_summary: commitHistory.temporal_summary
     },
     relevant_files: await summarizeFiles(repoDir, includedRelevantFiles.map((filePath) => resolveInRepo(repoDir, filePath))),
+    readme_referenced_files: await summarizeFiles(repoDir, readmeReferencedPaths.map((filePath) => resolveInRepo(repoDir, filePath))),
     repte_extension: extensionConfig ? {
       declaration: await fileSummary(repoDir, extensionConfig.declaration_path),
       referenced_files: await declaredExtensionFiles(repoDir, extensionConfig, trackedFilesOutput),
