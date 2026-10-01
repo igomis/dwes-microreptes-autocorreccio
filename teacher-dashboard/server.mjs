@@ -3413,6 +3413,7 @@ function pageHtml() {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || 'No s’ha pogut importar l’artifact.');
         status.textContent = 'Resultats importats. Actualitzant vista...';
+        await loadChallenges();
         await loadGrades();
       } catch (error) {
         status.textContent = 'Error important resultats: ' + error.message;
