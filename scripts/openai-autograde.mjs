@@ -153,6 +153,33 @@ function buildMessages(payload, schema, promptText) {
   const basePromptSection = promptText
     ? `\n\nPrompt base del microrepte:\n${promptText}`
     : '\n\nNo s_ha trobat prompt base del microrepte.';
+  const evidenceSummary = payload.student_repository_evidence?.evidence_summary || {};
+  const images = Array.isArray(evidenceSummary.image_evidence) ? evidenceSummary.image_evidence : [];
+  const payloadForPrompt = {
+    ...payload,
+    student_repository_evidence: {
+      ...payload.student_repository_evidence,
+      evidence_summary: {
+        ...evidenceSummary,
+        image_evidence: images.map(({ path, bytes, mime_type }) => ({ path, bytes, mime_type }))
+      }
+    }
+  };
+  const userContent = [
+    {
+      type: 'text',
+      text: [
+        'Genera el resultat d_autograding per a este payload.',
+        basePromptSection,
+        `\n\nPayload JSON:\n${JSON.stringify(payloadForPrompt, null, 2)}`,
+        `\n\nEsquema JSON obligatori:\n${JSON.stringify(schema, null, 2)}`
+      ].join('\n')
+    },
+    ...images.map((image) => ({
+      type: 'image_url',
+      image_url: { url: image.data_url }
+    }))
+  ];
 
   return [
     {
@@ -175,6 +202,7 @@ function buildMessages(payload, schema, promptText) {
         'commit_evidence.temporal_summary pot mostrar si els commits candidats estan concentrats en tres hores. Considera-ho un indici compatible amb treball d’aula, mai una prova de presència: les dates Git es poden modificar. No penalitzes treball fora d’eixa finestra si no s’ha proporcionat l’horari oficial del grup.',
         'No tractes ENTREGA.md ni docs/README.md, evidence/README.md o tests/README.md com a evidencia puntuable del microrepte; son guies del template.',
         'student_repository_evidence.evidence_summary.ai_log és el registre del microrepte actual. historic_ai_log és només context d_entregues anteriors: no el faces servir per acreditar ni puntuar el microrepte actiu.',
+        'image_evidence només conté fins a cinc captures PNG del microrepte actiu. Si les imatges es veuen, usa-les com a evidència visual; si no permeten confirmar un criteri, indica el límit sense inventar-ne contingut.',
         'Valora positivament que docs, evidence i tests usen noms del microrepte actiu, com docs/r2m3.md, evidence/r2m3/ o tests/r2m3.test.php.',
         'Els tests nomes compten com a tests si son executables o descriuen una prova manual reproduible amb passos, dades i resultat esperat quan encara no toca automatitzar.',
         'Ompli ra_scores amb una única entrada per al primary_ra del microrepte. Els context_ra no generen nota.'
@@ -182,12 +210,7 @@ function buildMessages(payload, schema, promptText) {
     },
     {
       role: 'user',
-      content: [
-        'Genera el resultat d_autograding per a este payload.',
-        basePromptSection,
-        `\n\nPayload JSON:\n${JSON.stringify(payload, null, 2)}`,
-        `\n\nEsquema JSON obligatori:\n${JSON.stringify(schema, null, 2)}`
-      ].join('\n')
+      content: userContent
     }
   ];
 }

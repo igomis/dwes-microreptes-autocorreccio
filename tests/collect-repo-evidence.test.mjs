@@ -182,3 +182,35 @@ test('admet fins a 50 fitxers rellevants i separa el log actual de l’històric
   assert.equal(summary.historic_ai_log.path, 'docs/historic-ai-log.md');
   assert.equal(summary.historic_ai_log.excerpt, '# R1M1\nConsulta històrica\n');
 });
+
+test('adjunta com a màxim cinc PNG del microrepte actiu', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-png-evidence-'));
+  mkdirSync(path.join(repoDir, 'evidence', 'r2m3'), { recursive: true });
+  mkdirSync(path.join(repoDir, 'evidence', 'r2m2'), { recursive: true });
+  writeFileSync(path.join(repoDir, 'README.md'), '# R2M3\n');
+  const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
+  for (let index = 0; index < 6; index += 1) {
+    writeFileSync(path.join(repoDir, 'evidence', 'r2m3', `captura-${index}.png`), png);
+  }
+  writeFileSync(path.join(repoDir, 'evidence', 'r2m2', 'anterior.png'), png);
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R2M3'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student',
+    '--commit', commit, '--challenge-id', 'r2-s03-logica-flux-regles-projecte', '--microrepte-code', 'R2M3',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const images = JSON.parse(readFileSync(summaryPath, 'utf8')).image_evidence;
+  assert.equal(images.length, 5);
+  assert.ok(images.every((image) => image.path.startsWith('evidence/r2m3/')));
+  assert.ok(images.every((image) => image.mime_type === 'image/png'));
+  assert.ok(images.every((image) => image.data_url.startsWith('data:image/png;base64,')));
+});

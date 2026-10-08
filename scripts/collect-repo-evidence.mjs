@@ -22,6 +22,8 @@ const textExtensions = new Set([
 ]);
 const maxFilesPerSection = 12;
 const maxRelevantFiles = 50;
+const maxVisualEvidence = 5;
+const maxVisualEvidenceBytes = 4 * 1024 * 1024;
 const maxHistoryCommits = 50;
 const maxExcerptChars = 4000;
 const structuralRootFiles = new Set([
@@ -426,6 +428,32 @@ async function readmeReferencedFiles(repoDir, trackedFiles) {
   return files;
 }
 
+async function activePngEvidence(repoDir, trackedFiles, readmeReferencedPaths, tokens) {
+  const tracked = new Set(trackedFiles);
+  const linked = new Set(readmeReferencedPaths);
+  const evidenceRoot = resolveInRepo(repoDir, 'evidence');
+  const files = await listFiles(repoDir, evidenceRoot, Number.POSITIVE_INFINITY);
+  const summaries = [];
+
+  for (const fullPath of files) {
+    if (summaries.length >= maxVisualEvidence) break;
+    const relativePath = normalizeRepoPath(path.relative(repoDir, fullPath));
+    if (!tracked.has(relativePath) || path.extname(relativePath).toLowerCase() !== '.png') continue;
+    if (!linked.has(relativePath) && !pathMatchesTokens(relativePath, tokens)) continue;
+
+    const contents = await readFile(fullPath);
+    if (contents.length > maxVisualEvidenceBytes || contents.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') continue;
+    summaries.push({
+      path: relativePath,
+      bytes: contents.length,
+      mime_type: 'image/png',
+      data_url: `data:image/png;base64,${contents.toString('base64')}`
+    });
+  }
+
+  return summaries;
+}
+
 async function declaredExtensionFiles(repoDir, config, trackedFiles) {
   const declaration = await fileSummary(repoDir, config.declaration_path);
   if (!declaration) return [];
@@ -481,6 +509,9 @@ async function main() {
   const relevantPaths = [...new Set((challengeConfig?.relevant_paths || []).map(normalizeRepoPath).filter(Boolean))];
   const relevantTrackedFiles = selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles);
   const readmeReferencedPaths = await readmeReferencedFiles(repoDir, trackedFiles);
+  const readmeTargets = await isFile(resolveInRepo(repoDir, 'README.md'))
+    ? readmeLinkTargets(await readFile(resolveInRepo(repoDir, 'README.md'), 'utf8'))
+    : [];
   const includedRelevantFiles = [...new Set([
     // The README is the delivery contract: its linked code, tests and text
     // evidence must survive the global cap.
@@ -542,6 +573,7 @@ async function main() {
     },
     relevant_files: await summarizeFiles(repoDir, includedRelevantFiles.map((filePath) => resolveInRepo(repoDir, filePath))),
     readme_referenced_files: await summarizeFiles(repoDir, readmeReferencedPaths.map((filePath) => resolveInRepo(repoDir, filePath))),
+    image_evidence: await activePngEvidence(repoDir, trackedFiles, readmeTargets, activeTokens),
     repte_extension: extensionConfig ? {
       declaration: await fileSummary(repoDir, extensionConfig.declaration_path),
       referenced_files: await declaredExtensionFiles(repoDir, extensionConfig, trackedFilesOutput),
