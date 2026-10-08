@@ -21,7 +21,7 @@ const textExtensions = new Set([
   '.sh'
 ]);
 const maxFilesPerSection = 12;
-const maxRelevantFiles = 30;
+const maxRelevantFiles = 50;
 const maxHistoryCommits = 50;
 const maxExcerptChars = 4000;
 const structuralRootFiles = new Set([
@@ -39,6 +39,8 @@ const templateGuideFiles = new Set([
   'evidence/README.md',
   'tests/README.md'
 ]);
+const currentAiLogPath = 'docs/ai-log.md';
+const historicAiLogPath = 'docs/historic-ai-log.md';
 
 function parseArgs(argv) {
   const args = {};
@@ -356,13 +358,37 @@ async function summarizeActiveFiles(repoDir, files, tokens) {
   return summaries;
 }
 
+function excerptAroundTokens(content, tokens) {
+  const lowerContent = content.toLowerCase();
+  const normalizedContent = normalizeToken(content);
+  const index = tokens
+    .map((token) => lowerContent.indexOf(token))
+    .find((match) => match >= 0);
+  const normalizedIndex = index === undefined
+    ? tokens.map((token) => normalizedContent.indexOf(token)).find((match) => match >= 0)
+    : index;
+
+  if (normalizedIndex === undefined || normalizedIndex < 0 || content.length <= maxExcerptChars) {
+    return content.length > maxExcerptChars
+      ? `${content.slice(0, maxExcerptChars)}\n...[retallat]`
+      : content;
+  }
+
+  const start = Math.max(0, normalizedIndex - Math.floor(maxExcerptChars / 4));
+  const end = Math.min(content.length, start + maxExcerptChars);
+  return `${start > 0 ? '...[inici retallat]\n' : ''}${content.slice(start, end)}${end < content.length ? '\n...[final retallat]' : ''}`;
+}
+
 async function activeFileSummary(repoDir, filePath, tokens) {
   const fullPath = resolveInRepo(repoDir, filePath);
   if (!await fileMatchesActiveTokens(fullPath, filePath, tokens)) {
     return null;
   }
 
-  return fileSummary(repoDir, filePath);
+  const summary = await fileSummary(repoDir, filePath);
+  if (!summary?.excerpt || tokens.length === 0) return summary;
+  const content = await readFile(fullPath, 'utf8');
+  return { ...summary, excerpt: excerptAroundTokens(content, tokens) };
 }
 
 function readmeLinkTargets(readmeContent) {
@@ -456,8 +482,10 @@ async function main() {
   const relevantTrackedFiles = selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles);
   const readmeReferencedPaths = await readmeReferencedFiles(repoDir, trackedFiles);
   const includedRelevantFiles = [...new Set([
-    ...relevantTrackedFiles.filter((filePath) => isTextFile(filePath)),
-    ...readmeReferencedPaths
+    // The README is the delivery contract: its linked code, tests and text
+    // evidence must survive the global cap.
+    ...readmeReferencedPaths,
+    ...relevantTrackedFiles.filter((filePath) => isTextFile(filePath))
   ])]
     .filter((filePath) => isTextFile(filePath))
     .slice(0, maxRelevantFiles);
@@ -470,7 +498,8 @@ async function main() {
     files: {
       readme: await exists(resolveInRepo(repoDir, 'README.md')),
       template_guide: await exists(resolveInRepo(repoDir, 'ENTREGA.md')),
-      ai_log: await exists(resolveInRepo(repoDir, 'docs/ai-log.md')),
+      ai_log: await exists(resolveInRepo(repoDir, currentAiLogPath)),
+      historic_ai_log: await exists(resolveInRepo(repoDir, historicAiLogPath)),
       student_meta: await exists(resolveInRepo(repoDir, 'student-meta.json'))
     },
     folders: {
@@ -520,7 +549,10 @@ async function main() {
     } : null,
     readme: await fileSummary(repoDir, 'README.md'),
     template_guide: await fileSummary(repoDir, 'ENTREGA.md'),
-    ai_log: await activeFileSummary(repoDir, 'docs/ai-log.md', activeTokens),
+    // ai-log.md is the current microrepte log. The historic log is retained
+    // separately as context and never substitutes the current evidence.
+    ai_log: await activeFileSummary(repoDir, currentAiLogPath, activeTokens),
+    historic_ai_log: await fileSummary(repoDir, historicAiLogPath),
     docs_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'), Number.POSITIVE_INFINITY), activeTokens),
     evidence_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'), Number.POSITIVE_INFINITY), activeTokens),
     test_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'tests'), Number.POSITIVE_INFINITY), activeTokens),

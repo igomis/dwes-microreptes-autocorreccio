@@ -121,3 +121,64 @@ test('inclou el contingut dels fitxers locals enllaçats des del README encara q
     assert.ok(summary.relevant_files.find((file) => file.path === filePath).excerpt.length > 0);
   }
 });
+
+test('prioritza els fitxers enllaçats des del README abans del límit global', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-readme-priority-'));
+  mkdirSync(path.join(repoDir, 'src'));
+  writeFileSync(path.join(repoDir, 'README.md'), '# R2M3\n[Regles](src/regles.py)\n');
+  writeFileSync(path.join(repoDir, 'src', 'regles.py'), 'def regles(): return "R2M3"\n');
+  for (let index = 0; index < 60; index += 1) {
+    writeFileSync(path.join(repoDir, 'src', `fitxer-${String(index).padStart(2, '0')}.py`), 'print("R2M3")\n');
+  }
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R2M3'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student',
+    '--commit', commit, '--challenge-id', 'r2-s03-logica-flux-regles-projecte', '--microrepte-code', 'R2M3',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const paths = JSON.parse(readFileSync(summaryPath, 'utf8')).relevant_files.map((file) => file.path);
+  assert.ok(paths.includes('src/regles.py'));
+  assert.ok(paths.length <= 50);
+});
+
+test('admet fins a 50 fitxers rellevants i separa el log actual de l’històric', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-ai-log-'));
+  mkdirSync(path.join(repoDir, 'docs'));
+  mkdirSync(path.join(repoDir, 'src'));
+  writeFileSync(path.join(repoDir, 'README.md'), '# R2M3\n');
+  writeFileSync(path.join(repoDir, 'docs', 'ai-log.md'), `${'Context anterior\n'.repeat(400)}\n# R2M3\nConsulta actual\n`);
+  writeFileSync(path.join(repoDir, 'docs', 'historic-ai-log.md'), '# R1M1\nConsulta històrica\n');
+  for (let index = 0; index < 55; index += 1) {
+    writeFileSync(path.join(repoDir, 'src', `fitxer-${String(index).padStart(2, '0')}.py`), 'print("R2M3")\n');
+  }
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R2M3'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student',
+    '--commit', commit, '--challenge-id', 'r2-s03-logica-flux-regles-projecte', '--microrepte-code', 'R2M3',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  assert.equal(summary.relevant_files.length, 50);
+  assert.equal(summary.ai_log.path, 'docs/ai-log.md');
+  assert.match(summary.ai_log.excerpt, /# R2M3/);
+  assert.equal(summary.historic_ai_log.path, 'docs/historic-ai-log.md');
+  assert.equal(summary.historic_ai_log.excerpt, '# R1M1\nConsulta històrica\n');
+});
