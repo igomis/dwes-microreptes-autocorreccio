@@ -7,7 +7,7 @@
 - prova que la cookie és observable en client;
 - lectura acotada d'una dada de `$_SERVER`, de `request` en Flask o equivalent;
 - fitxer comú de configuracio o bootstrap, o mòdul/paquet Python equivalent;
-- ús real de la ruta base amb `include`/`require` en PHP o d'una importació estable en Python;
+- ús real de la ruta base amb `include`/`require` en PHP, una importació estable en Python, una estructura comuna de paquets/configuració en Java o un mecanisme equivalent;
 - demo de recuperacio de sessio i cookie;
 - accio de neteja o invalidacio;
 - explicacio de client, servidor, context de petició, includes/importacions i persistencia;

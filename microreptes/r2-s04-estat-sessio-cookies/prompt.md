@@ -12,6 +12,10 @@ Comprova que hi ha un fitxer comú de configuracio o bootstrap amb ruta base del
 
 Si el projecte usa Flask, accepta `session`, `request.cookies`, `response.set_cookie()`, `request.method`/`request.headers` i una estructura estable de paquets i importacions. No exigisques `$_SERVER` ni `include`; comprova les mateixes responsabilitats i que `SECRET_KEY` no siga un secret real versionat.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta `HttpSession` o equivalent, cookies de la resposta i lectura prudent del mètode o headers de la petició, junt amb una estructura estable de paquets i configuració. No exigisques `$_SERVER`, `include` ni Flask; comprova les mateixes responsabilitats.
+
 Revisa si l'alumne diferencia estat temporal, sessio, cookie, `$_SERVER`, includes i guardat funcional. No exigisques login, rols, autoritzacio, MVC ni base de dades. Penalitza variables que no sobreviuen entre peticions, cookies amb dades sensibles, absencia d'invalidacio, rutes d'include fràgils o documentacio que diga que la sessio és persistencia formal.
 
 Marca revisio docent si no pots executar o verificar la recuperacio i invalidacio.

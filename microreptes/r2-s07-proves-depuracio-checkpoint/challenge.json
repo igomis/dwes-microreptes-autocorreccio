@@ -33,7 +33,7 @@
     "Accés no autenticat denegat",
     "Accés autenticat permés",
     "Logout o invalidacio i nou intent denegat",
-    "Almenys una prova automàtica lleugera de flux amb `curl`, script `.sh`, script PHP o Python senzill, col·leccio de peticions o equivalent",
+    "Almenys una prova automàtica lleugera de flux amb `curl`, script `.sh`, script senzill en PHP, Python o Java, col·leccio de peticions o equivalent",
     "Instruccions per executar la prova automàtica",
     "Incidencies detectades o confirmacio explícita que no n'hi ha",
     "README.md o guia de reproduccio actualitzada",

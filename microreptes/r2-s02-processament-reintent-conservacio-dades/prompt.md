@@ -40,6 +40,10 @@ Comprova el processament en servidor:
 
 Si el projecte usa Flask, accepta `request.form`, valors passats a Jinja i el seu escapament automàtic com a equivalents de `$_POST`, `value` i l'escapament PHP. Avalua el comportament, no la sintaxi del llenguatge.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta paràmetres de petició, atributs de model o request i una plantilla Java o resposta equivalent per conservar i mostrar els valors. Avalua el reintent, la confirmació i l'escapament pel comportament, no per la sintaxi o el framework.
+
 Comprova la documentació i traçabilitat:
 
 - `README`, issue o registre explica com provocar l'error;

@@ -14,4 +14,4 @@
 - incidencies o confirmacio que no n'hi ha;
 - README actualitzat.
 
-Fora del minim: proves unitàries obligatories, `PHPUnit`, `pytest`, mocks i suite formal.
+Fora del minim: proves unitàries obligatories, `PHPUnit`, `pytest`, `JUnit`, mocks i suite formal.

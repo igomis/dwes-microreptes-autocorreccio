@@ -18,6 +18,11 @@ const textExtensions = new Set([
   '.html',
   '.css',
   '.py',
+  '.java',
+  '.xml',
+  '.gradle',
+  '.kts',
+  '.properties',
   '.sh'
 ]);
 const maxFilesPerSection = 12;
@@ -32,7 +37,14 @@ const structuralRootFiles = new Set([
   'docker-compose.yaml',
   'compose.yml',
   'compose.yaml',
-  'Dockerfile'
+  'Dockerfile',
+  'pom.xml',
+  'build.gradle',
+  'build.gradle.kts',
+  'settings.gradle',
+  'settings.gradle.kts',
+  'gradlew',
+  'gradlew.bat'
 ]);
 const templateGuideFiles = new Set([
   'docs/README.md',

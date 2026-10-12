@@ -19,4 +19,8 @@ Comprova especialment que no es retornen contrasenyes ni hashes, i que el token 
 
 Si el projecte usa Flask, accepta `request.get_json()`, `jsonify()` i una ruta decorada com a implementació equivalent. Exigix els mateixos codis `200`/`401`, comprovació real del token i contracte documentat.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta un controlador REST, servlet o mecanisme equivalent que llija JSON i retorne JSON. Exigix els mateixos codis `200`/`401`, comprovació real del token i contracte documentat.
+
 Sense contracte mínim consumible per DWEC, recomana no superar el 8 encara que els endpoints funcionen.

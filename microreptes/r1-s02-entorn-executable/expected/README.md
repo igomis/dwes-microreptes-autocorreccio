@@ -2,7 +2,7 @@
 
 Evidències mínimes:
 
-- configuració Docker o equivalent amb servei web i backend en `PHP` o `Python`, BBDD i phpMyAdmin o eina equivalent quan corresponga, o bloqueig real documentat;
+- configuració Docker o equivalent amb servei web i backend en `PHP`, `Python`, `Java` o via equivalent acordada, BBDD i phpMyAdmin o eina equivalent quan corresponga, o bloqueig real documentat;
 - estructura inicial del projecte adaptada;
 - `README` amb requisits, ordres d'arrencada, ordres de parada, ports, URL i comprovacions;
 - landing inicial del producte servida pel backend, amb contingut propi i CSS senzill;

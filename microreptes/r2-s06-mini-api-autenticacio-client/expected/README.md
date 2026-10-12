@@ -11,6 +11,6 @@ Un lliurament acceptable hauria de mostrar:
 - prova externa amb `curl`, Postman/Insomnia o `fetch`;
 - documentació del contracte perquè DWEC el puga consumir.
 
-S'accepten igualment endpoints PHP o rutes Python/Flask/FastAPI que complisquen el mateix contracte HTTP; no s'avalua la sintaxi del llenguatge.
+S'accepten igualment endpoints PHP, rutes Python/Flask/FastAPI, controladors o servlets Java que complisquen el mateix contracte HTTP; no s'avalua la sintaxi del llenguatge.
 
 No cal que hi haja JWT professional, OAuth, refresh tokens, OpenAPI ni API completa.

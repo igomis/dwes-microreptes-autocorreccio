@@ -32,4 +32,4 @@ curl -c cookies.txt -d "email=a@a.com&password=secret" http://localhost:8000/log
 curl -b cookies.txt http://localhost:8000/protegida.php
 ```
 
-No cal exigir `PHPUnit`, `pytest` ni proves unitàries en este microrepte.
+No cal exigir `PHPUnit`, `pytest`, `JUnit` ni proves unitàries en este microrepte.

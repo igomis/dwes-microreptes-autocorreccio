@@ -13,7 +13,7 @@ Estratègia de comprovació manual:
 - comprovar que el cas correcte mostra una confirmació o resum amb les dades processades;
 - enviar un fitxer permés i comprovar l'intent de guardat amb nom segur;
 - enviar un fitxer de tipus o mida no permesos i comprovar l'error visible;
-- revisar el fragment PHP o Python/Jinja que prepara els valors per a `value`, `selected`, `checked` o equivalents;
+- revisar el fragment de servidor o plantilla que prepara els valors per a `value`, `selected`, `checked` o equivalents en PHP, Python o Java;
 - preguntar a l'alumne la diferència entre conservar dades en el reintent, confirmar un cas correcte i guardar-lo entre peticions.
 
 No cal executar proves sobre guardat entre peticions, persistència formal, base de dades, sessió, cookies, login, rols, MVC, arrays d'errors, checkbox múltiple ni autenticació com a mínim de `R2M2`.

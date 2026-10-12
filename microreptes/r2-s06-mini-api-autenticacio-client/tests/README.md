@@ -2,7 +2,7 @@
 
 Comprovacions recomanades:
 
-Les mateixes comprovacions s'apliquen a una implementació PHP o Python/Flask/FastAPI.
+Les mateixes comprovacions s'apliquen a una implementació PHP, Python/Flask/FastAPI, Java/Spring o equivalent.
 
 1. Executar `POST /api/login` amb credencials correctes.
 2. Revisar que retorna `JSON`, `200` i token o mecanisme equivalent.

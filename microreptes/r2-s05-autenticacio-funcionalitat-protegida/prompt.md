@@ -10,6 +10,10 @@ Comprova que hi ha login o mecanisme equivalent, usuari autenticat guardat en se
 
 Si el projecte usa Flask, accepta `generate_password_hash()` i `check_password_hash()` de Werkzeug, junt amb `session`, com a equivalents. Comprova igualment que el hash es guarda, la contrasenya es verifica i la ruta protegida bloqueja l'accés en servidor.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta BCrypt, PBKDF2 o un mecanisme segur equivalent, junt amb `HttpSession`, Spring Security o protecció de servidor equivalent. Comprova igualment que el hash es guarda, la contrasenya es verifica i l'operació protegida es bloqueja en servidor.
+
 No exigisques rols avançats, registre públic complet, recuperacio de contrasenya, OAuth, JWT, base de dades ni arquitectura MVC. Penalitza contrasenyes guardades en clar, comparacio directa amb literals de contrasenya, pantalles de login decoratives, proteccio només visual, absencia de cas denegat o operacions protegides que no tenen valor dins del projecte.
 
 Marca revisio docent si no es pot determinar on es bloqueja l'operacio.

@@ -1,6 +1,6 @@
 # R2M9. Persistència mínima amb BBDD
 
-Revisa si el lliurament incorpora una persistència mínima real amb BBDD des de `PHP` o `Python`.
+Revisa si el lliurament incorpora una persistència mínima real amb BBDD des de `PHP`, `Python`, `Java` o una via equivalent acordada.
 
 No valores com a obligatori cap `ORM`, framework, migration, seeder o arquitectura completa. El mínim és:
 
@@ -8,7 +8,7 @@ No valores com a obligatori cap `ORM`, framework, migration, seeder o arquitectu
 - una taula o `schema.sql` reproduïble;
 - configuració de connexió separada;
 - cap secret real pujat al repositori;
-- connexió amb `PDO`, un connector DB-API o equivalent justificat;
+- connexió amb `PDO`, un connector DB-API, JDBC/JPA o equivalent justificat;
 - una alta amb dades validades del flux;
 - una lectura posterior;
 - consultes preparades quan entren dades d'usuari;
@@ -20,6 +20,10 @@ Quan revises, fixa't especialment en si l'alumne ha confós sessió, cookie, arr
 ## Compatibilitat amb Python
 
 Si el projecte usa Python, accepta `sqlite3` o el driver DB-API corresponent i consultes parametritzades. No exigisques PDO. Comprova igualment la configuració separada, l'absència de secrets, l'alta i la lectura posterior.
+
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta JDBC, JPA o el driver corresponent i consultes preparades o parametritzades. No exigisques PDO ni DB-API. Comprova igualment la configuració separada, l'absència de secrets, l'alta i la lectura posterior.
 
 Pregunta docent recomanada: quina dada sobreviu ara a tancar sessió o reiniciar el navegador, i on es veu la consulta preparada?
 

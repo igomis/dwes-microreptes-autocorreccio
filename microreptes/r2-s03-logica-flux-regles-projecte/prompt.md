@@ -37,6 +37,10 @@ Comprova les estructures i funcions:
 
 Si el projecte usa Python, accepta llistes o diccionaris, una funció en un mòdul propi com `app/regles.py` i un `import` real com a equivalents d'array, llibreria PHP i `require_once`. Comprova que el mòdul s'usa i que la regla rep dades reals del flux.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta col·leccions, una classe o servei propi dins d'un paquet i una dependència o importació real com a equivalents de l'array, la llibreria i el `require_once`. Comprova que la peça s'usa i que la regla rep dades reals del flux.
+
 Comprova la verificacio:
 
 - hi ha dos casos documentats o demostrables;

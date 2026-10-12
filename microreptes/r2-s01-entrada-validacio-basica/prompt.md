@@ -17,6 +17,10 @@ Comprova si hi ha un formulari o entrada equivalent amb:
 
 Si el projecte usa Flask, accepta `request.form`, una funció de ruta i una plantilla Jinja com a equivalents. Comprova la mateixa recepció defensiva, validació en servidor i escapament; no penalitzes l'absència de sintaxi PHP.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta paràmetres de petició, un controlador o servlet i una plantilla o resposta equivalent. Comprova la mateixa recepció defensiva, validació en servidor i escapament; no penalitzes l'absència de sintaxi PHP o Flask.
+
 Comprova les condicions mínimes de seguretat:
 
 - els camps que poden faltar es lligen de manera defensiva;

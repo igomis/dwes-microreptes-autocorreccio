@@ -7,7 +7,7 @@
     "R1M2"
   ],
   "title": "Entorn executable, landing inicial i tancament de R1",
-  "summary": "Configurar una base executable amb Docker o equivalent, un backend en PHP o Python i, quan corresponga, BBDD i una eina d'administració, crear una landing inicial servida pel backend i tancar R1 amb documentació verificable.",
+  "summary": "Configurar una base executable amb Docker o equivalent, un backend en PHP, Python, Java o una via equivalent acordada i, quan corresponga, BBDD i una eina d'administració, crear una landing inicial servida pel backend i tancar R1 amb documentació verificable.",
   "pedagogical_goal": "Comprovar que l'alumne entén el paper de cada servei, transforma la infraestructura en una primera entrada visible del producte i deixa el kickoff executable, documentat i defensable abans de passar a R2.",
   "relevant_paths": [
     "docker-compose.yml",
@@ -27,7 +27,7 @@
     "ai-log.md"
   ],
   "required_evidence": [
-    "Configuració Docker o equivalent amb backend PHP o Python, servei web i, quan corresponga, BBDD i eina d'administració com phpMyAdmin o equivalent, o error real documentat amb hipòtesi i pla de correcció",
+    "Configuració Docker o equivalent amb backend PHP, Python, Java o una via equivalent acordada, servei web i, quan corresponga, BBDD i eina d'administració com phpMyAdmin o equivalent, o error real documentat amb hipòtesi i pla de correcció",
     "README executable amb requisits, arrencada, parada, serveis, ports, URL i resultat esperat",
     "Landing inicial del producte servida pel backend, amb contingut propi i CSS senzill",
     "Healthcheck o endpoint d'estat només com a comprovació tècnica auxiliar, si n'hi ha",

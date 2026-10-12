@@ -10,6 +10,10 @@ La classe ha d'encapsular una regla, comprovacio o càlcul real i ha de poder pr
 
 Si el projecte usa Python, accepta `requirements.txt` o `pyproject.toml`, una classe en un mòdul importable i una prova amb `pytest` o `unittest`. La classe no ha de dependre de Flask, `request`, `session` ni Jinja. No exigisques Composer ni `vendor/autoload.php`.
 
+## Compatibilitat amb Java
+
+Si el projecte usa Java, accepta `pom.xml` o `build.gradle`, una classe dins d'un paquet importable i una prova amb JUnit o equivalent. La classe no ha de dependre de la petició, la sessió, el controlador ni la vista. No exigisques Composer, `vendor/autoload.php` ni els fitxers de dependències de Python.
+
 No exigisques MVC, ORM, framework, API externa ni POO extensa. Penalitza l'absencia de prova automàtica, l'absencia de prova de no regressio o codi avançat que l'alumne no pot explicar.
 
 Marca revisio docent si no hi ha evidència clara de dependències i càrrega/importació, classe pròpia, execucio de prova o manteniment del flux.

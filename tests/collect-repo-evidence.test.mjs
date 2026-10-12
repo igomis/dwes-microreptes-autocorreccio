@@ -44,6 +44,39 @@ test('inclou fitxers estructurals encara que no mencionen el microrepte i public
   assert.equal(summary.commit_evidence.temporal_summary.within_three_hours, true);
 });
 
+test('inclou codi i configuració Java com a evidència inspeccionable', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-java-evidence-'));
+  mkdirSync(path.join(repoDir, 'src', 'main', 'java', 'projecte'), { recursive: true });
+  writeFileSync(path.join(repoDir, 'README.md'), '# R2M8\n[Regla](src/main/java/projecte/Regla.java)\n');
+  writeFileSync(path.join(repoDir, 'pom.xml'), '<project><!-- R2M8 --></project>\n');
+  writeFileSync(path.join(repoDir, 'src', 'main', 'java', 'projecte', 'Regla.java'), [
+    'package projecte;',
+    '// R2M8',
+    'public class Regla { public boolean valida() { return true; } }'
+  ].join('\n'));
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R2M8 Java'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student-java',
+    '--commit', commit, '--challenge-id', 'r2-s08-primera-peca-testable-poo-composer', '--microrepte-code', 'R2M8',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  const javaFile = summary.relevant_files.find((file) => file.path === 'src/main/java/projecte/Regla.java');
+  const pomFile = summary.relevant_files.find((file) => file.path === 'pom.xml');
+  assert.match(javaFile.excerpt, /public class Regla/);
+  assert.match(pomFile.excerpt, /<project>/);
+  assert.equal(summary.repository_manifest.find((item) => item.path === 'pom.xml').present, true);
+});
+
 test('recull la seqüència de commits del microrepte i calcula la finestra temporal', () => {
   const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-history-'));
   execFileSync('git', ['init'], { cwd: repoDir });

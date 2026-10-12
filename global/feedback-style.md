@@ -34,6 +34,13 @@ El feedback automàtic ha de ser breu, concret i orientat a millora.
 - Demana revisió docent quan la confiança siga baixa, hi haja flags o la política global ho requerisca.
 - No presentes la nota automàtica com a qualificació definitiva.
 
+## Equivalència tecnològica
+
+- Un projecte en Java acordat amb el professorat s'avalua amb els mateixos criteris funcionals i la mateixa escala que les vies PHP o Python.
+- No penalitzes el llenguatge, el framework, l'estructura de carpetes ni l'absència d'un artefacte específic de PHP o Python si hi ha un equivalent Java verificable.
+- Accepta Maven o Gradle per a dependències i construcció, JUnit per a proves, JDBC/JPA per a persistència, i servlets, plantilles Java o Spring per a peticions, sessions, autenticació i API.
+- Si no hi ha prou evidència inspeccionable de l'estructura Java, demana revisió docent sense aplicar una penalització automàtica per eixa limitació.
+
 ## Ús d’IA i revisió docent
 
 La norma del curs permet explicacions conceptuals, pistes sobre intents propis i suggeriments de casos límit; no permet delegar el backend, la configuració avaluable ni les proves en xats o agents autònoms. Generar HTML estàtic/CSS de presentació està permés si es declara i revisa; no inclou PHP ni lògica funcional avaluable.
