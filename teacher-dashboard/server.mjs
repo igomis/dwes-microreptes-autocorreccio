@@ -29,6 +29,7 @@ import {
   insertClassroomSessionNote
 } from './db.mjs';
 import { readGrades, writeGrades } from '../scripts/lib/grades-store.mjs';
+import { dashboardGroupGradeLinks } from './external-links.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
@@ -960,6 +961,7 @@ async function buildConfigPayload() {
     group_files: groupFiles,
     repositories_by_target: repositoriesByTarget,
     docs: dashboardDocLinks(),
+    grade_spreadsheets: dashboardGroupGradeLinks(),
     github: {
       owner: process.env.GITHUB_OWNER || 'igomis',
       repo: process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio',
@@ -1808,9 +1810,12 @@ function pageHtml() {
     <section class="view-panel hidden" data-view="results">
       <div class="toolbar">
         <h2>Últims resultats</h2>
-        <button id="refreshGrades" type="button">Actualitzar</button>
-        <button id="recalculateFilteredGrades" type="button">Recalcular seleccionats</button>
-        <button id="buildClassReport" type="button">Informe classe</button>
+        <div class="compact-actions">
+          <a id="gradesSpreadsheetLink" class="secondary nav-link hidden" href="#" target="_blank" rel="noopener noreferrer">Full de notes del grup</a>
+          <button id="refreshGrades" type="button">Actualitzar</button>
+          <button id="recalculateFilteredGrades" type="button">Recalcular seleccionats</button>
+          <button id="buildClassReport" type="button">Informe classe</button>
+        </div>
       </div>
       <div class="filters">
         <label>Filtre per grup
@@ -2070,6 +2075,15 @@ function pageHtml() {
         return '<option value="' + escapeHtml(student.repo) + '">' + escapeHtml(label) + '</option>';
       }).join('');
       select.value = repositories.some((student) => student.repo === current) ? current : '';
+    }
+
+    function refreshGradesSpreadsheetLink() {
+      const link = document.querySelector('#gradesSpreadsheetLink');
+      const group = document.querySelector('#filterGroup')?.value || '';
+      const url = config?.grade_spreadsheets?.[group] || '';
+      link.classList.toggle('hidden', !url);
+      link.href = url || '#';
+      link.textContent = url ? 'Full de notes ' + group : 'Full de notes del grup';
     }
 
     function microrepteLabel(challengeId) {
@@ -3336,6 +3350,7 @@ function pageHtml() {
       document.querySelector('#createReposOrg').value = config.github.classroom_org || '';
       document.querySelector('#createReposTemplate').value = config.github.student_template || '';
       refreshResultsStudentSelect();
+      refreshGradesSpreadsheetLink();
       refreshTable();
     }
 
@@ -3750,6 +3765,7 @@ function pageHtml() {
     document.querySelector('#filterGroup').addEventListener('change', () => {
       document.querySelector('#filterChallenge').value = '';
       refreshResultsStudentSelect();
+      refreshGradesSpreadsheetLink();
       loadGrades();
     });
 

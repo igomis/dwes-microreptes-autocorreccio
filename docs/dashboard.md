@@ -22,6 +22,10 @@ DASHBOARD_USER=
 DASHBOARD_PASSWORD=
 DASHBOARD_DOCS_PROFESSORAT_URL=https://igomis.github.io/reestructuracioModul/professorat/
 DASHBOARD_DOCS_ALUMNAT_URL=https://cipfpbatoi.github.io/dwes2627/
+DASHBOARD_GRADES_2DAW_A_URL=https://...
+DASHBOARD_GRADES_2DAW_B_URL=https://...
+DASHBOARD_GRADES_2DAW_C_URL=https://...
+DASHBOARD_GRADES_2DAW_D_URL=https://...
 ```
 
 El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-autocorreccio`. El workflow de GitHub també necessita el secret `CLASSROOM_AUTOGRADE_TOKEN` configurat en el repositori del professor per llegir els repositoris privats d'alumnes i, si cal, publicar-hi resultats.
@@ -57,8 +61,9 @@ El dashboard pot mostrar enllaços externs configurats des de `.env`:
 
 - `DASHBOARD_DOCS_PROFESSORAT_URL`: apareix dins del panell `Programació d'aula` com a accés a la documentació del professorat.
 - `DASHBOARD_DOCS_ALUMNAT_URL`: apareix en el menú principal com a accés ràpid a la documentació de l'alumnat.
+- `DASHBOARD_GRADES_2DAW_A_URL`, `DASHBOARD_GRADES_2DAW_B_URL`, `DASHBOARD_GRADES_2DAW_C_URL` i `DASHBOARD_GRADES_2DAW_D_URL`: enllaços als fulls de notes corregides en OneDrive. En `Resultats`, en seleccionar un grup concret apareix el botó per obrir el seu full.
 
-Si alguna variable queda buida, el seu enllaç no es mostra.
+Si alguna variable queda buida o no conté un URL `http://` o `https://` vàlid, el seu enllaç no es mostra. Per a OneDrive, usa l'enllaç web de compartició que puga obrir el professorat autoritzat.
 
 La pantalla `Alumnes` usa `GITHUB_CLASSROOM_ORG` i `GITHUB_STUDENT_TEMPLATE` com a valors per defecte per crear repositoris d'alumnes des d'un CSV. Es poden modificar des del formulari abans d'executar l'script.
 
