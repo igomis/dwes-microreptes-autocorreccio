@@ -80,6 +80,8 @@ El motor OpenAI llig el mateix payload, el prompt base del microrepte si està d
 
 La diferència pràctica és que `mock-autograde.mjs` és determinista i útil per a CI local sense secrets, mentre que `openai-autograde.mjs` usa `OPENAI_API_KEY` i pot ajustar-se amb `OPENAI_MODEL` per fer una avaluació real abans de la validació.
 
+Els fragments textuals recollits tenen un màxim de 8.000 caràcters per fitxer. Això permet inspeccionar complets els fitxers curts i mitjans sense fer créixer sense límit el payload d'avaluació.
+
 El validador d'autograding llig el resultat generat, comprova els camps obligatoris i els tipus bàsics definits en l'esquema, i ix amb codi `1` si detecta errors.
 
 Els scripts de notes provisionals treballen amb fitxers locals dins de `grades/`. `append-grade-result.mjs` i `import-autograde-result.mjs` mantenen un únic registre vigent per parella `repo + challenge_id`; si es torna a importar la mateixa parella, es substitueix la fila anterior. `list-grades.mjs` llig `grades/latest-grades.json` i mostra alumne, microrepte, nota, confiança, revisio docent requerida i marca temporal.

@@ -77,6 +77,37 @@ test('inclou codi i configuració Java com a evidència inspeccionable', () => {
   assert.equal(summary.repository_manifest.find((item) => item.path === 'pom.xml').present, true);
 });
 
+test('inclou evidències situades després dels primers 4.000 caràcters', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-long-evidence-'));
+  mkdirSync(path.join(repoDir, 'src'));
+  writeFileSync(path.join(repoDir, 'README.md'), '# R2M4\n[Servidor](src/server.py)\n');
+  writeFileSync(path.join(repoDir, 'src', 'server.py'), [
+    '# R2M4',
+    '#'.repeat(4500),
+    'response.set_cookie("vista", "compacta")',
+    'session.pop("borrador", None)'
+  ].join('\n'));
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R2M4 cookie i invalidació'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student',
+    '--commit', commit, '--challenge-id', 'r2-s04-estat-sessio-cookies', '--microrepte-code', 'R2M4',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  const server = summary.relevant_files.find((file) => file.path === 'src/server.py');
+  assert.match(server.excerpt, /response\.set_cookie/);
+  assert.match(server.excerpt, /session\.pop/);
+});
+
 test('recull la seqüència de commits del microrepte i calcula la finestra temporal', () => {
   const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-history-'));
   execFileSync('git', ['init'], { cwd: repoDir });

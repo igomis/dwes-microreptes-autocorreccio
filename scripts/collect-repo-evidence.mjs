@@ -30,7 +30,7 @@ const maxRelevantFiles = 50;
 const maxVisualEvidence = 5;
 const maxVisualEvidenceBytes = 4 * 1024 * 1024;
 const maxHistoryCommits = 50;
-const maxExcerptChars = 4000;
+const maxExcerptChars = 8000;
 const structuralRootFiles = new Set([
   'README.md',
   'docker-compose.yml',
