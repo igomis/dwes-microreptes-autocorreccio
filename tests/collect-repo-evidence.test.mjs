@@ -77,13 +77,13 @@ test('inclou codi i configuració Java com a evidència inspeccionable', () => {
   assert.equal(summary.repository_manifest.find((item) => item.path === 'pom.xml').present, true);
 });
 
-test('inclou evidències situades després dels primers 4.000 caràcters', () => {
+test('localitza API avaluables dins d’un fitxer de rutes llarg', () => {
   const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-long-evidence-'));
   mkdirSync(path.join(repoDir, 'src'));
   writeFileSync(path.join(repoDir, 'README.md'), '# R2M4\n[Servidor](src/server.py)\n');
   writeFileSync(path.join(repoDir, 'src', 'server.py'), [
     '# R2M4',
-    '#'.repeat(4500),
+    '#'.repeat(12000),
     'response.set_cookie("vista", "compacta")',
     'session.pop("borrador", None)'
   ].join('\n'));

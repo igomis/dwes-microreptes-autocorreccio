@@ -80,7 +80,7 @@ El motor OpenAI llig el mateix payload, el prompt base del microrepte si està d
 
 La diferència pràctica és que `mock-autograde.mjs` és determinista i útil per a CI local sense secrets, mentre que `openai-autograde.mjs` usa `OPENAI_API_KEY` i pot ajustar-se amb `OPENAI_MODEL` per fer una avaluació real abans de la validació.
 
-Els fragments textuals recollits tenen un màxim de 8.000 caràcters per fitxer. Això permet inspeccionar complets els fitxers curts i mitjans sense fer créixer sense límit el payload d'avaluació.
+Els fragments textuals recollits tenen un màxim aproximat de 8.000 caràcters per fitxer. Els fitxers curts i mitjans s'inclouen complets; en els fitxers llargs es combinen l'inici, el final i fragments distribuïts al voltant de les API citades entre cometes de codi en l'enunciat i la rúbrica. Això evita que un fitxer de rutes llarg oculte funcionalitats avaluables sense fer créixer sense límit el payload.
 
 El validador d'autograding llig el resultat generat, comprova els camps obligatoris i els tipus bàsics definits en l'esquema, i ix amb codi `1` si detecta errors.
 

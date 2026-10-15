@@ -262,15 +262,75 @@ function isTextFile(filePath) {
     || textExtensions.has(path.extname(filePath).toLowerCase());
 }
 
-async function safeExcerpt(filePath) {
+function collectEvidenceTerms(...sources) {
+  const text = sources.map((source) => (
+    typeof source === 'string' ? source : JSON.stringify(source || {})
+  )).join('\n');
+  const terms = new Set();
+
+  for (const match of text.matchAll(/`([^`\n]{2,80})`/g)) {
+    const term = match[1].trim().replace(/\(\)$/, '');
+    if (term.length >= 2) terms.add(term);
+  }
+
+  return [...terms].sort((left, right) => right.length - left.length || left.localeCompare(right));
+}
+
+function focusedExcerpt(content, terms) {
+  if (content.length <= maxExcerptChars) return content;
+
+  const maxSections = 10;
+  const sectionChars = 700;
+  const halfSection = Math.floor(sectionChars / 2);
+  const centers = [];
+  const addCenter = (center) => {
+    const bounded = Math.max(0, Math.min(content.length, center));
+    if (centers.length >= maxSections || centers.some((current) => Math.abs(current - bounded) < halfSection)) return;
+    centers.push(bounded);
+  };
+
+  addCenter(halfSection);
+  addCenter(content.length - halfSection);
+  const lowerContent = content.toLowerCase();
+  for (const term of terms) {
+    if (centers.length >= maxSections) break;
+    const lowerTerm = term.toLowerCase();
+    const first = lowerContent.indexOf(lowerTerm);
+    if (first < 0) continue;
+    addCenter(first + Math.floor(term.length / 2));
+    const last = lowerContent.lastIndexOf(lowerTerm);
+    if (last !== first) addCenter(last + Math.floor(term.length / 2));
+  }
+
+  for (let index = 1; centers.length < maxSections && index < maxSections - 1; index += 1) {
+    addCenter(Math.floor((content.length * index) / (maxSections - 1)));
+  }
+
+  const intervals = centers
+    .map((center) => [Math.max(0, center - halfSection), Math.min(content.length, center + halfSection)])
+    .sort((left, right) => left[0] - right[0]);
+  const merged = [];
+  for (const interval of intervals) {
+    const previous = merged.at(-1);
+    if (previous && interval[0] <= previous[1]) {
+      previous[1] = Math.max(previous[1], interval[1]);
+    } else {
+      merged.push(interval);
+    }
+  }
+
+  return merged.map(([start, end]) => (
+    `...[fragment ${start}-${end} de ${content.length}]\n${content.slice(start, end)}`
+  )).join('\n...[fragment intermedi retallat]\n');
+}
+
+async function safeExcerpt(filePath, evidenceTerms = []) {
   if (!await isFile(filePath) || !isTextFile(filePath)) {
     return null;
   }
 
   const content = await readFile(filePath, 'utf8');
-  return content.length > maxExcerptChars
-    ? `${content.slice(0, maxExcerptChars)}\n...[retallat]`
-    : content;
+  return focusedExcerpt(content, evidenceTerms);
 }
 
 async function fileMatchesActiveTokens(filePath, relativePath, tokens) {
@@ -288,7 +348,7 @@ async function fileMatchesActiveTokens(filePath, relativePath, tokens) {
   return tokens.some((token) => lowerContent.includes(token) || normalizedContent.includes(token));
 }
 
-async function fileSummary(repoDir, filePath) {
+async function fileSummary(repoDir, filePath, evidenceTerms = []) {
   const fullPath = resolveInRepo(repoDir, filePath);
   if (!await isFile(fullPath)) {
     return null;
@@ -300,15 +360,15 @@ async function fileSummary(repoDir, filePath) {
     path: filePath,
     bytes: fileStat.size,
     lines: content.length === 0 ? 0 : content.split('\n').length,
-    excerpt: await safeExcerpt(fullPath)
+    excerpt: await safeExcerpt(fullPath, evidenceTerms)
   };
 }
 
-async function summarizeFiles(repoDir, files) {
+async function summarizeFiles(repoDir, files, evidenceTerms = []) {
   const summaries = [];
   for (const fullPath of files) {
     const relativePath = path.relative(repoDir, fullPath);
-    const summary = await fileSummary(repoDir, relativePath);
+    const summary = await fileSummary(repoDir, relativePath, evidenceTerms);
     if (summary) {
       summaries.push(summary);
     }
@@ -356,7 +416,7 @@ function buildRepositoryManifest(trackedFiles, includedFiles, relevantPaths) {
   });
 }
 
-async function summarizeActiveFiles(repoDir, files, tokens) {
+async function summarizeActiveFiles(repoDir, files, tokens, evidenceTerms = []) {
   const summaries = [];
   for (const fullPath of files) {
     const relativePath = path.relative(repoDir, fullPath);
@@ -364,7 +424,7 @@ async function summarizeActiveFiles(repoDir, files, tokens) {
       continue;
     }
 
-    const summary = await fileSummary(repoDir, relativePath);
+    const summary = await fileSummary(repoDir, relativePath, evidenceTerms);
     if (summary) {
       summaries.push(summary);
     }
@@ -502,12 +562,18 @@ async function main() {
   const activeTokens = buildActiveTokens(args);
   let extensionConfig = null;
   let challengeConfig = null;
+  let challengePrompt = '';
+  let challengeRubric = null;
   if (args['challenge-id']) {
     try {
-      challengeConfig = JSON.parse(await readFile(path.join(process.cwd(), 'microreptes', args['challenge-id'], 'challenge.json'), 'utf8'));
+      const challengeDir = path.join(process.cwd(), 'microreptes', args['challenge-id']);
+      challengeConfig = JSON.parse(await readFile(path.join(challengeDir, 'challenge.json'), 'utf8'));
+      challengePrompt = await readFile(path.join(challengeDir, 'prompt.md'), 'utf8');
+      challengeRubric = JSON.parse(await readFile(path.join(challengeDir, 'rubric.json'), 'utf8'));
       extensionConfig = challengeConfig.repte_extension;
     } catch (error) { if (error.code !== 'ENOENT') throw error; }
   }
+  const evidenceTerms = collectEvidenceTerms(challengeConfig, challengePrompt, challengeRubric);
   const trackedFilesOutput = await git(repoDir, ['ls-files']);
   const trackedFiles = trackedFilesOutput ? trackedFilesOutput.split('\n').map(normalizeRepoPath) : [];
   const trackedFilesCount = trackedFiles.length;
@@ -571,7 +637,8 @@ async function main() {
         'README.md de l_arrel es la fitxa de l_entrega actual i pot sobreescriure el microrepte anterior.',
         'docs/README.md, evidence/README.md i tests/README.md son guies de carpeta, no evidencia puntuable.',
         'Els fitxers del microrepte han d_estar nomenats o enllacats amb el challenge_id o microrepte_code actiu.',
-        'Els tests han de ser executables o, si encara no toca automatitzar, proves manuals reproduibles amb passos, dades i resultat esperat.'
+        'Els tests han de ser executables o, si encara no toca automatitzar, proves manuals reproduibles amb passos, dades i resultat esperat.',
+        'Els fitxers llargs es presenten en fragments focals. L_absencia d_un element en un fragment retallat no demostra que falte al repositori.'
       ]
     },
     repository_manifest: buildRepositoryManifest(trackedFiles, includedRelevantFiles, relevantPaths),
@@ -583,24 +650,24 @@ async function main() {
       active_microrepte_candidates: commitHistory.active_microrepte_candidates,
       temporal_summary: commitHistory.temporal_summary
     },
-    relevant_files: await summarizeFiles(repoDir, includedRelevantFiles.map((filePath) => resolveInRepo(repoDir, filePath))),
-    readme_referenced_files: await summarizeFiles(repoDir, readmeReferencedPaths.map((filePath) => resolveInRepo(repoDir, filePath))),
+    relevant_files: await summarizeFiles(repoDir, includedRelevantFiles.map((filePath) => resolveInRepo(repoDir, filePath)), evidenceTerms),
+    readme_referenced_files: await summarizeFiles(repoDir, readmeReferencedPaths.map((filePath) => resolveInRepo(repoDir, filePath)), evidenceTerms),
     image_evidence: await activePngEvidence(repoDir, trackedFiles, readmeTargets, activeTokens),
     repte_extension: extensionConfig ? {
       declaration: await fileSummary(repoDir, extensionConfig.declaration_path),
       referenced_files: await declaredExtensionFiles(repoDir, extensionConfig, trackedFilesOutput),
       files: await summarizeActiveFiles(repoDir, [...await listFiles(repoDir, resolveInRepo(repoDir, 'docs'), Infinity), ...await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'), Infinity), ...await listFiles(repoDir, resolveInRepo(repoDir, 'tests'), Infinity), ...await listFiles(repoDir, resolveInRepo(repoDir, 'src'), Infinity)], [args['microrepte-code']?.split('M')[0].toLowerCase() || args['challenge-id'].split('-')[0], 'ampliacio', 'ampliació'])
     } : null,
-    readme: await fileSummary(repoDir, 'README.md'),
+    readme: await fileSummary(repoDir, 'README.md', evidenceTerms),
     template_guide: await fileSummary(repoDir, 'ENTREGA.md'),
     // ai-log.md is the current microrepte log. The historic log is retained
     // separately as context and never substitutes the current evidence.
     ai_log: await activeFileSummary(repoDir, currentAiLogPath, activeTokens),
     historic_ai_log: await fileSummary(repoDir, historicAiLogPath),
-    docs_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'), Number.POSITIVE_INFINITY), activeTokens),
-    evidence_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'), Number.POSITIVE_INFINITY), activeTokens),
-    test_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'tests'), Number.POSITIVE_INFINITY), activeTokens),
-    source_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'src'), Number.POSITIVE_INFINITY), activeTokens)
+    docs_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'docs'), Number.POSITIVE_INFINITY), activeTokens, evidenceTerms),
+    evidence_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'evidence'), Number.POSITIVE_INFINITY), activeTokens, evidenceTerms),
+    test_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'tests'), Number.POSITIVE_INFINITY), activeTokens, evidenceTerms),
+    source_files: await summarizeActiveFiles(repoDir, await listFiles(repoDir, resolveInRepo(repoDir, 'src'), Number.POSITIVE_INFINITY), activeTokens, evidenceTerms)
   };
 
   await mkdir(path.dirname(repoSignalsPath), { recursive: true });
