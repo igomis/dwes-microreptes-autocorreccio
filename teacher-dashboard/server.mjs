@@ -367,6 +367,36 @@ async function readMicrorepteDetail(challengeId) {
   return microreptes.find((microrepte) => microrepte.id === challengeId || microrepte.dir === challengeId) || null;
 }
 
+async function readClassroomChallengeOptions(groupName) {
+  if (!Object.hasOwn(groupFiles, groupName) || groupName === 'all') {
+    throw new Error('Cal seleccionar un grup concret.');
+  }
+  const students = getStudents({ group_name: groupName });
+  const coverage = getDb().prepare(`
+    SELECT c.challenge_id, COUNT(DISTINCT g.student_id) AS corrected_students
+    FROM grades g
+    JOIN students s ON s.id = g.student_id
+    JOIN challenges c ON c.id = g.challenge_id
+    WHERE s.group_name = ? AND COALESCE(g.assessment_context, 'delivery') = 'delivery'
+    GROUP BY c.challenge_id
+  `).all(groupName);
+  const correctedByChallenge = new Map(coverage.map((row) => [row.challenge_id, Number(row.corrected_students)]));
+  const microreptes = await readMicroreptes();
+  return microreptes.map((microrepte) => {
+    const correctedStudents = correctedByChallenge.get(microrepte.id) || 0;
+    return {
+      id: microrepte.id,
+      title: microrepte.title,
+      repte_id: microrepte.repte_id,
+      session_code: microrepte.session_code,
+      microrepte_code: microrepte.microrepte_code,
+      corrected_students: correctedStudents,
+      total_students: students.length,
+      pending: students.length === 0 || correctedStudents < students.length
+    };
+  });
+}
+
 function extractFirstMarkdownHeading(markdown) {
   const match = String(markdown || '').match(/^#\s+(.+)$/m);
   return match ? match[1].trim() : '';
@@ -2076,6 +2106,7 @@ function pageHtml() {
       <h1>DWES Autocorrecció</h1>
       <nav aria-label="Seccions del dashboard">
         <button class="nav-button active" type="button" data-nav-view="correction">Correcció</button>
+        <button class="nav-button" type="button" data-nav-view="classroom">Temps a l’aula</button>
         <button class="nav-button" type="button" data-nav-view="results">Resultats</button>
         <button class="nav-button" type="button" data-nav-view="students">Alumnes</button>
         <button class="nav-button" type="button" data-nav-view="microreptes">Microreptes</button>
@@ -2150,6 +2181,51 @@ function pageHtml() {
       </table>
     </section>
 
+    <section class="view-panel hidden" data-view="classroom">
+      <div class="toolbar">
+        <h2>Temps a l’aula</h2>
+      </div>
+      <p>Gestiona les captures de classe abans que existisca cap nota. Els microreptes pendents apareixen primer; els ja corregits continuen disponibles per consultar l’historial.</p>
+      <div class="filters">
+        <label>Grup
+          <select id="classroomGroup">
+            <option value="2DAW-A">2DAW-A</option>
+            <option value="2DAW-B">2DAW-B</option>
+            <option value="2DAW-C">2DAW-C</option>
+            <option value="2DAW-D">2DAW-D</option>
+          </select>
+        </label>
+        <label>Microrepte
+          <select id="classroomChallenge"></select>
+        </label>
+        <div id="classroomChallengeInfo" class="status"></div>
+      </div>
+      <div class="feedback-box">
+        <h3>Captura i correcció</h3>
+        <p>Iniciar captura el <code>main</code> inicial; tancar captura el final i deixa la sessió preparada per a l’entrega definitiva.</p>
+        <p class="status">Si falta una captura, el cas queda pendent i no aplica cap topall a l’alumnat.</p>
+        <div class="compact-actions">
+          <button id="startClassroomWork" type="button">Iniciar sessió</button>
+          <button id="closeClassroomWork" type="button">Tancar sessió</button>
+          <button id="gradeClassroomDelivery" type="button">Corregir entregues definitives</button>
+        </div>
+        <div id="classroomWorkStatus" class="status"></div>
+        <details>
+          <summary>Recuperació avançada</summary>
+          <p class="status">Usa estes accions només si una execució externa o una incidència no s’ha importat automàticament.</p>
+          <div class="compact-actions">
+            <button id="refreshGrades" class="secondary" type="button">Importar últim resultat</button>
+            <button id="recalculateClassroomWork" class="secondary" type="button">Recalcular evidència</button>
+          </div>
+        </details>
+      </div>
+      <h3>Valoracions automàtiques i excepcions</h3>
+      <table>
+        <thead><tr><th>Repo</th><th>Sessió</th><th>Progrés a classe</th><th>Automàtica</th><th>Vigent</th><th>Excepció docent</th></tr></thead>
+        <tbody id="classroomWorkRows"></tbody>
+      </table>
+    </section>
+
     <section class="view-panel hidden" data-view="results">
       <div class="toolbar">
         <h2>Últims resultats</h2>
@@ -2181,33 +2257,9 @@ function pageHtml() {
         </label>
         <button id="applyFilters" type="button">Aplicar filtres</button>
       </div>
-      <div class="feedback-box">
-        <h3>Treball d’aula automàtic</h3>
-        <p>Selecciona un grup i un microrepte. Iniciar captura el <code>main</code> inicial; tancar captura el final i deixa la sessió preparada per a l’entrega definitiva.</p>
-        <p class="status">Si falta una captura perquè no s’ha iniciat o tancat la sessió, el cas queda pendent i no aplica cap topall a l’alumnat.</p>
-        <div class="compact-actions">
-          <button id="startClassroomWork" type="button">Iniciar sessió</button>
-          <button id="closeClassroomWork" type="button">Tancar sessió</button>
-          <button id="gradeClassroomDelivery" type="button">Corregir entregues definitives</button>
-        </div>
-        <div id="classroomWorkStatus" class="status"></div>
-        <details>
-          <summary>Recuperació avançada</summary>
-          <p class="status">Usa estes accions només si una execució externa o una incidència no s’ha importat automàticament.</p>
-          <div class="compact-actions">
-            <button id="refreshGrades" class="secondary" type="button">Importar últim resultat</button>
-            <button id="recalculateClassroomWork" class="secondary" type="button">Recalcular evidència</button>
-          </div>
-        </details>
-      </div>
       <table>
         <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Tècnica</th><th>Procés</th><th>Topall</th><th>Aplicable</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
         <tbody id="gradeRows"></tbody>
-      </table>
-      <h3>Valoracions automàtiques i excepcions</h3>
-      <table>
-        <thead><tr><th>Repo</th><th>Sessió</th><th>Progrés a classe</th><th>Automàtica</th><th>Vigent</th><th>Excepció docent</th></tr></thead>
-        <tbody id="classroomWorkRows"></tbody>
       </table>
       <div id="gradesInfo" class="status"></div>
       <div id="classReportPanel" class="markdown-rendered hidden"></div>
@@ -2389,6 +2441,7 @@ function pageHtml() {
     let allChallenges = [];
     let students = [];
     let microreptes = [];
+    let classroomChallenges = [];
     let classroomProgramming = [];
     let currentMicrorepte = null;
     let editingStudentId = null;
@@ -2405,6 +2458,7 @@ function pageHtml() {
       });
 
       if (view === 'results') loadGrades();
+      if (view === 'classroom') loadClassroomView();
       if (view === 'students') loadStudents();
       if (view === 'microreptes') loadMicroreptes();
       if (view === 'programacio') loadProgramacio();
@@ -3744,10 +3798,67 @@ function pageHtml() {
       return ({ high: 'Alta', medium: 'Mitjana', low: 'Baixa', no_evidence: 'Sense evidència' })[level] || 'Pendent';
     }
 
-    async function loadClassroomWork() {
-      const group = document.querySelector('#filterGroup').value;
-      const challenge = document.querySelector('#filterChallenge').value;
+    function updateClassroomChallengeInfo() {
+      const selected = document.querySelector('#classroomChallenge').value;
+      const challenge = classroomChallenges.find((item) => item.id === selected);
+      const target = document.querySelector('#classroomChallengeInfo');
+      if (!challenge) {
+        target.textContent = 'No hi ha microreptes disponibles.';
+        return;
+      }
+      target.innerHTML = challenge.pending
+        ? '<span class="ok">Pendent de correcció: ' + escapeHtml(challenge.corrected_students) + ' de ' + escapeHtml(challenge.total_students) + ' alumnes amb entrega corregida.</span>'
+        : 'Ja corregit per als ' + escapeHtml(challenge.total_students) + ' alumnes del grup.';
+    }
+
+    async function loadClassroomChallenges() {
+      const group = document.querySelector('#classroomGroup').value;
+      const select = document.querySelector('#classroomChallenge');
+      const current = select.value;
+      const response = await fetch('/api/classroom-work/challenges?group=' + encodeURIComponent(group));
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'No s’han pogut carregar els microreptes de treball d’aula.');
+      classroomChallenges = payload.challenges || [];
+      const pending = classroomChallenges.filter((item) => item.pending);
+      const corrected = classroomChallenges.filter((item) => !item.pending);
+      const renderOptions = (items) => items.map((item) => {
+        const code = item.microrepte_code || item.session_code || item.id;
+        return '<option value="' + escapeHtml(item.id) + '">' + escapeHtml(code + ' · ' + item.title + ' (' + item.corrected_students + '/' + item.total_students + ')') + '</option>';
+      }).join('');
+      select.innerHTML =
+        (pending.length ? '<optgroup label="Pendents de correcció">' + renderOptions(pending) + '</optgroup>' : '') +
+        (corrected.length ? '<optgroup label="Ja corregits">' + renderOptions(corrected) + '</optgroup>' : '');
+      const activeChallenge = config?.active_challenges?.groups?.[group]?.challenge_id || '';
+      if (classroomChallenges.some((item) => item.id === current)) select.value = current;
+      else if (pending.some((item) => item.id === activeChallenge)) select.value = activeChallenge;
+      else if (pending[0]) select.value = pending[0].id;
+      else if (corrected[0]) select.value = corrected[0].id;
+      updateClassroomChallengeInfo();
+    }
+
+    async function loadClassroomView() {
       const status = document.querySelector('#classroomWorkStatus');
+      try {
+        await loadClassroomChallenges();
+        await loadClassroomWork();
+      } catch (error) {
+        status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      }
+    }
+
+    async function loadClassroomWork() {
+      const group = document.querySelector('#classroomGroup').value;
+      const challenge = document.querySelector('#classroomChallenge').value;
+      const status = document.querySelector('#classroomWorkStatus');
+      if (!challenge) {
+        activeClassroomSessionId = null;
+        classroomDeliverySessionId = null;
+        document.querySelector('#startClassroomWork').disabled = true;
+        document.querySelector('#closeClassroomWork').disabled = true;
+        document.querySelector('#gradeClassroomDelivery').disabled = true;
+        document.querySelector('#classroomWorkRows').innerHTML = '<tr><td colspan="6">No hi ha cap microrepte disponible.</td></tr>';
+        return;
+      }
       const params = new URLSearchParams();
       if (group) params.set('group', group);
       if (challenge) params.set('challenge', challenge);
@@ -3788,7 +3899,7 @@ function pageHtml() {
 
       if (classroomWorkRefreshTimer) clearTimeout(classroomWorkRefreshTimer);
       if (['queued', 'in_progress'].includes(current?.workflow_status)) {
-        classroomWorkRefreshTimer = setTimeout(() => loadGrades(), 10000);
+        classroomWorkRefreshTimer = setTimeout(() => Promise.all([loadClassroomView(), loadGrades()]), 10000);
       }
 
       const assessments = assessmentsPayload.assessments || [];
@@ -3828,7 +3939,7 @@ function pageHtml() {
             });
             const payload = await response.json();
             if (!response.ok) throw new Error(payload.error || 'No s’ha pogut guardar l’excepció.');
-            await loadGrades();
+            await Promise.all([loadClassroomWork(), loadGrades()]);
           } catch (error) {
             status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
           } finally {
@@ -3839,8 +3950,8 @@ function pageHtml() {
     }
 
     async function startClassroomWork() {
-      const group = document.querySelector('#filterGroup').value;
-      const challenge = document.querySelector('#filterChallenge').value;
+      const group = document.querySelector('#classroomGroup').value;
+      const challenge = document.querySelector('#classroomChallenge').value;
       const status = document.querySelector('#classroomWorkStatus');
       if (!group || !challenge) {
         status.innerHTML = '<span class="error">Selecciona un grup i un microrepte.</span>';
@@ -3885,14 +3996,14 @@ function pageHtml() {
     }
 
     async function recalculateClassroomWork() {
-      const group = document.querySelector('#filterGroup').value;
-      const challenge = document.querySelector('#filterChallenge').value;
+      const group = document.querySelector('#classroomGroup').value;
+      const challenge = document.querySelector('#classroomChallenge').value;
       const response = await fetch('/api/classroom-work/recalculate', {
         method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ group_name: group, challenge_id: challenge })
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'No s’ha pogut recalcular el treball d’aula.');
-      await loadGrades();
+      await Promise.all([loadClassroomWork(), loadGrades()]);
     }
 
     async function loadGrades() {
@@ -3942,7 +4053,6 @@ function pageHtml() {
           button.addEventListener('click', () => deleteGradeRow(button.dataset.gradeDelete, button.dataset.gradeRepo, button.dataset.gradeChallenge));
         });
         document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
-        await loadClassroomWork();
         await loadRepteGrades(params);
       } catch (error) {
         document.querySelector('#gradesInfo').textContent = 'Error: ' + error.message;
@@ -3960,7 +4070,7 @@ function pageHtml() {
         if (!response.ok) throw new Error(payload.error || 'No s’ha pogut importar l’artifact.');
         status.textContent = 'Resultats importats. Actualitzant vista...';
         await loadChallenges();
-        await loadGrades();
+        await Promise.all([loadGrades(), loadClassroomView()]);
       } catch (error) {
         status.textContent = 'Error important resultats: ' + error.message;
       } finally {
@@ -4297,6 +4407,13 @@ function pageHtml() {
     });
     document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
     document.querySelector('#filterStudent').addEventListener('change', loadGrades);
+    document.querySelector('#classroomGroup').addEventListener('change', loadClassroomView);
+    document.querySelector('#classroomChallenge').addEventListener('change', () => {
+      updateClassroomChallengeInfo();
+      loadClassroomWork().catch((error) => {
+        document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+      });
+    });
     document.querySelector('#clearViewer').addEventListener('click', clearViewer);
     document.querySelector('#saveStudent').addEventListener('click', saveStudent);
     document.querySelector('#clearStudentForm').addEventListener('click', clearStudentForm);
@@ -4351,6 +4468,12 @@ async function handleRequest(request, response) {
       if (url.searchParams.has('group')) filters.group_name = url.searchParams.get('group');
       if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
       sendJson(response, 200, { sessions: getClassroomWorkSessions(filters) });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/classroom-work/challenges') {
+      const group = url.searchParams.get('group') || '';
+      sendJson(response, 200, { challenges: await readClassroomChallengeOptions(group) });
       return;
     }
 

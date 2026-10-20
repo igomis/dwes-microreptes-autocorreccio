@@ -98,6 +98,7 @@ http://localhost:4173
 El dashboard està separat en aquestes vistes:
 
 - `Correcció`: previsualització del que es corregirà, llançament de workflows i repositoris seleccionats.
+- `Temps a l’aula`: captura inicial i final, microreptes pendents de correcció, correcció definitiva i excepcions docents.
 - `Resultats`: últimes notes i visor del resultat complet, amb filtres per grup, microrepte i alumne.
 - `Alumnes`: manteniment de nom, repositori i grup.
 - `Microreptes`: taula de microreptes, visor de `challenge.json`, `rubric.json`, `prompt.md` i validació de pesos.
@@ -132,7 +133,7 @@ El dashboard no substitueix el workflow. Només és una capa més còmoda damunt
 
 ## Treball d'aula automàtic
 
-En `Resultats`, selecciona un grup concret i un microrepte. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i només deixa els checkpoints guardats: encara no consumix cap correcció.
+En `Temps a l’aula`, selecciona un grup concret i un microrepte. El selector es construïx directament des de totes les definicions de `microreptes/`, no des de les notes existents: mostra primer els que encara no tenen entrega corregida per a tot el grup i conserva després els ja corregits per consultar-ne l’historial. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i només deixa els checkpoints guardats: encara no consumix cap correcció.
 
 Quan les entregues siguen definitives, `Corregir entregues definitives` llança una sola execució que corregix inici, final de classe i `main` definitiu. El servidor seguix eixa execució pel seu ID exacte, importa automàticament l'artifact quan acaba i calcula el topall. No cal prémer `Actualitzar` ni `Recalcular evidència` en el flux ordinari; les dos accions queden dins de `Recuperació avançada` per a incidències.
 

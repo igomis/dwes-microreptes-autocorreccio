@@ -43,7 +43,9 @@ test('dashboard: només l’últim microrepte valida l’ampliació separada de 
  assert.ok(html.includes('data-extension-score'));
  assert.ok(html.includes('id="filterStudent"'));
  assert.ok(html.includes('Filtre per alumne'));
- assert.ok(html.includes("await loadChallenges();\n        await loadGrades();"));
+ assert.ok(html.includes('await Promise.all([loadGrades(), loadClassroomView()]);'));
+ assert.ok(html.includes('data-nav-view="classroom"'));
+ assert.ok(html.includes('id="classroomChallenge"'));
  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0][1];
  const renderer = new Function('window', 'escapeHtml', script.slice(script.indexOf('    function renderMarkdownLinks('), script.indexOf('    function compareMicrorepteOrder(')) + '; return renderMarkdown;')(
   {location:{href:base}}, value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;')
@@ -85,4 +87,7 @@ test('dashboard: només l’últim microrepte valida l’ampliació separada de 
  assert.deepEqual(notes.map(n=>n.group_name).sort(),['2DAW-A','2DAW-C']);
  assert.ok(html.includes('programacioNoteGroup'));
  const choices=await get('/api/microreptes');assert.ok(!choices.microreptes.some(m=>m.id==='r2-ampliacio-9-10'));
+ const classroomChoices=await get('/api/classroom-work/challenges?group=2DAW-A');
+ assert.equal(classroomChoices.challenges.length,choices.microreptes.length);
+ assert.ok(classroomChoices.challenges.every(challenge=>challenge.pending));
 });
