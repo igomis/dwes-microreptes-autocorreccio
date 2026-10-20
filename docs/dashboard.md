@@ -110,6 +110,9 @@ El dashboard està separat en aquestes vistes:
 - Consultar els últims resultats locals guardats en `grades/latest-grades.json`, quan existisca.
 - Generar un **Informe classe** per a un grup i microrepte concret des de la vista `Resultats`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
+- Obrir i tancar una sessió de treball d'aula per capturar els `SHA` exactes de `main`, corregir automàticament les instantànies i aplicar el topall de procés.
+- Consultar per separat la nota tècnica, el nivell de treball d'aula, el topall i la nota aplicable.
+- Registrar una excepció docent justificada quan una branca no fusionada, una incidència o una defensa aporte evidència que el càlcul automàtic no havia pogut veure.
 - Afegir, editar, filtrar i eliminar alumnes. Si tenen resultats associats, el dashboard mostra un avís i, en confirmar, esborra també eixos resultats. L'esborrat del repositori GitHub és opcional, destructiu i exigeix escriure el nom exacte del repositori.
 - Importar alumnes des de `course/student-repositories.txt`.
 - Sincronitzar els alumnes mantinguts en la BD cap als fitxers `course/student-repositories*.txt` que usa el workflow massiu.
@@ -123,6 +126,25 @@ La font docent principal continua sent `dwes-restructuracio-modul/docs/01_progra
 - Obrir ràpidament la pàgina d'Actions del workflow.
 
 El dashboard no substitueix el workflow. Només és una capa més còmoda damunt de GitHub Actions.
+
+## Treball d'aula automàtic
+
+En `Resultats`, selecciona un grup concret i un microrepte. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i llança una única execució del workflow que corregix les dos instantànies exactes sense publicar resultats als repositoris de l'alumnat.
+
+Quan acabe eixa execució, `Actualitzar` importa `grades/classroom-checkpoint-grades.json`. Després de la correcció ordinària de l'entrega definitiva, torna a actualitzar o usa `Recalcular evidència`. El sistema calcula quina proporció del progrés tècnic observable s'ha produït entre els dos checkpoints:
+
+| Proporció tècnica a classe | Nivell | Topall |
+|---:|---|---:|
+| `70–100%` | Alta | `10` |
+| `35–69%` | Mitjana | `9` |
+| `1–34%` | Baixa | `7,5` |
+| `0%` | Sense evidència | `6` |
+
+Només entren en este càlcul les dimensions tècniques `functional_resolution`, `code_quality` i `file_handling` quan existix. `documentation`, `traceability`, `verification` i `ai_usage` no rebaixen la proporció per haver-se completat fora de classe. La nota aplicable és `mínim(nota global de l’entrega, topall)`; tant la nota global original com la puntuació tècnica usada per calcular la proporció sempre es conserven.
+
+Si falla GitHub, la captura o la correcció d'un checkpoint, el cas queda `Pendent` o `Error tècnic` i no s'aplica el topall de `6`. Passa igual si el professorat oblida iniciar o tancar la sessió: l’absència d’una captura docent no es convertix en «sense evidència» de l’alumne. El token de captura pot indicar-se en `GITHUB_STUDENT_READ_TOKEN`; si no existeix, el dashboard prova `GH_TOKEN` i `GITHUB_TOKEN`.
+
+La valoració automàtica és la regla ordinària. L'excepció docent permet seleccionar un altre nivell amb justificació obligatòria. Es conserven alhora el nivell automàtic, el nivell docent i el motiu. Si l'alumne havia treballat en una branca remota sense fusionar, el professorat pot comprovar eixe `SHA` i justificar la correcció; si la branca només existia en local, cal una comprovació o defensa perquè GitHub no pot acreditar-la.
 
 ## Ampliació global
 

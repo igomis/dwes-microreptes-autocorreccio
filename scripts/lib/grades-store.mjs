@@ -15,6 +15,8 @@ export const gradeFields = [
   'commit',
   'timestamp',
   'source',
+  'assessment_context',
+  'classroom_session_id',
   'batch_id',
   'history_dir'
 ];
@@ -27,7 +29,8 @@ export function getGradesPaths(rootDir = process.cwd()) {
   return {
     gradesDir,
     jsonPath: path.join(gradesDir, 'latest-grades.json'),
-    csvPath: path.join(gradesDir, 'latest-grades.csv')
+    csvPath: path.join(gradesDir, 'latest-grades.csv'),
+    classroomJsonPath: path.join(gradesDir, 'classroom-checkpoint-grades.json')
   };
 }
 
@@ -48,6 +51,19 @@ export async function readGrades(rootDir = process.cwd()) {
       return [];
     }
 
+    throw error;
+  }
+}
+
+export async function readClassroomCheckpointGrades(rootDir = process.cwd()) {
+  const { classroomJsonPath } = getGradesPaths(rootDir);
+  try {
+    const content = await readFile(classroomJsonPath, 'utf8');
+    const grades = JSON.parse(content);
+    if (!Array.isArray(grades)) throw new Error('grades/classroom-checkpoint-grades.json ha de contindre un array JSON');
+    return grades;
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
     throw error;
   }
 }
@@ -96,5 +112,29 @@ export async function appendGrade(grade, rootDir = process.cwd()) {
   });
   await writeGrades(nextGrades, rootDir);
 
+  return grade;
+}
+
+export async function appendClassroomCheckpointGrade(grade, rootDir = process.cwd()) {
+  const { gradesDir, classroomJsonPath } = getGradesPaths(rootDir);
+  const grades = await readClassroomCheckpointGrades(rootDir);
+  const key = [
+    grade.repo || grade.student || '',
+    grade.challenge_id || '',
+    grade.commit || '',
+    grade.assessment_context || '',
+    grade.classroom_session_id || ''
+  ].join('\u0000');
+  const nextGrades = grades.filter((current) => [
+    current.repo || current.student || '',
+    current.challenge_id || '',
+    current.commit || '',
+    current.assessment_context || '',
+    current.classroom_session_id || ''
+  ].join('\u0000') !== key);
+  nextGrades.push(grade);
+  nextGrades.sort((left, right) => String(left.timestamp || '').localeCompare(String(right.timestamp || '')));
+  await mkdir(gradesDir, { recursive: true });
+  await writeFile(classroomJsonPath, `${JSON.stringify(nextGrades, null, 2)}\n`, 'utf8');
   return grade;
 }

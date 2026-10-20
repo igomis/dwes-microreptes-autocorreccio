@@ -73,11 +73,17 @@ async function main() {
     process.exit(1);
   }
 
-  const branchResult = await github(`/repos/${args.repo}/branches/${encodeURIComponent(args.ref)}`, token);
-  if (!branchResult.response.ok) {
-    console.error(`El token pot llegir ${args.repo}, però no s'ha trobat la branca ${args.ref}: HTTP ${branchResult.response.status}.`);
-    if (branchResult.data.message) {
-      console.error(branchResult.data.message);
+  const isCommit = /^[0-9a-f]{40}$/i.test(args.ref);
+  const refResult = await github(
+    isCommit
+      ? `/repos/${args.repo}/commits/${encodeURIComponent(args.ref)}`
+      : `/repos/${args.repo}/branches/${encodeURIComponent(args.ref)}`,
+    token
+  );
+  if (!refResult.response.ok) {
+    console.error(`El token pot llegir ${args.repo}, però no s'ha trobat ${isCommit ? 'el commit' : 'la branca'} ${args.ref}: HTTP ${refResult.response.status}.`);
+    if (refResult.data.message) {
+      console.error(refResult.data.message);
     }
     process.exit(1);
   }

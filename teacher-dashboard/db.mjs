@@ -71,6 +71,14 @@ export function initDb(dbPath = DB_PATH) {
     db.exec('ALTER TABLE grades ADD COLUMN repte_extension TEXT');
   }
 
+  if (!gradeColumns.includes('assessment_context')) {
+    db.exec("ALTER TABLE grades ADD COLUMN assessment_context TEXT DEFAULT 'delivery'");
+  }
+
+  if (!gradeColumns.includes('classroom_session_id')) {
+    db.exec('ALTER TABLE grades ADD COLUMN classroom_session_id INTEGER');
+  }
+
   // Taula de criteris avaluació (per a desglossar la nota)
   db.exec(`
     CREATE TABLE IF NOT EXISTS grade_criteria (
@@ -99,6 +107,56 @@ export function initDb(dbPath = DB_PATH) {
     db.exec('ALTER TABLE classroom_session_notes ADD COLUMN group_name TEXT');
   }
 
+  // Sessions i snapshots immutables usats per estimar automàticament el treball d'aula.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS classroom_work_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      group_name TEXT NOT NULL,
+      challenge_id TEXT NOT NULL,
+      session_code TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      started_at TEXT NOT NULL,
+      ended_at TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS classroom_checkpoints (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER NOT NULL,
+      student_id INTEGER NOT NULL,
+      phase TEXT NOT NULL,
+      commit_hash TEXT,
+      capture_status TEXT NOT NULL DEFAULT 'captured',
+      technical_score REAL,
+      grade_id INTEGER,
+      error_message TEXT,
+      captured_at TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES classroom_work_sessions(id),
+      FOREIGN KEY (student_id) REFERENCES students(id),
+      FOREIGN KEY (grade_id) REFERENCES grades(id),
+      UNIQUE(session_id, student_id, phase)
+    );
+
+    CREATE TABLE IF NOT EXISTS classroom_work_assessments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER NOT NULL,
+      student_id INTEGER NOT NULL,
+      challenge_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      automatic_level TEXT,
+      automatic_ratio REAL,
+      automatic_cap REAL,
+      automatic_reason TEXT,
+      teacher_override_level TEXT,
+      teacher_override_reason TEXT,
+      teacher_override_at TEXT,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES classroom_work_sessions(id),
+      FOREIGN KEY (student_id) REFERENCES students(id),
+      UNIQUE(session_id, student_id)
+    );
+  `);
+
   // Índexs per rendiment
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_grades_student ON grades(student_id);
@@ -106,6 +164,9 @@ export function initDb(dbPath = DB_PATH) {
     CREATE INDEX IF NOT EXISTS idx_grades_timestamp ON grades(timestamp);
     CREATE INDEX IF NOT EXISTS idx_students_group ON students(group_name);
     CREATE INDEX IF NOT EXISTS idx_classroom_session_notes_session ON classroom_session_notes(session_id);
+    CREATE INDEX IF NOT EXISTS idx_classroom_work_sessions_group_challenge ON classroom_work_sessions(group_name, challenge_id);
+    CREATE INDEX IF NOT EXISTS idx_classroom_checkpoints_session ON classroom_checkpoints(session_id);
+    CREATE INDEX IF NOT EXISTS idx_classroom_work_assessments_student_challenge ON classroom_work_assessments(student_id, challenge_id);
   `);
 
   return db;
@@ -218,6 +279,8 @@ export function deleteStudent(studentId) {
       deletedCriteria += db.prepare('DELETE FROM grade_criteria WHERE grade_id = ?').run(grade.id).changes;
     }
 
+    db.prepare('DELETE FROM classroom_work_assessments WHERE student_id = ?').run(id);
+    db.prepare('DELETE FROM classroom_checkpoints WHERE student_id = ?').run(id);
     const deletedGrades = db.prepare('DELETE FROM grades WHERE student_id = ?').run(id).changes;
     const result = db.prepare('DELETE FROM students WHERE id = ?').run(id);
 
@@ -294,6 +357,239 @@ export function insertClassroomSessionNote(sessionId, sessionDate, comment, grou
   return stmt.run(sessionId, sessionDate, comment, groupName.trim());
 }
 
+export function createClassroomWorkSession(sessionData) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT INTO classroom_work_sessions (
+      group_name, challenge_id, session_code, status, started_at
+    ) VALUES (?, ?, ?, 'open', ?)
+  `);
+  const result = stmt.run(
+    sessionData.group_name,
+    sessionData.challenge_id,
+    sessionData.session_code || null,
+    sessionData.started_at
+  );
+  return getClassroomWorkSessionById(result.lastInsertRowid);
+}
+
+export function getClassroomWorkSessionById(sessionId) {
+  return getDb().prepare('SELECT * FROM classroom_work_sessions WHERE id = ?').get(sessionId);
+}
+
+export function getOpenClassroomWorkSession(groupName, challengeId) {
+  return getDb().prepare(`
+    SELECT *
+    FROM classroom_work_sessions
+    WHERE group_name = ? AND challenge_id = ? AND status = 'open'
+    ORDER BY id DESC
+    LIMIT 1
+  `).get(groupName, challengeId);
+}
+
+export function getClassroomWorkSessions(filters = {}) {
+  let query = `
+    SELECT
+      ws.*,
+      COUNT(DISTINCT cp.student_id) AS checkpoint_students,
+      COUNT(DISTINCT wa.student_id) AS assessment_students
+    FROM classroom_work_sessions ws
+    LEFT JOIN classroom_checkpoints cp ON cp.session_id = ws.id
+    LEFT JOIN classroom_work_assessments wa ON wa.session_id = ws.id
+    WHERE 1=1
+  `;
+  const params = [];
+  if (filters.group_name) {
+    query += ' AND ws.group_name = ?';
+    params.push(filters.group_name);
+  }
+  if (filters.challenge_id) {
+    query += ' AND ws.challenge_id = ?';
+    params.push(filters.challenge_id);
+  }
+  query += ' GROUP BY ws.id ORDER BY ws.started_at DESC, ws.id DESC';
+  return getDb().prepare(query).all(...params);
+}
+
+export function closeClassroomWorkSession(sessionId, endedAt) {
+  const db = getDb();
+  db.prepare(`
+    UPDATE classroom_work_sessions
+    SET status = 'closed', ended_at = ?
+    WHERE id = ? AND status = 'open'
+  `).run(endedAt, sessionId);
+  return getClassroomWorkSessionById(sessionId);
+}
+
+export function upsertClassroomCheckpoint(checkpoint) {
+  const db = getDb();
+  db.prepare(`
+    INSERT INTO classroom_checkpoints (
+      session_id, student_id, phase, commit_hash, capture_status,
+      technical_score, grade_id, error_message, captured_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(session_id, student_id, phase) DO UPDATE SET
+      commit_hash = excluded.commit_hash,
+      capture_status = excluded.capture_status,
+      technical_score = excluded.technical_score,
+      grade_id = excluded.grade_id,
+      error_message = excluded.error_message,
+      captured_at = excluded.captured_at
+  `).run(
+    checkpoint.session_id,
+    checkpoint.student_id,
+    checkpoint.phase,
+    checkpoint.commit_hash || null,
+    checkpoint.capture_status || 'captured',
+    checkpoint.technical_score ?? null,
+    checkpoint.grade_id || null,
+    checkpoint.error_message || null,
+    checkpoint.captured_at
+  );
+  return db.prepare(`
+    SELECT cp.*, s.repo, s.group_name
+    FROM classroom_checkpoints cp
+    JOIN students s ON s.id = cp.student_id
+    WHERE cp.session_id = ? AND cp.student_id = ? AND cp.phase = ?
+  `).get(checkpoint.session_id, checkpoint.student_id, checkpoint.phase);
+}
+
+export function getClassroomCheckpoints(sessionId) {
+  return getDb().prepare(`
+    SELECT cp.*, s.repo, s.student_name, s.group_name
+    FROM classroom_checkpoints cp
+    JOIN students s ON s.id = cp.student_id
+    WHERE cp.session_id = ?
+    ORDER BY s.student_name, s.repo, cp.phase
+  `).all(sessionId);
+}
+
+export function updateClassroomCheckpointScore(sessionId, studentId, phase, scoreData) {
+  getDb().prepare(`
+    UPDATE classroom_checkpoints
+    SET technical_score = ?, grade_id = ?, capture_status = ?, error_message = ?
+    WHERE session_id = ? AND student_id = ? AND phase = ?
+  `).run(
+    scoreData.technical_score ?? null,
+    scoreData.grade_id || null,
+    scoreData.capture_status || 'graded',
+    scoreData.error_message || null,
+    sessionId,
+    studentId,
+    phase
+  );
+}
+
+export function upsertClassroomWorkAssessment(assessment) {
+  const now = assessment.updated_at || new Date().toISOString();
+  const db = getDb();
+  db.prepare(`
+    INSERT INTO classroom_work_assessments (
+      session_id, student_id, challenge_id, status, automatic_level,
+      automatic_ratio, automatic_cap, automatic_reason, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(session_id, student_id) DO UPDATE SET
+      status = excluded.status,
+      automatic_level = excluded.automatic_level,
+      automatic_ratio = excluded.automatic_ratio,
+      automatic_cap = excluded.automatic_cap,
+      automatic_reason = excluded.automatic_reason,
+      updated_at = excluded.updated_at
+  `).run(
+    assessment.session_id,
+    assessment.student_id,
+    assessment.challenge_id,
+    assessment.status,
+    assessment.automatic_level || null,
+    assessment.classroom_ratio ?? null,
+    assessment.automatic_cap ?? null,
+    assessment.reason || '',
+    now
+  );
+  return getClassroomWorkAssessment(assessment.session_id, assessment.student_id);
+}
+
+export function getClassroomWorkAssessment(sessionId, studentId) {
+  return getDb().prepare(`
+    SELECT
+      wa.*,
+      s.repo,
+      s.student_name,
+      s.group_name,
+      ws.session_code,
+      ws.started_at,
+      ws.ended_at
+    FROM classroom_work_assessments wa
+    JOIN students s ON s.id = wa.student_id
+    JOIN classroom_work_sessions ws ON ws.id = wa.session_id
+    WHERE wa.session_id = ? AND wa.student_id = ?
+  `).get(sessionId, studentId);
+}
+
+export function getLatestClassroomWorkAssessment(repo, challengeId) {
+  return getDb().prepare(`
+    SELECT
+      wa.*,
+      s.repo,
+      s.student_name,
+      s.group_name,
+      ws.session_code,
+      ws.started_at,
+      ws.ended_at
+    FROM classroom_work_assessments wa
+    JOIN students s ON s.id = wa.student_id
+    JOIN classroom_work_sessions ws ON ws.id = wa.session_id
+    WHERE s.repo = ? AND wa.challenge_id = ?
+    ORDER BY ws.started_at DESC, wa.id DESC
+    LIMIT 1
+  `).get(repo, challengeId);
+}
+
+export function getClassroomWorkAssessments(filters = {}) {
+  let query = `
+    SELECT
+      wa.*,
+      s.repo,
+      s.student_name,
+      s.group_name,
+      ws.session_code,
+      ws.started_at,
+      ws.ended_at
+    FROM classroom_work_assessments wa
+    JOIN students s ON s.id = wa.student_id
+    JOIN classroom_work_sessions ws ON ws.id = wa.session_id
+    WHERE 1=1
+  `;
+  const params = [];
+  if (filters.group_name) {
+    query += ' AND s.group_name = ?';
+    params.push(filters.group_name);
+  }
+  if (filters.challenge_id) {
+    query += ' AND wa.challenge_id = ?';
+    params.push(filters.challenge_id);
+  }
+  if (filters.repo) {
+    query += ' AND s.repo = ?';
+    params.push(filters.repo);
+  }
+  query += ' ORDER BY ws.started_at DESC, s.student_name, s.repo';
+  return getDb().prepare(query).all(...params);
+}
+
+export function saveClassroomWorkOverride(sessionId, studentId, override) {
+  const level = override?.level || null;
+  const reason = level ? String(override.reason || '').trim() : '';
+  const overrideAt = level ? new Date().toISOString() : null;
+  getDb().prepare(`
+    UPDATE classroom_work_assessments
+    SET teacher_override_level = ?, teacher_override_reason = ?,
+        teacher_override_at = ?, updated_at = ?
+    WHERE session_id = ? AND student_id = ?
+  `).run(level, reason, overrideAt, new Date().toISOString(), sessionId, studentId);
+  return getClassroomWorkAssessment(sessionId, studentId);
+}
+
 // Operacions de notes
 export function insertGrade(gradeData) {
   const db = getDb();
@@ -311,21 +607,23 @@ export function insertGrade(gradeData) {
     source,
     batch_id,
     timestamp,
-    history_dir
+    history_dir,
+    assessment_context,
+    classroom_session_id
   } = gradeData;
 
   const stmt = db.prepare(`
     INSERT INTO grades (
       student_id, challenge_id, score, ra_scores, repte_extension, confidence, feedback,
       teacher_review_required, provisional, commit_hash, source,
-      batch_id, timestamp, history_dir
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      batch_id, timestamp, history_dir, assessment_context, classroom_session_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   return stmt.run(
     student_id, challenge_id, score, JSON.stringify(Array.isArray(ra_scores) ? ra_scores : []), JSON.stringify(repte_extension || null), confidence, feedback,
     teacher_review_required ? 1 : 0, provisional ? 1 : 0, commit_hash, source,
-    batch_id, timestamp, history_dir
+    batch_id, timestamp, history_dir, assessment_context || 'delivery', classroom_session_id || null
   );
 }
 
@@ -349,6 +647,8 @@ export function getLatestGrades(limit = 100, filters = {}) {
       g.batch_id,
       g.timestamp,
       g.history_dir,
+      g.assessment_context,
+      g.classroom_session_id,
       g.created_at
     FROM grades g
     JOIN students s ON g.student_id = s.id
@@ -381,6 +681,15 @@ export function getLatestGrades(limit = 100, filters = {}) {
   if (filters.to_date) {
     query += ' AND g.timestamp <= ?';
     params.push(filters.to_date);
+  }
+
+  if (filters.assessment_context === 'all') {
+    // Sense filtre: ús intern per relacionar checkpoints amb resultats.
+  } else if (filters.assessment_context) {
+    query += ' AND COALESCE(g.assessment_context, \'delivery\') = ?';
+    params.push(filters.assessment_context);
+  } else {
+    query += " AND COALESCE(g.assessment_context, 'delivery') = 'delivery'";
   }
 
   query += `
@@ -422,6 +731,8 @@ export function getGradeById(gradeId) {
       g.batch_id,
       g.timestamp,
       g.history_dir,
+      g.assessment_context,
+      g.classroom_session_id,
       g.created_at
     FROM grades g
     JOIN students s ON g.student_id = s.id
@@ -445,6 +756,48 @@ export function getStudentGrades(studentId) {
     ORDER BY g.timestamp DESC
   `);
   return stmt.all(studentId);
+}
+
+export function getGradeByCommit(repo, challengeId, commitHash, assessmentContext = null, classroomSessionId = null) {
+  let query = `
+    SELECT
+      g.*,
+      c.challenge_id,
+      s.repo,
+      s.group_name
+    FROM grades g
+    JOIN challenges c ON g.challenge_id = c.id
+    JOIN students s ON g.student_id = s.id
+    WHERE s.repo = ? AND c.challenge_id = ? AND g.commit_hash = ?
+  `;
+  const params = [repo, challengeId, commitHash];
+  if (assessmentContext) {
+    query += ' AND COALESCE(g.assessment_context, \'delivery\') = ?';
+    params.push(assessmentContext);
+  }
+  if (classroomSessionId !== null && classroomSessionId !== undefined) {
+    query += ' AND g.classroom_session_id = ?';
+    params.push(classroomSessionId);
+  }
+  query += ' ORDER BY g.timestamp DESC, g.id DESC LIMIT 1';
+  return getDb().prepare(query).get(...params);
+}
+
+export function getLatestDeliveryGrade(repo, challengeId) {
+  return getDb().prepare(`
+    SELECT
+      g.*,
+      c.challenge_id,
+      s.repo,
+      s.group_name
+    FROM grades g
+    JOIN challenges c ON g.challenge_id = c.id
+    JOIN students s ON g.student_id = s.id
+    WHERE s.repo = ? AND c.challenge_id = ?
+      AND COALESCE(g.assessment_context, 'delivery') = 'delivery'
+    ORDER BY g.timestamp DESC, g.id DESC
+    LIMIT 1
+  `).get(repo, challengeId);
 }
 
 export function getStatistics(groupName = null) {
@@ -500,14 +853,28 @@ export function migrateFromJson(jsonGrades) {
     db.prepare(`
       INSERT OR IGNORE INTO grades (
         student_id, challenge_id, score, ra_scores, repte_extension, confidence, teacher_review_required,
-        provisional, commit_hash, source, batch_id, timestamp, history_dir
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        provisional, commit_hash, source, batch_id, timestamp, history_dir,
+        assessment_context, classroom_session_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(student_id, challenge_id, commit_hash) DO UPDATE SET
         score = excluded.score, ra_scores = excluded.ra_scores,
         repte_extension = excluded.repte_extension, confidence = excluded.confidence,
         teacher_review_required = excluded.teacher_review_required, provisional = excluded.provisional,
         source = excluded.source, batch_id = excluded.batch_id,
-        timestamp = excluded.timestamp, history_dir = excluded.history_dir
+        timestamp = excluded.timestamp,
+        history_dir = CASE
+          WHEN excluded.assessment_context = 'delivery' THEN excluded.history_dir
+          WHEN COALESCE(grades.assessment_context, 'delivery') = 'delivery' THEN grades.history_dir
+          ELSE excluded.history_dir
+        END,
+        assessment_context = CASE
+          WHEN excluded.assessment_context = 'delivery' THEN 'delivery'
+          ELSE grades.assessment_context
+        END,
+        classroom_session_id = CASE
+          WHEN excluded.assessment_context = 'delivery' THEN NULL
+          ELSE COALESCE(grades.classroom_session_id, excluded.classroom_session_id)
+        END
       WHERE excluded.timestamp >= grades.timestamp
     `).run(
       studentId,
@@ -522,7 +889,9 @@ export function migrateFromJson(jsonGrades) {
       grade.source,
       grade.batch_id,
       grade.timestamp,
-      grade.history_dir
+      grade.history_dir,
+      grade.assessment_context || 'delivery',
+      grade.classroom_session_id || null
     );
   }
 }

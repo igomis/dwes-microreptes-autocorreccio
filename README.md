@@ -47,6 +47,8 @@ Els repositoris que es corregeixen es mantenen en fitxers `course/student-reposi
 
 El microrepte ordinari es resol des de `course/active-challenges.json`, primer per assignació específica d'alumne i després pel grup indicat en la línia del repositori. Per a una correcció puntual, el workflow i el dashboard permeten indicar `challenge_id` sense modificar `active-challenges.json`. La branca ordinària corregible és `main`; si l'alumnat treballa en una branca de microrepte, ha d'integrar-la en `main` abans de la correcció. El camp `student_ref` només s'ha de canviar per una recuperació o incidència pactada.
 
+El dashboard també pot capturar els `SHA` inicial i final d'una sessió, corregir les dos instantànies i calcular automàticament si el progrés tècnic s'ha produït principalment a classe. Este procés conserva la nota tècnica i aplica, com a valor separat, un topall de `10`, `9`, `7,5` o `6`. Les incidències i branques no fusionades es resolen amb una excepció docent justificada sense esborrar la decisió automàtica original. Vegeu [Treball d'aula automàtic](docs/dashboard.md#treball-daula-automàtic).
+
 Configuració activa inicial:
 
 | Grup | Autocorrecció |

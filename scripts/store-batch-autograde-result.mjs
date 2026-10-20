@@ -3,13 +3,17 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { appendGrade } from './lib/grades-store.mjs';
+import { appendClassroomCheckpointGrade, appendGrade } from './lib/grades-store.mjs';
 
 const requiredArgs = ['result', 'markdown', 'payload', 'repo', 'group', 'source', 'batch-id'];
 
 function parseArgs(argv) {
   const args = {};
-  const allowed = new Set(requiredArgs.map((arg) => `--${arg}`));
+  const allowed = new Set([
+    ...requiredArgs.map((arg) => `--${arg}`),
+    '--assessment-context',
+    '--classroom-session-id'
+  ]);
 
   for (let index = 0; index < argv.length; index += 1) {
     const key = argv[index];
@@ -54,6 +58,8 @@ function buildGradeRecord(result, args, historyDirRelative) {
     commit: result.commit,
     timestamp: new Date().toISOString(),
     source: args.source,
+    assessment_context: args['assessment-context'] || 'delivery',
+    classroom_session_id: args['classroom-session-id'] ? Number(args['classroom-session-id']) : null,
     batch_id: args['batch-id'],
     history_dir: historyDirRelative
   };
@@ -69,7 +75,10 @@ async function main() {
   const payloadPath = path.resolve(rootDir, args.payload);
   const result = await readJson(resultPath);
   const repoSafeName = safeName(args.repo);
-  const historyDirRelative = path.join('grades', 'history', args['batch-id'], repoSafeName);
+  const assessmentContext = args['assessment-context'] || 'delivery';
+  const historyDirRelative = assessmentContext === 'delivery'
+    ? path.join('grades', 'history', args['batch-id'], repoSafeName)
+    : path.join('grades', 'history', args['batch-id'], repoSafeName, assessmentContext);
   const historyDir = path.join(rootDir, historyDirRelative);
 
   await mkdir(historyDir, { recursive: true });
@@ -83,7 +92,11 @@ async function main() {
   }
 
   const grade = buildGradeRecord(result, args, historyDirRelative);
-  await appendGrade(grade, rootDir);
+  if (grade.assessment_context === 'delivery') {
+    await appendGrade(grade, rootDir);
+  } else {
+    await appendClassroomCheckpointGrade(grade, rootDir);
+  }
   await writeFile(path.join(historyDir, 'grade-record.json'), `${JSON.stringify(grade, null, 2)}\n`, 'utf8');
 
   console.log(`Resultat guardat en ${historyDirRelative}`);

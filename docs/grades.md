@@ -10,9 +10,12 @@ El workflow massiu del repositori del professor clona els repositoris dels alumn
 grades/history/<batch-id>/
 grades/latest-grades.json
 grades/latest-grades.csv
+grades/classroom-checkpoint-grades.json
 ```
 
 En cada resultat, el fitxer rellevant es `autograde-result.json`. Inclou camps com `challenge_id`, `student`, `commit`, `final_score_over_10`, `provisional`, `teacher_review_required` i `confidence`.
+
+Els checkpoints d'aula no substituïxen l'entrega vigent en `latest-grades.json`. Es guarden separats en `classroom-checkpoint-grades.json`, amb `assessment_context` igual a `classroom_start` o `classroom_end` i l'identificador de sessió. Això permet conservar diverses sessions i corregir exactament els commits capturats encara que `main` avance després.
 
 La recollida d'evidències està limitada al microrepte actiu: els fitxers de `docs/`, `evidence/`, `tests/` i `src/` només compten com a evidència directa si mencionen el `challenge_id` o el codi del microrepte, per exemple `R2M1`. El treball de microreptes anteriors pot aparéixer com a context de repositori, però no ha de sumar nota del microrepte nou.
 
@@ -129,6 +132,17 @@ npm run grades:download-latest
 ```
 
 Des del dashboard, el botó **Actualitzar** de la vista `Resultats` executa aquesta importació automàtica i recarrega la taula.
+
+## Topall automàtic per treball d'aula
+
+La qualificació conserva dos valors diferents:
+
+- `technical_score`: nota ordinària del microrepte, sense modificar.
+- `effective_score`: mínim entre la nota tècnica i el topall de treball d'aula.
+
+El percentatge de treball d'aula compara la nota tècnica de tres instantànies: inici de classe, final de classe i entrega definitiva. Per evitar que la documentació feta a casa oculte el desenvolupament real, només es comparen dimensions de rendiment tècnic. Els llindars predeterminats són alta `≥ 70%`, mitjana `≥ 35%`, baixa `> 0%` i sense evidència `0%`, amb topalls `10`, `9`, `7,5` i `6`.
+
+La data escrita dins d'un commit no decidix la classificació. La prova principal són els `SHA` capturats pel dashboard. Una fallada tècnica deixa el càlcul pendent i no genera penalització. Una excepció docent necessita una justificació i no elimina el resultat automàtic original.
 
 ## Informe per preparar la classe següent
 

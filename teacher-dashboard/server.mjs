@@ -1,5 +1,12 @@
 import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, withdrawConsolidation, recordConsolidationPublication } from './consolidation.mjs';
 import { calculateRepteExtension, makeExtensionReview, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
+import {
+  CLASSROOM_WORK_LEVELS,
+  applyClassroomCap,
+  calculateTechnicalScore,
+  classifyClassroomWork,
+  resolveClassroomAssessment
+} from '../scripts/lib/classroom-work.mjs';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
 import { createHash, timingSafeEqual } from 'node:crypto';
@@ -26,7 +33,22 @@ import {
   getStatistics,
   migrateFromJson,
   getClassroomSessionNotes,
-  insertClassroomSessionNote
+  insertClassroomSessionNote,
+  createClassroomWorkSession,
+  getClassroomWorkSessionById,
+  getOpenClassroomWorkSession,
+  getClassroomWorkSessions,
+  closeClassroomWorkSession,
+  upsertClassroomCheckpoint,
+  getClassroomCheckpoints,
+  updateClassroomCheckpointScore,
+  upsertClassroomWorkAssessment,
+  getClassroomWorkAssessment,
+  getLatestClassroomWorkAssessment,
+  getClassroomWorkAssessments,
+  saveClassroomWorkOverride,
+  getGradeByCommit,
+  getLatestDeliveryGrade
 } from './db.mjs';
 import { readGrades, writeGrades } from '../scripts/lib/grades-store.mjs';
 import { dashboardGroupGradeLinks } from './external-links.mjs';
@@ -601,7 +623,7 @@ async function readGradeDetail(gradeId) {
   const evaluationPayloadRaw = payloadPath ? await readTextIfExists(payloadPath) : null;
 
   return {
-    grade,
+    grade: (grade.assessment_context || 'delivery') === 'delivery' ? enrichGradeWithClassroomWork(grade) : grade,
     result: resultRaw ? JSON.parse(resultRaw) : null,
     markdown,
     evaluation_payload: evaluationPayloadRaw ? JSON.parse(evaluationPayloadRaw) : null,
@@ -942,6 +964,219 @@ async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt
   return null;
 }
 
+function studentGithubToken() {
+  return process.env.GITHUB_STUDENT_READ_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
+}
+
+async function readStudentHead(repo, ref = 'main') {
+  const token = studentGithubToken();
+  if (!token) throw new Error('Falta GITHUB_STUDENT_READ_TOKEN, GH_TOKEN o GITHUB_TOKEN per capturar els repositoris.');
+  const response = await fetch(`https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`, {
+    headers: {
+      accept: 'application/vnd.github+json',
+      authorization: `Bearer ${token}`,
+      'x-github-api-version': '2022-11-28'
+    }
+  });
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`GitHub ${response.status} en ${repo}@${ref}: ${details}`);
+  }
+  const payload = await response.json();
+  if (!/^[0-9a-f]{40}$/i.test(payload.sha || '')) throw new Error(`GitHub no ha retornat un SHA vàlid per a ${repo}@${ref}.`);
+  return payload.sha;
+}
+
+async function captureClassroomHeads(session, phase) {
+  const students = getStudents({ group_name: session.group_name });
+  const capturedAt = new Date().toISOString();
+  const results = await Promise.all(students.map(async (student) => {
+    try {
+      const commitHash = await readStudentHead(student.repo, 'main');
+      return upsertClassroomCheckpoint({
+        session_id: session.id,
+        student_id: student.id,
+        phase,
+        commit_hash: commitHash,
+        capture_status: 'captured',
+        captured_at: capturedAt
+      });
+    } catch (error) {
+      return upsertClassroomCheckpoint({
+        session_id: session.id,
+        student_id: student.id,
+        phase,
+        capture_status: 'error',
+        error_message: error.message,
+        captured_at: capturedAt
+      });
+    }
+  }));
+  return results;
+}
+
+async function startClassroomWorkSession(body) {
+  const groupName = String(body.group_name || body.group || '').trim();
+  const challengeId = String(body.challenge_id || '').trim();
+  if (!Object.hasOwn(groupFiles, groupName) || groupName === 'all') throw new Error('Cal seleccionar un grup concret.');
+  if (!challengeId) throw new Error('Cal seleccionar un microrepte.');
+  if (getOpenClassroomWorkSession(groupName, challengeId)) throw new Error('Ja hi ha una sessió oberta per a este grup i microrepte.');
+  const microrepte = await readMicrorepteDetail(challengeId);
+  if (!microrepte) throw new Error('Microrepte no trobat.');
+
+  const session = createClassroomWorkSession({
+    group_name: groupName,
+    challenge_id: challengeId,
+    session_code: microrepte.challenge?.session_code || '',
+    started_at: new Date().toISOString()
+  });
+  const checkpoints = await captureClassroomHeads(session, 'start');
+  for (const checkpoint of checkpoints) {
+    upsertClassroomWorkAssessment({
+      session_id: session.id,
+      student_id: checkpoint.student_id,
+      challenge_id: challengeId,
+      status: checkpoint.capture_status === 'error' ? 'technical_error' : 'pending',
+      automatic_level: null,
+      automatic_cap: null,
+      classroom_ratio: null,
+      reason: checkpoint.capture_status === 'error'
+        ? 'Ha fallat la captura inicial; no s’aplica cap topall.'
+        : 'Sessió iniciada; falta el checkpoint final.'
+    });
+  }
+  return { session, checkpoints };
+}
+
+async function closeAndDispatchClassroomWorkSession(sessionId) {
+  const session = getClassroomWorkSessionById(sessionId);
+  if (!session) throw new Error('Sessió d’aula no trobada.');
+  if (session.status !== 'open') throw new Error('La sessió d’aula ja està tancada.');
+  await captureClassroomHeads(session, 'end');
+  const closed = closeClassroomWorkSession(session.id, new Date().toISOString());
+  const checkpoints = getClassroomCheckpoints(session.id);
+  const byStudent = new Map();
+  for (const checkpoint of checkpoints) {
+    if (!byStudent.has(checkpoint.student_id)) byStudent.set(checkpoint.student_id, {});
+    byStudent.get(checkpoint.student_id)[checkpoint.phase] = checkpoint;
+  }
+  const valid = [...byStudent.values()].filter((item) => item.start?.commit_hash && item.end?.commit_hash);
+  const repositories = valid.map((item) => `${item.start.repo} ${item.start.group_name}`).join('\n');
+  const snapshots = valid.map((item) => `${item.start.repo} ${item.start.commit_hash} ${item.end.commit_hash}`).join('\n');
+  let workflow = null;
+
+  if (valid.length > 0) {
+    workflow = await dispatchWorkflow({
+      repositories,
+      target_group: session.group_name,
+      repositories_file: '',
+      challenge_id: session.challenge_id,
+      group: session.group_name,
+      mode: 'openai',
+      student_ref: 'main',
+      publish_to_student_repo: 'false',
+      classroom_snapshots: snapshots,
+      classroom_session_id: String(session.id)
+    });
+  }
+
+  await recalculateClassroomWork({ session_id: session.id });
+  return { session: closed, checkpoints, workflow };
+}
+
+async function technicalScoreForGrade(grade, rubric) {
+  if (!grade) return null;
+  const detail = await readGradeDetail(grade.id);
+  return detail?.result ? calculateTechnicalScore(detail.result, rubric) : null;
+}
+
+function resolveStoredClassroomAssessment(assessment) {
+  if (!assessment) return null;
+  const normalized = {
+    ...assessment,
+    classroom_ratio: assessment.classroom_ratio ?? assessment.automatic_ratio ?? null
+  };
+  return resolveClassroomAssessment(normalized, assessment.teacher_override_level ? {
+    level: assessment.teacher_override_level,
+    reason: assessment.teacher_override_reason
+  } : null);
+}
+
+async function recalculateClassroomWork(filters = {}) {
+  const sessions = filters.session_id
+    ? [getClassroomWorkSessionById(Number(filters.session_id))].filter(Boolean)
+    : getClassroomWorkSessions(filters).filter((session) => session.status === 'closed');
+  const recalculated = [];
+
+  for (const session of sessions) {
+    const microrepte = await readMicrorepteDetail(session.challenge_id);
+    if (!microrepte?.rubric) continue;
+    const checkpoints = getClassroomCheckpoints(session.id);
+    const byStudent = new Map();
+    for (const checkpoint of checkpoints) {
+      if (!byStudent.has(checkpoint.student_id)) byStudent.set(checkpoint.student_id, {});
+      byStudent.get(checkpoint.student_id)[checkpoint.phase] = checkpoint;
+    }
+
+    for (const [studentId, pair] of byStudent.entries()) {
+      const repo = pair.start?.repo || pair.end?.repo;
+      const captureError = pair.start?.capture_status === 'error' || pair.end?.capture_status === 'error';
+      const startGrade = pair.start?.commit_hash
+        ? getGradeByCommit(repo, session.challenge_id, pair.start.commit_hash, 'classroom_start', session.id)
+          || getGradeByCommit(repo, session.challenge_id, pair.start.commit_hash)
+        : null;
+      const endGrade = pair.end?.commit_hash
+        ? getGradeByCommit(repo, session.challenge_id, pair.end.commit_hash, 'classroom_end', session.id)
+          || getGradeByCommit(repo, session.challenge_id, pair.end.commit_hash)
+        : null;
+      const deliveryGrade = getLatestDeliveryGrade(repo, session.challenge_id);
+      const deliveryIsFinal = deliveryGrade && (!session.ended_at || new Date(deliveryGrade.timestamp).getTime() >= new Date(session.ended_at).getTime());
+      const startScore = await technicalScoreForGrade(startGrade, microrepte.rubric);
+      const endScore = await technicalScoreForGrade(endGrade, microrepte.rubric);
+      const finalScore = deliveryIsFinal ? await technicalScoreForGrade(deliveryGrade, microrepte.rubric) : null;
+
+      if (pair.start && startGrade && startScore !== null) {
+        updateClassroomCheckpointScore(session.id, studentId, 'start', { technical_score: startScore, grade_id: startGrade.id, capture_status: 'graded' });
+      }
+      if (pair.end && endGrade && endScore !== null) {
+        updateClassroomCheckpointScore(session.id, studentId, 'end', { technical_score: endScore, grade_id: endGrade.id, capture_status: 'graded' });
+      }
+
+      const checkpointStatus = captureError
+        ? 'error'
+        : startScore !== null && endScore !== null && finalScore !== null
+          ? 'ready'
+          : 'pending';
+      const automatic = classifyClassroomWork({
+        checkpoint_status: checkpointStatus,
+        start_score: startScore,
+        end_score: endScore,
+        final_score: finalScore
+      });
+      const stored = upsertClassroomWorkAssessment({
+        session_id: session.id,
+        student_id: studentId,
+        challenge_id: session.challenge_id,
+        ...automatic
+      });
+      recalculated.push(resolveStoredClassroomAssessment(stored));
+    }
+  }
+
+  return recalculated;
+}
+
+function enrichGradeWithClassroomWork(grade) {
+  const stored = getLatestClassroomWorkAssessment(grade.repo, grade.challenge_id);
+  const classroomWork = resolveStoredClassroomAssessment(stored);
+  return {
+    ...grade,
+    technical_score: classroomWork?.final_score ?? null,
+    effective_score: classroomWork ? applyClassroomCap(grade.score, classroomWork) : grade.score,
+    classroom_work: classroomWork
+  };
+}
+
 async function buildConfigPayload() {
   const activeChallenges = await readJson('course/active-challenges.json');
   const repositoriesByTarget = {};
@@ -974,7 +1209,7 @@ async function buildConfigPayload() {
 }
 
 async function readLatestGrades(filters = {}, limit = 200) {
-  return getLatestGrades(limit, filters);
+  return getLatestGrades(limit, filters).map(enrichGradeWithClassroomWork);
 }
 
 async function importLatestGradeArtifact() {
@@ -994,9 +1229,11 @@ async function importLatestGradeArtifact() {
     maxBuffer: 1024 * 1024 * 20
   });
 
+  const classroomWork = await recalculateClassroomWork({});
   return {
     stdout: result.stdout,
-    stderr: result.stderr
+    stderr: result.stderr,
+    classroom_work_recalculated: classroomWork.length
   };
 }
 
@@ -1057,11 +1294,13 @@ function parseRaScores(value) {
 function scoreEntriesForGrade(grade, microrepte) {
   const raScores = parseRaScores(grade.ra_scores)
     .filter((item) => item?.ra_id && typeof item.score === 'number');
+  const cap = grade.classroom_work?.effective_cap;
+  const capped = (score) => Number.isFinite(Number(cap)) ? Math.min(Number(score), Number(cap)) : Number(score);
 
   if (raScores.length > 0) {
     return raScores.map((item) => ({
       ra_id: String(item.ra_id).toUpperCase(),
-      score: item.score,
+      score: capped(item.score),
       assessed_ca: Array.isArray(item.assessed_ca) ? item.assessed_ca : []
     }));
   }
@@ -1073,7 +1312,7 @@ function scoreEntriesForGrade(grade, microrepte) {
 
   return [{
     ra_id: primaryRa,
-    score: Number(grade.score || 0),
+    score: capped(grade.score || 0),
     assessed_ca: Array.isArray(microrepte?.challenge?.assessed_ca) ? microrepte.challenge.assessed_ca : []
   }];
 }
@@ -1839,9 +2078,25 @@ function pageHtml() {
         </label>
         <button id="applyFilters" type="button">Aplicar filtres</button>
       </div>
+      <div class="feedback-box">
+        <h3>Treball d’aula automàtic</h3>
+        <p>Selecciona un grup i un microrepte. Iniciar captura el <code>main</code> inicial; tancar captura el final i llança la correcció dels dos SHA exactes.</p>
+        <p class="status">Si falta una captura perquè no s’ha iniciat o tancat la sessió, el cas queda pendent i no aplica cap topall a l’alumnat.</p>
+        <div class="compact-actions">
+          <button id="startClassroomWork" type="button">Iniciar sessió</button>
+          <button id="closeClassroomWork" type="button">Tancar sessió</button>
+          <button id="recalculateClassroomWork" class="secondary" type="button">Recalcular evidència</button>
+        </div>
+        <div id="classroomWorkStatus" class="status"></div>
+      </div>
       <table>
-        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Nota</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
+        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Tècnica</th><th>Procés</th><th>Topall</th><th>Aplicable</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
         <tbody id="gradeRows"></tbody>
+      </table>
+      <h3>Valoracions automàtiques i excepcions</h3>
+      <table>
+        <thead><tr><th>Repo</th><th>Sessió</th><th>Progrés a classe</th><th>Automàtica</th><th>Vigent</th><th>Excepció docent</th></tr></thead>
+        <tbody id="classroomWorkRows"></tbody>
       </table>
       <div id="gradesInfo" class="status"></div>
       <div id="classReportPanel" class="markdown-rendered hidden"></div>
@@ -2026,6 +2281,7 @@ function pageHtml() {
     let classroomProgramming = [];
     let currentMicrorepte = null;
     let editingStudentId = null;
+    let activeClassroomSessionId = null;
 
     function showView(view) {
       document.querySelectorAll('.view-panel').forEach((panel) => {
@@ -2925,7 +3181,8 @@ function pageHtml() {
     function renderGradeDetail(detail) {
       const grade = detail.grade || {};
       const result = detail.result || {};
-      const score = result.final_score_over_10 ?? grade.score ?? '-';
+      const technicalScore = result.final_score_over_10 ?? grade.score ?? '-';
+      const score = grade.effective_score ?? technicalScore;
       const confidence = result.confidence ?? grade.confidence ?? 0;
       const reviewRequired = Boolean(result.teacher_review_required ?? grade.teacher_review_required);
       const markdown = detail.markdown || result.short_feedback_md || grade.feedback || '';
@@ -2934,7 +3191,8 @@ function pageHtml() {
       document.querySelector('#resultViewer').innerHTML =
         '<div class="result-header">' +
           '<div class="metric"><span>Repositori</span><strong>' + repositoryLink(grade.repo) + '</strong><p class="status">' + escapeHtml(grade.challenge_id) + '</p></div>' +
-          '<div class="metric"><span>Nota</span><strong class="' + getScoreClass(Number(score) || 0) + '">' + escapeHtml(score) + '/10</strong></div>' +
+          '<div class="metric"><span>Nota tècnica</span><strong>' + escapeHtml(technicalScore) + '/10</strong></div>' +
+          '<div class="metric"><span>Nota aplicable</span><strong class="' + getScoreClass(Number(score) || 0) + '">' + escapeHtml(score) + '/10</strong><p class="status">' + escapeHtml(grade.classroom_work ? classroomLevelLabel(grade.classroom_work.effective_level) + ' · topall ' + (grade.classroom_work.effective_cap ?? '—') : 'Procés pendent') + '</p></div>' +
           '<div class="metric"><span>Confiança</span><strong>' + Math.round((Number(confidence) || 0) * 100) + '%</strong></div>' +
           '<div class="metric"><span>Revisió</span><strong class="' + (reviewRequired ? 'error' : 'ok') + '">' + (reviewRequired ? 'Sí' : 'No') + '</strong></div>' +
         '</div>' +
@@ -3369,6 +3627,123 @@ function pageHtml() {
       }
     }
 
+    function classroomLevelLabel(level) {
+      return ({ high: 'Alta', medium: 'Mitjana', low: 'Baixa', no_evidence: 'Sense evidència' })[level] || 'Pendent';
+    }
+
+    async function loadClassroomWork() {
+      const group = document.querySelector('#filterGroup').value;
+      const challenge = document.querySelector('#filterChallenge').value;
+      const status = document.querySelector('#classroomWorkStatus');
+      const params = new URLSearchParams();
+      if (group) params.set('group', group);
+      if (challenge) params.set('challenge', challenge);
+
+      const [sessionsResponse, assessmentsResponse] = await Promise.all([
+        fetch('/api/classroom-work/sessions?' + params.toString()),
+        fetch('/api/classroom-work/assessments?' + params.toString())
+      ]);
+      const sessionsPayload = await sessionsResponse.json();
+      const assessmentsPayload = await assessmentsResponse.json();
+      if (!sessionsResponse.ok) throw new Error(sessionsPayload.error || 'No s’han pogut carregar les sessions.');
+      if (!assessmentsResponse.ok) throw new Error(assessmentsPayload.error || 'No s’han pogut carregar les valoracions.');
+
+      const sessions = sessionsPayload.sessions || [];
+      const open = sessions.find((session) => session.status === 'open');
+      activeClassroomSessionId = open?.id || null;
+      document.querySelector('#startClassroomWork').disabled = !group || !challenge || Boolean(open);
+      document.querySelector('#closeClassroomWork').disabled = !open;
+      status.innerHTML = open
+        ? '<span class="ok">Sessió oberta des de ' + escapeHtml(formatTimestamp(open.started_at)) + ' · ' + escapeHtml(open.checkpoint_students || 0) + ' repositoris capturats.</span>'
+        : (group && challenge ? 'No hi ha cap sessió oberta per a la selecció.' : 'Selecciona un grup i un microrepte.');
+
+      const assessments = assessmentsPayload.assessments || [];
+      const rows = assessments.map((assessment) => {
+        const ratio = assessment.classroom_ratio === null || assessment.classroom_ratio === undefined
+          ? '—'
+          : Math.round(Number(assessment.classroom_ratio) * 100) + '%';
+        const override = assessment.teacher_override_level || '';
+        const options = [
+          ['', 'Sense excepció'],
+          ['high', 'Alta · topall 10'],
+          ['medium', 'Mitjana · topall 9'],
+          ['low', 'Baixa · topall 7,5'],
+          ['no_evidence', 'Sense evidència · topall 6']
+        ].map(([value, label]) => '<option value="' + value + '"' + (override === value ? ' selected' : '') + '>' + label + '</option>').join('');
+        return '<tr>' +
+          '<td>' + repositoryLink(assessment.repo || '') + '</td>' +
+          '<td>' + escapeHtml(assessment.session_code || assessment.session_id) + '</td>' +
+          '<td>' + escapeHtml(ratio) + '</td>' +
+          '<td>' + escapeHtml(classroomLevelLabel(assessment.automatic_level)) + (assessment.automatic_cap == null ? '' : ' · ' + escapeHtml(assessment.automatic_cap)) + '<br><small>' + escapeHtml(assessment.automatic_reason || '') + '</small></td>' +
+          '<td><strong>' + escapeHtml(classroomLevelLabel(assessment.effective_level)) + '</strong>' + (assessment.effective_cap == null ? '' : ' · ' + escapeHtml(assessment.effective_cap)) + '</td>' +
+          '<td><select data-classroom-override-level>' + options + '</select>' +
+            '<textarea rows="2" data-classroom-override-reason placeholder="Justificació obligatòria si hi ha excepció">' + escapeHtml(assessment.teacher_override_reason || '') + '</textarea>' +
+            '<button class="secondary" type="button" data-save-classroom-override data-session="' + escapeHtml(assessment.session_id) + '" data-student="' + escapeHtml(assessment.student_id) + '">Guardar</button></td>' +
+        '</tr>';
+      });
+      document.querySelector('#classroomWorkRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6">Encara no hi ha valoracions de treball d’aula.</td></tr>';
+      document.querySelectorAll('[data-save-classroom-override]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const row = button.closest('tr');
+          const level = row.querySelector('[data-classroom-override-level]').value;
+          const reason = row.querySelector('[data-classroom-override-reason]').value;
+          button.disabled = true;
+          try {
+            const response = await fetch('/api/classroom-work/assessments/' + encodeURIComponent(button.dataset.session) + '/' + encodeURIComponent(button.dataset.student) + '/override', {
+              method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ level, reason })
+            });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.error || 'No s’ha pogut guardar l’excepció.');
+            await loadGrades();
+          } catch (error) {
+            status.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
+          } finally {
+            button.disabled = false;
+          }
+        });
+      });
+    }
+
+    async function startClassroomWork() {
+      const group = document.querySelector('#filterGroup').value;
+      const challenge = document.querySelector('#filterChallenge').value;
+      const status = document.querySelector('#classroomWorkStatus');
+      if (!group || !challenge) {
+        status.innerHTML = '<span class="error">Selecciona un grup i un microrepte.</span>';
+        return;
+      }
+      status.textContent = 'Capturant els SHA inicials...';
+      const response = await fetch('/api/classroom-work/sessions/start', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ group_name: group, challenge_id: challenge })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'No s’ha pogut iniciar la sessió.');
+      await loadClassroomWork();
+    }
+
+    async function closeClassroomWork() {
+      if (!activeClassroomSessionId) return;
+      const status = document.querySelector('#classroomWorkStatus');
+      status.textContent = 'Capturant els SHA finals i llançant la correcció dels checkpoints...';
+      const response = await fetch('/api/classroom-work/sessions/' + encodeURIComponent(activeClassroomSessionId) + '/close', { method: 'POST' });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'No s’ha pogut tancar la sessió.');
+      const link = payload.workflow?.run_url || payload.workflow?.actions_url;
+      status.innerHTML = '<span class="ok">Sessió tancada. Correcció dels checkpoints enviada.</span>' + (link ? ' <a href="' + escapeHtml(link) + '" target="_blank" rel="noreferrer">Obrir execució</a>' : '');
+      await loadClassroomWork();
+    }
+
+    async function recalculateClassroomWork() {
+      const group = document.querySelector('#filterGroup').value;
+      const challenge = document.querySelector('#filterChallenge').value;
+      const response = await fetch('/api/classroom-work/recalculate', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ group_name: group, challenge_id: challenge })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'No s’ha pogut recalcular el treball d’aula.');
+      await loadGrades();
+    }
+
     async function loadGrades() {
       const group = document.querySelector('#filterGroup').value;
       const challenge = document.querySelector('#filterChallenge').value;
@@ -3384,14 +3759,18 @@ function pageHtml() {
         const payload = await response.json();
         const grades = payload.grades || [];
         const rows = grades.slice(0, 100).map((grade) => {
-          const scoreClass = getScoreClass(grade.score || 0);
+          const scoreClass = getScoreClass(grade.effective_score ?? grade.score ?? 0);
           const reviewClass = grade.teacher_review_required ? 'review-required' : '';
+          const process = grade.classroom_work;
           return '<tr class="' + reviewClass + '">' +
             '<td>' + formatTimestamp(grade.timestamp) + '</td>' +
             '<td>' + repositoryLink(grade.repo || '') + '</td>' +
             '<td>' + escapeHtml(grade.group_name || '') + '</td>' +
             '<td><code>' + escapeHtml(grade.challenge_id || '') + '</code></td>' +
-            '<td class="' + scoreClass + '">' + escapeHtml(grade.score ?? '-') + '</td>' +
+            '<td>' + escapeHtml(grade.technical_score ?? grade.score ?? '-') + '</td>' +
+            '<td>' + escapeHtml(process ? classroomLevelLabel(process.effective_level) : 'Pendent') + '</td>' +
+            '<td>' + escapeHtml(process?.effective_cap ?? '—') + '</td>' +
+            '<td class="' + scoreClass + '">' + escapeHtml(grade.effective_score ?? grade.score ?? '-') + '</td>' +
             '<td>' + Math.round((grade.confidence || 0) * 100) + '%</td>' +
             '<td>' + escapeHtml(grade.source || '') + '</td>' +
             '<td><div class="compact-actions">' +
@@ -3401,7 +3780,7 @@ function pageHtml() {
             '</div></td>' +
             '</tr>';
         });
-        document.querySelector('#gradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="8">No hi ha resultats.</td></tr>';
+        document.querySelector('#gradeRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="11">No hi ha resultats.</td></tr>';
         document.querySelectorAll('[data-grade-id]').forEach((button) => {
           button.addEventListener('click', () => showGradeDetail(button.dataset.gradeId));
         });
@@ -3412,6 +3791,7 @@ function pageHtml() {
           button.addEventListener('click', () => deleteGradeRow(button.dataset.gradeDelete, button.dataset.gradeRepo, button.dataset.gradeChallenge));
         });
         document.querySelector('#gradesInfo').textContent = 'Mostrant ' + grades.length + ' resultats';
+        await loadClassroomWork();
         await loadRepteGrades(params);
       } catch (error) {
         document.querySelector('#gradesInfo').textContent = 'Error: ' + error.message;
@@ -3748,6 +4128,18 @@ function pageHtml() {
     document.querySelector('#refreshGrades').addEventListener('click', importLatestGrades);
     document.querySelector('#recalculateFilteredGrades').addEventListener('click', recalculateFilteredGrades);
     document.querySelector('#buildClassReport').addEventListener('click', buildClassReport);
+    document.querySelector('#startClassroomWork').addEventListener('click', async () => {
+      try { await startClassroomWork(); }
+      catch (error) { document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>'; }
+    });
+    document.querySelector('#closeClassroomWork').addEventListener('click', async () => {
+      try { await closeClassroomWork(); }
+      catch (error) { document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>'; }
+    });
+    document.querySelector('#recalculateClassroomWork').addEventListener('click', async () => {
+      try { await recalculateClassroomWork(); }
+      catch (error) { document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>'; }
+    });
     document.querySelector('#applyFilters').addEventListener('click', () => loadGrades());
     document.querySelector('#filterStudent').addEventListener('change', loadGrades);
     document.querySelector('#clearViewer').addEventListener('click', clearViewer);
@@ -3796,6 +4188,59 @@ async function handleRequest(request, response) {
 
     if (request.method === 'GET' && url.pathname === '/api/config') {
       sendJson(response, 200, await buildConfigPayload());
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/classroom-work/sessions') {
+      const filters = {};
+      if (url.searchParams.has('group')) filters.group_name = url.searchParams.get('group');
+      if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
+      sendJson(response, 200, { sessions: getClassroomWorkSessions(filters) });
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/classroom-work/sessions/start') {
+      const body = await readRequestJson(request);
+      sendJson(response, 200, await startClassroomWorkSession(body));
+      return;
+    }
+
+    const closeClassroomSessionMatch = url.pathname.match(/^\/api\/classroom-work\/sessions\/(\d+)\/close$/);
+    if (request.method === 'POST' && closeClassroomSessionMatch) {
+      sendJson(response, 200, await closeAndDispatchClassroomWorkSession(Number(closeClassroomSessionMatch[1])));
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/classroom-work/recalculate') {
+      const body = await readRequestJson(request);
+      sendJson(response, 200, { assessments: await recalculateClassroomWork(body) });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/classroom-work/assessments') {
+      const filters = {};
+      if (url.searchParams.has('group')) filters.group_name = url.searchParams.get('group');
+      if (url.searchParams.has('challenge')) filters.challenge_id = url.searchParams.get('challenge');
+      if (url.searchParams.has('repo')) filters.repo = url.searchParams.get('repo');
+      const assessments = getClassroomWorkAssessments(filters).map(resolveStoredClassroomAssessment);
+      sendJson(response, 200, { assessments });
+      return;
+    }
+
+    const classroomOverrideMatch = url.pathname.match(/^\/api\/classroom-work\/assessments\/(\d+)\/(\d+)\/override$/);
+    if (request.method === 'POST' && classroomOverrideMatch) {
+      const sessionId = Number(classroomOverrideMatch[1]);
+      const studentId = Number(classroomOverrideMatch[2]);
+      const current = getClassroomWorkAssessment(sessionId, studentId);
+      if (!current) {
+        sendJson(response, 404, { error: 'Valoració de treball d’aula no trobada.' });
+        return;
+      }
+      const body = await readRequestJson(request);
+      const level = String(body.level || '').trim() || null;
+      if (level) resolveClassroomAssessment(current, { level, reason: body.reason });
+      const saved = saveClassroomWorkOverride(sessionId, studentId, level ? { level, reason: body.reason } : null);
+      sendJson(response, 200, { assessment: resolveStoredClassroomAssessment(saved) });
       return;
     }
 

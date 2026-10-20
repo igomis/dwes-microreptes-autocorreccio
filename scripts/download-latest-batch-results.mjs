@@ -1,4 +1,4 @@
-import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { execFile } from 'node:child_process';
 import os from 'node:os';
@@ -119,21 +119,19 @@ async function readJson(filePath) {
 
 async function migrateDownloadedGrades(rootDir) {
   const latestGradesPath = path.join(rootDir, 'grades', 'latest-grades.json');
-  if (!existsSync(latestGradesPath)) {
-    console.log('No existeix grades/latest-grades.json; no hi ha notes per migrar a la BD.');
-    return 0;
-  }
-
-  const grades = await readJson(latestGradesPath);
-  if (!Array.isArray(grades) || grades.length === 0) {
-    console.log('grades/latest-grades.json està buit; no hi ha notes per migrar a la BD.');
+  const checkpointGradesPath = path.join(rootDir, 'grades', 'classroom-checkpoint-grades.json');
+  const grades = existsSync(latestGradesPath) ? await readJson(latestGradesPath) : [];
+  const checkpointGrades = existsSync(checkpointGradesPath) ? await readJson(checkpointGradesPath) : [];
+  const allGrades = [...(Array.isArray(grades) ? grades : []), ...(Array.isArray(checkpointGrades) ? checkpointGrades : [])];
+  if (allGrades.length === 0) {
+    console.log('No hi ha notes ordinàries ni checkpoints per migrar a la BD.');
     return 0;
   }
 
   initDb();
-  migrateFromJson(grades);
+  migrateFromJson(allGrades);
   closeDb();
-  return grades.length;
+  return allGrades.length;
 }
 
 async function createDownloadDir(rootDir, configuredDir, runId) {
@@ -170,6 +168,18 @@ async function copyDownloadedGrades(rootDir, downloadedGradesDir) {
     path.join(targetGradesDir, 'latest-grades.csv'),
     { force: true }
   );
+  const downloadedCheckpoints = path.join(downloadedGradesDir, 'classroom-checkpoint-grades.json');
+  const localCheckpoints = path.join(targetGradesDir, 'classroom-checkpoint-grades.json');
+  if (existsSync(downloadedCheckpoints)) {
+    const current = existsSync(localCheckpoints) ? await readJson(localCheckpoints) : [];
+    const incoming = await readJson(downloadedCheckpoints);
+    const merged = new Map();
+    for (const grade of [...(Array.isArray(current) ? current : []), ...(Array.isArray(incoming) ? incoming : [])]) {
+      const key = [grade.repo || grade.student || '', grade.challenge_id || '', grade.commit || '', grade.assessment_context || '', grade.classroom_session_id || ''].join('\u0000');
+      merged.set(key, grade);
+    }
+    await writeFile(localCheckpoints, `${JSON.stringify([...merged.values()], null, 2)}\n`, 'utf8');
+  }
   await copyIfExists(
     path.join(downloadedGradesDir, 'latest-repte-grades.json'),
     path.join(targetGradesDir, 'latest-repte-grades.json'),
