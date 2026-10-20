@@ -117,6 +117,12 @@ export function initDb(dbPath = DB_PATH) {
       status TEXT NOT NULL DEFAULT 'open',
       started_at TEXT NOT NULL,
       ended_at TEXT,
+      workflow_status TEXT NOT NULL DEFAULT 'capturing',
+      workflow_run_id INTEGER,
+      workflow_run_url TEXT,
+      workflow_dispatched_at TEXT,
+      workflow_imported_at TEXT,
+      workflow_error TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -155,6 +161,26 @@ export function initDb(dbPath = DB_PATH) {
       FOREIGN KEY (student_id) REFERENCES students(id),
       UNIQUE(session_id, student_id)
     );
+  `);
+
+  const classroomSessionColumns = db.prepare('PRAGMA table_info(classroom_work_sessions)').all().map(column => column.name);
+  const classroomSessionMigrations = [
+    ['workflow_status', "TEXT NOT NULL DEFAULT 'capturing'"],
+    ['workflow_run_id', 'INTEGER'],
+    ['workflow_run_url', 'TEXT'],
+    ['workflow_dispatched_at', 'TEXT'],
+    ['workflow_imported_at', 'TEXT'],
+    ['workflow_error', 'TEXT']
+  ];
+  for (const [column, definition] of classroomSessionMigrations) {
+    if (!classroomSessionColumns.includes(column)) {
+      db.exec(`ALTER TABLE classroom_work_sessions ADD COLUMN ${column} ${definition}`);
+    }
+  }
+  db.exec(`
+    UPDATE classroom_work_sessions
+    SET workflow_status = 'waiting_delivery'
+    WHERE status = 'closed' AND workflow_status = 'capturing'
   `);
 
   // Índexs per rendiment
@@ -415,9 +441,27 @@ export function closeClassroomWorkSession(sessionId, endedAt) {
   const db = getDb();
   db.prepare(`
     UPDATE classroom_work_sessions
-    SET status = 'closed', ended_at = ?
+    SET status = 'closed', ended_at = ?, workflow_status = 'waiting_delivery', workflow_error = NULL
     WHERE id = ? AND status = 'open'
   `).run(endedAt, sessionId);
+  return getClassroomWorkSessionById(sessionId);
+}
+
+export function updateClassroomWorkSessionWorkflow(sessionId, workflow) {
+  getDb().prepare(`
+    UPDATE classroom_work_sessions
+    SET workflow_status = ?, workflow_run_id = ?, workflow_run_url = ?,
+        workflow_dispatched_at = ?, workflow_imported_at = ?, workflow_error = ?
+    WHERE id = ?
+  `).run(
+    workflow.status,
+    workflow.run_id ?? null,
+    workflow.run_url || null,
+    workflow.dispatched_at || null,
+    workflow.imported_at || null,
+    workflow.error || null,
+    sessionId
+  );
   return getClassroomWorkSessionById(sessionId);
 }
 

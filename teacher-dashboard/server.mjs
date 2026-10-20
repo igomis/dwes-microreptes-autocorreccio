@@ -39,6 +39,7 @@ import {
   getOpenClassroomWorkSession,
   getClassroomWorkSessions,
   closeClassroomWorkSession,
+  updateClassroomWorkSessionWorkflow,
   upsertClassroomCheckpoint,
   getClassroomCheckpoints,
   updateClassroomCheckpointScore,
@@ -918,19 +919,22 @@ async function dispatchWorkflow(inputs, selectedWorkflowFile = correctionWorkflo
     throw new Error(`GitHub ha retornat ${githubResponse.status}: ${errorText}`);
   }
 
-  const run = await findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt, selectedWorkflowFile });
+  const expectedTitle = inputs.classroom_session_id ? `Aula ${inputs.classroom_session_id}` : null;
+  const run = await findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt, selectedWorkflowFile, expectedTitle });
 
   return {
     actions_url: `https://github.com/${owner}/${repo}/actions/workflows/${selectedWorkflowFile}`,
+    run_id: run?.id || null,
     run_url: run?.html_url || '',
     run_status: run?.status || '',
+    dispatched_at: dispatchedAt,
     owner,
     repo,
     ref
   };
 }
 
-async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt, selectedWorkflowFile }) {
+async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt, selectedWorkflowFile, expectedTitle = null }) {
   const url = new URL(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/${selectedWorkflowFile}/runs`);
   url.searchParams.set('branch', ref);
   url.searchParams.set('event', 'workflow_dispatch');
@@ -952,6 +956,7 @@ async function findDispatchedWorkflowRun({ token, owner, repo, ref, dispatchedAt
     const payload = await response.json();
     const run = (payload.workflow_runs || []).find((item) => (
       new Date(item.created_at).getTime() >= new Date(dispatchedAt).getTime() - 10000
+      && (!expectedTitle || item.display_title === expectedTitle)
     ));
 
     if (run) {
@@ -1048,12 +1053,7 @@ async function startClassroomWorkSession(body) {
   return { session, checkpoints };
 }
 
-async function closeAndDispatchClassroomWorkSession(sessionId) {
-  const session = getClassroomWorkSessionById(sessionId);
-  if (!session) throw new Error('Sessió d’aula no trobada.');
-  if (session.status !== 'open') throw new Error('La sessió d’aula ja està tancada.');
-  await captureClassroomHeads(session, 'end');
-  const closed = closeClassroomWorkSession(session.id, new Date().toISOString());
+function classroomWorkflowSelection(session) {
   const checkpoints = getClassroomCheckpoints(session.id);
   const byStudent = new Map();
   for (const checkpoint of checkpoints) {
@@ -1061,27 +1061,65 @@ async function closeAndDispatchClassroomWorkSession(sessionId) {
     byStudent.get(checkpoint.student_id)[checkpoint.phase] = checkpoint;
   }
   const valid = [...byStudent.values()].filter((item) => item.start?.commit_hash && item.end?.commit_hash);
-  const repositories = valid.map((item) => `${item.start.repo} ${item.start.group_name}`).join('\n');
-  const snapshots = valid.map((item) => `${item.start.repo} ${item.start.commit_hash} ${item.end.commit_hash}`).join('\n');
-  let workflow = null;
+  return {
+    checkpoints,
+    repositories: valid.map((item) => `${item.start.repo} ${item.start.group_name}`).join('\n'),
+    snapshots: valid.map((item) => `${item.start.repo} ${item.start.commit_hash} ${item.end.commit_hash}`).join('\n'),
+    valid_students: valid.length
+  };
+}
 
-  if (valid.length > 0) {
-    workflow = await dispatchWorkflow({
-      repositories,
+async function closeClassroomWorkSessionCapture(sessionId) {
+  const session = getClassroomWorkSessionById(sessionId);
+  if (!session) throw new Error('Sessió d’aula no trobada.');
+  if (session.status !== 'open') throw new Error('La sessió d’aula ja està tancada.');
+  await captureClassroomHeads(session, 'end');
+  const closed = closeClassroomWorkSession(session.id, new Date().toISOString());
+  await recalculateClassroomWork({ session_id: session.id });
+  return { session: closed, checkpoints: getClassroomCheckpoints(session.id) };
+}
+
+async function gradeClassroomWorkSession(sessionId) {
+  const session = getClassroomWorkSessionById(sessionId);
+  if (!session) throw new Error('Sessió d’aula no trobada.');
+  if (session.status !== 'closed') throw new Error('Cal tancar la sessió abans de corregir l’entrega definitiva.');
+  if (['queued', 'in_progress'].includes(session.workflow_status)) {
+    throw new Error('La correcció definitiva d’esta sessió ja està en curs.');
+  }
+  const selection = classroomWorkflowSelection(session);
+  if (selection.valid_students === 0) {
+    throw new Error('No hi ha cap alumne amb els dos checkpoints capturats.');
+  }
+
+  try {
+    const workflow = await dispatchWorkflow({
+      repositories: selection.repositories,
       target_group: session.group_name,
       repositories_file: '',
       challenge_id: session.challenge_id,
       group: session.group_name,
       mode: 'openai',
       student_ref: 'main',
-      publish_to_student_repo: 'false',
-      classroom_snapshots: snapshots,
+      publish_to_student_repo: 'true',
+      classroom_snapshots: selection.snapshots,
       classroom_session_id: String(session.id)
     });
+    const updated = updateClassroomWorkSessionWorkflow(session.id, {
+      status: workflow.run_id ? (workflow.run_status === 'in_progress' ? 'in_progress' : 'queued') : 'error',
+      run_id: workflow.run_id,
+      run_url: workflow.run_url || workflow.actions_url,
+      dispatched_at: workflow.dispatched_at,
+      error: workflow.run_id ? null : 'GitHub ha acceptat l’execució, però el servidor no n’ha pogut identificar l’ID de manera segura.'
+    });
+    return { session: updated, workflow, valid_students: selection.valid_students };
+  } catch (error) {
+    updateClassroomWorkSessionWorkflow(session.id, {
+      status: 'error',
+      dispatched_at: new Date().toISOString(),
+      error: error.message
+    });
+    throw error;
   }
-
-  await recalculateClassroomWork({ session_id: session.id });
-  return { session: closed, checkpoints, workflow };
 }
 
 async function technicalScoreForGrade(grade, rubric) {
@@ -1212,18 +1250,20 @@ async function readLatestGrades(filters = {}, limit = 200) {
   return getLatestGrades(limit, filters).map(enrichGradeWithClassroomWork);
 }
 
-async function importLatestGradeArtifact() {
+async function importGradeArtifact(runId = null) {
   const env = { ...process.env };
   if (!env.GH_TOKEN && env.GITHUB_TOKEN) {
     env.GH_TOKEN = env.GITHUB_TOKEN;
   }
 
-  const result = await execFileAsync('npm', [
+  const args = [
     'run',
     'grades:download-latest',
     '--',
     '--include-failed'
-  ], {
+  ];
+  if (runId) args.push('--run-id', String(runId));
+  const result = await execFileAsync('npm', args, {
     cwd: rootDir,
     env,
     maxBuffer: 1024 * 1024 * 20
@@ -1235,6 +1275,70 @@ async function importLatestGradeArtifact() {
     stderr: result.stderr,
     classroom_work_recalculated: classroomWork.length
   };
+}
+
+async function readWorkflowRun(runId) {
+  const token = process.env.GITHUB_TOKEN;
+  const owner = process.env.GITHUB_OWNER || 'igomis';
+  const repo = process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio';
+  if (!token) throw new Error('Falta GITHUB_TOKEN per seguir la correcció automàtica.');
+  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}`, {
+    headers: {
+      accept: 'application/vnd.github+json',
+      authorization: `Bearer ${token}`,
+      'x-github-api-version': '2022-11-28'
+    }
+  });
+  if (!response.ok) throw new Error(`GitHub ha retornat ${response.status} consultant l’execució ${runId}.`);
+  return response.json();
+}
+
+let classroomWorkflowMonitorRunning = false;
+
+async function monitorClassroomWorkflowRuns() {
+  if (classroomWorkflowMonitorRunning) return;
+  classroomWorkflowMonitorRunning = true;
+  try {
+    const sessions = getClassroomWorkSessions().filter((session) => (
+      ['queued', 'in_progress'].includes(session.workflow_status) && session.workflow_run_id
+    ));
+    for (const session of sessions) {
+      let run = null;
+      try {
+        run = await readWorkflowRun(session.workflow_run_id);
+        if (run.status !== 'completed') {
+          updateClassroomWorkSessionWorkflow(session.id, {
+            status: run.status === 'in_progress' ? 'in_progress' : 'queued',
+            run_id: session.workflow_run_id,
+            run_url: run.html_url || session.workflow_run_url,
+            dispatched_at: session.workflow_dispatched_at
+          });
+          continue;
+        }
+
+        await importGradeArtifact(session.workflow_run_id);
+        const successful = run.conclusion === 'success';
+        updateClassroomWorkSessionWorkflow(session.id, {
+          status: successful ? 'completed' : 'error',
+          run_id: session.workflow_run_id,
+          run_url: run.html_url || session.workflow_run_url,
+          dispatched_at: session.workflow_dispatched_at,
+          imported_at: new Date().toISOString(),
+          error: successful ? null : `L’execució ha acabat amb resultat ${run.conclusion || 'desconegut'}; s’han importat els resultats disponibles.`
+        });
+      } catch (error) {
+        updateClassroomWorkSessionWorkflow(session.id, {
+          status: run?.status === 'completed' ? 'error' : session.workflow_status,
+          run_id: session.workflow_run_id,
+          run_url: session.workflow_run_url,
+          dispatched_at: session.workflow_dispatched_at,
+          error: error.message
+        });
+      }
+    }
+  } finally {
+    classroomWorkflowMonitorRunning = false;
+  }
 }
 
 async function buildClassFollowupReport(body) {
@@ -2051,7 +2155,6 @@ function pageHtml() {
         <h2>Últims resultats</h2>
         <div class="compact-actions">
           <a id="gradesSpreadsheetLink" class="secondary nav-link hidden" href="#" target="_blank" rel="noopener noreferrer">Full de notes del grup</a>
-          <button id="refreshGrades" type="button">Actualitzar</button>
           <button id="recalculateFilteredGrades" type="button">Recalcular seleccionats</button>
           <button id="buildClassReport" type="button">Informe classe</button>
         </div>
@@ -2080,14 +2183,22 @@ function pageHtml() {
       </div>
       <div class="feedback-box">
         <h3>Treball d’aula automàtic</h3>
-        <p>Selecciona un grup i un microrepte. Iniciar captura el <code>main</code> inicial; tancar captura el final i llança la correcció dels dos SHA exactes.</p>
+        <p>Selecciona un grup i un microrepte. Iniciar captura el <code>main</code> inicial; tancar captura el final i deixa la sessió preparada per a l’entrega definitiva.</p>
         <p class="status">Si falta una captura perquè no s’ha iniciat o tancat la sessió, el cas queda pendent i no aplica cap topall a l’alumnat.</p>
         <div class="compact-actions">
           <button id="startClassroomWork" type="button">Iniciar sessió</button>
           <button id="closeClassroomWork" type="button">Tancar sessió</button>
-          <button id="recalculateClassroomWork" class="secondary" type="button">Recalcular evidència</button>
+          <button id="gradeClassroomDelivery" type="button">Corregir entregues definitives</button>
         </div>
         <div id="classroomWorkStatus" class="status"></div>
+        <details>
+          <summary>Recuperació avançada</summary>
+          <p class="status">Usa estes accions només si una execució externa o una incidència no s’ha importat automàticament.</p>
+          <div class="compact-actions">
+            <button id="refreshGrades" class="secondary" type="button">Importar últim resultat</button>
+            <button id="recalculateClassroomWork" class="secondary" type="button">Recalcular evidència</button>
+          </div>
+        </details>
       </div>
       <table>
         <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Tècnica</th><th>Procés</th><th>Topall</th><th>Aplicable</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
@@ -2282,6 +2393,8 @@ function pageHtml() {
     let currentMicrorepte = null;
     let editingStudentId = null;
     let activeClassroomSessionId = null;
+    let classroomDeliverySessionId = null;
+    let classroomWorkRefreshTimer = null;
 
     function showView(view) {
       document.querySelectorAll('.view-panel').forEach((panel) => {
@@ -3650,12 +3763,33 @@ function pageHtml() {
 
       const sessions = sessionsPayload.sessions || [];
       const open = sessions.find((session) => session.status === 'open');
+      const actionable = sessions.find((session) => session.status === 'closed' && ['waiting_delivery', 'error'].includes(session.workflow_status));
+      const current = open || actionable || sessions[0] || null;
       activeClassroomSessionId = open?.id || null;
+      classroomDeliverySessionId = actionable?.id || null;
       document.querySelector('#startClassroomWork').disabled = !group || !challenge || Boolean(open);
       document.querySelector('#closeClassroomWork').disabled = !open;
-      status.innerHTML = open
-        ? '<span class="ok">Sessió oberta des de ' + escapeHtml(formatTimestamp(open.started_at)) + ' · ' + escapeHtml(open.checkpoint_students || 0) + ' repositoris capturats.</span>'
-        : (group && challenge ? 'No hi ha cap sessió oberta per a la selecció.' : 'Selecciona un grup i un microrepte.');
+      document.querySelector('#gradeClassroomDelivery').disabled = !actionable;
+      if (open) {
+        status.innerHTML = '<span class="ok">Captura inicial guardada. Sessió oberta des de ' + escapeHtml(formatTimestamp(open.started_at)) + ' · ' + escapeHtml(open.checkpoint_students || 0) + ' repositoris.</span>';
+      } else if (current?.workflow_status === 'waiting_delivery') {
+        status.innerHTML = '<span class="ok">Checkpoints guardats. Quan les entregues siguen definitives, prem «Corregir entregues definitives».</span>';
+      } else if (['queued', 'in_progress'].includes(current?.workflow_status)) {
+        const runLink = current.workflow_run_url ? ' <a href="' + escapeHtml(current.workflow_run_url) + '" target="_blank" rel="noreferrer">Veure execució</a>' : '';
+        const warning = current.workflow_error ? '<br><span class="error">Reintent automàtic pendent: ' + escapeHtml(current.workflow_error) + '</span>' : '';
+        status.innerHTML = '<span class="ok">Corregint inici, final de classe i entrega definitiva. El servidor importarà el resultat automàticament.</span>' + runLink + warning;
+      } else if (current?.workflow_status === 'completed') {
+        status.innerHTML = '<span class="ok">Correcció importada i evidència calculada automàticament.</span>';
+      } else if (current?.workflow_status === 'error') {
+        status.innerHTML = '<span class="error">Incidència en la correcció: ' + escapeHtml(current.workflow_error || 'revisa l’execució') + '</span> Pots reintentar sense penalitzar l’alumnat.';
+      } else {
+        status.textContent = group && challenge ? 'No hi ha cap sessió per a la selecció.' : 'Selecciona un grup i un microrepte.';
+      }
+
+      if (classroomWorkRefreshTimer) clearTimeout(classroomWorkRefreshTimer);
+      if (['queued', 'in_progress'].includes(current?.workflow_status)) {
+        classroomWorkRefreshTimer = setTimeout(() => loadGrades(), 10000);
+      }
 
       const assessments = assessmentsPayload.assessments || [];
       const rows = assessments.map((assessment) => {
@@ -3724,13 +3858,30 @@ function pageHtml() {
     async function closeClassroomWork() {
       if (!activeClassroomSessionId) return;
       const status = document.querySelector('#classroomWorkStatus');
-      status.textContent = 'Capturant els SHA finals i llançant la correcció dels checkpoints...';
+      status.textContent = 'Capturant els SHA finals...';
       const response = await fetch('/api/classroom-work/sessions/' + encodeURIComponent(activeClassroomSessionId) + '/close', { method: 'POST' });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'No s’ha pogut tancar la sessió.');
-      const link = payload.workflow?.run_url || payload.workflow?.actions_url;
-      status.innerHTML = '<span class="ok">Sessió tancada. Correcció dels checkpoints enviada.</span>' + (link ? ' <a href="' + escapeHtml(link) + '" target="_blank" rel="noreferrer">Obrir execució</a>' : '');
+      status.innerHTML = '<span class="ok">Sessió tancada i checkpoints guardats. Encara no s’ha llançat cap correcció.</span>';
       await loadClassroomWork();
+    }
+
+    async function gradeClassroomDelivery() {
+      if (!classroomDeliverySessionId) return;
+      const status = document.querySelector('#classroomWorkStatus');
+      const button = document.querySelector('#gradeClassroomDelivery');
+      button.disabled = true;
+      status.textContent = 'Llançant una única correcció per a inici, final de classe i entrega...';
+      try {
+        const response = await fetch('/api/classroom-work/sessions/' + encodeURIComponent(classroomDeliverySessionId) + '/grade', { method: 'POST' });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No s’ha pogut llançar la correcció definitiva.');
+        const link = payload.workflow?.run_url || payload.workflow?.actions_url;
+        status.innerHTML = '<span class="ok">Correcció llançada. El servidor la importarà i calcularà el topall automàticament.</span>' + (link ? ' <a href="' + escapeHtml(link) + '" target="_blank" rel="noreferrer">Veure execució</a>' : '');
+        await loadClassroomWork();
+      } finally {
+        button.disabled = false;
+      }
     }
 
     async function recalculateClassroomWork() {
@@ -4136,6 +4287,10 @@ function pageHtml() {
       try { await closeClassroomWork(); }
       catch (error) { document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>'; }
     });
+    document.querySelector('#gradeClassroomDelivery').addEventListener('click', async () => {
+      try { await gradeClassroomDelivery(); }
+      catch (error) { document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>'; }
+    });
     document.querySelector('#recalculateClassroomWork').addEventListener('click', async () => {
       try { await recalculateClassroomWork(); }
       catch (error) { document.querySelector('#classroomWorkStatus').innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>'; }
@@ -4207,7 +4362,13 @@ async function handleRequest(request, response) {
 
     const closeClassroomSessionMatch = url.pathname.match(/^\/api\/classroom-work\/sessions\/(\d+)\/close$/);
     if (request.method === 'POST' && closeClassroomSessionMatch) {
-      sendJson(response, 200, await closeAndDispatchClassroomWorkSession(Number(closeClassroomSessionMatch[1])));
+      sendJson(response, 200, await closeClassroomWorkSessionCapture(Number(closeClassroomSessionMatch[1])));
+      return;
+    }
+
+    const gradeClassroomSessionMatch = url.pathname.match(/^\/api\/classroom-work\/sessions\/(\d+)\/grade$/);
+    if (request.method === 'POST' && gradeClassroomSessionMatch) {
+      sendJson(response, 200, await gradeClassroomWorkSession(Number(gradeClassroomSessionMatch[1])));
       return;
     }
 
@@ -4254,7 +4415,7 @@ async function handleRequest(request, response) {
     }
 
     if (request.method === 'POST' && url.pathname === '/api/grades/import-latest') {
-      sendJson(response, 200, { import: await importLatestGradeArtifact() });
+      sendJson(response, 200, { import: await importGradeArtifact() });
       return;
     }
 
@@ -4570,9 +4731,17 @@ server.listen(port, host, () => {
   }
 });
 
+const classroomWorkflowPollMs = Math.max(5000, Number(process.env.CLASSROOM_WORKFLOW_POLL_MS || 30000));
+const classroomWorkflowMonitor = setInterval(() => {
+  monitorClassroomWorkflowRuns().catch((error) => console.warn('No s’han pogut seguir les correccions d’aula:', error.message));
+}, classroomWorkflowPollMs);
+classroomWorkflowMonitor.unref();
+monitorClassroomWorkflowRuns().catch((error) => console.warn('No s’han pogut seguir les correccions d’aula:', error.message));
+
 // Tancar BD al finalitzar
 process.on('SIGINT', () => {
   console.log('\nTancant BD...');
+  clearInterval(classroomWorkflowMonitor);
   closeDb();
   process.exit(0);
 });

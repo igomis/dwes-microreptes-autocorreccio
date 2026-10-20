@@ -131,7 +131,7 @@ Per descarregar i importar automàticament l'últim artifact correcte en el serv
 npm run grades:download-latest
 ```
 
-Des del dashboard, el botó **Actualitzar** de la vista `Resultats` executa aquesta importació automàtica i recarrega la taula.
+En una sessió de treball d'aula, el servidor importa automàticament l'execució exacta que ha llançat quan GitHub la marca com a completada. La importació manual de l'últim artifact continua disponible dins de **Recuperació avançada** per a incidències i correccions externes.
 
 ## Topall automàtic per treball d'aula
 

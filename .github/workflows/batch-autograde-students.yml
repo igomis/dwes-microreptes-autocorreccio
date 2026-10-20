@@ -1,4 +1,5 @@
 name: Batch autograde student repositories
+run-name: ${{ inputs.classroom_session_id != '' && format('Aula {0}', inputs.classroom_session_id) || format('Correcció {0}', inputs.target_group) }}
 
 on:
   workflow_dispatch:
@@ -52,7 +53,7 @@ on:
         required: false
         default: ""
       classroom_session_id:
-        description: "ID de sessió d'aula; activa la correcció dels dos SHA sense publicar"
+        description: "ID de sessió d'aula; corregix inici, final de classe i entrega en una sola execució"
         required: false
         default: ""
 
@@ -357,6 +358,11 @@ jobs:
               fi
               if autograde_one "$repo" "$repo_group" "$end_ref" "classroom_end" "end" 2>&1 | tee "$repo_result_dir/end-error.log"; then
                 rm -f "$repo_result_dir/end-error.log"
+              else
+                failures=$((failures + 1))
+              fi
+              if autograde_one "$repo" "$repo_group" "$INPUT_STUDENT_REF" "delivery" "delivery" 2>&1 | tee "$repo_result_dir/delivery-error.log"; then
+                rm -f "$repo_result_dir/delivery-error.log"
               else
                 failures=$((failures + 1))
               fi

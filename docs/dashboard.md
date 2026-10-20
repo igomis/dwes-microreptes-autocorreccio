@@ -13,6 +13,7 @@ GITHUB_REPO=dwes-microreptes-autocorreccio
 GITHUB_REF=main
 GITHUB_CLASSROOM_ORG=batoi-dwes-2026
 GITHUB_STUDENT_TEMPLATE=igomis/dwes-microreptes-alumnes
+CLASSROOM_WORKFLOW_POLL_MS=30000
 GH_BIN=gh
 GH_TOKEN=
 DASHBOARD_HOST=127.0.0.1
@@ -29,6 +30,8 @@ DASHBOARD_GRADES_2DAW_D_URL=https://...
 ```
 
 El `GITHUB_TOKEN` ha de poder executar workflows en `igomis/dwes-microreptes-autocorreccio`. El workflow de GitHub també necessita el secret `CLASSROOM_AUTOGRADE_TOKEN` configurat en el repositori del professor per llegir els repositoris privats d'alumnes i, si cal, publicar-hi resultats.
+
+`CLASSROOM_WORKFLOW_POLL_MS` controla cada quant el servidor consulta les correccions definitives que ha llançat. El valor per defecte és `30000` ms. El seguiment usa l'ID exacte de l'execució; quan acaba, el servidor importa el seu artifact i recalcula l'evidència sense intervenció docent.
 
 Per crear, convidar col·laboradors o esborrar repositoris d'alumnes des del dashboard, configura `GH_TOKEN` amb un token del compte docent que tinga permisos sobre l'organització. En tokens clàssics, normalment calen `repo` i `delete_repo`, a més de permisos d'administració en l'organització/repositori. En tokens fine-grained, dona accés a l'organització i permisos de `Administration` en els repositoris afectats. Si GitHub CLI retorna `Not Found (HTTP 404)` en una URL de `collaborators`, comprova primer que el login de l'alumne existeix i després que eixe `GH_TOKEN` pot veure i administrar el repositori privat.
 
@@ -110,7 +113,7 @@ El dashboard està separat en aquestes vistes:
 - Consultar els últims resultats locals guardats en `grades/latest-grades.json`, quan existisca.
 - Generar un **Informe classe** per a un grup i microrepte concret des de la vista `Resultats`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
-- Obrir i tancar una sessió de treball d'aula per capturar els `SHA` exactes de `main`, corregir automàticament les instantànies i aplicar el topall de procés.
+- Obrir i tancar una sessió de treball d'aula per capturar els `SHA` exactes de `main`; quan l'entrega és definitiva, una única correcció processa els checkpoints i l'entrega i aplica el topall de procés.
 - Consultar per separat la nota tècnica, el nivell de treball d'aula, el topall i la nota aplicable.
 - Registrar una excepció docent justificada quan una branca no fusionada, una incidència o una defensa aporte evidència que el càlcul automàtic no havia pogut veure.
 - Afegir, editar, filtrar i eliminar alumnes. Si tenen resultats associats, el dashboard mostra un avís i, en confirmar, esborra també eixos resultats. L'esborrat del repositori GitHub és opcional, destructiu i exigeix escriure el nom exacte del repositori.
@@ -129,9 +132,11 @@ El dashboard no substitueix el workflow. Només és una capa més còmoda damunt
 
 ## Treball d'aula automàtic
 
-En `Resultats`, selecciona un grup concret i un microrepte. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i llança una única execució del workflow que corregix les dos instantànies exactes sense publicar resultats als repositoris de l'alumnat.
+En `Resultats`, selecciona un grup concret i un microrepte. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i només deixa els checkpoints guardats: encara no consumix cap correcció.
 
-Quan acabe eixa execució, `Actualitzar` importa `grades/classroom-checkpoint-grades.json`. Després de la correcció ordinària de l'entrega definitiva, torna a actualitzar o usa `Recalcular evidència`. El sistema calcula quina proporció del progrés tècnic observable s'ha produït entre els dos checkpoints:
+Quan les entregues siguen definitives, `Corregir entregues definitives` llança una sola execució que corregix inici, final de classe i `main` definitiu. El servidor seguix eixa execució pel seu ID exacte, importa automàticament l'artifact quan acaba i calcula el topall. No cal prémer `Actualitzar` ni `Recalcular evidència` en el flux ordinari; les dos accions queden dins de `Recuperació avançada` per a incidències.
+
+Els estats normals són `Captura inicial → Esperant entrega → Corregint → Resultats disponibles`. El sistema calcula quina proporció del progrés tècnic observable s'ha produït entre els dos checkpoints:
 
 | Proporció tècnica a classe | Nivell | Topall |
 |---:|---|---:|
