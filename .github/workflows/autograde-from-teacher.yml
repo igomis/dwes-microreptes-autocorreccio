@@ -36,6 +36,9 @@ permissions:
   contents: read
 
 env:
+  # Manté els repositoris DWES existents funcionant sense variables addicionals.
+  # Altres mòduls poden sobreescriure'l amb la variable TEACHER_REPOSITORY.
+  DEFAULT_TEACHER_REPOSITORY: igomis/dwes-microreptes-autocorreccio
   DEFAULT_TEACHER_REF: main
 
 jobs:
@@ -70,6 +73,10 @@ jobs:
           teacher_repository="${INPUT_TEACHER_REPOSITORY:-$VAR_TEACHER_REPOSITORY}"
           teacher_ref="${INPUT_TEACHER_REF:-$VAR_TEACHER_REF}"
 
+          if [ -z "$teacher_repository" ]; then
+            teacher_repository="$DEFAULT_TEACHER_REPOSITORY"
+          fi
+
           if [ -z "$teacher_ref" ]; then
             teacher_ref="$DEFAULT_TEACHER_REF"
           fi
@@ -85,11 +92,6 @@ jobs:
 
           if [ -z "$group" ]; then
             echo "No s'ha pogut resoldre el grup. Defineix l'input group, la variable AUTOGRADE_GROUP o student-meta.json."
-            exit 1
-          fi
-
-          if [ -z "$teacher_repository" ]; then
-            echo "No s'ha pogut resoldre el repositori docent. Defineix l'input teacher_repository o la variable TEACHER_REPOSITORY."
             exit 1
           fi
 

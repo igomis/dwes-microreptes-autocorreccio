@@ -60,13 +60,15 @@ La configuració no és vàlida si un grup actiu no existeix en `course/module.j
 
 ## Repositoris de l’alumnat
 
-El workflow `autograde-from-teacher.yml` no conté el nom d’un repositori docent concret. Cada plantilla o repositori d’alumne ha de definir:
+El workflow `autograde-from-teacher.yml` conserva el repositori DWES actual com a valor de reserva perquè els repositoris d’alumnes ja creats continuen funcionant sense cap migració. En un mòdul nou, configura estes variables en l’organització, la plantilla o cada repositori:
 
-- `TEACHER_REPOSITORY`: `owner/repo` del repositori d’autocorrecció del mòdul;
+- `TEACHER_REPOSITORY`: `owner/repo` del repositori d’autocorrecció del mòdul; sobreescriu el valor de reserva DWES;
 - `TEACHER_REPO_REF`: branca o tag estable, normalment `main`;
 - `AUTOGRADE_GROUP`: grup de l’alumne.
 
 També pot rebre estos valors manualment en una execució de prova.
+
+Per tant, desplegar esta branca en DWES no obliga a crear variables noves. La variable `TEACHER_REPOSITORY` només és necessària quan es reutilitza el workflow en un altre mòdul.
 
 ## Grups i workflows
 
