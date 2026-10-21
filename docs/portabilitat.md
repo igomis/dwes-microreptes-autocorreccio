@@ -2,6 +2,8 @@
 
 El repositori separa el motor d’autocorrecció de la configuració docent. La forma recomanada de reutilitzar-lo és crear un repositori nou a partir d’esta branca o d’una GitHub Template i adaptar només la configuració i els continguts del mòdul.
 
+Per al procediment complet, amb ordres de GitHub, secrets, plantilla d’alumnat, validació, prova i desplegament, consulta [Clonar l’experiment per a un altre mòdul](clonar-altre-modul.md).
+
 ## Frontera entre motor i mòdul
 
 No s’han d’editar per a crear un mòdul nou:
@@ -40,7 +42,9 @@ Els tokens, claus i contrasenyes no van en este fitxer. Es mantenen en GitHub Se
 
 ## Crear un projecte per a un altre mòdul
 
-1. Crea un repositori des de la plantilla.
+Este és el resum mínim. El repositori actual no està marcat com a GitHub Template; per tant, mentre continue així, cal usar el procediment de clonació explicat en la [guia completa](clonar-altre-modul.md#1-crear-el-repositori-docent-nou).
+
+1. Clona el repositori i publica la còpia en un repositori docent nou.
 2. Crea una branca de preparació, per exemple `feature/configura-diw`.
 3. Edita `course/module.json`.
 4. Substituïx `global/module-autograding.md` pel context del mòdul nou.

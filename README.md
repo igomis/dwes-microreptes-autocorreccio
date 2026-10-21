@@ -27,6 +27,8 @@ Per crear una instància per a un altre mòdul, genera un repositori des de la p
 
 Vegeu [Portabilitat a altres mòduls](docs/portabilitat.md).
 
+Per executar tot el procés pas a pas —repositori nou, plantilla d’alumnat, configuració, secrets, proves i desplegament— vegeu [Clonar l’experiment per a un altre mòdul](docs/clonar-altre-modul.md).
+
 ## Flux previst
 
 1. El professorat defineix o actualitza un microrepte en este repositori.
