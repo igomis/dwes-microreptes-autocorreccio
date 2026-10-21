@@ -60,3 +60,31 @@ test('l’excepció docent justificada substitueix el nivell automàtic i queda 
 test('una excepció docent sense justificació es rebutja', () => {
   assert.throws(() => resolveClassroomAssessment({}, { level: 'medium', reason: '' }), /justificació/);
 });
+
+test('els topalls, llindars, etiquetes i dimensions tècniques es poden configurar per mòdul', () => {
+  const levels = {
+    high: { label: 'Complet', cap: 10 },
+    medium: { label: 'Parcial', cap: 8 },
+    low: { label: 'Baix', cap: 6 },
+    no_evidence: { label: 'No observat', cap: 4 }
+  };
+  const automatic = classifyClassroomWork(
+    { checkpoint_status: 'ready', start_score: 0, end_score: 6, final_score: 10 },
+    { high: 0.8, medium: 0.5 },
+    levels
+  );
+  assert.equal(automatic.automatic_level, 'medium');
+  assert.equal(automatic.automatic_cap, 8);
+  assert.match(automatic.reason, /parcial/);
+  assert.equal(resolveClassroomAssessment(automatic, null, levels).effective_cap, 8);
+
+  assert.equal(calculateTechnicalScore({
+    dimension_scores: [
+      { id: 'product', score: 3, max_score: 4 },
+      { id: 'documentation', score: 1, max_score: 1 }
+    ]
+  }, { dimensions: [
+    { id: 'product', weight: 0.8 },
+    { id: 'documentation', weight: 0.2 }
+  ] }, ['product']), 7.5);
+});

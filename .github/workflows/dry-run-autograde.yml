@@ -6,15 +6,13 @@ on:
       student:
         description: "Repositori o identificador de l'alumne"
         required: true
-        default: "cipfpbatoi/dwes-ana-marti"
       group:
         description: "Grup docent"
-        required: true
-        default: "2DAW-A"
+        required: false
+        default: ""
       repo:
         description: "Repositori de l'alumne"
         required: true
-        default: "cipfpbatoi/dwes-ana-marti"
       mode:
         description: "Motor d'autograding"
         required: true
@@ -47,10 +45,14 @@ jobs:
       - name: Validate configuration
         run: npm run validate
 
+      - name: Resolve module defaults
+        id: module
+        run: echo "default_group=$(node scripts/resolve-module-setting.mjs --group all --field default_group)" >> "$GITHUB_OUTPUT"
+
       - name: Resolve active challenge
         id: resolve
         run: |
-          CHALLENGE_ID="$(node scripts/resolve-active-challenge.mjs --student "${{ inputs.student }}" --group "${{ inputs.group }}")"
+          CHALLENGE_ID="$(node scripts/resolve-active-challenge.mjs --student "${{ inputs.student }}" --group "${{ inputs.group || steps.module.outputs.default_group }}")"
           echo "challenge_id=${CHALLENGE_ID}" >> "$GITHUB_OUTPUT"
 
       - name: List challenges
@@ -61,7 +63,7 @@ jobs:
         run: |
           node scripts/build-evaluation-payload.mjs \
             --student "${{ inputs.student }}" \
-            --group "${{ inputs.group }}" \
+            --group "${{ inputs.group || steps.module.outputs.default_group }}" \
             --repo "${{ inputs.repo }}" \
             --commit dry-run
           echo "payload_path=tmp/evaluation-payload.json" >> "$GITHUB_OUTPUT"
@@ -83,7 +85,7 @@ jobs:
       - name: Dry run summary
         run: |
           echo "student=${{ inputs.student }}"
-          echo "group=${{ inputs.group }}"
+          echo "group=${{ inputs.group || steps.module.outputs.default_group }}"
           echo "repo=${{ inputs.repo }}"
           echo "mode=${{ inputs.mode }}"
           echo "challenge=${{ steps.resolve.outputs.challenge_id }}"

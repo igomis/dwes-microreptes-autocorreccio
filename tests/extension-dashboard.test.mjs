@@ -14,6 +14,7 @@ test('dashboard: només l’últim microrepte valida l’ampliació separada de 
  writeFileSync(path.join(fixture,'docs/programacio_aula/programacio_aula_r2s1_test.md'),'# R2S1. Test\n\n- **Microrepte**: `R2M1`\n');
  writeFileSync(path.join(fixture,'docs/programacio_aula/programacio_aula_r2s0_test.md'),'# R2S0. Introducció\n');
  mkdirSync(path.join(fixture,'grades'));mkdirSync(path.join(fixture,'course'));
+ cpSync('course/module.json',path.join(fixture,'course/module.json'));
  symlinkSync(path.resolve('node_modules'),path.join(fixture,'node_modules'),'dir');
  const first='r1-s01-model-client-servidor-stack',last='r1-s02-entorn-executable';
  const grades=[first,last].map(challenge_id=>({repo:'test/alumne',student:'test/alumne',group:'TEST',challenge_id,score:10,ra_scores:[{ra_id:'RA1',score:10}],commit:challenge_id,timestamp:'2026-09-01',source:'openai',confidence:1,provisional:false,teacher_review_required:false}));

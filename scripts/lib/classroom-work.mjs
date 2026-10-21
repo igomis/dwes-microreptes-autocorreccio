@@ -27,8 +27,8 @@ function finiteScore(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
-export function classroomCapForLevel(level) {
-  return CLASSROOM_WORK_LEVELS[level]?.cap ?? null;
+export function classroomCapForLevel(level, levels = CLASSROOM_WORK_LEVELS) {
+  return levels[level]?.cap ?? null;
 }
 
 export function calculateTechnicalScore(result, rubric, technicalDimensionIds = DEFAULT_TECHNICAL_DIMENSIONS) {
@@ -57,7 +57,11 @@ export function calculateTechnicalScore(result, rubric, technicalDimensionIds = 
   return availableWeight > 0 ? round((earned / availableWeight) * 10, 2) : null;
 }
 
-export function classifyClassroomWork(input, thresholds = DEFAULT_CLASSROOM_THRESHOLDS) {
+export function classifyClassroomWork(
+  input,
+  thresholds = DEFAULT_CLASSROOM_THRESHOLDS,
+  levels = CLASSROOM_WORK_LEVELS
+) {
   const startScore = finiteScore(input?.start_score);
   const endScore = finiteScore(input?.end_score);
   const finalScore = finiteScore(input?.final_score);
@@ -89,12 +93,12 @@ export function classifyClassroomWork(input, thresholds = DEFAULT_CLASSROOM_THRE
 
   const roundedRatio = round(ratio);
   const percentage = Math.round(roundedRatio * 100);
-  const label = CLASSROOM_WORK_LEVELS[level].label.toLowerCase();
+  const label = levels[level].label.toLowerCase();
 
   return {
     status: 'classified',
     automatic_level: level,
-    automatic_cap: classroomCapForLevel(level),
+    automatic_cap: classroomCapForLevel(level, levels),
     classroom_ratio: roundedRatio,
     start_score: startScore,
     end_score: endScore,
@@ -103,9 +107,13 @@ export function classifyClassroomWork(input, thresholds = DEFAULT_CLASSROOM_THRE
   };
 }
 
-export function resolveClassroomAssessment(automaticAssessment, override = null) {
+export function resolveClassroomAssessment(
+  automaticAssessment,
+  override = null,
+  levels = CLASSROOM_WORK_LEVELS
+) {
   const overrideLevel = override?.level;
-  if (overrideLevel && !Object.hasOwn(CLASSROOM_WORK_LEVELS, overrideLevel)) {
+  if (overrideLevel && !Object.hasOwn(levels, overrideLevel)) {
     throw new Error(`Nivell docent no vàlid: ${overrideLevel}`);
   }
 
@@ -119,7 +127,7 @@ export function resolveClassroomAssessment(automaticAssessment, override = null)
     teacher_override_level: overrideLevel || null,
     teacher_override_reason: overrideLevel ? String(override.reason).trim() : '',
     effective_level: effectiveLevel,
-    effective_cap: classroomCapForLevel(effectiveLevel),
+    effective_cap: classroomCapForLevel(effectiveLevel, levels),
     source: overrideLevel ? 'teacher_override' : effectiveLevel ? 'automatic' : 'pending'
   };
 }

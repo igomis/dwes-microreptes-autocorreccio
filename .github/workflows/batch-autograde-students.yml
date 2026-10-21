@@ -9,16 +9,9 @@ on:
         required: false
         default: ""
       target_group:
-        description: "Grup a corregir"
+        description: "Grup configurat en course/module.json, o all"
         required: true
         default: "all"
-        type: choice
-        options:
-          - all
-          - 2DAW-A
-          - 2DAW-B
-          - 2DAW-C
-          - 2DAW-D
       repositories_file:
         description: "Fitxer opcional per sobreescriure target_group"
         required: false
@@ -26,7 +19,7 @@ on:
       group:
         description: "Grup per defecte si el fitxer o l'input no especifiquen grup"
         required: false
-        default: "2DAW-A"
+        default: ""
       challenge_id:
         description: "Autocorrecció concreta per a tota l'execució. Si queda buit, s'usa course/active-challenges.json"
         required: false
@@ -129,27 +122,11 @@ jobs:
 
           selected_repositories_file="$INPUT_REPOSITORIES_FILE"
           if [ -z "$selected_repositories_file" ]; then
-            case "$INPUT_TARGET_GROUP" in
-              all)
-                selected_repositories_file="course/student-repositories.txt"
-                ;;
-              2DAW-A)
-                selected_repositories_file="course/student-repositories-2dawa.txt"
-                ;;
-              2DAW-B)
-                selected_repositories_file="course/student-repositories-2dawb.txt"
-                ;;
-              2DAW-C)
-                selected_repositories_file="course/student-repositories-2dawc.txt"
-                ;;
-              2DAW-D)
-                selected_repositories_file="course/student-repositories-2dawd.txt"
-                ;;
-              *)
-                echo "target_group no valid: $INPUT_TARGET_GROUP"
-                exit 1
-                ;;
-            esac
+            selected_repositories_file="$(node scripts/resolve-module-setting.mjs --group "$INPUT_TARGET_GROUP" --field repositories_file)"
+          fi
+
+          if [ -z "$INPUT_GROUP" ]; then
+            INPUT_GROUP="$(node scripts/resolve-module-setting.mjs --group "$INPUT_TARGET_GROUP" --field default_group)"
           fi
 
           tmp_repos="$(mktemp)"

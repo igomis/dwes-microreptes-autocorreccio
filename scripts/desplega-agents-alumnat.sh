@@ -4,10 +4,14 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(cd "$script_dir/.." && pwd)"
 
-org="${GITHUB_CLASSROOM_ORG:-batoi-dwes-2026}"
-prefix="microreptes-"
+configured_org="$(node -e "const c=require('$root_dir/course/module.json');process.stdout.write(c.github.classroom_organization)")"
+configured_prefix="$(node -e "const c=require('$root_dir/course/module.json');process.stdout.write(c.github.student_repository_prefix)")"
+configured_source="$(node -e "const c=require('$root_dir/course/module.json');process.stdout.write(c.github.student_template_local_dir)")"
+configured_module="$(node -e "const c=require('$root_dir/course/module.json');process.stdout.write(c.module.short_name)")"
+org="${GITHUB_CLASSROOM_ORG:-$configured_org}"
+prefix="$configured_prefix"
 branch="main"
-source_root="${GITHUB_STUDENT_TEMPLATE_LOCAL:-$root_dir/../dwes-microreptes-alumnes}"
+source_root="${GITHUB_STUDENT_TEMPLATE_LOCAL:-$root_dir/$configured_source}"
 apply=false
 
 usage() {
@@ -128,7 +132,7 @@ while IFS= read -r repo; do
     continue
   fi
 
-  git -C "$repo_dir" config user.name "DWES Teacher Automation"
+  git -C "$repo_dir" config user.name "$configured_module Teacher Automation"
   git -C "$repo_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
   git -C "$repo_dir" commit -m "Actualitza les regles d'ús dels agents d'IA"
 

@@ -4,6 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import OpenAI from 'openai';
 import { applyDeterministicScoring } from './lib/grading-result.mjs';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
 const defaultModel = 'gpt-4o-mini';
 
@@ -49,7 +50,7 @@ function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function validateResult(result, schema) {
+function validateResult(result, schema, learningOutcomePattern = /^RA\d+$/i) {
   const errors = [];
 
   if (!isPlainObject(result)) {
@@ -108,8 +109,9 @@ function validateResult(result, schema) {
         errors.push(`${prefix} ha de ser objecte`);
         return;
       }
-      if (!/^RA\d+$/i.test(String(raScore.ra_id || ''))) {
-        errors.push(`${prefix}.ra_id ha de tindre format RA<n>`);
+      learningOutcomePattern.lastIndex = 0;
+      if (!learningOutcomePattern.test(String(raScore.ra_id || ''))) {
+        errors.push(`${prefix}.ra_id no complix el patró configurat del resultat d'aprenentatge`);
       }
       if (typeof raScore.score !== 'number' || raScore.score < 0 || raScore.score > 10) {
         errors.push(`${prefix}.score ha de ser number entre 0 i 10`);
@@ -149,7 +151,7 @@ function toOpenAiResponseSchema(schema) {
   return nextSchema;
 }
 
-function buildMessages(payload, schema, promptText) {
+function buildMessages(payload, schema, promptText, systemContext) {
   const basePromptSection = promptText
     ? `\n\nPrompt base del microrepte:\n${promptText}`
     : '\n\nNo s_ha trobat prompt base del microrepte.';
@@ -185,7 +187,8 @@ function buildMessages(payload, schema, promptText) {
     {
       role: 'system',
       content: [
-        'Eres un motor d_autograding per a microreptes DWES.',
+        'Eres un motor d_autograding per a activitats formatives.',
+        systemContext,
         'Has de tornar exclusivament un objecte JSON compatible amb l_esquema proporcionat.',
         'No canvies el contracte d_eixida. Marca sempre provisional=true si no hi ha revisio docent final.',
         'Avalua de manera prudent i explica cada dimensio amb una rao curta.',
@@ -196,7 +199,6 @@ function buildMessages(payload, schema, promptText) {
         'Abans de puntuar, contrasta cada criteri amb paths i fragments concrets del payload. Distingix entre verificat, present però no verificat, no aportat i contradictori. Una afirmació del README no prova funcionalitat si no concorda amb codi, configuració, prova o log.',
         'Indica en applied_hard_rules els índexs de totes les hard_rules amb límit numèric que corresponguen i una raó basada en evidències. No hi inclogues regles de mera revisió sense límit numèric. El programa calcularà la suma i aplicarà després el límit més restrictiu.',
         'No penalitzes no usar IA: una declaració de no ús satisfà el registre d’IA quan es demana, sense exigir consultes fictícies. La generació declarada d’HTML estàtic i CSS de presentació està permesa; no inclou lògica de servidor. La norma prohibix delegar el backend, la configuració avaluable o les proves en xats o agents. No inferisques infraccions per estil del codi o nom de ferramenta: descriu només evidències concretes per a revisió docent, sense deduccions automàtiques noves per sospita d’IA.',
-        'Compatibilitat tecnològica obligatòria: si el projecte usa Java, avalua amb els mateixos criteris funcionals i la mateixa escala que PHP o Python. No restes punts pel llenguatge, framework, estructura de carpetes ni per l’absència d’artefactes específics de PHP o Python quan hi haja equivalents Java verificables. Accepta Maven o Gradle com a gestió de dependències i construcció, JUnit com a proves, JDBC o JPA com a persistència, i servlets, plantilles Java o Spring com a mecanismes equivalents de peticions, validació, sessions, autenticació i API. Aplica les regles dures a la responsabilitat funcional, no al nom de la ferramenta. Si el payload no permet inspeccionar prou bé l’estructura Java, marca teacher_review_required=true i explica el límit; no convertisques la limitació del recollidor en una penalització.',
         'No puntues treball de microreptes anteriors com si fora evidencia del microrepte actiu. Excepció: la proposta separada repte_extension usa evidències del repte complet, només quan el payload l’habilita. Mai suma a les dimensions ni a les notes del microrepte.',
         'En repte_extension, proposed_score és una candidatura per a revisió docent, no una concessió automàtica. Si hi ha una millora real amb evidències, pots proposar més de 0 encara que core_ready siga false o falte el fitxer formal de declaració; explica clarament el pendent en reason i presentation_checks. La validació docent positiva continuarà exigint confirmar el nucli.',
         'Si el payload no conte evidencia especifica vinculada al challenge_id o microrepte_code actiu, la nota maxima orientativa es 2/10 encara que el repositori tinga treball anterior.',
@@ -247,6 +249,7 @@ async function main() {
   }
 
   const rootDir = process.cwd();
+  const moduleConfig = loadModuleConfig(rootDir);
   const outputDir = path.join(rootDir, 'tmp');
   const rawOutputPath = path.join(outputDir, 'openai-raw-response.json');
   const resultOutputPath = path.join(outputDir, 'autograde-result.json');
@@ -264,16 +267,17 @@ async function main() {
     ? path.join(rootDir, 'microreptes', payload.challenge_id, 'prompt.md')
     : null;
   const promptText = promptPath ? await readOptionalText(promptPath) : null;
+  const systemContext = await readOptionalText(path.join(rootDir, moduleConfig.autograding.system_context_file));
   const client = new OpenAI({ apiKey });
   const model = process.env.OPENAI_MODEL || defaultModel;
 
   const response = await client.chat.completions.create({
     model,
-    messages: buildMessages(payload, schema, promptText),
+    messages: buildMessages(payload, schema, promptText, systemContext),
     response_format: {
       type: 'json_schema',
       json_schema: {
-        name: 'dwes_microrepte_grading_response',
+        name: `${moduleConfig.module.id.replace(/[^a-zA-Z0-9_-]/g, '_')}_grading_response`,
         strict: true,
         schema: toOpenAiResponseSchema(schema)
       }
@@ -284,7 +288,11 @@ async function main() {
   await writeFile(rawOutputPath, `${JSON.stringify(response, null, 2)}\n`, 'utf8');
 
   const result = parseModelJson(response);
-  const errors = validateResult(result, { ...schema, required: schema.required.filter(field => field !== 'repte_extension') });
+  const errors = validateResult(
+    result,
+    { ...schema, required: schema.required.filter(field => field !== 'repte_extension') },
+    new RegExp(moduleConfig.codes.learning_outcome_pattern, 'i')
+  );
   if (payload.repte_extension && errors.length === 0) normalizeExtensionProposal(result);
   if (payload.repte_extension) {
     try { validateProposal(result.repte_extension); } catch (error) { errors.push(error.message); }

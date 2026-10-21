@@ -5,19 +5,28 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, withdrawConsolidation, recordConsolidationPublication } from '../teacher-dashboard/consolidation.mjs';
 
+const consolidation = {
+  enabled: true,
+  code_pattern: '^R[1-5]M\\d+$',
+  repository: 'cipfpbatoi/dwes2627',
+  branch: 'master',
+  folder: 'docs/04_materials/consolidacio',
+  public_base_url: 'https://cipfpbatoi.github.io/dwes2627/04_materials/consolidacio/'
+};
+
 test('consolidació: esborrany persistent, model intacte i només microrepte propi', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'consolidacio-'));
   try {
     await mkdir(path.join(root, 'consolidation-drafts'));
     await writeFile(path.join(root, 'consolidation-drafts/r2m1.md'), '# Model\n');
-    assert.equal(consolidationCode({microrepte:'R2M1'}), 'r2m1');
-    assert.equal(consolidationCode({microrepte:'cap de nou; taller associat a R2M1'}), null);
-    assert.equal((await readConsolidation(root,'r2m1')).markdown, '# Model\n');
-    await saveConsolidation(root,'r2m1','# Canvi');
-    assert.equal((await readConsolidation(root,'r2m1')).markdown, '# Canvi\n');
-    assert.equal((await readConsolidation(root,'r2m2')).has_draft, false);
-    await assert.rejects(saveConsolidation(root,'../escape','# Text'));
-    await assert.rejects(saveConsolidation(root,'r2m1',''));
+    assert.equal(consolidationCode({microrepte:'R2M1'}, consolidation), 'r2m1');
+    assert.equal(consolidationCode({microrepte:'cap de nou; taller associat a R2M1'}, consolidation), null);
+    assert.equal((await readConsolidation(root,'r2m1', consolidation)).markdown, '# Model\n');
+    await saveConsolidation(root,'r2m1','# Canvi', consolidation);
+    assert.equal((await readConsolidation(root,'r2m1', consolidation)).markdown, '# Canvi\n');
+    assert.equal((await readConsolidation(root,'r2m2', consolidation)).has_draft, false);
+    await assert.rejects(saveConsolidation(root,'../escape','# Text', consolidation));
+    await assert.rejects(saveConsolidation(root,'r2m1','', consolidation));
   } finally { await rm(root, {recursive:true,force:true}); }
 });
 
@@ -44,7 +53,7 @@ function github({ conflict=false, unchanged=false, existing=false, missing=false
 }
 test('publicació atòmica conserva arbre, índex i commits previs; enllaç HTML i sense grup', async () => {
   const mock=github();
-  const result=await publishConsolidation({code:'r2m1',markdown:'# Fitxa',token:'test',request:mock.request});
+  const result=await publishConsolidation({code:'r2m1',markdown:'# Fitxa',token:'test',config:consolidation,request:mock.request});
   const tree=mock.calls.find(c=>c.route==='git/trees').body;
   assert.equal(tree.base_tree,'base');
   assert.equal(tree.tree.length,2);
@@ -57,21 +66,21 @@ test('publicació atòmica conserva arbre, índex i commits previs; enllaç HTML
 });
 test('actualitzar no duplica índex i publicar sense canvis no crea commit', async () => {
   const mock=github({existing:true,unchanged:true});
-  const result=await publishConsolidation({code:'r2m1',markdown:'# Fitxa',token:'test',request:mock.request});
+  const result=await publishConsolidation({code:'r2m1',markdown:'# Fitxa',token:'test',config:consolidation,request:mock.request});
   assert.equal(result.unchanged,true);
   assert.equal(mock.calls.filter(c=>c.route==='git/commits').length,0);
   assert.equal(mock.calls.find(c=>c.route==='git/trees').body.tree[1].content.match(/r2m1.md/g).length,1);
 });
 test('errors de permisos i concurrència no donen una publicació per bona', async () => {
-  await assert.rejects(publishConsolidation({code:'r2m1',markdown:'# Fitxa'}),/GITHUB_TOKEN/);
+  await assert.rejects(publishConsolidation({code:'r2m1',markdown:'# Fitxa',config:consolidation}),/GITHUB_TOKEN/);
   const mock=github({conflict:true});
-  await assert.rejects(publishConsolidation({code:'r2m1',markdown:'# Fitxa',token:'test',request:mock.request}),/422/);
+  await assert.rejects(publishConsolidation({code:'r2m1',markdown:'# Fitxa',token:'test',config:consolidation,request:mock.request}),/422/);
   assert.equal(mock.calls.at(-1).body.force,false);
 });
 
 test('retirada elimina pàgina i enllaç en un commit, conserva altres fitxes', async () => {
   const mock=github({existing:true});
-  const result=await withdrawConsolidation({code:'r2m1',token:'test',request:mock.request});
+  const result=await withdrawConsolidation({code:'r2m1',token:'test',config:consolidation,request:mock.request});
   const tree=mock.calls.find(c=>c.route==='git/trees').body;
   assert.equal(tree.base_tree,'base');
   assert.ok(tree.tree[0].content.includes('[R1M1](r1m1.md)'));
@@ -82,20 +91,20 @@ test('retirada elimina pàgina i enllaç en un commit, conserva altres fitxes', 
 });
 test('retirada repetida no elimina un fitxer absent ni crea commits buits', async () => {
   const mock=github({missing:true,unchanged:true});
-  const result=await withdrawConsolidation({code:'r2m1',token:'test',request:mock.request});
+  const result=await withdrawConsolidation({code:'r2m1',token:'test',config:consolidation,request:mock.request});
   assert.equal(result.unchanged,true);
   assert.equal(mock.calls.find(c=>c.route==='git/trees').body.tree.length,1);
   assert.ok(!mock.calls.some(c=>c.method==='PATCH'));
 });
 test('retirada rebutjada no és èxit; registre de retirada conserva el text local', async () => {
   const mock=github({existing:true,conflict:true});
-  await assert.rejects(withdrawConsolidation({code:'r2m1',token:'test',request:mock.request}),/422/);
-  await assert.rejects(withdrawConsolidation({code:'r2m1'}),/GITHUB_TOKEN/);
+  await assert.rejects(withdrawConsolidation({code:'r2m1',token:'test',config:consolidation,request:mock.request}),/422/);
+  await assert.rejects(withdrawConsolidation({code:'r2m1',config:consolidation}),/GITHUB_TOKEN/);
   const root=await mkdtemp(path.join(tmpdir(),'withdraw-draft-'));
   try {
-    await saveConsolidation(root,'r2m1','# Conservar');
-    await recordConsolidationPublication(root,'r2m1',{withdrawn:true});
-    const draft=await readConsolidation(root,'r2m1');
+    await saveConsolidation(root,'r2m1','# Conservar',consolidation);
+    await recordConsolidationPublication(root,'r2m1',{withdrawn:true},consolidation);
+    const draft=await readConsolidation(root,'r2m1',consolidation);
     assert.equal(draft.markdown,'# Conservar\n');assert.equal(draft.publication.withdrawn,true);
   } finally {await rm(root,{recursive:true,force:true});}
 });

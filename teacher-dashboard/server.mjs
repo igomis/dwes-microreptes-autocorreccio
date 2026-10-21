@@ -1,12 +1,12 @@
 import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, withdrawConsolidation, recordConsolidationPublication } from './consolidation.mjs';
 import { calculateRepteExtension, makeExtensionReview, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
 import {
-  CLASSROOM_WORK_LEVELS,
   applyClassroomCap,
   calculateTechnicalScore,
   classifyClassroomWork,
   resolveClassroomAssessment
 } from '../scripts/lib/classroom-work.mjs';
+import { loadModuleConfig, moduleDefaultGroup, moduleGroupFiles, teacherRepositoryParts } from '../scripts/lib/module-config.mjs';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
 import { createHash, timingSafeEqual } from 'node:crypto';
@@ -56,19 +56,19 @@ import { dashboardGroupGradeLinks } from './external-links.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
-const localClassroomProgrammingDir = path.resolve(rootDir, 'docs/programacio_aula');
-const externalClassroomProgrammingDir = path.resolve(rootDir, '../dwes-restructuracio-modul/docs/01_programacio_modul');
+const moduleConfig = loadModuleConfig(rootDir);
+const defaultGroupName = moduleDefaultGroup(moduleConfig);
+const configuredTeacherRepository = teacherRepositoryParts(moduleConfig);
+const classroomWorkPolicy = moduleConfig.assessment.classroom_work;
+const challengeCodePattern = new RegExp(moduleConfig.codes.challenge_pattern, 'i');
+const learningOutcomePattern = new RegExp(moduleConfig.codes.learning_outcome_pattern, 'i');
+const localClassroomProgrammingDir = path.resolve(rootDir, moduleConfig.documentation.classroom_programming_local_dir);
+const externalClassroomProgrammingDir = path.resolve(rootDir, moduleConfig.documentation.classroom_programming_external_dir);
 const execFileAsync = promisify(execFile);
 const correctionWorkflowFile = 'batch-autograde-students.yml';
 const agentRulesAuditWorkflowFile = 'audit-student-agent-rules.yml';
 const defaultPort = 4173;
-const groupFiles = {
-  all: 'course/student-repositories.txt',
-  '2DAW-A': 'course/student-repositories-2dawa.txt',
-  '2DAW-B': 'course/student-repositories-2dawb.txt',
-  '2DAW-C': 'course/student-repositories-2dawc.txt',
-  '2DAW-D': 'course/student-repositories-2dawd.txt'
-};
+const groupFiles = moduleGroupFiles(moduleConfig);
 
 function loadDotEnv() {
   const envPath = path.join(rootDir, '.env');
@@ -105,7 +105,7 @@ function sendHtml(response, html) {
 function sendUnauthorized(response) {
   response.writeHead(401, {
     'content-type': 'text/plain; charset=utf-8',
-    'www-authenticate': 'Basic realm="DWES Autocorreccio Dashboard", charset="UTF-8"'
+    'www-authenticate': `Basic realm="${moduleConfig.module.short_name} Autocorreccio Dashboard", charset="UTF-8"`
   });
   response.end('Autenticacio requerida.\n');
 }
@@ -185,8 +185,8 @@ function envUrl(name) {
 
 function dashboardDocLinks() {
   return {
-    professorat_url: envUrl('DASHBOARD_DOCS_PROFESSORAT_URL'),
-    alumnat_url: envUrl('DASHBOARD_DOCS_ALUMNAT_URL')
+    professorat_url: envUrl(moduleConfig.documentation.professor_url_env),
+    alumnat_url: envUrl(moduleConfig.documentation.student_url_env)
   };
 }
 
@@ -253,7 +253,7 @@ async function readTextIfExists(filePath) {
 }
 
 function criterionRaPrefix(criterion) {
-  const match = String(criterion || '').match(/^(RA\d+)/i);
+  const match = String(criterion || '').match(/^([^.]+)/);
   return match ? match[1].toUpperCase() : null;
 }
 
@@ -283,9 +283,9 @@ function validateMicrorepte(challenge, rubric, prompt) {
     issues.push(`Els pesos de la rúbrica sumen ${dimensionWeightSum.toFixed(3)} en lloc de 1.`);
   }
 
-  if (challenge && /^R\d+M\d+$/i.test(String(challenge.microrepte_code || ''))) {
+  if (challenge && challengeCodePattern.test(String(challenge.microrepte_code || ''))) {
     const primaryRa = String(challenge.primary_ra || '').toUpperCase();
-    if (!/^RA\d+$/.test(primaryRa)) {
+    if (!learningOutcomePattern.test(primaryRa)) {
       issues.push('Falta RA avaluat únic (`primary_ra`).');
     }
 
@@ -470,8 +470,8 @@ async function readClassroomProgramming() {
       microrepte: extractInlineField(markdown, 'Microrepte'),
       duration: extractSessionDuration(markdown),
       focus: extractInlineField(markdown, 'Focus'),
-      documentation_url: 'https://igomis.github.io/reestructuracioModul/01_programacio_modul/' + fileName.replace(/\.md$/, '/'),
-      markdown_url: 'https://igomis.github.io/reestructuracioModul/01_programacio_modul/' + fileName,
+      documentation_url: moduleConfig.documentation.classroom_programming_public_url + fileName.replace(/\.md$/, '/'),
+      markdown_url: moduleConfig.documentation.classroom_programming_public_url + fileName,
       file: path.relative(rootDir, absolutePath),
       source: classroomProgrammingDir === localClassroomProgrammingDir ? 'snapshot' : 'external',
       markdown
@@ -889,7 +889,7 @@ function resolveWorkflowInputs(body) {
   const mode = body.mode || 'mock';
   const studentRef = body.student_ref || 'main';
   const publishToStudentRepo = String(body.publish_to_student_repo ?? true);
-  const defaultGroup = body.group || (targetGroup === 'all' ? '2DAW-A' : targetGroup);
+  const defaultGroup = body.group || (targetGroup === 'all' ? defaultGroupName : targetGroup);
 
   if (!Object.hasOwn(groupFiles, targetGroup)) {
     throw new Error(`target_group no valid: ${targetGroup}`);
@@ -923,9 +923,9 @@ function resolveWorkflowInputs(body) {
 
 async function dispatchWorkflow(inputs, selectedWorkflowFile = correctionWorkflowFile) {
   const token = process.env.GITHUB_TOKEN;
-  const owner = process.env.GITHUB_OWNER || 'igomis';
-  const repo = process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio';
-  const ref = process.env.GITHUB_REF || 'main';
+  const owner = process.env.GITHUB_OWNER || configuredTeacherRepository.owner;
+  const repo = process.env.GITHUB_REPO || configuredTeacherRepository.repo;
+  const ref = process.env.GITHUB_REF || moduleConfig.github.default_ref;
   const dispatchedAt = new Date().toISOString();
 
   if (!token) {
@@ -1155,7 +1155,9 @@ async function gradeClassroomWorkSession(sessionId) {
 async function technicalScoreForGrade(grade, rubric) {
   if (!grade) return null;
   const detail = await readGradeDetail(grade.id);
-  return detail?.result ? calculateTechnicalScore(detail.result, rubric) : null;
+  return detail?.result
+    ? calculateTechnicalScore(detail.result, rubric, classroomWorkPolicy.technical_dimensions)
+    : null;
 }
 
 function resolveStoredClassroomAssessment(assessment) {
@@ -1167,7 +1169,7 @@ function resolveStoredClassroomAssessment(assessment) {
   return resolveClassroomAssessment(normalized, assessment.teacher_override_level ? {
     level: assessment.teacher_override_level,
     reason: assessment.teacher_override_reason
-  } : null);
+  } : null, classroomWorkPolicy.levels);
 }
 
 async function recalculateClassroomWork(filters = {}) {
@@ -1220,7 +1222,7 @@ async function recalculateClassroomWork(filters = {}) {
         start_score: startScore,
         end_score: endScore,
         final_score: finalScore
-      });
+      }, classroomWorkPolicy.thresholds, classroomWorkPolicy.levels);
       const stored = upsertClassroomWorkAssessment({
         session_id: session.id,
         student_id: studentId,
@@ -1264,13 +1266,17 @@ async function buildConfigPayload() {
     group_files: groupFiles,
     repositories_by_target: repositoriesByTarget,
     docs: dashboardDocLinks(),
-    grade_spreadsheets: dashboardGroupGradeLinks(),
+    module: moduleConfig.module,
+    groups: moduleConfig.groups,
+    classroom_work: classroomWorkPolicy,
+    grade_spreadsheets: dashboardGroupGradeLinks(moduleConfig.groups),
     github: {
-      owner: process.env.GITHUB_OWNER || 'igomis',
-      repo: process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio',
-      ref: process.env.GITHUB_REF || 'main',
-      classroom_org: envText('GITHUB_CLASSROOM_ORG'),
-      student_template: envText('GITHUB_STUDENT_TEMPLATE'),
+      owner: process.env.GITHUB_OWNER || configuredTeacherRepository.owner,
+      repo: process.env.GITHUB_REPO || configuredTeacherRepository.repo,
+      ref: process.env.GITHUB_REF || moduleConfig.github.default_ref,
+      classroom_org: envText('GITHUB_CLASSROOM_ORG') || moduleConfig.github.classroom_organization,
+      student_template: envText('GITHUB_STUDENT_TEMPLATE') || moduleConfig.github.student_template,
+      student_repository_prefix: moduleConfig.github.student_repository_prefix,
       token_configured: Boolean(process.env.GITHUB_TOKEN)
     }
   };
@@ -1309,8 +1315,8 @@ async function importGradeArtifact(runId = null) {
 
 async function readWorkflowRun(runId) {
   const token = process.env.GITHUB_TOKEN;
-  const owner = process.env.GITHUB_OWNER || 'igomis';
-  const repo = process.env.GITHUB_REPO || 'dwes-microreptes-autocorreccio';
+  const owner = process.env.GITHUB_OWNER || configuredTeacherRepository.owner;
+  const repo = process.env.GITHUB_REPO || configuredTeacherRepository.repo;
   if (!token) throw new Error('Falta GITHUB_TOKEN per seguir la correcció automàtica.');
   const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}`, {
     headers: {
@@ -1687,7 +1693,9 @@ async function saveTeacherRepteGrade(body) {
   if (body.extension_review) {
     const grades = (await readLatestGrades({}, -1)).filter(g => g.repo === repo);
     const metadata = await readChallengeMetadata(rootDir);
-    const calculation = calculateRepteExtension(grades, metadata, repteId, extensionReview);
+    const calculation = moduleConfig.assessment.extension.enabled
+      ? calculateRepteExtension(grades, metadata, repteId, extensionReview, challengeCodePattern)
+      : null;
     extensionReview = makeExtensionReview(body.extension_review, calculation);
     history.push(extensionReview);
   }
@@ -1772,7 +1780,15 @@ async function readRepteGrades(filters = {}) {
         record.teacher_review_required = teacherData.teacher_review_required;
         record.teacher_source = teacherData.teacher_source;
       }
-      record.extension = calculateRepteExtension(allGrades.filter(g => g.repo === record.repo), metadata, record.repte_id, teacherData?.extension_review);
+      record.extension = moduleConfig.assessment.extension.enabled
+        ? calculateRepteExtension(
+          allGrades.filter(g => g.repo === record.repo),
+          metadata,
+          record.repte_id,
+          teacherData?.extension_review,
+          challengeCodePattern
+        )
+        : null;
       record.can_review_extension = Boolean(record.extension) && (!filters.challenge_id || filters.challenge_id === record.extension.source_challenge_id);
       record.ra_scores.sort((left, right) => String(left.ra_id).localeCompare(String(right.ra_id), 'ca', { numeric: true }));
       return record;
@@ -1783,6 +1799,11 @@ async function readRepteGrades(filters = {}) {
 
 function pageHtml() {
   const docs = dashboardDocLinks();
+  const moduleLabel = escapeHtmlServer(moduleConfig.module.short_name);
+  const classroomProgrammingSourceLabel = escapeHtmlServer(moduleConfig.documentation.classroom_programming_source_label);
+  const concreteGroupOptions = Object.keys(moduleConfig.groups)
+    .map((group) => `<option value="${escapeHtmlServer(group)}">${escapeHtmlServer(group)}</option>`)
+    .join('');
   const alumnatNavLink = docs.alumnat_url
     ? '<a class="nav-button nav-link" href="' + escapeHtmlServer(docs.alumnat_url) + '" target="_blank" rel="noreferrer">Doc alumnat</a>'
     : '';
@@ -1795,7 +1816,7 @@ function pageHtml() {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DWES Autocorrecció</title>
+  <title>${moduleLabel} Autocorrecció</title>
   <style>
     :root {
       color-scheme: light;
@@ -2103,7 +2124,7 @@ function pageHtml() {
 <body>
   <header>
     <div class="topbar">
-      <h1>DWES Autocorrecció</h1>
+      <h1>${moduleLabel} Autocorrecció</h1>
       <nav aria-label="Seccions del dashboard">
         <button class="nav-button active" type="button" data-nav-view="correction">Correcció</button>
         <button class="nav-button" type="button" data-nav-view="classroom">Temps a l’aula</button>
@@ -2122,10 +2143,7 @@ function pageHtml() {
         <label>Grup
           <select id="targetGroup">
             <option value="all">Tots</option>
-            <option value="2DAW-A">2DAW-A</option>
-            <option value="2DAW-B">2DAW-B</option>
-            <option value="2DAW-C">2DAW-C</option>
-            <option value="2DAW-D">2DAW-D</option>
+            ${concreteGroupOptions}
           </select>
         </label>
         <label>Mode
@@ -2189,10 +2207,7 @@ function pageHtml() {
       <div class="filters">
         <label>Grup
           <select id="classroomGroup">
-            <option value="2DAW-A">2DAW-A</option>
-            <option value="2DAW-B">2DAW-B</option>
-            <option value="2DAW-C">2DAW-C</option>
-            <option value="2DAW-D">2DAW-D</option>
+            ${concreteGroupOptions}
           </select>
         </label>
         <label>Microrepte
@@ -2239,10 +2254,7 @@ function pageHtml() {
         <label>Filtre per grup
           <select id="filterGroup">
             <option value="">Tots</option>
-            <option value="2DAW-A">2DAW-A</option>
-            <option value="2DAW-B">2DAW-B</option>
-            <option value="2DAW-C">2DAW-C</option>
-            <option value="2DAW-D">2DAW-D</option>
+            ${concreteGroupOptions}
           </select>
         </label>
         <label>Filtre per repte
@@ -2297,10 +2309,7 @@ function pageHtml() {
         </label>
         <label>Grup
           <select id="studentGroup">
-            <option value="2DAW-A">2DAW-A</option>
-            <option value="2DAW-B">2DAW-B</option>
-            <option value="2DAW-C">2DAW-C</option>
-            <option value="2DAW-D">2DAW-D</option>
+            ${concreteGroupOptions}
           </select>
         </label>
         <div class="actions">
@@ -2313,10 +2322,7 @@ function pageHtml() {
         <label>Filtre per grup
           <select id="studentFilterGroup">
             <option value="">Tots</option>
-            <option value="2DAW-A">2DAW-A</option>
-            <option value="2DAW-B">2DAW-B</option>
-            <option value="2DAW-C">2DAW-C</option>
-            <option value="2DAW-D">2DAW-D</option>
+            ${concreteGroupOptions}
           </select>
         </label>
         <label>Buscar
@@ -2332,10 +2338,10 @@ function pageHtml() {
         <h3>Crear repositoris des de CSV</h3>
         <div class="grid">
           <label>Organització
-            <input id="createReposOrg" placeholder="batoi-dwes-2026">
+            <input id="createReposOrg" placeholder="organitzacio-github">
           </label>
           <label>Plantilla
-            <input id="createReposTemplate" placeholder="igomis/dwes-microreptes-alumnes">
+            <input id="createReposTemplate" placeholder="owner/plantilla-alumnat">
           </label>
           <label>Prefix repositori
             <input id="createReposPrefix" value="microreptes-">
@@ -2343,10 +2349,7 @@ function pageHtml() {
           <label>Grup per defecte
             <select id="createReposDefaultGroup">
               <option value="">El CSV indica el grup</option>
-              <option value="2DAW-A">2DAW-A</option>
-              <option value="2DAW-B">2DAW-B</option>
-              <option value="2DAW-C">2DAW-C</option>
-              <option value="2DAW-D">2DAW-D</option>
+              ${concreteGroupOptions}
             </select>
           </label>
           <label>Permís
@@ -2369,7 +2372,7 @@ function pageHtml() {
             <span><input id="createReposNoInvite" type="checkbox"> No convidar encara</span>
           </label>
         </div>
-        <textarea id="createReposCsvText" placeholder="github_user,group,student_name&#10;alumne01,2DAW-A,Ana Marti&#10;alumne02,2DAW-B,Pau Garcia">github_user,group,student_name
+        <textarea id="createReposCsvText" placeholder="github_user,group,student_name">github_user,group,student_name
 </textarea>
         <div class="actions">
           <button id="createReposRun" type="button">Executar creació</button>
@@ -2448,6 +2451,14 @@ function pageHtml() {
     let activeClassroomSessionId = null;
     let classroomDeliverySessionId = null;
     let classroomWorkRefreshTimer = null;
+
+    function configuredGroupNames() {
+      return Object.keys(config?.groups || {});
+    }
+
+    function defaultConfiguredGroup() {
+      return configuredGroupNames()[0] || '';
+    }
 
     function showView(view) {
       document.querySelectorAll('.view-panel').forEach((panel) => {
@@ -2957,7 +2968,7 @@ function pageHtml() {
 
       const sourceLabel = sessions[0]?.source === 'snapshot'
         ? 'còpia versionada en docs/programacio_aula'
-        : 'dwes-restructuracio-modul';
+        : '${classroomProgrammingSourceLabel}';
       document.querySelector('#programacioInfo').textContent = 'Programació d’aula llegida des de ' + sourceLabel + ': ' + sessions.length + ' sessions';
       viewer.innerHTML =
         '<div class="result-header">' +
@@ -3397,7 +3408,7 @@ function pageHtml() {
       editingStudentId = null;
       document.querySelector('#studentName').value = '';
       document.querySelector('#studentRepo').value = '';
-      document.querySelector('#studentGroup').value = '2DAW-A';
+      document.querySelector('#studentGroup').value = defaultConfiguredGroup();
       document.querySelector('#saveStudent').textContent = 'Guardar';
       document.querySelector('#studentStatus').textContent = '';
     }
@@ -3409,7 +3420,7 @@ function pageHtml() {
       editingStudentId = student.id;
       document.querySelector('#studentName').value = student.student_name || '';
       document.querySelector('#studentRepo').value = student.repo || '';
-      document.querySelector('#studentGroup').value = student.group_name || '2DAW-A';
+      document.querySelector('#studentGroup').value = student.group_name || defaultConfiguredGroup();
       document.querySelector('#saveStudent').textContent = 'Actualitzar';
       document.querySelector('#studentStatus').textContent = 'Editant ' + (student.student_name || student.repo);
     }
@@ -3677,7 +3688,7 @@ function pageHtml() {
 
     function parseManualRepositoriesInput() {
       const target = document.querySelector('#targetGroup').value;
-      const defaultGroup = target === 'all' ? '2DAW-A' : target;
+      const defaultGroup = target === 'all' ? defaultConfiguredGroup() : target;
       const raw = document.querySelector('#repositories').value.trim();
 
       if (!raw) {
@@ -3692,7 +3703,7 @@ function pageHtml() {
             return items;
           }
           const next = tokens[index + 1];
-          const group = /^2DAW-[A-D]$/.test(next || '') ? next : defaultGroup;
+          const group = configuredGroupNames().includes(next || '') ? next : defaultGroup;
           items.push({ repo: token, group, name: '' });
           return items;
         }, []);
@@ -3705,7 +3716,7 @@ function pageHtml() {
         const allRepositories = config.repositories_by_target.all?.repositories || [];
         const student = allRepositories.find((item) => item.repo === selectedStudent) || {
           repo: selectedStudent,
-          group: target === 'all' ? '2DAW-A' : target,
+          group: target === 'all' ? defaultConfiguredGroup() : target,
           name: ''
         };
 
@@ -3774,6 +3785,7 @@ function pageHtml() {
         (config.github.token_configured ? '<span class="ok">sí</span>' : '<span class="error">no</span>');
       document.querySelector('#createReposOrg').value = config.github.classroom_org || '';
       document.querySelector('#createReposTemplate').value = config.github.student_template || '';
+      document.querySelector('#createReposPrefix').value = config.github.student_repository_prefix || 'microreptes-';
       refreshResultsStudentSelect();
       refreshGradesSpreadsheetLink();
       refreshTable();
@@ -3795,7 +3807,7 @@ function pageHtml() {
     }
 
     function classroomLevelLabel(level) {
-      return ({ high: 'Alta', medium: 'Mitjana', low: 'Baixa', no_evidence: 'Sense evidència' })[level] || 'Pendent';
+      return config?.classroom_work?.levels?.[level]?.label || 'Pendent';
     }
 
     function updateClassroomChallengeInfo() {
@@ -4522,7 +4534,7 @@ async function handleRequest(request, response) {
       }
       const body = await readRequestJson(request);
       const level = String(body.level || '').trim() || null;
-      if (level) resolveClassroomAssessment(current, { level, reason: body.reason });
+      if (level) resolveClassroomAssessment(current, { level, reason: body.reason }, classroomWorkPolicy.levels);
       const saved = saveClassroomWorkOverride(sessionId, studentId, level ? { level, reason: body.reason } : null);
       sendJson(response, 200, { assessment: resolveStoredClassroomAssessment(saved) });
       return;
@@ -4591,23 +4603,23 @@ async function handleRequest(request, response) {
     if (consolidationMatch && ['GET', 'PUT', 'POST', 'DELETE'].includes(request.method)) {
       const session = await readClassroomSession(decodeURIComponent(consolidationMatch[1]));
       if (!session) { sendJson(response, 404, { error: 'Sessió no trobada.' }); return; }
-      const code = consolidationCode(session);
+      const code = consolidationCode(session, moduleConfig.consolidation);
       if (!code) {
         sendJson(response, request.method === 'GET' ? 200 : 400, { code: null, error: 'Esta sessió no té microrepte propi.' }); return;
       }
-      if (request.method === 'GET') { sendJson(response, 200, await readConsolidation(rootDir, code)); return; }
+      if (request.method === 'GET') { sendJson(response, 200, await readConsolidation(rootDir, code, moduleConfig.consolidation)); return; }
       if (request.method === 'DELETE') {
-        const withdrawn = await withdrawConsolidation({ code, token: process.env.GITHUB_TOKEN });
-        try { await recordConsolidationPublication(rootDir, code, withdrawn); }
+        const withdrawn = await withdrawConsolidation({ code, token: process.env.GITHUB_TOKEN, config: moduleConfig.consolidation });
+        try { await recordConsolidationPublication(rootDir, code, withdrawn, moduleConfig.consolidation); }
         catch { withdrawn.warning = 'Retirada enviada, però no s’ha pogut actualitzar el registre local.'; }
         sendJson(response, 200, withdrawn);
         return;
       }
       const body = await readRequestJson(request);
-      const draft = await saveConsolidation(rootDir, code, body.markdown);
+      const draft = await saveConsolidation(rootDir, code, body.markdown, moduleConfig.consolidation);
       if (request.method === 'PUT') { sendJson(response, 200, draft); return; }
-      const published = await publishConsolidation({ code, markdown: draft.markdown, token: process.env.GITHUB_TOKEN });
-      try { await recordConsolidationPublication(rootDir, code, published); }
+      const published = await publishConsolidation({ code, markdown: draft.markdown, token: process.env.GITHUB_TOKEN, config: moduleConfig.consolidation });
+      try { await recordConsolidationPublication(rootDir, code, published, moduleConfig.consolidation); }
       catch { published.warning = 'Publicació enviada, però no s’ha pogut guardar l’enllaç local. Consulta l’índex web.'; }
       sendJson(response, 200, published);
       return;
@@ -4787,8 +4799,8 @@ async function handleRequest(request, response) {
 
     if (request.method === 'POST' && url.pathname === '/api/audit-agent-rules') {
       const inputs = {
-        organization: process.env.GITHUB_CLASSROOM_ORG || 'batoi-dwes-2026',
-        repository_prefix: 'microreptes-',
+        organization: process.env.GITHUB_CLASSROOM_ORG || moduleConfig.github.classroom_organization,
+        repository_prefix: moduleConfig.github.student_repository_prefix,
         student_ref: 'main'
       };
       const result = await dispatchWorkflow(inputs, agentRulesAuditWorkflowFile);

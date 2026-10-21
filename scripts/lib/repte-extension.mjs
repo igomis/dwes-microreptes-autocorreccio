@@ -24,15 +24,28 @@ export async function readChallengeMetadata(rootDir) {
   return new Map(entries);
 }
 
-export function validateExtensionOwners(metadata) {
+const defaultChallengePattern = /^R\d+M\d+$/i;
+
+function matchesChallengeCode(item, challengePattern) {
+  const pattern = challengePattern || defaultChallengePattern;
+  pattern.lastIndex = 0;
+  return pattern.test(item.microrepte_code || '');
+}
+
+function challengeOrder(item) {
+  const match = String(item.microrepte_code || '').match(/\d+(?!.*\d)/);
+  return match ? Number(match[0]) : 0;
+}
+
+export function validateExtensionOwners(metadata, challengePattern = defaultChallengePattern) {
   const groups = new Map();
   for (const item of metadata.values()) {
-    if (!/^R\d+M\d+$/.test(item.microrepte_code || '')) continue;
+    if (!matchesChallengeCode(item, challengePattern)) continue;
     const group = groups.get(item.repte_id) || [];
     group.push(item); groups.set(item.repte_id, group);
   }
   for (const [repte, items] of groups) {
-    items.sort((a, b) => Number(a.microrepte_code.split('M')[1]) - Number(b.microrepte_code.split('M')[1]));
+    items.sort((a, b) => challengeOrder(a) - challengeOrder(b));
     const owners = items.filter(item => item.repte_extension);
     if (owners.length !== 1 || owners[0] !== items.at(-1)) {
       throw new Error(`${repte}: l'ampliació ha d'estar només en l'últim microrepte ordinari`);
@@ -84,8 +97,8 @@ function parseProposal(value) {
 
 // The extension is an independent 0-1 indicator for the teacher's oral defence.
 // It never calculates or modifies a whole-repte, RA or microrepte score.
-export function calculateRepteExtension(grades, metadata, repteId, review = null) {
-  const required = [...metadata.values()].filter(m => m.repte_id === repteId && /^R\d+M\d+$/.test(m.microrepte_code || ''));
+export function calculateRepteExtension(grades, metadata, repteId, review = null, challengePattern = defaultChallengePattern) {
+  const required = [...metadata.values()].filter(m => m.repte_id === repteId && matchesChallengeCode(m, challengePattern));
   const owner = required.find(m => m.repte_extension);
   if (!owner) return null;
   const latest = new Map();

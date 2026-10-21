@@ -3,6 +3,7 @@ import { calculateRawScore } from './lib/grading-result.mjs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
 function parseArgs(argv) {
   const args = {};
@@ -148,7 +149,7 @@ function validateDimensionScores(result, errors) {
   });
 }
 
-function validateRaScores(result, errors) {
+function validateRaScores(result, errors, learningOutcomePattern) {
   if (!Array.isArray(result.ra_scores)) {
     return;
   }
@@ -166,8 +167,9 @@ function validateRaScores(result, errors) {
       }
     }
 
-    if ('ra_id' in raScore && !/^RA\d+$/i.test(String(raScore.ra_id))) {
-      errors.push(`${prefix}.ra_id ha de tindre format RA<n>`);
+    learningOutcomePattern.lastIndex = 0;
+    if ('ra_id' in raScore && !learningOutcomePattern.test(String(raScore.ra_id))) {
+      errors.push(`${prefix}.ra_id no complix el patró configurat del resultat d'aprenentatge`);
     }
 
     if ('score' in raScore && (typeof raScore.score !== 'number' || raScore.score < 0 || raScore.score > 10)) {
@@ -202,7 +204,7 @@ function validateScoringConsistency(result, rubricDimensions, errors) {
   }
 }
 
-function validateResult(result, schema, rubricDimensions = []) {
+function validateResult(result, schema, rubricDimensions = [], learningOutcomePattern = /^RA\d+$/i) {
   const errors = [];
 
   if (!isPlainObject(result)) {
@@ -213,7 +215,7 @@ function validateResult(result, schema, rubricDimensions = []) {
   validateBasicTypes(result, errors);
   validateNumberRanges(result, errors);
   validateDimensionScores(result, errors);
-  validateRaScores(result, errors);
+  validateRaScores(result, errors, learningOutcomePattern);
   validateProgrammingPractices(result, errors);
   validateScoringConsistency(result, rubricDimensions, errors);
 
@@ -225,6 +227,7 @@ async function main() {
   requireArgs(args);
 
   const rootDir = process.cwd();
+  const moduleConfig = loadModuleConfig(rootDir);
   const [result, schema] = await Promise.all([
     readJson(path.resolve(rootDir, args.input)),
     readJson(path.join(rootDir, 'global', 'grading-schema.json'))
@@ -232,8 +235,16 @@ async function main() {
   const rubric = result.challenge_id
     ? await readJson(path.join(rootDir, 'microreptes', result.challenge_id, 'rubric.json'))
     : { dimensions: [] };
-  const errors = validateResult(result, schema, rubric.dimensions || []);
+  const errors = validateResult(
+    result,
+    schema,
+    rubric.dimensions || [],
+    new RegExp(moduleConfig.codes.learning_outcome_pattern, 'i')
+  );
   if (result.repte_extension) {
+    if (!moduleConfig.assessment.extension.enabled) {
+      errors.push('repte_extension està desactivada en course/module.json');
+    }
     try {
       validateProposal(result.repte_extension);
       const metadata = await readChallengeMetadata(rootDir);
