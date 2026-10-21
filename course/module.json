@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "module": {
+    "id": "dwes",
+    "name": "Desenvolupament web en entorn servidor",
+    "short_name": "DWES",
+    "language": "ca-ES-valencia"
+  },
+  "github": {
+    "teacher_repository": "igomis/dwes-microreptes-autocorreccio",
+    "default_ref": "main",
+    "classroom_organization": "batoi-dwes-2026",
+    "student_template": "igomis/dwes-microreptes-alumnes",
+    "student_template_local_dir": "../dwes-microreptes-alumnes",
+    "student_repository_prefix": "microreptes-"
+  },
+  "groups": {
+    "2DAW-A": {
+      "repositories_file": "course/student-repositories-2dawa.txt",
+      "grades_url_env": "DASHBOARD_GRADES_2DAW_A_URL"
+    },
+    "2DAW-B": {
+      "repositories_file": "course/student-repositories-2dawb.txt",
+      "grades_url_env": "DASHBOARD_GRADES_2DAW_B_URL"
+    },
+    "2DAW-C": {
+      "repositories_file": "course/student-repositories-2dawc.txt",
+      "grades_url_env": "DASHBOARD_GRADES_2DAW_C_URL"
+    },
+    "2DAW-D": {
+      "repositories_file": "course/student-repositories-2dawd.txt",
+      "grades_url_env": "DASHBOARD_GRADES_2DAW_D_URL"
+    }
+  },
+  "repositories_file": "course/student-repositories.txt",
+  "codes": {
+    "challenge_pattern": "^R\\d+M\\d+$",
+    "learning_outcome_pattern": "^RA\\d+$"
+  },
+  "assessment": {
+    "extension": {
+      "enabled": true
+    },
+    "rubric": {
+      "required_dimensions": [
+        "functional_resolution",
+        "verification",
+        "traceability",
+        "documentation",
+        "ai_usage",
+        "code_quality"
+      ],
+      "performance_dimensions": [
+        "functional_resolution",
+        "code_quality",
+        "file_handling"
+      ],
+      "functional_dimension": "functional_resolution",
+      "minimum_functional_weight": 0.5,
+      "maximum_check_weight": 0.1
+    },
+    "classroom_work": {
+      "technical_dimensions": [
+        "functional_resolution",
+        "code_quality",
+        "file_handling"
+      ],
+      "thresholds": {
+        "high": 0.7,
+        "medium": 0.35
+      },
+      "levels": {
+        "high": {
+          "label": "Alta",
+          "cap": 10
+        },
+        "medium": {
+          "label": "Mitjana",
+          "cap": 9
+        },
+        "low": {
+          "label": "Baixa",
+          "cap": 7.5
+        },
+        "no_evidence": {
+          "label": "Sense evidència",
+          "cap": 6
+        }
+      }
+    }
+  },
+  "autograding": {
+    "system_context_file": "global/module-autograding.md"
+  },
+  "documentation": {
+    "classroom_programming_local_dir": "docs/programacio_aula",
+    "classroom_programming_external_dir": "../dwes-restructuracio-modul/docs/01_programacio_modul",
+    "classroom_programming_source_label": "dwes-restructuracio-modul",
+    "classroom_programming_public_url": "https://igomis.github.io/reestructuracioModul/01_programacio_modul/",
+    "professor_url_env": "DASHBOARD_DOCS_PROFESSORAT_URL",
+    "student_url_env": "DASHBOARD_DOCS_ALUMNAT_URL"
+  },
+  "consolidation": {
+    "enabled": true,
+    "code_pattern": "^R[1-5]M\\d+$",
+    "repository": "cipfpbatoi/dwes2627",
+    "branch": "master",
+    "folder": "docs/04_materials/consolidacio",
+    "public_base_url": "https://cipfpbatoi.github.io/dwes2627/04_materials/consolidacio/"
+  }
+}

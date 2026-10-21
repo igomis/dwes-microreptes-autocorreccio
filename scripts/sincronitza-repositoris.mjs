@@ -3,14 +3,17 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const help = `Ús: ./scripts/sincronitza-repositoris.sh DESTÍ [--group 2DAW-C] [--file LLISTA] [--ssh] [--dry-run]
+const moduleConfig = loadModuleConfig(root);
+const help = `Ús: ./scripts/sincronitza-repositoris.sh DESTÍ [--group GRUP] [--file LLISTA] [--ssh] [--dry-run]
 Clona main o actualitza sense sobreescriure treball local.
-Per defecte: course/student-repositories.txt. --file i --group són alternatius.
+Per defecte: ${moduleConfig.repositories_file}. --file i --group són alternatius.
 --dry-run mostra la llista sense crear carpetes ni contactar amb GitHub.`;
 
-export function repositories(text) {
+export function repositories(text, groupNames = Object.keys(moduleConfig.groups)) {
+  const knownGroups = new Set(groupNames.map((group) => group.toLowerCase()));
   const found = new Set();
   for (const line of text.split(/\r?\n/)) {
     const tokens = line.replace(/#.*$/, '').replace(/[,;]/g, ' ').trim().split(/\s+/).filter(Boolean);
@@ -18,7 +21,7 @@ export function repositories(text) {
       const repo = tokens[i].replace(/^['"]|['"]$/g, '').replace(/^https?:\/\/github\.com\//i, '').replace(/^git@github\.com:/i, '').replace(/\/$/, '').replace(/\.git$/i, '');
       if (!/^[A-Za-z0-9_-][A-Za-z0-9_.-]*\/[A-Za-z0-9_-][A-Za-z0-9_.-]*$/.test(repo)) throw new Error(`Repositori no vàlid: ${tokens[i]}`);
       found.add(repo.toLowerCase());
-      if (/^2DAW-[A-D]$/i.test(tokens[i + 1] || '')) i++;
+      if (knownGroups.has(String(tokens[i + 1] || '').toLowerCase())) i++;
     }
   }
   return [...found].sort();
@@ -76,8 +79,12 @@ function main(argv) {
   }
   if (!destination) throw new Error(help);
   if (group && file) throw new Error('Usa --group o --file, no els dos.');
-  if (group && !/^2DAW-[A-D]$/.test(group)) throw new Error('Grup no vàlid: usa 2DAW-A, B, C o D.');
-  const list = file ? path.resolve(file) : path.join(root, 'course', group ? `student-repositories-${group.toLowerCase().replace('-', '')}.txt` : 'student-repositories.txt');
+  const configuredGroup = group && Object.keys(moduleConfig.groups).find((item) => item.toLowerCase() === group.toLowerCase());
+  if (group && !configuredGroup) throw new Error(`Grup no configurat en course/module.json: ${group}`);
+  const relativeList = configuredGroup
+    ? moduleConfig.groups[configuredGroup].repositories_file
+    : moduleConfig.repositories_file;
+  const list = file ? path.resolve(file) : path.join(root, relativeList);
   const repos = repositories(readFileSync(list, 'utf8'));
   console.log(`Llista: ${list} · ${repos.length} repositoris`);
   if (!repos.length) throw new Error('La llista està buida.');

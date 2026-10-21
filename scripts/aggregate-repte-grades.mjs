@@ -4,6 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 import { calculateRepteExtension, readChallengeMetadata } from './lib/repte-extension.mjs';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
 const rootDir = process.cwd();
 const gradesDir = path.join(rootDir, 'grades');
@@ -113,7 +114,7 @@ function normalizeRaScores(value) {
     }));
 }
 
-export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGrades) {
+export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGrades, options = {}) {
   const raGroups = new Map();
 
   for (const grade of latestGrades) {
@@ -215,7 +216,15 @@ export function aggregateRepteGrades(latestGrades, challengeMetadata, teacherGra
 
     repteRecord.auto_score = null;
     repteRecord.auto_score_mode = 'not_calculated';
-    const extension = calculateRepteExtension(latestGrades.filter(g => (g.repo || g.student) === repteRecord.repo), challengeMetadata, repteRecord.repte_id, teacherData?.extension_review);
+    const extension = options.extensionEnabled === false
+      ? null
+      : calculateRepteExtension(
+        latestGrades.filter(g => (g.repo || g.student) === repteRecord.repo),
+        challengeMetadata,
+        repteRecord.repte_id,
+        teacherData?.extension_review,
+        options.challengePattern
+      );
     if (extension) {
       repteRecord.extension = extension;
       repteRecord.provisional = extension.provisional;
@@ -247,7 +256,11 @@ async function main() {
   const teacherGrades = args['teacher-input'] ? normalizeTeacherGrades(await readJson(path.resolve(args['teacher-input']))) : new Map();
   const challengeMetadata = await readChallengeMetadata(rootDir);
 
-  const { raRecords, repteRecords } = aggregateRepteGrades(latestGrades, challengeMetadata, teacherGrades);
+  const moduleConfig = loadModuleConfig(rootDir);
+  const { raRecords, repteRecords } = aggregateRepteGrades(latestGrades, challengeMetadata, teacherGrades, {
+    extensionEnabled: moduleConfig.assessment.extension.enabled,
+    challengePattern: new RegExp(moduleConfig.codes.challenge_pattern, 'i')
+  });
   const outputDir = args['output-dir'] ? path.resolve(args['output-dir']) : gradesDir;
 
   const outputPathJson = path.join(outputDir, 'latest-repte-grades.json');

@@ -4,10 +4,12 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { promisify } from 'node:util';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
 const execFileAsync = promisify(execFile);
 const rootDir = process.cwd();
 const courseDir = path.join(rootDir, 'course');
+const moduleConfig = loadModuleConfig(rootDir);
 const ghBin = process.env.GH_BIN || 'gh';
 const validPermissions = new Set(['pull', 'push', 'maintain', 'admin']);
 const defaultStudentBranch = 'main';
@@ -28,7 +30,9 @@ const allowedArgs = new Set([
 
 function parseArgs(argv) {
   const args = {
-    'repo-prefix': 'microreptes-',
+    org: moduleConfig.github.classroom_organization,
+    template: moduleConfig.github.student_template,
+    'repo-prefix': moduleConfig.github.student_repository_prefix,
     permission: 'push',
     'default-group': ''
   };
@@ -74,22 +78,20 @@ function printUsage() {
   console.log(`Ús:
 node scripts/create-student-repos.mjs \\
   --input alumnes.csv \\
-  --org batoi-dwes-2026 \\
-  --template igomis/dwes-microreptes-alumnes \\
-  [--repo-prefix microreptes-] \\
-  [--default-group 2DAW-A] \\
+  [--org ${moduleConfig.github.classroom_organization}] \\
+  [--template ${moduleConfig.github.student_template}] \\
+  [--repo-prefix ${moduleConfig.github.student_repository_prefix}] \\
+  [--default-group ${Object.keys(moduleConfig.groups)[0]}] \\
   [--permission push] \\
   [--dry-run] \\
   [--no-invite]
 
 CSV esperat, amb capçalera:
 github_user,group,student_name
-alumne01,2DAW-A,Ana Marti
-alumne02,2DAW-B,Pau Garcia
+alumne01,${Object.keys(moduleConfig.groups)[0]},Ana Marti
 
 També s'accepta sense capçalera, amb este ordre:
-alumne01,2DAW-A,Ana Marti
-alumne02,2DAW-B,Pau Garcia
+alumne01,${Object.keys(moduleConfig.groups)[0]},Ana Marti
 
 Columnes acceptades:
 - github_user, user, username o login
@@ -185,12 +187,15 @@ function pick(row, names) {
 }
 
 function normalizeGroup(group) {
-  return String(group || '').trim().toUpperCase();
+  const value = String(group || '').trim();
+  return Object.keys(moduleConfig.groups).find((configured) => configured.toLowerCase() === value.toLowerCase()) || value;
 }
 
-function groupFileName(group) {
-  const suffix = normalizeGroup(group).toLowerCase().replace(/[^a-z0-9]/g, '');
-  return `student-repositories-${suffix}.txt`;
+function groupFilePath(group) {
+  const normalized = normalizeGroup(group);
+  const relativePath = moduleConfig.groups[normalized]?.repositories_file;
+  if (!relativePath) throw new Error(`Grup no configurat en course/module.json: ${group}`);
+  return path.join(rootDir, relativePath);
 }
 
 function sanitizeRepoName(value) {
@@ -251,7 +256,7 @@ async function assertCourseRepositoryFilesWritable(students, dryRun) {
     return;
   }
 
-  const allPath = path.join(courseDir, 'student-repositories.txt');
+  const allPath = path.join(rootDir, moduleConfig.repositories_file);
   let existingAllRows;
 
   try {
@@ -269,7 +274,7 @@ async function assertCourseRepositoryFilesWritable(students, dryRun) {
   ].filter(Boolean));
   const filePaths = [
     allPath,
-    ...[...groups].map((group) => path.join(courseDir, groupFileName(group)))
+    ...[...groups].map(groupFilePath)
   ];
 
   try {
@@ -310,7 +315,7 @@ async function writeRepositoryFile(filePath, title, rows) {
 }
 
 async function updateCourseRepositoryFiles(students, dryRun) {
-  const allPath = path.join(courseDir, 'student-repositories.txt');
+  const allPath = path.join(rootDir, moduleConfig.repositories_file);
   const existingAllRows = await readRepositoryRows(allPath);
   const newRows = students.map((student) => ({
     repo: student.fullRepo,
@@ -344,7 +349,7 @@ async function updateCourseRepositoryFiles(students, dryRun) {
 
   for (const [group, rows] of groupRows.entries()) {
     await writeRepositoryFile(
-      path.join(courseDir, groupFileName(group)),
+      groupFilePath(group),
       `Repositoris d'alumnes de ${group} per a correccio massiva.`,
       rows
     );
@@ -589,6 +594,9 @@ function buildStudents(rows, args) {
 
     if (!group) {
       throw new Error(`Línia ${row.__line}: falta group o --default-group`);
+    }
+    if (!Object.hasOwn(moduleConfig.groups, group)) {
+      throw new Error(`Línia ${row.__line}: el grup ${group} no està configurat en course/module.json`);
     }
 
     const repoName = sanitizeRepoName(explicitRepo || `${args['repo-prefix']}${githubUser}`);

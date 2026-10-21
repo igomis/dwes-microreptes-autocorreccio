@@ -5,12 +5,12 @@ on:
     inputs:
       organization:
         description: "Organització amb els repositoris d'alumnat"
-        required: true
-        default: "batoi-dwes-2026"
+        required: false
+        default: ""
       repository_prefix:
         description: "Prefix dels repositoris que s'han d'auditar"
-        required: true
-        default: "microreptes-"
+        required: false
+        default: ""
       student_ref:
         description: "Branca que s'ha d'auditar"
         required: true
@@ -28,8 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       STUDENT_READ_TOKEN: ${{ secrets.CLASSROOM_AUTOGRADE_TOKEN || secrets.TEACHER_REPO_TOKEN }}
-      AUDIT_ORG: ${{ inputs.organization || 'batoi-dwes-2026' }}
-      AUDIT_PREFIX: ${{ inputs.repository_prefix || 'microreptes-' }}
+      AUDIT_ORG: ${{ inputs.organization || '' }}
+      AUDIT_PREFIX: ${{ inputs.repository_prefix || '' }}
       AUDIT_REF: ${{ inputs.student_ref || 'main' }}
 
     steps:
@@ -53,13 +53,17 @@ jobs:
             exit 1
           fi
 
+          AUDIT_ORG="${AUDIT_ORG:-$(node -e "const c=require('./course/module.json');process.stdout.write(c.github.classroom_organization)")}"
+          AUDIT_PREFIX="${AUDIT_PREFIX:-$(node -e "const c=require('./course/module.json');process.stdout.write(c.github.student_repository_prefix)")}"
+          policy_repository="$(node -e "const c=require('./course/module.json');process.stdout.write(c.github.student_template)")"
+
           work_root="$RUNNER_TEMP/agent-rules-audit"
           policy_dir="$work_root/policy"
           results_dir="$GITHUB_WORKSPACE/tmp/agent-rules-audit"
           mkdir -p "$work_root" "$results_dir"
 
           git clone --depth=1 --branch main \
-            https://github.com/igomis/dwes_microreptes_alumnes.git "$policy_dir"
+            "https://github.com/$policy_repository.git" "$policy_dir"
 
           repositories="$(gh api --paginate \
             "orgs/$AUDIT_ORG/repos?per_page=100&type=all" \

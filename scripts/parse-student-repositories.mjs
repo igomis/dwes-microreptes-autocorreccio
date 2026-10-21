@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
-const groupPattern = /^2DAW-[A-D]$/i;
+const moduleConfig = loadModuleConfig();
+
+function groupMap(groups = Object.keys(moduleConfig.groups)) {
+  return new Map(groups.map((group) => [group.toLowerCase(), group]));
+}
 
 function parseArgs(argv) {
   const args = {};
@@ -36,8 +43,12 @@ function normalizeRepo(token) {
   return repo;
 }
 
-function isGroup(token) {
-  return groupPattern.test(token.trim());
+function isGroup(token, configuredGroups) {
+  return configuredGroups.has(token.trim().toLowerCase());
+}
+
+function normalizeGroup(token, configuredGroups) {
+  return configuredGroups.get(String(token || '').trim().toLowerCase()) || '';
 }
 
 function isRepo(token) {
@@ -53,7 +64,10 @@ function tokenizeLine(line) {
     .filter(Boolean);
 }
 
-function parseRepositories(text, defaultGroup) {
+export function parseRepositories(text, defaultGroup, groups = Object.keys(moduleConfig.groups)) {
+  const configuredGroups = groupMap(groups);
+  const normalizedDefaultGroup = normalizeGroup(defaultGroup, configuredGroups);
+  if (!normalizedDefaultGroup) throw new Error(`Grup per defecte no configurat: ${defaultGroup}`);
   const rows = [];
   const seen = new Set();
 
@@ -69,9 +83,9 @@ function parseRepositories(text, defaultGroup) {
 
       const repo = normalizeRepo(token);
       const next = tokens[index + 1] || '';
-      const group = isGroup(next) ? next.toUpperCase() : defaultGroup;
+      const group = isGroup(next, configuredGroups) ? normalizeGroup(next, configuredGroups) : normalizedDefaultGroup;
 
-      if (isGroup(next)) {
+      if (isGroup(next, configuredGroups)) {
         index += 1;
       }
 
@@ -88,10 +102,11 @@ function parseRepositories(text, defaultGroup) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const defaultGroup = (args['default-group'] || '').trim();
+  const configuredGroups = groupMap();
+  const defaultGroup = normalizeGroup(args['default-group'], configuredGroups);
 
   if (!defaultGroup) {
-    throw new Error('Falta --default-group');
+    throw new Error('Falta --default-group o no està configurat en course/module.json');
   }
 
   if (args.input && args.file) {
@@ -106,7 +121,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(`No s'ha pogut preparar la llista de repositoris: ${error.message}`);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(`No s'ha pogut preparar la llista de repositoris: ${error.message}`);
+    process.exit(1);
+  });
+}

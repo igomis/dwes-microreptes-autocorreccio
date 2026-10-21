@@ -2,13 +2,19 @@ import { readFile, mkdir, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-const folder = 'docs/04_materials/consolidacio';
-export function consolidationCode(session) {
-  const code = session?.microrepte;
-  return /^R[1-5]M\d+$/.test(code || '') ? code.toLowerCase() : null;
+function consolidationPattern(config) {
+  if (!config?.enabled) return null;
+  return new RegExp(config.code_pattern, 'i');
 }
-function validate(code, markdown) {
-  if (!/^r[1-5]m\d+$/.test(code)) throw new Error('Microrepte no vàlid.');
+
+export function consolidationCode(session, config) {
+  const code = session?.microrepte;
+  const pattern = consolidationPattern(config);
+  return pattern?.test(code || '') ? code.toLowerCase() : null;
+}
+function validate(code, markdown, config) {
+  const pattern = consolidationPattern(config);
+  if (!pattern?.test(code || '')) throw new Error('Microrepte no vàlid.');
   if (typeof markdown !== 'string' || !markdown.trim() || Buffer.byteLength(markdown) > 150000) {
     throw new Error('La fitxa ha de contindre text i ocupar menys de 150 KB.');
   }
@@ -17,15 +23,15 @@ function validate(code, markdown) {
 async function optionalRead(file) {
   try { return await readFile(file, 'utf8'); } catch (error) { if (error.code === 'ENOENT') return ''; throw error; }
 }
-export async function readConsolidation(root, code) {
-  validate(code, 'valid');
+export async function readConsolidation(root, code, config) {
+  validate(code, 'valid', config);
   const local = await optionalRead(path.join(root, 'tmp/consolidacio', code + '.md'));
   const seed = await optionalRead(path.join(root, 'consolidation-drafts', code + '.md'));
   const publication = await optionalRead(path.join(root, 'tmp/consolidacio', code + '.json'));
   return { code, markdown: local || seed, has_draft: Boolean(local || seed), publication: publication ? JSON.parse(publication) : null };
 }
-export async function saveConsolidation(root, code, markdown) {
-  const content = validate(code, markdown);
+export async function saveConsolidation(root, code, markdown, config) {
+  const content = validate(code, markdown, config);
   const dir = path.join(root, 'tmp/consolidacio');
   await mkdir(dir, { recursive: true });
   const temp = path.join(dir, code + '.' + randomUUID() + '.tmp');
@@ -34,8 +40,8 @@ export async function saveConsolidation(root, code, markdown) {
   return { code, markdown: content, has_draft: true };
 }
 
-export async function recordConsolidationPublication(root, code, publication) {
-  validate(code, 'valid');
+export async function recordConsolidationPublication(root, code, publication, config) {
+  validate(code, 'valid', config);
   const dir = path.join(root, 'tmp/consolidacio');
   await mkdir(dir, {recursive:true});
   const temp = path.join(dir, code + '.' + randomUUID() + '.tmp');
@@ -51,10 +57,12 @@ export async function publishConsolidation(options) {
 export async function withdrawConsolidation(options) {
   return changeConsolidation(options, true);
 }
-async function changeConsolidation({ code, markdown, token, request = fetch }, withdraw) {
-  const content = validate(code, withdraw ? 'valid' : markdown);
-  if (!token) throw new Error('Cal GITHUB_TOKEN amb permís Contents: write en cipfpbatoi/dwes2627.');
-  const repo = 'cipfpbatoi/dwes2627';
+async function changeConsolidation({ code, markdown, token, config, request = fetch }, withdraw) {
+  const content = validate(code, withdraw ? 'valid' : markdown, config);
+  const repo = config.repository;
+  const branch = config.branch;
+  const folder = config.folder;
+  if (!token) throw new Error(`Cal GITHUB_TOKEN amb permís Contents: write en ${repo}.`);
   const api = async (route, method = 'GET', body, allowMissing = false) => {
     const result = await request(`https://api.github.com/repos/${repo}/${route}`, {
       method, headers: { accept: 'application/vnd.github+json', authorization: `Bearer ${token}`,
@@ -65,7 +73,7 @@ async function changeConsolidation({ code, markdown, token, request = fetch }, w
     if (!result.ok) throw new Error(`No s’ha pogut actualitzar la publicació (GitHub ${result.status}). Comprova permisos i torna a provar si la branca ha canviat.`);
     return result.json();
   };
-  const ref = await api('git/ref/heads/master');
+  const ref = await api(`git/ref/heads/${branch}`);
   const head = ref.object.sha;
   const commit = await api('git/commits/' + head);
   const indexFile = await api(`contents/${folder}/index.md?ref=${head}`);
@@ -85,14 +93,14 @@ async function changeConsolidation({ code, markdown, token, request = fetch }, w
     ];
   }
   const tree = await api('git/trees', 'POST', { base_tree: commit.tree.sha, tree: entries });
-  const links = withdraw ? { withdrawn: true, actions_url: publicationLinks(repo, code).actions_url } : publicationLinks(repo, code);
+  const links = withdraw ? { withdrawn: true, actions_url: publicationLinks(config, code).actions_url } : publicationLinks(config, code);
   // GitHub returns the existing tree for identical files; avoid empty commits.
   if (tree.sha === commit.tree.sha) return { unchanged: true, commit: head, ...links };
   const next = await api('git/commits', 'POST', { message: `docs: ${withdraw ? 'retira' : 'publica'} consolidació de ${code.toUpperCase()}`, tree: tree.sha, parents: [head] });
-  await api('git/refs/heads/master', 'PATCH', { sha: next.sha, force: false });
+  await api(`git/refs/heads/${branch}`, 'PATCH', { sha: next.sha, force: false });
   return { unchanged: false, commit: next.sha, ...links };
 }
-function publicationLinks(repo, code) {
-  return { url: `https://cipfpbatoi.github.io/dwes2627/04_materials/consolidacio/${code}.html`,
-    actions_url: `https://github.com/${repo}/actions` };
+function publicationLinks(config, code) {
+  const baseUrl = config.public_base_url.endsWith('/') ? config.public_base_url : `${config.public_base_url}/`;
+  return { url: `${baseUrl}${code}.html`, actions_url: `https://github.com/${config.repository}/actions` };
 }

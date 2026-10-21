@@ -21,8 +21,8 @@ on:
           - openai
       teacher_repository:
         description: "Repositori del professor amb la configuracio d'autograding"
-        required: true
-        default: "igomis/dwes-microreptes-autocorreccio"
+        required: false
+        default: ""
       teacher_ref:
         description: "Branca, tag o SHA del repositori del professor"
         required: true
@@ -36,6 +36,8 @@ permissions:
   contents: read
 
 env:
+  # Manté els repositoris DWES existents funcionant sense variables addicionals.
+  # Altres mòduls poden sobreescriure'l amb la variable TEACHER_REPOSITORY.
   DEFAULT_TEACHER_REPOSITORY: igomis/dwes-microreptes-autocorreccio
   DEFAULT_TEACHER_REF: main
 

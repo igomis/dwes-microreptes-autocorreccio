@@ -95,6 +95,7 @@ test('recull fitxers enllaçats de l’ampliació sense exigir-los el codi del m
   writeFileSync(path.join(dir,'docs/r1-ampliacio.md'),'# Ampliació\n[Implementació](../src/about.php)');
   writeFileSync(path.join(dir,'src/about.php'),'<?php echo "Com funciona";');
   execFileSync('git',['init','-q'],{cwd:dir});execFileSync('git',['add','.'],{cwd:dir});
+  execFileSync('git',['-c','user.name=Test','-c','user.email=test@example.invalid','commit','-qm','Prova ampliació'],{cwd:dir});
   const run=(challenge,code)=>execFileSync(process.execPath,['scripts/collect-repo-evidence.mjs','--repo-dir',dir,'--repo','a/b','--commit','test','--challenge-id',challenge,'--microrepte-code',code,'--repo-signals',path.join(dir,'signals.json'),'--evidence-summary',path.join(dir,'summary.json')]);
   run('r1-s02-entorn-executable','R1M2');
   assert.equal(JSON.parse(readFileSync(path.join(dir,'summary.json'))).repte_extension.referenced_files[0].path,'src/about.php');

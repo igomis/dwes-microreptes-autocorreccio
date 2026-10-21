@@ -38,7 +38,7 @@ function printUsage() {
   console.log(`Ús:
 node scripts/build-class-followup-report.mjs \\
   --challenge-id r2-s03-logica-flux-regles-projecte \\
-  --group 2DAW-C
+  --group GRUP
 
 Genera un informe docent per preparar la classe posterior a un microrepte.
 El resultat es guarda en grades/reports/.`);

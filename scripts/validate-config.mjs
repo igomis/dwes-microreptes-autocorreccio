@@ -1,4 +1,5 @@
 import { readChallengeMetadata, validateExtensionOwners } from './lib/repte-extension.mjs';
+import { loadModuleConfig, MODULE_CONFIG_PATH } from './lib/module-config.mjs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -8,20 +9,7 @@ const microreptesDir = path.join(rootDir, 'microreptes');
 const globalDir = path.join(rootDir, 'global');
 const courseDir = path.join(rootDir, 'course');
 
-const requiredDimensions = [
-  'functional_resolution',
-  'verification',
-  'traceability',
-  'documentation',
-  'ai_usage',
-  'code_quality'
-];
-
-const performanceDimensions = new Set([
-  'functional_resolution',
-  'code_quality',
-  'file_handling'
-]);
+let moduleConfig;
 
 async function readJson(filePath) {
   const raw = await readFile(filePath, 'utf8');
@@ -43,39 +31,44 @@ function validateRubricDimensions(rubric, challengeDir, errors) {
     return;
   }
 
+  const rubricPolicy = moduleConfig.assessment.rubric;
+  const performanceDimensions = new Set(rubricPolicy.performance_dimensions);
   const ids = new Set(rubric.dimensions.map((dimension) => dimension.id));
-  for (const required of requiredDimensions) {
+  for (const required of rubricPolicy.required_dimensions) {
     if (!ids.has(required)) {
       errors.push(`${challengeDir}: falta la dimensio ${required}`);
     }
   }
 
   const dimensions = new Map(rubric.dimensions.map((dimension) => [dimension.id, Number(dimension.weight)]));
-  if (dimensions.get('functional_resolution') < 0.5) {
-    errors.push(`${challengeDir}: Resolució funcional ha de ponderar almenys 5 punts sobre 10`);
+  const functionalDimension = rubricPolicy.functional_dimension;
+  if (dimensions.get(functionalDimension) < Number(rubricPolicy.minimum_functional_weight)) {
+    errors.push(`${challengeDir}: ${functionalDimension} ha de ponderar almenys ${Number(rubricPolicy.minimum_functional_weight) * 10} punts sobre 10`);
   }
 
   for (const dimension of rubric.dimensions) {
     const weight = Number(dimension.weight);
-    if (!performanceDimensions.has(dimension.id) && weight > 0.1) {
-      errors.push(`${challengeDir}: ${dimension.label || dimension.id} és una comprovació i no pot ponderar més d'1 punt sobre 10`);
+    if (!performanceDimensions.has(dimension.id) && weight > Number(rubricPolicy.maximum_check_weight)) {
+      errors.push(`${challengeDir}: ${dimension.label || dimension.id} és una comprovació i no pot ponderar més de ${Number(rubricPolicy.maximum_check_weight) * 10} punts sobre 10`);
     }
   }
 }
 
 function criterionRaPrefix(criterion) {
-  const match = String(criterion || '').match(/^(RA\d+)/i);
+  const match = String(criterion || '').match(/^([^.]+)/);
   return match ? match[1].toUpperCase() : null;
 }
 
 function validateRaAssessment(challenge, challengeDir, errors) {
   const microrepteCode = String(challenge?.microrepte_code || '');
+  const challengePattern = new RegExp(moduleConfig.codes.challenge_pattern, 'i');
+  const learningOutcomePattern = new RegExp(moduleConfig.codes.learning_outcome_pattern, 'i');
 
-  if (!/^R\d+M\d+$/i.test(microrepteCode)) {
+  if (!challengePattern.test(microrepteCode)) {
     return;
   }
 
-  if (!challenge.primary_ra || !/^RA\d+$/i.test(String(challenge.primary_ra))) {
+  if (!challenge.primary_ra || !learningOutcomePattern.test(String(challenge.primary_ra))) {
     errors.push(`${challengeDir}: falta primary_ra únic per al microrepte`);
   }
 
@@ -118,6 +111,16 @@ async function validateGlobalFiles(errors) {
   if (!(await pathExists(path.join(courseDir, 'active-challenges.json')))) {
     errors.push('course: falta active-challenges.json');
   }
+
+  for (const relativePath of [
+    moduleConfig.repositories_file,
+    moduleConfig.autograding.system_context_file,
+    ...Object.values(moduleConfig.groups).map((group) => group.repositories_file)
+  ]) {
+    if (!(await pathExists(path.join(rootDir, relativePath)))) {
+      errors.push(`${MODULE_CONFIG_PATH}: no existeix ${relativePath}`);
+    }
+  }
 }
 
 async function validateActiveChallenges(knownChallengeIds, errors) {
@@ -135,6 +138,9 @@ async function validateActiveChallenges(knownChallengeIds, errors) {
   }
 
   for (const [group, assignment] of Object.entries(config.groups || {})) {
+    if (!Object.hasOwn(moduleConfig.groups, group)) {
+      errors.push(`course/active-challenges.json: el grup ${group} no està definit en course/module.json`);
+    }
     if (!assignment?.challenge_id) {
       errors.push(`course/active-challenges.json: el grup ${group} no te challenge_id`);
       continue;
@@ -195,6 +201,10 @@ async function validateChallenge(challengeName, errors) {
     errors.push(`${challengeName}: challenge_id no coincideix entre challenge.json i rubric.json`);
   }
 
+  if (!moduleConfig.assessment.extension.enabled && challenge.repte_extension) {
+    errors.push(`${challengeName}: repte_extension està desactivada en course/module.json`);
+  }
+
   validateRaAssessment(challenge, challengeName, errors);
   validateRubricDimensions(rubric, challengeName, errors);
 
@@ -243,8 +253,29 @@ async function main() {
   const errors = [];
   const validChallenges = [];
 
+  try {
+    moduleConfig = loadModuleConfig(rootDir);
+  } catch (error) {
+    errors.push(error.message);
+  }
+
+  if (!moduleConfig) {
+    console.error('Validacio fallida:');
+    for (const error of errors) console.error(`- ${error}`);
+    process.exit(1);
+  }
+
   await validateGlobalFiles(errors);
-  try { validateExtensionOwners(await readChallengeMetadata(rootDir)); } catch (error) { errors.push(error.message); }
+  if (moduleConfig.assessment.extension.enabled) {
+    try {
+      validateExtensionOwners(
+        await readChallengeMetadata(rootDir),
+        new RegExp(moduleConfig.codes.challenge_pattern, 'i')
+      );
+    } catch (error) {
+      errors.push(error.message);
+    }
+  }
 
   const entries = await readdir(microreptesDir, { withFileTypes: true });
   const challengeDirs = entries

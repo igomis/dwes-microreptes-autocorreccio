@@ -7,11 +7,13 @@ import process from 'node:process';
 import { promisify } from 'node:util';
 
 import { closeDb, initDb, migrateFromJson } from '../teacher-dashboard/db.mjs';
+import { loadModuleConfig } from './lib/module-config.mjs';
 
 const execFileAsync = promisify(execFile);
 const workflowFile = 'batch-autograde-students.yml';
 const artifactName = 'batch-autograde-results';
-const defaultRepo = 'igomis/dwes-microreptes-autocorreccio';
+const moduleConfig = loadModuleConfig();
+const defaultRepo = moduleConfig.github.teacher_repository;
 
 const allowedArgs = new Set([
   '--repo',
@@ -136,7 +138,7 @@ async function migrateDownloadedGrades(rootDir) {
 
 async function createDownloadDir(rootDir, configuredDir, runId) {
   if (!configuredDir) {
-    return mkdtemp(path.join(os.tmpdir(), `dwes-batch-autograde-${runId}-`));
+    return mkdtemp(path.join(os.tmpdir(), `${moduleConfig.module.id}-batch-autograde-${runId}-`));
   }
 
   const baseDir = path.resolve(rootDir, configuredDir);

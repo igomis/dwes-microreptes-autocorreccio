@@ -12,11 +12,20 @@ No conté el codi dels alumnes ni substituïx els seus repositoris individuals. 
 
 - `global/`: polítiques comunes, estil de feedback i esquema de resposta del corrector.
 - `course/`: configuració docent centralitzada de l'autocorrecció activa per grup o alumne.
+- `course/module.json`: configuració portable del mòdul, grups, repositoris, polítiques de rúbrica, treball d'aula i integracions.
 - `microreptes/`: definició de cada autocorrecció de sessió, rúbrica, prompt base, tests futurs i evidències esperades.
 - `scripts/`: utilitats Node.js per validar configuració, resoldre l'autocorrecció activa, construir el payload d’avaluació i executar autocorrecció en mode mock o OpenAI.
 - `docs/`: arquitectura, flux de treball i decisions docents i tècniques.
 - `.github/`: workflows i plantilles per a treballar amb GitHub.
 - `examples/`: exemples de mapatge d'alumnat, assignació de microreptes i resultats d’avaluació.
+
+## Ús en altres mòduls
+
+El motor, el dashboard i els workflows no depenen dels grups ni dels repositoris de DWES. La configuració específica viu en `course/module.json` i el context docent del corrector en `global/module-autograding.md`.
+
+Per crear una instància per a un altre mòdul, genera un repositori des de la plantilla, adapta eixos dos fitxers, substituïx `microreptes/` i actualitza les assignacions i llistes de `course/`. No cal modificar `scripts/`, `teacher-dashboard/` ni el workflow massiu.
+
+Vegeu [Portabilitat a altres mòduls](docs/portabilitat.md).
 
 ## Flux previst
 
