@@ -97,7 +97,7 @@ http://localhost:4173
 
 El dashboard està separat en aquestes vistes:
 
-- `Correcció`: previsualització del que es corregirà, llançament de workflows i repositoris seleccionats.
+- `Correcció`: previsualització del que es corregirà, llançament de workflows, actualització dels resultats quan acaba l’execució i repositoris seleccionats.
 - `Temps a l’aula`: captura inicial i final, microreptes pendents de correcció, correcció definitiva i excepcions docents.
 - `Resultats`: últimes notes i visor del resultat complet, amb filtres per grup, microrepte i alumne.
 - `Alumnes`: manteniment de nom, repositori i grup.
@@ -111,6 +111,7 @@ El dashboard està separat en aquestes vistes:
 - Veure abans de llançar la correcció: branca, microrepte resolt, RA avaluat i origen de l'assignació.
 - Aplicar el criteri ordinari de branca corregible `main`; les branques alternatives només s'usen en recuperacions o incidències pactades.
 - Llançar el workflow massiu en mode `mock` o `openai`.
+- Actualitzar els resultats des de la mateixa pantalla de `Correcció` quan acabe un workflow llançat manualment.
 - Consultar els últims resultats locals guardats en `grades/latest-grades.json`, quan existisca.
 - Generar un **Informe classe** per a un grup i microrepte concret des de la vista `Resultats`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
@@ -135,7 +136,7 @@ El dashboard no substitueix el workflow. Només és una capa més còmoda damunt
 
 En `Temps a l’aula`, selecciona un grup concret i un microrepte. El selector es construïx directament des de totes les definicions de `microreptes/`, no des de les notes existents: mostra primer els que encara no tenen entrega corregida per a tot el grup i conserva després els ja corregits per consultar-ne l’historial. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i només deixa els checkpoints guardats: encara no consumix cap correcció.
 
-Quan les entregues siguen definitives, `Corregir entregues definitives` llança una sola execució que corregix inici, final de classe i `main` definitiu. El servidor seguix eixa execució pel seu ID exacte, importa automàticament l'artifact quan acaba i calcula el topall. No cal prémer `Actualitzar` ni `Recalcular evidència` en el flux ordinari; les dos accions queden dins de `Recuperació avançada` per a incidències.
+Quan les entregues siguen definitives, `Corregir entregues definitives` llança una sola execució que corregix inici, final de classe i `main` definitiu. El servidor seguix eixa execució pel seu ID exacte, importa automàticament l'artifact quan acaba i calcula el topall. No cal prémer `Actualitzar resultats` en este flux automàtic. El botó està en `Correcció` per importar els workflows llançats manualment; `Recalcular evidència` queda dins de `Recuperació avançada` per a incidències.
 
 Els estats normals són `Captura inicial → Esperant entrega → Corregint → Resultats disponibles`. El sistema calcula quina proporció del progrés tècnic observable s'ha produït entre els dos checkpoints:
 

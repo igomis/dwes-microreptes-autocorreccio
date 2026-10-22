@@ -2178,6 +2178,7 @@ function pageHtml() {
       </label>
       <div class="actions">
         <button id="runButton">Llançar workflow</button>
+        <button id="refreshGrades" class="secondary" type="button">Actualitzar resultats</button>
         <span class="status" id="runStatus"></span>
       </div>
     </section>
@@ -2227,9 +2228,8 @@ function pageHtml() {
         <div id="classroomWorkStatus" class="status"></div>
         <details>
           <summary>Recuperació avançada</summary>
-          <p class="status">Usa estes accions només si una execució externa o una incidència no s’ha importat automàticament.</p>
+          <p class="status">Usa esta acció només si una incidència impedix recalcular automàticament l’evidència.</p>
           <div class="compact-actions">
-            <button id="refreshGrades" class="secondary" type="button">Importar últim resultat</button>
             <button id="recalculateClassroomWork" class="secondary" type="button">Recalcular evidència</button>
           </div>
         </details>
@@ -4073,16 +4073,17 @@ function pageHtml() {
 
     async function importLatestGrades() {
       const button = document.querySelector('#refreshGrades');
-      const status = document.querySelector('#gradesInfo');
+      const status = document.querySelector('#runStatus');
       button.disabled = true;
       status.textContent = 'Important últim artifact de correcció...';
       try {
         const response = await fetch('/api/grades/import-latest', { method: 'POST' });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || 'No s’ha pogut importar l’artifact.');
-        status.textContent = 'Resultats importats. Actualitzant vista...';
+        status.textContent = 'Resultats importats. Actualitzant les vistes...';
         await loadChallenges();
         await Promise.all([loadGrades(), loadClassroomView()]);
+        status.textContent = 'Resultats actualitzats.';
       } catch (error) {
         status.textContent = 'Error important resultats: ' + error.message;
       } finally {
@@ -4252,7 +4253,7 @@ function pageHtml() {
         const actionLink = result.run_url || result.actions_url;
         const linkText = result.run_url ? 'Obrir run' : 'Obrir Actions';
         const statusText = result.run_status ? ' Estat inicial: ' + escapeHtml(result.run_status) + '.' : '';
-        statusElement.innerHTML = '<span class="ok">Recalcul enviat a GitHub Actions.</span>' + statusText + ' Pot estar esperant runner. <a href="' + escapeHtml(actionLink) + '" target="_blank" rel="noreferrer">' + linkText + '</a>. Quan acabe, prem Actualitzar per importar el resultat.';
+        statusElement.innerHTML = '<span class="ok">Recalcul enviat a GitHub Actions.</span>' + statusText + ' Pot estar esperant runner. <a href="' + escapeHtml(actionLink) + '" target="_blank" rel="noreferrer">' + linkText + '</a>. Quan acabe, prem Actualitzar resultats en la pantalla de Correcció.';
       } catch (error) {
         statusElement.innerHTML = '<span class="error">' + escapeHtml(error.message) + '</span>';
       }

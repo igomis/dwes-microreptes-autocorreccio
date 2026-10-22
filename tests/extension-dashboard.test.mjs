@@ -47,6 +47,12 @@ test('dashboard: només l’últim microrepte valida l’ampliació separada de 
  assert.ok(html.includes('await Promise.all([loadGrades(), loadClassroomView()]);'));
  assert.ok(html.includes('data-nav-view="classroom"'));
  assert.ok(html.includes('id="classroomChallenge"'));
+ const correctionPanel = html.slice(
+  html.indexOf('<section class="view-panel" data-view="correction">'),
+  html.indexOf('</section>', html.indexOf('<section class="view-panel" data-view="correction">'))
+ );
+ assert.ok(correctionPanel.includes('<button id="refreshGrades" class="secondary" type="button">Actualitzar resultats</button>'));
+ assert.equal((html.match(/id="refreshGrades"/g) || []).length, 1);
  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0][1];
  const renderer = new Function('window', 'escapeHtml', script.slice(script.indexOf('    function renderMarkdownLinks('), script.indexOf('    function compareMicrorepteOrder(')) + '; return renderMarkdown;')(
   {location:{href:base}}, value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;')
