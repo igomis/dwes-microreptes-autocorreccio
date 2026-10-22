@@ -1,12 +1,12 @@
-# R2S7. Proves, depuracio i checkpoint tecnic
+# R2S7. Proves de flux, depuració i checkpoint tècnic
 
 ## Finalitat de la sessio
 
-Esta sessio comprova el flux complet de `R2`: entrada, validacio, reintent, guardat funcional, regla del projecte, estat i operacio protegida. El focus és provar, depurar, documentar i deixar una demo reproduïble abans de crear la primera peça testable amb POO i Composer.
+Esta sessió convertix les comprovacions manuals que l'alumnat ja ha fet en `R2M4`, `R2M5` i `R2M6` en una prova de flux HTTP executable. El producte central és `tests/flux-r2.sh` o una alternativa equivalent que execute el recorregut, comprove respostes observables i acabe amb error quan el comportament no coincidix amb l'esperat.
 
 L'objectiu no és afegir funcionalitats noves, sinó demostrar que el que ja existeix funciona amb casos positius, negatius i d'invalidacio.
 
-En este punt encara no es demanen proves unitàries ni `PHPUnit` com a mínim. Sense classes ni separacio forta de responsabilitats, forçar unit testing seria prematur. El que sí s'introdueix és una **prova automàtica lleugera de flux**, de caixa negra, que comprove una resposta observable del sistema amb una eina simple.
+En este punt encara no es demanen proves unitàries ni `PHPUnit` com a mínim. La prova de `R2M7` mira l'aplicació des de fora i comprova HTTP, sessió o token, operació protegida i logout. `R2M8` provarà des de dins una classe o regla aïllada amb `PHPUnit`, `pytest`, `JUnit` o equivalent. Les dos proves són complementàries.
 
 ## Encaix dins del Repte 2
 
@@ -14,7 +14,7 @@ En este punt encara no es demanen proves unitàries ni `PHPUnit` com a mínim. S
 - **Microrepte**: `R2M7`
 - **Sessio**: `R2S7`
 - **Duracio orientativa**: `3 hores`
-- **Focus**: checklist de proves, primera prova automàtica lleugera de flux, depuracio, documentacio i demo reproduïble
+- **Focus**: convertir casos ja provats manualment en una prova de flux HTTP executable, amb comprovacions automàtiques, depuració i evidència reproduïble
 - **No entra encara**: proves unitàries obligatòries, `PHPUnit` com a mínim, mocks, refactoritzacio profunda, noves pantalles grans o migracio a framework
 
 ## Relacio amb RA i criteris de treball
@@ -22,52 +22,74 @@ En este punt encara no es demanen proves unitàries ni `PHPUnit` com a mínim. S
 | Element | Concrecio en el microrepte |
 |---|---|
 | `RA4.f` | prova, depuracio i documentacio del comportament real |
-| Prova manual | taula de proves executada amb resultats reals |
-| Prova automàtica lleugera | script, comanda o col·leccio que comprove almenys un cas observable del flux |
-| Evidencia central | taula de proves, prova automàtica simple i README actualitzat |
-| Verificacio docent | execucio d'un cas triat pel professorat i execucio o revisio de la prova automàtica |
+| Punt de partida | casos manuals i peticions externes ja construïts en microreptes anteriors |
+| Prova de flux | `tests/flux-r2.sh` o equivalent que faça peticions reals, mantinga sessió o token i comprove els resultats |
+| Evidència central | script executable, eixida real guardada i instrucció única d'execució |
+| Verificació docent | execució completa del script, provocació d'un error i explicació de per què la prova falla |
 
 ## Producte esperat
 
-Una bateria mínima de proves amb:
+El lliurable principal és `tests/flux-r2.sh`, o una prova HTTP equivalent en Python o Java, que execute en ordre:
 
-- cas vàlid;
-- cas invàlid per validacio;
-- reintent amb dades conservades;
-- regla del projecte amb dos resultats;
-- estat recuperat i invalidat;
-- accés no autenticat denegat;
-- accés autenticat permés;
-- logout o invalidacio i nou intent denegat;
-- almenys una prova automàtica lleugera de flux, per exemple `curl`, script `.sh`, script PHP senzill o col·leccio de peticions documentada;
-- incidencies detectades o confirmacio explícita que no n'hi ha;
-- README o guia de reproduccio actualitzada.
+1. accés sense autenticar a una ruta o operació protegida i denegació;
+2. login incorrecte i denegació;
+3. login correcte i creació de sessió o obtenció de token;
+4. accés autenticat a una operació protegida i resultat permés;
+5. logout o invalidació;
+6. nou intent amb l'estat anterior i denegació.
 
-La prova automàtica pot ser molt simple. Per exemple:
+L'script ha de:
+
+- poder executar-se amb una sola ordre;
+- usar una URL base configurable;
+- usar credencials demo, mai secrets reals;
+- conservar cookies en un directori temporal o reutilitzar el token retornat;
+- comprovar automàticament codis HTTP, redireccions o text estable;
+- acabar amb codi diferent de `0` si falla una expectativa;
+- netejar fitxers temporals;
+- mostrar quin cas ha passat o ha fallat.
+
+Una ordre `curl` solta només és una petició manual. Pot servir per explorar o depurar, però no és la prova automàtica mínima si ningú comprova el resultat. Per exemple, esta petició encara necessita una asserció:
 
 ```bash
-curl -i http://localhost:8000/protegida.php
+CODI=$(curl -sS -o "$TEMP/resposta.html" -w '%{http_code}' \
+  "$BASE_URL/protegida.php")
+[[ "$CODI" == "302" ]] || { echo "ERROR: s'esperava 302"; exit 1; }
 ```
 
-o, si cal provar sessio:
+Per mantindre una sessió entre peticions:
 
 ```bash
-curl -c cookies.txt -d "email=a@a.com&password=secret" http://localhost:8000/login.php
-curl -b cookies.txt http://localhost:8000/protegida.php
+curl -sS -c "$COOKIES" -d "email=$DEMO_USER&password=$DEMO_PASSWORD" \
+  "$BASE_URL/login.php" -o "$TEMP/login.html"
+curl -sS -b "$COOKIES" "$BASE_URL/protegida.php" -o "$TEMP/protegida.html"
+grep -Fq "text estable esperat" "$TEMP/protegida.html"
 ```
 
-El criteri no és tindre una suite formal, sinó començar a convertir una comprovacio manual repetitiva en una comprovacio executable.
+El criteri no és tindre una suite formal, sinó que el mateix script decidisca si el flux funciona. Una prova HTTP amb `pytest`, el client de Flask, MockMvc o una eina equivalent també és vàlida si cobreix el recorregut i falla automàticament; una prova unitària aïllada no substituïx este flux.
 
 ## Preparacio previa del professorat
 
 Convé preparar:
 
-- plantilla de taula amb entrada, passos, resultat esperat, resultat real i incidencia;
-- exemple d'ús de navegador, terminal, logs, `curl` o eina equivalent;
-- exemple de script `tests/flux-r2.sh` o `tests/check-protegida.sh`;
-- exemple de comprovacio automàtica simple: codi HTTP, text esperat o redireccio;
+- aplicació de demostració o projecte de mostra amb login, ruta protegida i logout;
+- plantilla incompleta de `tests/flux-r2.sh`, sense les rutes ni expectatives finals del projecte de l'alumnat;
+- exemples curts de `curl -o ... -w '%{http_code}'`, `grep -Fq`, cookies amb `-c`/`-b` i neteja amb `trap`;
+- exemple d'una prova que passa i del mateix cas provocat perquè falle;
 - criteri de prioritzacio d'incidencies bloquejants;
 - recordatori que primer es reprodueix l'error i després es corregeix.
+
+## Continguts que cal explicar
+
+- diferència entre una comprovació manual, una prova de flux automatitzada i una prova unitària;
+- estructura mínima d'un script Bash: *shebang*, `set -euo pipefail`, variables, condicionals i `exit`;
+- ús de `curl` per separar cos i codi HTTP, enviar dades i observar redireccions;
+- manteniment de l'estat entre peticions amb cookies (`-c` i `-b`) o amb un token;
+- assercions sobre codis, redireccions o textos estables, evitant detalls fràgils de presentació;
+- codi d'eixida `0` quan tot passa i diferent de `0` davant qualsevol expectativa incomplida;
+- fitxers temporals, `trap` i credencials demo sense secrets reals;
+- depuració d'un cas fallit i registre d'una eixida reproduïble;
+- relació amb `R2M8`: allí es provarà una unitat interna; ací es comprova el recorregut HTTP complet.
 
 ## Seqüencia d'aula de 3 hores
 
@@ -85,56 +107,27 @@ Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda.
 
 Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
 
-### 0:35-0:55. Bateria mínima comuna
+### 0:35-0:50. De prova manual a prova automàtica
 
-Presentar la bateria i els camps de registre.
+Comparar una petició que una persona inspecciona amb una prova que comprova sola el resultat i retorna `0` o error. Presentar el recorregut mínim de sis casos.
 
-Resultat: cada equip té una taula o checklist preparada.
+### 0:50-1:10. Bash mínim per a la tasca
 
-### 0:55-1:15. Modelatge de registre, depuracio i prova automàtica mínima
+Explicar només `#!/usr/bin/env bash`, `set -euo pipefail`, variables, `if`/`[[ ]]`, `exit 1`, `mktemp -d`, `trap` i missatges per cas. No convertir la sessió en un curs general de shell.
 
-Mostrar com anotar:
+### 1:10-1:30. `curl`, resposta i assercions
 
-- entrada;
-- passos;
-- resultat esperat;
-- resultat real;
-- incidencia;
-- correccio i nova prova.
+Modelar `-sS`, `-o`, `-w '%{http_code}'`, `-d`, `grep -Fq` i la diferència entre seguir o inspeccionar una redirecció. Resultat: una ruta pública o denegada queda comprovada automàticament.
 
-Mostrar també una prova automàtica mínima:
+### 1:30-1:50. Sessió o token entre peticions
 
-- una comanda `curl`;
-- un script curt en `tests/`;
-- una comprovacio de text, codi HTTP o redireccio;
-- ús de cookies si es prova login o accés protegit.
+Mostrar `-c` i `-b` amb un fitxer temporal de cookies, o l'extracció i reutilització del token si el projecte usa l'API de `R2M6`. Usar només comptes demo.
 
-Resultat: l'alumnat sap què vol dir provar de manera reproduïble.
+### 1:50-2:20. Construcció del flux propi
 
-### 1:15-1:45. Execucio de proves manuals
+Cada alumne adapta rutes, camps, credencials demo i resultats estables del seu projecte. El script ha d'arribar de la denegació inicial a la denegació posterior al logout.
 
-Tasques:
-
-- executar els casos mínims;
-- registrar resultat real;
-- marcar bloquejos;
-- capturar o descriure evidencies si cal.
-
-Resultat: hi ha una primera bateria executada.
-
-### 1:45-2:00. Primera prova automàtica lleugera
-
-Tasques:
-
-- triar un cas observable i estable;
-- escriure una comanda o script simple;
-- comprovar una resposta esperada;
-- documentar com executar-lo;
-- evitar convertir-ho en una suite complexa.
-
-Resultat: hi ha almenys una comprovacio executable del flux.
-
-### 2:00-2:20. Depuracio guiada
+### 2:20-2:35. Depuracio guiada
 
 Tasques:
 
@@ -145,52 +138,52 @@ Tasques:
 
 Resultat: els bloquejos principals queden resolts o documentats.
 
-### 2:20-2:35. Documentacio mínima
+### 2:35-2:45. Documentació mínima
 
 Tasques:
 
 - actualitzar `README`;
 - afegir usuaris de prova;
 - indicar operacio protegida;
-- indicar com provocar error, cas correcte i denegacio;
-- indicar com executar la prova automàtica lleugera;
-- marcar una regla o comprovació candidata a convertir-se en classe testable en `R2M7`.
+- indicar l'ordre única `bash tests/flux-r2.sh` o l'equivalent real;
+- indicar URL base, requisits previs i compte demo sense publicar secrets;
+- guardar una eixida real en `evidence/r2m7/verificacio.txt`;
+- marcar una regla o comprovació candidata a convertir-se en classe testable en `R2M8`.
 
 Resultat: la demo és reproduïble.
 
-### 2:35-2:50. Checkpoint tecnic
+### 2:45-2:55. Checkpoint tecnic
 
-El professorat tria un cas de la taula i demana executar-lo.
+El professorat executa el script complet i demana canviar temporalment una expectativa o una ruta per comprovar que falla. Pregunta: què observa la prova des de fora, com conserva la identitat entre peticions i per què no és encara una prova unitària?
 
-També pot demanar executar o llegir la prova automàtica lleugera.
-
-Pregunta: quins casos demostren que el flux complet és reproduïble amb errors, estat i permisos controlats, i quin cas has començat a automatitzar?
-
-### 2:50-3:00. Diagnòstic individual i següent pas
+### 2:55-3:00. Diagnòstic individual i següent pas
 
 Amb les evidències observades durant la sessió, comprovar què funciona i què entén cada alumne. Registrar la base que domina, la dificultat i l’ajuda necessària per continuar. Reprendre els dubtes en l’obertura següent com a consolidació, sense reentrega ni recorrecció del microrepte. La recuperació, si cal, es planteja sobre el repte complet en el seu tancament. No cal fer totes les demos completes en estos deu minuts.
 
 ## Tasques concretes de l'alumnat
 
-- Preparar checklist o taula de proves.
-- Executar casos positius i negatius.
-- Crear almenys una prova automàtica lleugera de flux.
+- Reutilitzar els casos i peticions de `R2M4`-`R2M6`.
+- Crear `tests/flux-r2.sh` o un equivalent HTTP automatitzat.
+- Automatitzar el recorregut denegat → login → permés → logout → denegat.
+- Afegir comprovacions que facen fallar la prova davant un resultat inesperat.
 - Registrar incidencies.
 - Depurar bloquejos.
 - Repetir proves fallides.
 - Actualitzar README.
-- Marcar una regla o comprovació candidata per a `R2M7`.
+- Marcar una regla o comprovació candidata per a `R2M8`.
 
 ## Evidencies minimes
 
 | Evidencia | Minim acceptable |
 |---|---|
-| Taula | casos amb entrada, passos i resultats |
-| Prova automàtica | script, comanda o col·leccio que execute almenys un cas observable |
-| Cas vàlid | flux accepta dades correctes |
-| Cas invàlid | error interpretable i correccio |
-| Estat | recuperacio i invalidacio provades |
-| Auth | cas no autenticat i autenticat |
+| Prova de flux | `tests/flux-r2.sh` o equivalent executable amb comprovacions reals |
+| Denegació inicial | accés protegit sense identitat bloquejat |
+| Login | credencial incorrecta denegada i credencial demo correcta acceptada |
+| Operació protegida | accés autenticat permés i comportament observable comprovat |
+| Invalidació | logout o invalidació i nou accés denegat |
+| Estat entre peticions | cookies temporals o token reutilitzat sense exposar secrets |
+| Execució | una sola ordre documentada i codi d'eixida no zero quan falla |
+| Eixida real | `evidence/r2m7/verificacio.txt` o registre equivalent |
 | Incidencies | errors registrats o absencia explícita |
 | README | demo reproduïble |
 
@@ -198,7 +191,9 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 - No es prova només el camí feliç.
 - La documentacio permet repetir la demo.
-- Hi ha almenys una comprovacio executable del flux.
+- Hi ha un flux HTTP executable complet, no només una petició solta.
+- Les expectatives es comproven automàticament i una discrepància produïx error.
+- La identitat es conserva amb cookies o token i queda invalidada al final.
 - La prova automàtica és de caixa negra o flux, no unitària.
 - Els casos registrats coincideixen amb el comportament real.
 - Els errors bloquejants estan corregits o identificats.
@@ -206,8 +201,10 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 ## Que no és suficient
 
-- Llista de proves sense executar.
-- Dir que hi ha prova automàtica però no indicar com executar-la.
+- Llista de proves, captures o col·lecció de peticions sense assercions executables.
+- Una ordre `curl` que imprimix la resposta però no comprova res.
+- Un script que sempre acaba correctament encara que el servidor responga malament.
+- Dir que hi ha prova automàtica però no indicar com executar-la ni aportar una eixida real.
 - Confondre este mínim amb proves unitàries obligatòries.
 - Captures sense passos.
 - README desactualitzat.
@@ -220,33 +217,33 @@ La IA pot ajudar a generar casos addicionals, interpretar errors o proposar una 
 
 ## Suport per alumnat amb més dificultat
 
-Reduir a cinc casos manuals: vàlid, invàlid, estat invalidat, no autenticat i autenticat. Per a la part automàtica, una sola comanda `curl` contra una ruta protegida o una resposta d'error és suficient.
+Donar una plantilla amb la URL base, el directori temporal i les funcions de comprovació ja preparades. L'alumne ha d'adaptar rutes, camps i textos del seu projecte i completar com a mínim denegació inicial, login correcte, operació protegida, logout i denegació final. Una ordre que només mostra la resposta no és suficient.
 
 ## Ampliacio per alumnat avançat
 
-- Més proves automatitzades simples.
-- Script amb diverses peticions i cookies.
-- Col·leccio de peticions.
+- Afegir validació del formulari o una regla de domini al mateix flux.
+- Fer el script independent de dades prèvies i repetible sense neteja manual.
+- Integrar la prova de flux en CI sense substituir la defensa.
 - Logs o captures comparatives.
 - Matriu d'incidencies prioritzades.
 
 ## Checklist de tancament
 
-- [ ] He executat cas vàlid.
-- [ ] He executat cas invàlid.
-- [ ] He provat reintent.
-- [ ] He provat estat i invalidacio.
-- [ ] He provat accés denegat.
-- [ ] He provat accés permés.
-- [ ] He creat almenys una prova automàtica lleugera de flux.
-- [ ] He documentat com executar-la.
+- [ ] Tinc `tests/flux-r2.sh` o una alternativa HTTP equivalent.
+- [ ] El flux comprova accés inicial denegat i login incorrecte.
+- [ ] Manté sessió o token després del login correcte.
+- [ ] Comprova una operació protegida permesa.
+- [ ] Fa logout o invalida l'estat i comprova una nova denegació.
+- [ ] Cada expectativa pot fer acabar la prova amb error.
+- [ ] He documentat una única ordre d'execució i els requisits previs.
+- [ ] He guardat una eixida real en `evidence/r2m7/`.
 - [ ] He registrat incidencies.
 - [ ] He actualitzat README.
 - [ ] He triat una regla o comprovació candidata a classe testable.
 
-## Connexio amb R2M7
+## Connexió amb R2M8
 
-`R2M7` parteix d'un flux provat. La pregunta de pas és:
+`R2M8` parteix d'un flux comprovat des de fora. La pregunta de pas és:
 
 Quina regla o comprovació del flux funciona ja i es podria provar millor si la convertim en una classe simple?
 

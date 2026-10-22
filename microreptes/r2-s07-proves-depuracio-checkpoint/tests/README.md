@@ -1,35 +1,16 @@
 # Proves recomanades
 
-La revisio pot triar qualsevol cas de la taula i demanar executar-lo.
+Localitza i executa `tests/flux-r2.sh` o la prova HTTP equivalent amb l'ordre documentada. Ha de verificar:
 
-Casos mínims:
+1. accés protegit sense autenticar denegat;
+2. login incorrecte denegat;
+3. login correcte i estat conservat;
+4. operació protegida permesa;
+5. logout o invalidació;
+6. reutilització de l'estat anterior denegada.
 
-- dades vàlides;
-- dades invàlides;
-- reintent;
-- regla amb dos resultats;
-- estat recuperat i invalidat;
-- no autenticat;
-- autenticat;
-- logout i nou intent.
+Revisa que cada pas faça una asserció observable i que el procés retorne un codi diferent de `0` quan una expectativa falla. Si és segur, canvia temporalment una expectativa o una ruta per comprovar-ho.
 
-Prova automàtica mínima:
+Són alternatives vàlides un script Python amb `requests`, el client de Flask, MockMvc o un client HTTP Java si mantenen l'estat i cobrixen el mateix recorregut.
 
-- una comanda `curl` documentada;
-- o un script `.sh` en `tests/`;
-- o un script PHP senzill;
-- o un script Python senzill o el client de proves de Flask;
-- o una col·leccio de peticions documentada.
-
-Exemples acceptables:
-
-```bash
-curl -i http://localhost:8000/protegida.php
-```
-
-```bash
-curl -c cookies.txt -d "email=a@a.com&password=secret" http://localhost:8000/login.php
-curl -b cookies.txt http://localhost:8000/protegida.php
-```
-
-No cal exigir `PHPUnit`, `pytest`, `JUnit` ni proves unitàries en este microrepte.
+No són suficients una ordre `curl` que només mostra la resposta, una col·lecció sense assercions, una taula manual o una prova unitària aïllada. No cal exigir `PHPUnit`, `pytest`, `JUnit`, mocks ni una suite formal en este microrepte.

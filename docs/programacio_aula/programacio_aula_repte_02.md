@@ -34,7 +34,7 @@ Este document baixa `R2` a una seqüència operativa d'aula perquè el professor
 | `5` | `3h` | `R2M5` | autenticació i funcionalitat protegida | cas autoritzat i cas denegat d'una operació real |
 | `6` | `3h` | `R2M6` | mini API d'autenticació per a client | `POST /api/login`, ruta protegida, `JSON`, `200` i `401` |
 | `10` | `3h` | Ampliació associada a `R2M6` | contracte d'autenticació per a `DWEC` | `docs/api-auth-contract.md`, usuari demo i prova creuada |
-| `7` | `3h` | `R2M7` | prova, depuració, documentació mínima i checkpoint tècnic | checklist, README i demo reproduïble |
+| `7` | `3h` | `R2M7` | automatització del flux HTTP, depuració i checkpoint tècnic | `tests/flux-r2.sh` o equivalent, eixida real i demo reproduïble |
 | `8` | `3h` | `R2M8` | primera peça testable amb POO i Composer | classe mínima, autoload de Composer i prova unitària inicial |
 | `9` | `3h` | `R2M9` | persistència mínima amb BBDD en PHP | connexió, taula, alta, lectura i consulta preparada |
 | `SX` | `3h` | Microdefensa conjunta `R1 + R2` | autoria, comprensió, ús d'IA i pas cap a `R3` | demo del repositori, landing de `R1`, flux de `R2`, proves i preguntes de contrast |
@@ -451,7 +451,7 @@ Login funcional mínim i una operació del domini protegida amb cas autoritzat i
 ##### 2:45-3:00 — Checkpoint final
 - demo curta del cas autoritzat i denegat
 - identificació del punt exacte de codi on es comprova la restricció
-- registre de casos pendents per al taller de proves de la sessió `6`
+- registre de casos pendents per al taller de proves de la sessió `7`
 
 #### Intervenció docent prevista
 - impedir que el login siga només una pantalla sense protecció real
@@ -485,108 +485,58 @@ Quina operació real queda protegida, qui pot executar-la, qui no pot, i en quin
 - Si s'equipara autenticació amb autorització, es demana un exemple de “sé qui eres” i un altre de “pots fer açò”.
 - Si la ruta protegida es pot invocar directament, es revisa el control al servidor abans de qualsevol execució de l'operació.
 
-### Sessió 6. Microprojecte 6
-
-**Sessió 6 — Taller de proves, depuració i checkpoint tècnic**
-
-#### Finalitat específica de la sessió
-Convertir la sessió en un taller de proves del flux complet, amb una bateria mínima comuna, registre d'incidències i documentació suficient per reproduir la demo.
-
-#### RA/focus tècnic
-Focus transversal en `RA2`, `RA3` i `RA4`: validació, errors controlats, flux autenticat, operació protegida, depuració i documentació tècnica mínima.
-
-#### Producte o microresultat esperat
-Bateria mínima de proves executada, incidències registrades, correccions prioritzades i `README` actualitzat amb instruccions de reproducció.
-
-#### Seqüència temporal orientativa dins de les 3 hores
-
-##### 0:00-0:25 — Presentació de la bateria mínima comuna
-- cas `1`: formulari amb dades vàlides
-- cas `2`: formulari amb dades invàlides
-- cas `3`: dada validada, processada i reutilitzada
-- cas `4`: estat temporal recuperat i invalidat
-- cas `5`: accés no autenticat a operació protegida
-- cas `6`: accés autenticat permés
-- cas `7`: logout o invalidació i nou intent denegat
-- cas `8`: error previsible documentat amb resposta clara
-
-##### 0:25-0:45 — Modelatge de registre de prova
-- mostrar com anotar entrada, passos, resultat esperat i resultat real
-- diferenciar error funcional, error de validació i error de permisos
-- prioritzar incidències que bloquegen el flux
-
-##### 0:45-1:35 — Execució individual o per parelles
-- l'alumnat executa la bateria mínima
-- registra resultats i captures si cal
-- marca incidències bloquejants i menors
-- evita corregir sense haver reproduït abans el problema
-
-##### 1:35-2:15 — Depuració guiada
-- corregir primer errors que trenquen el flux complet
-- usar missatges, logs o inspecció controlada
-- repetir el cas fallit després de corregir
-- deixar constància de la correcció
-
-##### 2:15-2:40 — Documentació mínima
-- actualitzar `README` amb passos d'arrancada i prova
-- afegir usuaris de prova si aplica
-- indicar l'operació protegida i els casos bàsics
-- deixar pendents clars per a la sessió `7`
-
-##### 2:40-3:00 — Checkpoint tècnic
-- demo curta d'un cas complet
-- revisió ràpida de la bateria mínima
-- decisió docent sobre si el grup pot passar a crear la peça testable final o ha de reparar abans el flux
-
-#### Intervenció docent prevista
-- conduir la sessió com a taller, no com a explicació llarga
-- exigir la bateria comuna abans de millores voluntàries
-- ajudar a reproduir errors abans de tocar codi
-- prioritzar correccions que afecten validació, estat, autenticació i operació protegida
-
-#### Tasques concretes de l'alumnat
-- executar la bateria mínima comuna
-- registrar resultat esperat i resultat real
-- corregir incidències bloquejants
-- repetir les proves fallides
-- actualitzar `README`
-- marcar una regla o comprovació concreta que es convertirà en classe testable en la sessió `7`
-
-#### Evidència verificable de la sessió
-- taula o checklist de proves completada
-- registre d'almenys una incidència o confirmació explícita que no n'hi ha
-- correcció comprovada quan hi havia error
-- `README` actualitzat
-- demo reproduïble del flux complet
-
-#### Checkpoint o pregunta de comprovació
-Quins casos mínims demostren que el flux no és una demo puntual, sinó una funcionalitat reproduïble amb errors i permisos controlats?
-
-#### Ús de la IA permés i forma de control
-Ús permés per generar casos de prova addicionals, ajudar a interpretar un error o revisar el `README`. Control: la bateria mínima comuna és obligatòria i l'alumnat ha de registrar resultats reals executats, no només una llista generada.
-
-#### Dificultats habituals i resposta docent prevista
-- Si l'alumnat corregeix sense reproduir, el professorat demana tornar al cas fallit i registrar-lo.
-- Si només prova el camí feliç, es bloqueja el checkpoint fins provar errors i accés denegat.
-- Si el `README` no permet repetir la demo, es dedica el tram final a documentació abans de crear la peça testable.
-
-**Bateria mínima obligatòria de prova**
-
-La sessió `6` ha de deixar registrada una taula breu amb estos casos, encara que la forma siga manual, amb peticions guardades o amb proves automatitzades simples:
-
-| Cas | Què comprova | Resultat esperat |
-|---|---|---|
-| cas vàlid | el flux complet accepta dades correctes i executa l'operació prevista | resposta correcta i dada reutilitzable dins del projecte |
-| cas invàlid per validació | el servidor rebutja dades absents, mal formades o incoherents | error interpretable i possibilitat de correcció |
-| cas no autenticat | una persona sense sessió vàlida intenta accedir a una part protegida | bloqueig, redirecció o resposta coherent |
-| cas amb sessió caducada o estat invàlid | el sistema rep un estat que ja no hauria de permetre continuar | invalidació controlada i missatge o resposta coherent |
-| cas d'accés a operació protegida | un usuari autenticat intenta una operació sotmesa a restricció de domini | permís o denegació segons la regla definida, no segons una ruta decorativa |
-
-Cada cas ha d'incloure entrada, resultat esperat, resultat obtingut i incidència si n'hi ha. Si la IA ajuda a proposar proves, l'equip ha d'indicar quines accepta, quines descarta i què ha verificat manualment.
-
 ### Sessió 7. Microprojecte 7
 
-**Sessió 7 — Primera peça testable amb POO i Composer**
+**Sessió 7 — Automatització del flux HTTP, depuració i checkpoint tècnic**
+
+#### Finalitat específica de la sessió
+Convertir les comprovacions manuals ja fetes en `R2M4`-`R2M6` en una prova de caixa negra executable. No s'afig funcionalitat: es comprova de manera repetible el recorregut d'autenticació, autorització i invalidació.
+
+#### RA/focus tècnic
+Focus transversal en `RA2`, `RA3` i `RA4`: peticions HTTP, estat entre peticions, assercions observables, codi d'eixida, depuració i documentació reproduïble.
+
+#### Producte o microresultat esperat
+`tests/flux-r2.sh`, o una prova HTTP equivalent en Python o Java, que s'execute amb una ordre i comprove automàticament: accés protegit sense autenticar denegat, login incorrecte denegat, login correcte, operació protegida permesa, logout i nou accés denegat.
+
+La prova ha de conservar cookies o token, usar credencials demo, comprovar codis HTTP, redireccions o textos estables, netejar temporals i acabar amb codi diferent de `0` quan falla una expectativa. Una ordre `curl` que només imprimix la resposta, una col·lecció sense assercions o una taula manual no substituïxen el lliurable.
+
+#### Continguts a explicar
+- diferència entre comprovació manual, prova de flux automatitzada i prova unitària;
+- Bash mínim: *shebang*, `set -euo pipefail`, variables, condicionals, `exit`, `mktemp` i `trap`;
+- `curl -sS`, `-o`, `-w`, `-d`, cookies amb `-c`/`-b` o reutilització d'un token;
+- assercions estables i significat dels codis d'eixida;
+- depuració del primer cas fallit i registre d'una eixida real.
+
+#### Seqüència temporal orientativa dins de les 3 hores
+- `0:00-0:35`: retorn, consolidació i comprovació de la base.
+- `0:35-1:10`: de la prova manual a l'automàtica i Bash mínim.
+- `1:10-1:50`: `curl`, codis, cos, assercions i estat amb cookies o token.
+- `1:50-2:20`: construcció del recorregut complet sobre el projecte propi.
+- `2:20-2:45`: depuració i documentació de l'ordre d'execució.
+- `2:45-3:00`: execució docent, error provocat i diagnòstic.
+
+#### Tasques i evidències
+- crear `tests/flux-r2.sh` o equivalent i adaptar rutes, camps i expectatives;
+- guardar una eixida real en `evidence/r2m7/verificacio.txt`;
+- documentar URL base, requisits, compte demo i una única ordre d'execució;
+- registrar incidències i repetir els casos fallits;
+- marcar una regla candidata a prova unitària en `R2M8`.
+
+#### Checkpoint o pregunta de comprovació
+Què observa la prova des de fora, com conserva la identitat entre peticions, com demostra que el logout invalida l'estat i per què no és encara una prova unitària?
+
+#### Ús de la IA permés i forma de control
+Es permet ajuda per escriure el guió o interpretar errors. El control és l'execució real del flux complet i la provocació d'una discrepància que ha de fer fallar la prova.
+
+#### Dificultats habituals i resposta docent prevista
+- Si només hi ha peticions impreses, afegir una asserció i `exit 1` abans d'ampliar casos.
+- Si es perd la sessió, revisar el mateix fitxer de cookies o el mateix token en totes les peticions.
+- Si les comprovacions depenen d'HTML fràgil, triar codi, capçalera, redirecció o text estable.
+- Si l'alumnat presenta només PHPUnit, recordar que la unitària de `R2M8` complementa però no reemplaça el flux HTTP.
+
+### Sessió 8. Microprojecte 8
+
+**Sessió 8 — Primera peça testable amb POO i Composer**
 
 #### Finalitat específica de la sessió
 Convertir una regla o comprovació xicoteta del flux ja provat en una classe simple carregada amb Composer i verificada amb una primera prova unitària.
@@ -600,7 +550,7 @@ Classe simple del domini o servei, `composer.json`, autoload funcional, prova un
 #### Seqüència temporal orientativa dins de les 3 hores
 
 ##### 0:00-0:20 — Selecció de peça testable
-- partir de la bateria de proves de la sessió `6`
+- partir de la prova de flux de la sessió `7`
 - triar una regla, comprovació o càlcul estable
 - evitar triar una pantalla completa
 
@@ -623,7 +573,7 @@ Classe simple del domini o servei, `composer.json`, autoload funcional, prova un
 - executar i documentar el resultat
 
 ##### 2:10-2:35 — No regressió del flux
-- repetir un cas clau de `R2M6`
+- repetir `tests/flux-r2.sh` o la prova equivalent de `R2M7`
 - comprovar que la peça nova no trenca login, estat o regla afectada
 
 ##### 2:35-3:00 — Tancament `R2 -> R3`
@@ -673,22 +623,24 @@ Quina part del teu backend pots provar ara sense passar pel formulari ni pel nav
 - Sessió `3`: decisió, regla o funció amb efecte real sobre el flux.
 - Sessió `4`: estat recuperable, demostració d'invalidació i frontera clara entre estat i conservació funcional.
 - Sessió `5`: operació del domini protegida amb cas autoritzat i cas denegat.
-- Sessió `6`: checklist de prova, documentació mínima i checkpoint tècnic.
-- Sessió `7`: classe mínima carregada amb Composer, prova unitària inicial i comprovació final del flux.
+- Sessió `6`: mini API d'autenticació per a client amb `JSON`, `200` i `401`.
+- Sessió `7`: `tests/flux-r2.sh` o equivalent amb recorregut HTTP complet, assercions i eixida real.
+- Sessió `8`: classe mínima carregada amb Composer, prova unitària inicial i nova execució del flux.
+- Sessió `9`: connexió a BBDD, alta, lectura i consulta preparada.
 
 ## Moments de checkpoint
 
 - Checkpoint curt `1`: al final de la sessió `2`, per comprovar que el flux ja rep, valida, processa i reutilitza dades.
 - Checkpoint curt `2`: al final de la sessió `4`, per validar que estat, sessió o cookies no s'estan confonent amb persistència del domini.
 - Checkpoint curt `3`: al final de la sessió `5`, per confirmar que hi ha una operació real protegida.
-- Checkpoint tècnic `4`: al final de la sessió `6`, per confirmar que el flux és reproduïble, provat i documentat.
-- Checkpoint de pas `R2 -> R3`: al final de la sessió `7`, per decidir si el grup entra al contrast de frameworks amb una base funcional i una primera peça testable defensable.
+- Checkpoint tècnic `4`: al final de la sessió `7`, per confirmar que el flux HTTP és reproduïble, automatitzat i documentat.
+- Checkpoint de pas `R2 -> R3`: al final de la sessió `8`, per decidir si el grup entra al contrast de frameworks amb una base funcional i una primera peça testable defensable.
 
 ## Preparació del tancament del repte
 
 - demanar una demo curta del flux complet, no només del login
 - revisar que la informació correcta es recupera o es reutilitza dins del projecte
-- exigir la bateria mínima de proves de la sessió `6`: cas vàlid, cas invàlid per validació, cas no autenticat, cas amb sessió caducada o estat invàlid i cas d'accés a operació protegida
+- executar la prova de flux de `R2M7` i comprovar que detecta un accés inicial denegat, login incorrecte, login correcte, operació protegida, logout i denegació final
 - comprovar que la documentació mínima permet repetir la prova
 - demanar una classe mínima amb Composer i una prova unitària inicial sobre codi que ja funciona
 - demanar què haurà de reorganitzar-se en `R3` i què encara continua sent suport funcional de `R2`
@@ -697,4 +649,4 @@ Quina part del teu backend pots provar ara sense passar pel formulari ni pel nav
 
 `R2` queda preparat quan el professorat pot veure un flux complet de dades, lògica, estat i autenticació sobre la base comuna en `PHP`, amb una operació real protegida, proves mínimes reproduïbles, una classe mínima carregada amb Composer i una primera prova unitària que faça net el pas cap a `R3`.
 
-La sessió `7` ha de demostrar que una part del backend ja es pot provar sense passar pel navegador, sense convertir el repte en una reescriptura arquitectònica completa.
+La sessió `7` ha de demostrar que el flux HTTP complet es pot repetir sense inspecció manual; la sessió `8`, que una part interna del backend es pot provar sense passar pel navegador i sense reescriure tota l'arquitectura.

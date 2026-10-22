@@ -1,19 +1,30 @@
 # Prompt base del corrector
 
-Avalua `r2-s07-proves-depuracio-checkpoint` només amb evidencies del repositori.
+Avalua `r2-s07-proves-depuracio-checkpoint` només amb evidències del repositori i, quan l'entorn ho permeta, amb una execució real.
 
-Comprova que hi ha una checklist o taula de proves amb entrada, passos, resultat esperat i resultat real. Ha d'incloure casos del flux complet: vàlid, invàlid, reintent, regla, estat recuperat i invalidat, accés no autenticat denegat, accés autenticat permés i logout o invalidacio.
+Localitza `tests/flux-r2.sh` o una prova HTTP equivalent en Python o Java. Ha d'executar en ordre:
 
-Comprova també que hi ha almenys una prova automàtica lleugera de flux. Pot ser una comanda `curl`, un script `.sh`, un script senzill en la tecnologia usada, una col·leccio de peticions documentada o equivalent. La prova ha de comprovar un comportament observable, com resposta d'error, redireccio, accés denegat, login correcte o operacio protegida.
+1. accés sense autenticar a una operació protegida i denegació;
+2. login incorrecte i denegació;
+3. login correcte i obtenció de sessió o token;
+4. operació protegida autenticada i resultat permés;
+5. logout o invalidació;
+6. reutilització de l'estat anterior i nova denegació.
 
-## Compatibilitat amb Python
+Comprova que la URL base és configurable, que s'usen credencials demo, que les cookies o el token es conserven entre peticions i que els temporals es netegen. Cada cas ha de contindre una asserció sobre un codi HTTP, una redirecció o un text estable. Qualsevol expectativa incomplida ha de produir un codi d'eixida diferent de `0`.
 
-Si el projecte usa Python, accepta un script Python o el client de proves de Flask com a prova lleugera. No exigisques encara `pytest`; sí que la comprovació ha de fallar quan el comportament observable no coincidix amb l'esperat.
+La documentació ha d'incloure una única ordre d'execució, els requisits previs i una eixida real en `evidence/r2m7/verificacio.txt` o equivalent. Revisa també les incidències i correccions registrades.
 
-## Compatibilitat amb Java
+No acceptes com a prova automàtica suficient:
 
-Si el projecte usa Java, accepta un script, una prova d'integració lleugera, MockMvc o un client HTTP equivalent. No exigisques encara una suite unitària formal; sí que la comprovació ha de fallar quan el comportament observable no coincidix amb l'esperat.
+- una ordre `curl` que només imprimix la resposta;
+- una col·lecció de peticions sense assercions executables;
+- captures o una taula manual sense el guió;
+- un script que sempre acaba correctament;
+- una prova unitària que no recorre el flux HTTP.
 
-No exigisques proves unitàries, `PHPUnit`, `pytest`, `JUnit`, mocks ni suite formal. Penalitza llistes generades però no executades, absencia de casos negatius, absencia total de prova automàtica lleugera, README que no permet reproduir la demo o correccions sense incidencies registrades.
+## Compatibilitat amb Python i Java
 
-Marca revisio docent si la documentacio afirma resultats que no es poden contrastar amb el repositori.
+Accepta `requests`, el client de proves de Flask, MockMvc o un client HTTP equivalent si cobrix els sis passos, conserva l'estat i falla automàticament. No exigisques `PHPUnit`, `pytest`, `JUnit`, mocks ni una suite formal. Eixes proves unitàries corresponen a `R2M8` i complementen, però no substituïxen, `R2M7`.
+
+Marca revisió docent si no es pot executar l'aplicació o si la documentació afirma resultats que no es poden contrastar amb el repositori.

@@ -112,8 +112,8 @@ Baixar el model global d'implantació docent a una lectura operativa per repte, 
 
 ### Duració base recomanada
 
-- `21` hores
-- `7` sessions de `3` hores
+- `27` hores
+- `9` sessions de `3` hores
 - una sessió per cada microprojecte docent principal
 
 ### Coordinació mínima entre microprojectes
@@ -123,8 +123,10 @@ Baixar el model global d'implantació docent a una lectura operativa per repte, 
 - `R2M3`: lògica del flux i regles del projecte
 - `R2M4`: estat, sessió i/o cookies
 - `R2M5`: autenticació i funcionalitat protegida
-- `R2M6`: prova, depuració, documentació mínima i checkpoint tècnic
-- `R2M7`: primera peça testable amb POO, Composer i prova unitària
+- `R2M6`: mini API d'autenticació per a client
+- `R2M7`: prova de flux HTTP automatitzada, depuració i checkpoint tècnic
+- `R2M8`: primera peça testable amb POO, Composer i prova unitària
+- `R2M9`: persistència mínima amb BBDD
 
 ### Què no és suficient
 
@@ -132,7 +134,8 @@ Baixar el model global d'implantació docent a una lectura operativa per repte, 
 - protegir una ruta decorativa o sense valor funcional real
 - convertir la persistència en el centre del repte mentre el flux principal continua dèbil
 - deixar la prova només com a frase final sense verificació real del recorregut
-- convertir la sessió `7` en una reescriptura arquitectònica gran, en MVC complet, ORM, framework o API externa obligatòria
+- acceptar en `R2M7` un `curl` que només imprimix o una col·lecció sense assercions com si foren una prova automàtica
+- convertir la sessió `8` en una reescriptura arquitectònica gran, en MVC complet, ORM, framework o API externa obligatòria
 
 ### Quin és el mínim funcional no trivial
 
@@ -161,8 +164,8 @@ Baixar el model global d'implantació docent a una lectura operativa per repte, 
 - que la persistència pot aparéixer, però encara no és el focus principal
 - la diferència entre autenticació, autorització i funcionalitat protegida
 - que el contrast de frameworks encara no és el centre del repte
-- que la sessió `7` introdueix una peça testable, però no substituïx `R3`
-- que la sessió `7` ha d'incorporar Composer/autoload, una classe simple i una prova unitària sense convertir el repte en POO completa
+- que la sessió `7` convertix el flux HTTP manual en una prova executable amb assercions
+- que la sessió `8` incorpora Composer/autoload, una classe simple i una prova unitària sense convertir el repte en POO completa
 
 ### Què ha d'explicar el professorat
 
@@ -218,7 +221,7 @@ Baixar el model global d'implantació docent a una lectura operativa per repte, 
 
 ### Checkpoint docent
 
-- no s'obri `R3` fins que el flux funcional siga real, reproduïble, mínimament verificat i la sessió `7` haja deixat una primera peça testable explicable
+- no s'obri `R3` fins que el flux funcional siga real, la sessió `7` l'haja automatitzat i la sessió `8` haja deixat una primera peça unitària explicable
 
 ### Regla metodològica del repte
 

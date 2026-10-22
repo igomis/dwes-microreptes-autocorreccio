@@ -3,21 +3,21 @@
   "challenge_id": "r2-s07-proves-depuracio-checkpoint",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "El flux complet queda provat amb casos positius, negatius, estat i autenticacio, i almenys una comprovacio automàtica lleugera."},
-    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "La taula de proves conté resultats reals executats, casos mínims i una prova automàtica de caixa negra o de flux."},
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "La prova HTTP executa en ordre accés inicial denegat, login incorrecte, login correcte, operació protegida, logout i denegació final."},
+    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Les assercions comproven resultats observables i qualsevol discrepància produïx un codi d'eixida diferent de zero."},
     {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha traçabilitat del procés: registre d'incidencies, correccions o confirmacio explícita, i idealment tres commits útils o registre equivalent associat a inici, progrés i prova/tancament, amb temps aproximat si s'ha demanat."},
-    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "README.md o guia permet reproduir la demo amb usuaris i passos, i explica com executar la prova automàtica lleugera."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "README.md o guia documenta URL, requisits, compte demo, una única ordre i una eixida real en evidence/r2m7/."},
     {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, diferencia casos suggerits de casos executats."},
-    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "La depuracio està orientada a corregir bloquejos, la prova automàtica comprova comportament observable i no força unit testing prematur."}
+    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "La prova usa URL configurable, cookies temporals o token, credencials demo, comprovacions estables i neteja de temporals."}
   ],
   "hard_rules": [
-    "Sense taula o checklist de proves, la puntuacio maxima recomanada és 6.",
-    "Si només hi ha camí feliç, la puntuacio maxima recomanada és 6.",
-    "Sense cas d'accés denegat, la puntuacio maxima recomanada és 8.",
-    "Sense cap prova automàtica lleugera de flux, la puntuacio maxima recomanada és 8.",
-    "Si la prova automàtica no té instruccions d'execucio, la puntuacio maxima recomanada és 8.",
+    "Sense prova HTTP executable amb assercions automàtiques, la puntuacio maxima recomanada és 6.",
+    "Una ordre curl que només imprimix, una col·leccio sense assercions o una taula manual no compten com a prova automàtica.",
+    "Si falta la denegació inicial, l'operació protegida o la denegació posterior al logout, la puntuacio maxima recomanada és 8.",
+    "Si la prova no retorna un codi diferent de zero davant una expectativa incomplida, la puntuacio maxima recomanada és 8.",
+    "Sense instruccions d'execucio o sense eixida real, la puntuacio maxima recomanada és 8.",
     "Sense README.md o guia reproduïble, la puntuacio maxima recomanada és 8.",
-    "No exigisques proves unitàries, PHPUnit, pytest, JUnit, mocks ni suite formal com a mínim.",
+    "No exigisques proves unitàries, PHPUnit, pytest, JUnit, mocks ni suite formal, però tampoc acceptes una prova unitària com a substitut del flux HTTP.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }
