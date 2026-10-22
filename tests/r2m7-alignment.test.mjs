@@ -13,6 +13,7 @@ test('R2M7 exigix el recorregut HTTP complet i fallada automàtica', () => {
   const evidence = challenge.required_evidence.join('\n');
   const strategy = challenge.recommended_test_strategy;
 
+  assert.match(evidence, /tests\/flux-r2\.php/);
   assert.match(evidence, /tests\/flux-r2\.sh/);
   assert.match(evidence, /Login incorrecte/);
   assert.match(evidence, /Operació protegida/);
@@ -31,12 +32,13 @@ test('prompt i rúbrica no confonen R2M7 amb una prova unitària', () => {
   assert.match(rules, /Sense prova HTTP executable/);
   assert.match(rules, /col·leccio sense assercions/);
   assert.match(rules, /prova unitària com a substitut/);
+  assert.match(rules, /no penalitzes una entrega `.sh`/);
 });
 
 test('la programació d aula reflectix el mateix lliurable', () => {
   const plan = readFileSync('docs/programacio_aula/programacio_aula_r2s7_proves_depuracio_checkpoint.md', 'utf8');
 
-  assert.match(plan, /tests\/flux-r2\.sh/);
+  assert.match(plan, /tests\/flux-r2\.php/);
   assert.match(plan, /login incorrecte/);
   assert.match(plan, /operació protegida/);
   assert.match(plan, /codi diferent de `0`/);

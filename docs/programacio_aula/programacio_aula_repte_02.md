@@ -34,7 +34,7 @@ Este document baixa `R2` a una seqüència operativa d'aula perquè el professor
 | `5` | `3h` | `R2M5` | autenticació i funcionalitat protegida | cas autoritzat i cas denegat d'una operació real |
 | `6` | `3h` | `R2M6` | mini API d'autenticació per a client | `POST /api/login`, ruta protegida, `JSON`, `200` i `401` |
 | `10` | `3h` | Ampliació associada a `R2M6` | contracte d'autenticació per a `DWEC` | `docs/api-auth-contract.md`, usuari demo i prova creuada |
-| `7` | `3h` | `R2M7` | automatització del flux HTTP, depuració i checkpoint tècnic | `tests/flux-r2.sh` o equivalent, eixida real i demo reproduïble |
+| `7` | `3h` | `R2M7` | automatització del flux HTTP, depuració i checkpoint tècnic | `tests/flux-r2.php` o equivalent, eixida real i demo reproduïble |
 | `8` | `3h` | `R2M8` | primera peça testable amb POO i Composer | classe mínima, autoload de Composer i prova unitària inicial |
 | `9` | `3h` | `R2M9` | persistència mínima amb BBDD en PHP | connexió, taula, alta, lectura i consulta preparada |
 | `SX` | `3h` | Microdefensa conjunta `R1 + R2` | autoria, comprensió, ús d'IA i pas cap a `R3` | demo del repositori, landing de `R1`, flux de `R2`, proves i preguntes de contrast |
@@ -496,27 +496,27 @@ Convertir les comprovacions manuals ja fetes en `R2M4`-`R2M6` en una prova de ca
 Focus transversal en `RA2`, `RA3` i `RA4`: peticions HTTP, estat entre peticions, assercions observables, codi d'eixida, depuració i documentació reproduïble.
 
 #### Producte o microresultat esperat
-`tests/flux-r2.sh`, o una prova HTTP equivalent en Python o Java, que s'execute amb una ordre i comprove automàticament: accés protegit sense autenticar denegat, login incorrecte denegat, login correcte, operació protegida permesa, logout i nou accés denegat.
+`tests/flux-r2.php`, o una prova HTTP equivalent en Bash, Python o Java, que s'execute amb una ordre i comprove automàticament: accés protegit sense autenticar denegat, login incorrecte denegat, login correcte, operació protegida permesa, logout i nou accés denegat.
 
 La prova ha de conservar cookies o token, usar credencials demo, comprovar codis HTTP, redireccions o textos estables, netejar temporals i acabar amb codi diferent de `0` quan falla una expectativa. Una ordre `curl` que només imprimix la resposta, una col·lecció sense assercions o una taula manual no substituïxen el lliurable.
 
 #### Continguts a explicar
 - diferència entre comprovació manual, prova de flux automatitzada i prova unitària;
-- Bash mínim: *shebang*, `set -euo pipefail`, variables, condicionals, `exit`, `mktemp` i `trap`;
-- `curl -sS`, `-o`, `-w`, `-d`, cookies amb `-c`/`-b` o reutilització d'un token;
+- PHP CLI mínim: funcions, variables d'entorn, condicionals, `STDERR`, `exit(1)` i temporals;
+- extensió cURL de PHP: `curl_init()`, opcions, codi HTTP, cookies o reutilització d'un token;
 - assercions estables i significat dels codis d'eixida;
 - depuració del primer cas fallit i registre d'una eixida real.
 
 #### Seqüència temporal orientativa dins de les 3 hores
 - `0:00-0:35`: retorn, consolidació i comprovació de la base.
-- `0:35-1:10`: de la prova manual a l'automàtica i Bash mínim.
-- `1:10-1:50`: `curl`, codis, cos, assercions i estat amb cookies o token.
+- `0:35-1:10`: de la prova manual a l'automàtica i PHP CLI mínim.
+- `1:10-1:50`: cURL de PHP, codis, cos, assercions i estat amb cookies o token.
 - `1:50-2:20`: construcció del recorregut complet sobre el projecte propi.
 - `2:20-2:45`: depuració i documentació de l'ordre d'execució.
 - `2:45-3:00`: execució docent, error provocat i diagnòstic.
 
 #### Tasques i evidències
-- crear `tests/flux-r2.sh` o equivalent i adaptar rutes, camps i expectatives;
+- crear `tests/flux-r2.php` o equivalent i adaptar rutes, camps i expectatives;
 - guardar una eixida real en `evidence/r2m7/verificacio.txt`;
 - documentar URL base, requisits, compte demo i una única ordre d'execució;
 - registrar incidències i repetir els casos fallits;
@@ -573,7 +573,7 @@ Classe simple del domini o servei, `composer.json`, autoload funcional, prova un
 - executar i documentar el resultat
 
 ##### 2:10-2:35 — No regressió del flux
-- repetir `tests/flux-r2.sh` o la prova equivalent de `R2M7`
+- repetir `tests/flux-r2.php` o la prova equivalent de `R2M7`
 - comprovar que la peça nova no trenca login, estat o regla afectada
 
 ##### 2:35-3:00 — Tancament `R2 -> R3`
@@ -624,7 +624,7 @@ Quina part del teu backend pots provar ara sense passar pel formulari ni pel nav
 - Sessió `4`: estat recuperable, demostració d'invalidació i frontera clara entre estat i conservació funcional.
 - Sessió `5`: operació del domini protegida amb cas autoritzat i cas denegat.
 - Sessió `6`: mini API d'autenticació per a client amb `JSON`, `200` i `401`.
-- Sessió `7`: `tests/flux-r2.sh` o equivalent amb recorregut HTTP complet, assercions i eixida real.
+- Sessió `7`: `tests/flux-r2.php` o equivalent amb recorregut HTTP complet, assercions i eixida real.
 - Sessió `8`: classe mínima carregada amb Composer, prova unitària inicial i nova execució del flux.
 - Sessió `9`: connexió a BBDD, alta, lectura i consulta preparada.
 

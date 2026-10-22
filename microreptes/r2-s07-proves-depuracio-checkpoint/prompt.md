@@ -2,7 +2,7 @@
 
 Avalua `r2-s07-proves-depuracio-checkpoint` només amb evidències del repositori i, quan l'entorn ho permeta, amb una execució real.
 
-Localitza `tests/flux-r2.sh` o una prova HTTP equivalent en Python o Java. Ha d'executar en ordre:
+Localitza `tests/flux-r2.php`, `tests/flux-r2.sh` o una prova HTTP equivalent en Python o Java. PHP és la via explicada a classe, però Bash és una entrega igualment vàlida i no s'ha de penalitzar per la tecnologia. Ha d'executar en ordre:
 
 1. accés sense autenticar a una operació protegida i denegació;
 2. login incorrecte i denegació;

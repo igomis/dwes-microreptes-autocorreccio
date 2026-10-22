@@ -1,6 +1,6 @@
 # Evidències esperades
 
-- `tests/flux-r2.sh` o prova HTTP equivalent executable;
+- `tests/flux-r2.php` com a via recomanada, `tests/flux-r2.sh` o prova HTTP equivalent executable;
 - denegació inicial d'una operació protegida;
 - login incorrecte denegat i login demo correcte acceptat;
 - cookies o token conservats entre peticions;

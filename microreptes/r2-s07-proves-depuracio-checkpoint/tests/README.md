@@ -1,6 +1,6 @@
 # Proves recomanades
 
-Localitza i executa `tests/flux-r2.sh` o la prova HTTP equivalent amb l'ordre documentada. Ha de verificar:
+Localitza i executa `tests/flux-r2.php`, `tests/flux-r2.sh` o la prova HTTP equivalent amb l'ordre documentada. PHP és la via recomanada, però Bash s'accepta amb els mateixos criteris. Ha de verificar:
 
 1. accés protegit sense autenticar denegat;
 2. login incorrecte denegat;

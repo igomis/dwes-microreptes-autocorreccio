@@ -23,7 +23,7 @@
     "ai-log.md"
   ],
   "required_evidence": [
-    "`tests/flux-r2.sh` o prova HTTP equivalent executable en Python o Java",
+    "`tests/flux-r2.php` com a via recomanada, `tests/flux-r2.sh` o prova HTTP equivalent executable en Python o Java",
     "Accés a operació protegida sense autenticar denegat",
     "Login incorrecte denegat i login demo correcte acceptat",
     "Sessió o token obtingut pel login i conservat entre peticions",
@@ -48,7 +48,7 @@
     "Les incidencies bloquejants estan corregides o documentades",
     "Hi ha una regla o comprovacio candidata a convertir-se en classe testable en R2M8"
   ],
-  "recommended_test_strategy": "Localitzar `tests/flux-r2.sh` o l'equivalent, revisar que conté els sis passos i executar l'ordre documentada contra l'aplicació. Contrastar l'eixida real i provocar una expectativa incorrecta per verificar que retorna un codi no zero. No acceptar un `curl` que només imprimix, una col·lecció sense assercions ni una prova unitària aïllada com a substitut.",
+  "recommended_test_strategy": "Localitzar `tests/flux-r2.php`, `tests/flux-r2.sh` o l'equivalent, sense penalitzar la tecnologia triada. Revisar que conté els sis passos i executar l'ordre documentada contra l'aplicació. Contrastar l'eixida real i provocar una expectativa incorrecta per verificar que retorna un codi no zero. No acceptar un `curl` que només imprimix, una col·lecció sense assercions ni una prova unitària aïllada com a substitut.",
   "source_alignment": [
     "Repte 2 R2M7",
     "Programacio d'aula R2S7",

@@ -2,7 +2,7 @@
 
 ## Finalitat de la sessio
 
-Esta sessió convertix les comprovacions manuals que l'alumnat ja ha fet en `R2M4`, `R2M5` i `R2M6` en una prova de flux HTTP executable. El producte central és `tests/flux-r2.sh` o una alternativa equivalent que execute el recorregut, comprove respostes observables i acabe amb error quan el comportament no coincidix amb l'esperat.
+Esta sessió convertix les comprovacions manuals que l'alumnat ja ha fet en `R2M4`, `R2M5` i `R2M6` en una prova de flux HTTP executable. El producte central és `tests/flux-r2.php` o una alternativa equivalent que execute el recorregut, comprove respostes observables i acabe amb error quan el comportament no coincidix amb l'esperat.
 
 L'objectiu no és afegir funcionalitats noves, sinó demostrar que el que ja existeix funciona amb casos positius, negatius i d'invalidacio.
 
@@ -23,13 +23,13 @@ En este punt encara no es demanen proves unitàries ni `PHPUnit` com a mínim. L
 |---|---|
 | `RA4.f` | prova, depuracio i documentacio del comportament real |
 | Punt de partida | casos manuals i peticions externes ja construïts en microreptes anteriors |
-| Prova de flux | `tests/flux-r2.sh` o equivalent que faça peticions reals, mantinga sessió o token i comprove els resultats |
+| Prova de flux | `tests/flux-r2.php` o equivalent que faça peticions reals, mantinga sessió o token i comprove els resultats |
 | Evidència central | script executable, eixida real guardada i instrucció única d'execució |
 | Verificació docent | execució completa del script, provocació d'un error i explicació de per què la prova falla |
 
 ## Producte esperat
 
-El lliurable principal és `tests/flux-r2.sh`, o una prova HTTP equivalent en Python o Java, que execute en ordre:
+El lliurable principal és `tests/flux-r2.php`, o una prova HTTP equivalent en Bash, Python o Java, que execute en ordre:
 
 1. accés sense autenticar a una ruta o operació protegida i denegació;
 2. login incorrecte i denegació;
@@ -49,32 +49,40 @@ L'script ha de:
 - netejar fitxers temporals;
 - mostrar quin cas ha passat o ha fallat.
 
-Una ordre `curl` solta només és una petició manual. Pot servir per explorar o depurar, però no és la prova automàtica mínima si ningú comprova el resultat. Per exemple, esta petició encara necessita una asserció:
+Una ordre `curl` solta només és una petició manual. Pot servir per explorar o depurar, però no és la prova automàtica mínima si ningú comprova el resultat. En PHP, la comprovació pot encapsular-se així:
 
-```bash
-CODI=$(curl -sS -o "$TEMP/resposta.html" -w '%{http_code}' \
-  "$BASE_URL/protegida.php")
-[[ "$CODI" == "302" ]] || { echo "ERROR: s'esperava 302"; exit 1; }
+```php
+function comprova(bool $condicio, string $missatge): void
+{
+    if (!$condicio) {
+        fwrite(STDERR, "ERROR: $missatge\n");
+        exit(1);
+    }
+}
+
+$curl = curl_init("$baseUrl/protegida.php");
+curl_setopt_array($curl, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_COOKIEJAR => $cookies,
+    CURLOPT_COOKIEFILE => $cookies,
+]);
+$cos = curl_exec($curl);
+$codi = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+comprova($cos !== false && $codi === 302, "s'esperava 302 i s'ha rebut $codi");
 ```
 
-Per mantindre una sessió entre peticions:
+Per mantindre una sessió entre peticions, totes les crides reutilitzen el mateix fitxer en `CURLOPT_COOKIEJAR` i `CURLOPT_COOKIEFILE`. Si el projecte usa token, la prova l'extrau de la resposta del login i l'envia en la petició següent.
 
-```bash
-curl -sS -c "$COOKIES" -d "email=$DEMO_USER&password=$DEMO_PASSWORD" \
-  "$BASE_URL/login.php" -o "$TEMP/login.html"
-curl -sS -b "$COOKIES" "$BASE_URL/protegida.php" -o "$TEMP/protegida.html"
-grep -Fq "text estable esperat" "$TEMP/protegida.html"
-```
-
-El criteri no és tindre una suite formal, sinó que el mateix script decidisca si el flux funciona. Una prova HTTP amb `pytest`, el client de Flask, MockMvc o una eina equivalent també és vàlida si cobreix el recorregut i falla automàticament; una prova unitària aïllada no substituïx este flux.
+El criteri no és tindre una suite formal, sinó que el mateix programa decidisca si el flux funciona. Un `tests/flux-r2.sh` en Bash, una prova HTTP amb `pytest`, el client de Flask, MockMvc o una eina equivalent també és vàlid si cobreix el recorregut i falla automàticament. No es penalitza la tecnologia triada; una prova unitària aïllada no substituïx este flux.
 
 ## Preparacio previa del professorat
 
 Convé preparar:
 
 - aplicació de demostració o projecte de mostra amb login, ruta protegida i logout;
-- plantilla incompleta de `tests/flux-r2.sh`, sense les rutes ni expectatives finals del projecte de l'alumnat;
-- exemples curts de `curl -o ... -w '%{http_code}'`, `grep -Fq`, cookies amb `-c`/`-b` i neteja amb `trap`;
+- plantilla incompleta de `tests/flux-r2.php`, sense les rutes ni expectatives finals del projecte de l'alumnat;
+- exemples curts de `curl_init()`, `curl_setopt_array()`, `curl_getinfo()`, cookies amb `CURLOPT_COOKIEJAR`/`CURLOPT_COOKIEFILE` i neteja amb `unlink()`;
+- comprovació prèvia que PHP CLI té disponible l'extensió cURL;
 - exemple d'una prova que passa i del mateix cas provocat perquè falle;
 - criteri de prioritzacio d'incidencies bloquejants;
 - recordatori que primer es reprodueix l'error i després es corregeix.
@@ -82,12 +90,12 @@ Convé preparar:
 ## Continguts que cal explicar
 
 - diferència entre una comprovació manual, una prova de flux automatitzada i una prova unitària;
-- estructura mínima d'un script Bash: *shebang*, `set -euo pipefail`, variables, condicionals i `exit`;
-- ús de `curl` per separar cos i codi HTTP, enviar dades i observar redireccions;
+- estructura mínima d'un programa PHP de terminal: variables, funcions, condicionals, `STDERR` i `exit`;
+- ús de l'extensió cURL de PHP per obtindre cos i codi HTTP, enviar dades i observar redireccions;
 - manteniment de l'estat entre peticions amb cookies (`-c` i `-b`) o amb un token;
 - assercions sobre codis, redireccions o textos estables, evitant detalls fràgils de presentació;
 - codi d'eixida `0` quan tot passa i diferent de `0` davant qualsevol expectativa incomplida;
-- fitxers temporals, `trap` i credencials demo sense secrets reals;
+- fitxers temporals, `register_shutdown_function()`/`unlink()` i credencials demo sense secrets reals;
 - depuració d'un cas fallit i registre d'una eixida reproduïble;
 - relació amb `R2M8`: allí es provarà una unitat interna; ací es comprova el recorregut HTTP complet.
 
@@ -111,17 +119,17 @@ Demanar una execució, modificació o explicació curta de la peça necessària 
 
 Comparar una petició que una persona inspecciona amb una prova que comprova sola el resultat i retorna `0` o error. Presentar el recorregut mínim de sis casos.
 
-### 0:50-1:10. Bash mínim per a la tasca
+### 0:50-1:10. PHP CLI mínim per a la tasca
 
-Explicar només `#!/usr/bin/env bash`, `set -euo pipefail`, variables, `if`/`[[ ]]`, `exit 1`, `mktemp -d`, `trap` i missatges per cas. No convertir la sessió en un curs general de shell.
+Repassar només funcions, variables d'entorn amb `getenv()`, condicionals, `STDERR`, `exit(1)`, fitxers temporals i una funció `comprova()`. No introduir un framework de proves.
 
 ### 1:10-1:30. `curl`, resposta i assercions
 
-Modelar `-sS`, `-o`, `-w '%{http_code}'`, `-d`, `grep -Fq` i la diferència entre seguir o inspeccionar una redirecció. Resultat: una ruta pública o denegada queda comprovada automàticament.
+Modelar `curl_init()`, `curl_setopt_array()`, `CURLOPT_RETURNTRANSFER`, `CURLOPT_POSTFIELDS`, `curl_getinfo()` i la diferència entre seguir o inspeccionar una redirecció. Resultat: una ruta pública o denegada queda comprovada automàticament.
 
 ### 1:30-1:50. Sessió o token entre peticions
 
-Mostrar `-c` i `-b` amb un fitxer temporal de cookies, o l'extracció i reutilització del token si el projecte usa l'API de `R2M6`. Usar només comptes demo.
+Mostrar `CURLOPT_COOKIEJAR` i `CURLOPT_COOKIEFILE` amb un fitxer temporal, o l'extracció i reutilització del token si el projecte usa l'API de `R2M6`. Usar només comptes demo.
 
 ### 1:50-2:20. Construcció del flux propi
 
@@ -145,7 +153,7 @@ Tasques:
 - actualitzar `README`;
 - afegir usuaris de prova;
 - indicar operacio protegida;
-- indicar l'ordre única `bash tests/flux-r2.sh` o l'equivalent real;
+- indicar l'ordre única `php tests/flux-r2.php` o l'equivalent real;
 - indicar URL base, requisits previs i compte demo sense publicar secrets;
 - guardar una eixida real en `evidence/r2m7/verificacio.txt`;
 - marcar una regla o comprovació candidata a convertir-se en classe testable en `R2M8`.
@@ -163,7 +171,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 ## Tasques concretes de l'alumnat
 
 - Reutilitzar els casos i peticions de `R2M4`-`R2M6`.
-- Crear `tests/flux-r2.sh` o un equivalent HTTP automatitzat.
+- Crear `tests/flux-r2.php` o un equivalent HTTP automatitzat.
 - Automatitzar el recorregut denegat → login → permés → logout → denegat.
 - Afegir comprovacions que facen fallar la prova davant un resultat inesperat.
 - Registrar incidencies.
@@ -176,7 +184,7 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 | Evidencia | Minim acceptable |
 |---|---|
-| Prova de flux | `tests/flux-r2.sh` o equivalent executable amb comprovacions reals |
+| Prova de flux | `tests/flux-r2.php` o equivalent executable amb comprovacions reals |
 | Denegació inicial | accés protegit sense identitat bloquejat |
 | Login | credencial incorrecta denegada i credencial demo correcta acceptada |
 | Operació protegida | accés autenticat permés i comportament observable comprovat |
@@ -217,7 +225,7 @@ La IA pot ajudar a generar casos addicionals, interpretar errors o proposar una 
 
 ## Suport per alumnat amb més dificultat
 
-Donar una plantilla amb la URL base, el directori temporal i les funcions de comprovació ja preparades. L'alumne ha d'adaptar rutes, camps i textos del seu projecte i completar com a mínim denegació inicial, login correcte, operació protegida, logout i denegació final. Una ordre que només mostra la resposta no és suficient.
+Donar una plantilla PHP amb la URL base, el fitxer temporal de cookies i les funcions de petició i comprovació ja preparades. L'alumne ha d'adaptar rutes, camps i textos del seu projecte i completar com a mínim denegació inicial, login correcte, operació protegida, logout i denegació final. Una ordre que només mostra la resposta no és suficient.
 
 ## Ampliacio per alumnat avançat
 
@@ -229,7 +237,7 @@ Donar una plantilla amb la URL base, el directori temporal i les funcions de com
 
 ## Checklist de tancament
 
-- [ ] Tinc `tests/flux-r2.sh` o una alternativa HTTP equivalent.
+- [ ] Tinc `tests/flux-r2.php` o una alternativa HTTP equivalent.
 - [ ] El flux comprova accés inicial denegat i login incorrecte.
 - [ ] Manté sessió o token després del login correcte.
 - [ ] Comprova una operació protegida permesa.

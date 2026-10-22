@@ -18,6 +18,7 @@
     "Sense instruccions d'execucio o sense eixida real, la puntuacio maxima recomanada és 8.",
     "Sense README.md o guia reproduïble, la puntuacio maxima recomanada és 8.",
     "No exigisques proves unitàries, PHPUnit, pytest, JUnit, mocks ni suite formal, però tampoc acceptes una prova unitària com a substitut del flux HTTP.",
+    "PHP és la via explicada a classe, però no penalitzes una entrega `.sh` en Bash ni una alternativa equivalent si complix el mateix flux, les mateixes assercions i el codi d'eixida.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }
