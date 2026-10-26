@@ -1,9 +1,11 @@
 export const CLASSROOM_WORK_LEVELS = Object.freeze({
-  high: Object.freeze({ label: 'Alta', cap: 10 }),
-  medium: Object.freeze({ label: 'Mitjana', cap: 9 }),
-  low: Object.freeze({ label: 'Baixa', cap: 7.5 }),
-  no_evidence: Object.freeze({ label: 'Sense evidència', cap: 6 })
+  high: Object.freeze({ label: 'Alta', points: 3 }),
+  medium: Object.freeze({ label: 'Mitjana', points: 2 }),
+  low: Object.freeze({ label: 'Baixa', points: 1 }),
+  no_evidence: Object.freeze({ label: 'Sense evidència', points: 0 })
 });
+
+export const DEFAULT_PRODUCT_WEIGHT = 0.7;
 
 export const DEFAULT_CLASSROOM_THRESHOLDS = Object.freeze({
   high: 0.7,
@@ -27,8 +29,8 @@ function finiteScore(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
-export function classroomCapForLevel(level, levels = CLASSROOM_WORK_LEVELS) {
-  return levels[level]?.cap ?? null;
+export function classroomPointsForLevel(level, levels = CLASSROOM_WORK_LEVELS) {
+  return levels[level]?.points ?? null;
 }
 
 export function calculateTechnicalScore(result, rubric, technicalDimensionIds = DEFAULT_TECHNICAL_DIMENSIONS) {
@@ -71,13 +73,13 @@ export function classifyClassroomWork(
     return {
       status: input?.checkpoint_status === 'error' ? 'technical_error' : 'pending',
       automatic_level: null,
-      automatic_cap: null,
+      automatic_points: null,
       classroom_ratio: null,
       start_score: startScore,
       end_score: endScore,
       final_score: finalScore,
       reason: input?.checkpoint_status === 'error'
-        ? 'La captura o la correcció d’algun checkpoint ha fallat; no s’aplica cap topall automàtic.'
+        ? 'La captura o la correcció d’algun checkpoint ha fallat; la ponderació queda pendent.'
         : 'Falten checkpoints o resultats tècnics per calcular el treball d’aula.'
     };
   }
@@ -98,7 +100,7 @@ export function classifyClassroomWork(
   return {
     status: 'classified',
     automatic_level: level,
-    automatic_cap: classroomCapForLevel(level, levels),
+    automatic_points: classroomPointsForLevel(level, levels),
     classroom_ratio: roundedRatio,
     start_score: startScore,
     end_score: endScore,
@@ -124,17 +126,20 @@ export function resolveClassroomAssessment(
   const effectiveLevel = overrideLevel || automaticAssessment?.automatic_level || null;
   return {
     ...automaticAssessment,
+    automatic_points: automaticAssessment?.automatic_points
+      ?? classroomPointsForLevel(automaticAssessment?.automatic_level, levels),
     teacher_override_level: overrideLevel || null,
     teacher_override_reason: overrideLevel ? String(override.reason).trim() : '',
     effective_level: effectiveLevel,
-    effective_cap: classroomCapForLevel(effectiveLevel, levels),
+    effective_points: classroomPointsForLevel(effectiveLevel, levels),
     source: overrideLevel ? 'teacher_override' : effectiveLevel ? 'automatic' : 'pending'
   };
 }
 
-export function applyClassroomCap(score, assessment) {
+export function applyClassroomWeighting(score, assessment, productWeight = DEFAULT_PRODUCT_WEIGHT) {
   const numericScore = finiteScore(score);
   if (numericScore === null) return null;
-  const cap = finiteScore(assessment?.effective_cap);
-  return round(cap === null ? numericScore : Math.min(numericScore, cap), 2);
+  const classroomPoints = finiteScore(assessment?.effective_points);
+  if (classroomPoints === null) return round(numericScore, 2);
+  return round(numericScore * Number(productWeight) + classroomPoints, 2);
 }

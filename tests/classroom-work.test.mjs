@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  applyClassroomCap,
+  applyClassroomWeighting,
   calculateTechnicalScore,
   classifyClassroomWork,
   resolveClassroomAssessment
@@ -35,12 +35,12 @@ test('classifica automàticament segons la proporció de progrés tècnic a clas
   assert.equal(classifyClassroomWork({ checkpoint_status: 'ready', start_score: 4, end_score: 4, final_score: 10 }).automatic_level, 'no_evidence');
 });
 
-test('un error tècnic deixa la valoració pendent i no aplica el topall de 6', () => {
+test('un error tècnic deixa la ponderació pendent i conserva provisionalment la nota del producte', () => {
   const automatic = classifyClassroomWork({ checkpoint_status: 'error', start_score: null, end_score: null, final_score: 10 });
   const resolved = resolveClassroomAssessment(automatic);
   assert.equal(resolved.status, 'technical_error');
-  assert.equal(resolved.effective_cap, null);
-  assert.equal(applyClassroomCap(10, resolved), 10);
+  assert.equal(resolved.effective_points, null);
+  assert.equal(applyClassroomWeighting(10, resolved), 10);
 });
 
 test('l’excepció docent justificada substitueix el nivell automàtic i queda identificada', () => {
@@ -52,21 +52,34 @@ test('l’excepció docent justificada substitueix el nivell automàtic i queda 
 
   assert.equal(resolved.automatic_level, 'no_evidence');
   assert.equal(resolved.effective_level, 'high');
-  assert.equal(resolved.effective_cap, 10);
+  assert.equal(resolved.effective_points, 3);
   assert.equal(resolved.source, 'teacher_override');
-  assert.equal(applyClassroomCap(9.6, resolved), 9.6);
+  assert.equal(applyClassroomWeighting(9.6, resolved), 9.72);
+});
+
+test('la nota final combina el producte al 70% amb els punts automàtics de treball d’aula', () => {
+  const result = (productScore, level) => applyClassroomWeighting(
+    productScore,
+    resolveClassroomAssessment({ automatic_level: level })
+  );
+
+  assert.equal(result(10, 'high'), 10);
+  assert.equal(result(10, 'medium'), 9);
+  assert.equal(result(10, 'low'), 8);
+  assert.equal(result(10, 'no_evidence'), 7);
+  assert.equal(result(6, 'no_evidence'), 4.2);
 });
 
 test('una excepció docent sense justificació es rebutja', () => {
   assert.throws(() => resolveClassroomAssessment({}, { level: 'medium', reason: '' }), /justificació/);
 });
 
-test('els topalls, llindars, etiquetes i dimensions tècniques es poden configurar per mòdul', () => {
+test('els punts, llindars, etiquetes i dimensions tècniques es poden configurar per mòdul', () => {
   const levels = {
-    high: { label: 'Complet', cap: 10 },
-    medium: { label: 'Parcial', cap: 8 },
-    low: { label: 'Baix', cap: 6 },
-    no_evidence: { label: 'No observat', cap: 4 }
+    high: { label: 'Complet', points: 3 },
+    medium: { label: 'Parcial', points: 2.5 },
+    low: { label: 'Baix', points: 1 },
+    no_evidence: { label: 'No observat', points: 0 }
   };
   const automatic = classifyClassroomWork(
     { checkpoint_status: 'ready', start_score: 0, end_score: 6, final_score: 10 },
@@ -74,9 +87,9 @@ test('els topalls, llindars, etiquetes i dimensions tècniques es poden configur
     levels
   );
   assert.equal(automatic.automatic_level, 'medium');
-  assert.equal(automatic.automatic_cap, 8);
+  assert.equal(automatic.automatic_points, 2.5);
   assert.match(automatic.reason, /parcial/);
-  assert.equal(resolveClassroomAssessment(automatic, null, levels).effective_cap, 8);
+  assert.equal(resolveClassroomAssessment(automatic, null, levels).effective_points, 2.5);
 
   assert.equal(calculateTechnicalScore({
     dimension_scores: [

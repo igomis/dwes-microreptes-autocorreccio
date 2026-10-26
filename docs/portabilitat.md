@@ -33,7 +33,7 @@ Sí que corresponen al mòdul:
 - patrons dels codis d’activitat i resultats d’aprenentatge;
 - dimensions obligatòries i política de rúbrica;
 - activació o desactivació de la proposta d’ampliació del repte;
-- dimensions tècniques, llindars, etiquetes i topalls del treball d’aula;
+- dimensions tècniques, pes del producte, llindars, etiquetes i punts del treball d’aula;
 - rutes i URL de la programació docent;
 - destinació opcional de les fitxes de consolidació;
 - fitxer amb les instruccions d’IA específiques del mòdul.
@@ -85,7 +85,7 @@ La mecànica de checkpoints és comuna: inici, final de classe i entrega. Cada m
 - quines dimensions formen la nota tècnica;
 - quin percentatge de progrés correspon als nivells alt i mitjà;
 - l’etiqueta de cada nivell;
-- el topall de nota associat.
+- els punts de nota associats a cada nivell.
 
 Canviar esta política no elimina la classificació automàtica original ni les excepcions docents justificades que ja s’hagen registrat.
 

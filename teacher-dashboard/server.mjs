@@ -1,7 +1,7 @@
 import { consolidationCode, readConsolidation, saveConsolidation, publishConsolidation, withdrawConsolidation, recordConsolidationPublication } from './consolidation.mjs';
 import { calculateRepteExtension, makeExtensionReview, readChallengeMetadata } from '../scripts/lib/repte-extension.mjs';
 import {
-  applyClassroomCap,
+  applyClassroomWeighting,
   calculateTechnicalScore,
   classifyClassroomWork,
   resolveClassroomAssessment
@@ -1073,10 +1073,10 @@ async function startClassroomWorkSession(body) {
       challenge_id: challengeId,
       status: checkpoint.capture_status === 'error' ? 'technical_error' : 'pending',
       automatic_level: null,
-      automatic_cap: null,
+      automatic_points: null,
       classroom_ratio: null,
       reason: checkpoint.capture_status === 'error'
-        ? 'Ha fallat la captura inicial; no s’aplica cap topall.'
+        ? 'Ha fallat la captura inicial; la ponderació queda pendent.'
         : 'Sessió iniciada; falta el checkpoint final.'
     });
   }
@@ -1162,8 +1162,9 @@ async function technicalScoreForGrade(grade, rubric) {
 
 function resolveStoredClassroomAssessment(assessment) {
   if (!assessment) return null;
+  const { automatic_cap: _legacyAutomaticCap, ...currentAssessment } = assessment;
   const normalized = {
-    ...assessment,
+    ...currentAssessment,
     classroom_ratio: assessment.classroom_ratio ?? assessment.automatic_ratio ?? null
   };
   return resolveClassroomAssessment(normalized, assessment.teacher_override_level ? {
@@ -1242,7 +1243,9 @@ function enrichGradeWithClassroomWork(grade) {
   return {
     ...grade,
     technical_score: classroomWork?.final_score ?? null,
-    effective_score: classroomWork ? applyClassroomCap(grade.score, classroomWork) : grade.score,
+    effective_score: classroomWork
+      ? applyClassroomWeighting(grade.score, classroomWork, classroomWorkPolicy.product_weight)
+      : grade.score,
     classroom_work: classroomWork
   };
 }
@@ -1434,13 +1437,16 @@ function parseRaScores(value) {
 function scoreEntriesForGrade(grade, microrepte) {
   const raScores = parseRaScores(grade.ra_scores)
     .filter((item) => item?.ra_id && typeof item.score === 'number');
-  const cap = grade.classroom_work?.effective_cap;
-  const capped = (score) => Number.isFinite(Number(cap)) ? Math.min(Number(score), Number(cap)) : Number(score);
+  const weighted = (score) => applyClassroomWeighting(
+    score,
+    grade.classroom_work,
+    classroomWorkPolicy.product_weight
+  );
 
   if (raScores.length > 0) {
     return raScores.map((item) => ({
       ra_id: String(item.ra_id).toUpperCase(),
-      score: capped(item.score),
+      score: weighted(item.score),
       assessed_ca: Array.isArray(item.assessed_ca) ? item.assessed_ca : []
     }));
   }
@@ -1452,7 +1458,7 @@ function scoreEntriesForGrade(grade, microrepte) {
 
   return [{
     ra_id: primaryRa,
-    score: capped(grade.score || 0),
+    score: weighted(grade.score || 0),
     assessed_ca: Array.isArray(microrepte?.challenge?.assessed_ca) ? microrepte.challenge.assessed_ca : []
   }];
 }
@@ -2219,7 +2225,7 @@ function pageHtml() {
       <div class="feedback-box">
         <h3>Captura i correcció</h3>
         <p>Iniciar captura el <code>main</code> inicial; tancar captura el final i deixa la sessió preparada per a l’entrega definitiva.</p>
-        <p class="status">Si falta una captura, el cas queda pendent i no aplica cap topall a l’alumnat.</p>
+        <p class="status">Si falta una captura, el cas queda pendent i no s’aplica la ponderació a l’alumnat.</p>
         <div class="compact-actions">
           <button id="startClassroomWork" type="button">Iniciar sessió</button>
           <button id="closeClassroomWork" type="button">Tancar sessió</button>
@@ -2270,7 +2276,7 @@ function pageHtml() {
         <button id="applyFilters" type="button">Aplicar filtres</button>
       </div>
       <table>
-        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Tècnica</th><th>Procés</th><th>Topall</th><th>Aplicable</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
+        <thead><tr><th>Data</th><th>Repo</th><th>Grup</th><th>Repte</th><th>Producte (70%)</th><th>Procés</th><th>Aula (30%)</th><th>Final</th><th>Confiança</th><th>Mode</th><th>Accions</th></tr></thead>
         <tbody id="gradeRows"></tbody>
       </table>
       <div id="gradesInfo" class="status"></div>
@@ -3369,8 +3375,8 @@ function pageHtml() {
       document.querySelector('#resultViewer').innerHTML =
         '<div class="result-header">' +
           '<div class="metric"><span>Repositori</span><strong>' + repositoryLink(grade.repo) + '</strong><p class="status">' + escapeHtml(grade.challenge_id) + '</p></div>' +
-          '<div class="metric"><span>Nota tècnica</span><strong>' + escapeHtml(technicalScore) + '/10</strong></div>' +
-          '<div class="metric"><span>Nota aplicable</span><strong class="' + getScoreClass(Number(score) || 0) + '">' + escapeHtml(score) + '/10</strong><p class="status">' + escapeHtml(grade.classroom_work ? classroomLevelLabel(grade.classroom_work.effective_level) + ' · topall ' + (grade.classroom_work.effective_cap ?? '—') : 'Procés pendent') + '</p></div>' +
+          '<div class="metric"><span>Nota del producte (70%)</span><strong>' + escapeHtml(technicalScore) + '/10</strong></div>' +
+          '<div class="metric"><span>Nota final</span><strong class="' + getScoreClass(Number(score) || 0) + '">' + escapeHtml(score) + '/10</strong><p class="status">' + escapeHtml(grade.classroom_work ? classroomLevelLabel(grade.classroom_work.effective_level) + ' · aula ' + (grade.classroom_work.effective_points ?? '—') + '/3' : 'Procés pendent') + '</p></div>' +
           '<div class="metric"><span>Confiança</span><strong>' + Math.round((Number(confidence) || 0) * 100) + '%</strong></div>' +
           '<div class="metric"><span>Revisió</span><strong class="' + (reviewRequired ? 'error' : 'ok') + '">' + (reviewRequired ? 'Sí' : 'No') + '</strong></div>' +
         '</div>' +
@@ -3922,17 +3928,17 @@ function pageHtml() {
         const override = assessment.teacher_override_level || '';
         const options = [
           ['', 'Sense excepció'],
-          ['high', 'Alta · topall 10'],
-          ['medium', 'Mitjana · topall 9'],
-          ['low', 'Baixa · topall 7,5'],
-          ['no_evidence', 'Sense evidència · topall 6']
+          ['high', 'Alta · 3 punts'],
+          ['medium', 'Mitjana · 2 punts'],
+          ['low', 'Baixa · 1 punt'],
+          ['no_evidence', 'Sense evidència · 0 punts']
         ].map(([value, label]) => '<option value="' + value + '"' + (override === value ? ' selected' : '') + '>' + label + '</option>').join('');
         return '<tr>' +
           '<td>' + repositoryLink(assessment.repo || '') + '</td>' +
           '<td>' + escapeHtml(assessment.session_code || assessment.session_id) + '</td>' +
           '<td>' + escapeHtml(ratio) + '</td>' +
-          '<td>' + escapeHtml(classroomLevelLabel(assessment.automatic_level)) + (assessment.automatic_cap == null ? '' : ' · ' + escapeHtml(assessment.automatic_cap)) + '<br><small>' + escapeHtml(assessment.automatic_reason || '') + '</small></td>' +
-          '<td><strong>' + escapeHtml(classroomLevelLabel(assessment.effective_level)) + '</strong>' + (assessment.effective_cap == null ? '' : ' · ' + escapeHtml(assessment.effective_cap)) + '</td>' +
+          '<td>' + escapeHtml(classroomLevelLabel(assessment.automatic_level)) + (assessment.automatic_points == null ? '' : ' · ' + escapeHtml(assessment.automatic_points) + '/3') + '<br><small>' + escapeHtml(assessment.automatic_reason || '') + '</small></td>' +
+          '<td><strong>' + escapeHtml(classroomLevelLabel(assessment.effective_level)) + '</strong>' + (assessment.effective_points == null ? '' : ' · ' + escapeHtml(assessment.effective_points) + '/3') + '</td>' +
           '<td><select data-classroom-override-level>' + options + '</select>' +
             '<textarea rows="2" data-classroom-override-reason placeholder="Justificació obligatòria si hi ha excepció">' + escapeHtml(assessment.teacher_override_reason || '') + '</textarea>' +
             '<button class="secondary" type="button" data-save-classroom-override data-session="' + escapeHtml(assessment.session_id) + '" data-student="' + escapeHtml(assessment.student_id) + '">Guardar</button></td>' +
@@ -4000,7 +4006,7 @@ function pageHtml() {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || 'No s’ha pogut llançar la correcció definitiva.');
         const link = payload.workflow?.run_url || payload.workflow?.actions_url;
-        status.innerHTML = '<span class="ok">Correcció llançada. El servidor la importarà i calcularà el topall automàticament.</span>' + (link ? ' <a href="' + escapeHtml(link) + '" target="_blank" rel="noreferrer">Veure execució</a>' : '');
+        status.innerHTML = '<span class="ok">Correcció llançada. El servidor la importarà i calcularà la ponderació automàticament.</span>' + (link ? ' <a href="' + escapeHtml(link) + '" target="_blank" rel="noreferrer">Veure execució</a>' : '');
         await loadClassroomWork();
       } finally {
         button.disabled = false;
@@ -4041,9 +4047,9 @@ function pageHtml() {
             '<td>' + repositoryLink(grade.repo || '') + '</td>' +
             '<td>' + escapeHtml(grade.group_name || '') + '</td>' +
             '<td><code>' + escapeHtml(grade.challenge_id || '') + '</code></td>' +
-            '<td>' + escapeHtml(grade.technical_score ?? grade.score ?? '-') + '</td>' +
+            '<td>' + escapeHtml(grade.score ?? '-') + '</td>' +
             '<td>' + escapeHtml(process ? classroomLevelLabel(process.effective_level) : 'Pendent') + '</td>' +
-            '<td>' + escapeHtml(process?.effective_cap ?? '—') + '</td>' +
+            '<td>' + escapeHtml(process?.effective_points == null ? '—' : process.effective_points + '/3') + '</td>' +
             '<td class="' + scoreClass + '">' + escapeHtml(grade.effective_score ?? grade.score ?? '-') + '</td>' +
             '<td>' + Math.round((grade.confidence || 0) * 100) + '%</td>' +
             '<td>' + escapeHtml(grade.source || '') + '</td>' +

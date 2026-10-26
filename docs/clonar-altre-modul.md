@@ -85,7 +85,7 @@ Revisa obligatòriament:
 - `github.student_repository_prefix`;
 - `groups` i el fitxer de repositoris de cada grup;
 - `codes`, si el mòdul usa altres patrons per als microreptes o RA;
-- `assessment`, especialment dimensions, pesos, llindars i topalls;
+- `assessment`, especialment dimensions, pesos, llindars i punts de treball d'aula;
 - `documentation`;
 - `consolidation`.
 

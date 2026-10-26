@@ -133,16 +133,17 @@ npm run grades:download-latest
 
 En una sessió de treball d'aula, el servidor importa automàticament l'execució exacta que ha llançat quan GitHub la marca com a completada. La importació manual de l'últim artifact continua disponible dins de **Recuperació avançada** per a incidències i correccions externes.
 
-## Topall automàtic per treball d'aula
+## Ponderació automàtica del treball d'aula
 
-La qualificació conserva dos valors diferents:
+La qualificació conserva tres valors diferents:
 
-- `technical_score`: nota ordinària del microrepte, sense modificar.
-- `effective_score`: mínim entre la nota tècnica i el topall de treball d'aula.
+- `score`: nota ordinària del producte, sense modificar.
+- `technical_score`: puntuació de les dimensions tècniques usada només per calcular la proporció de treball d'aula.
+- `effective_score`: `70%` de la nota del producte més els punts de treball d'aula.
 
-El percentatge de treball d'aula compara la nota tècnica de tres instantànies: inici de classe, final de classe i entrega definitiva. Per evitar que la documentació feta a casa oculte el desenvolupament real, només es comparen dimensions de rendiment tècnic. Els llindars predeterminats són alta `≥ 70%`, mitjana `≥ 35%`, baixa `> 0%` i sense evidència `0%`, amb topalls `10`, `9`, `7,5` i `6`.
+El percentatge de treball d'aula compara la nota tècnica de tres instantànies: inici de classe, final de classe i entrega definitiva. Per evitar que la documentació feta a casa oculte el desenvolupament real, només es comparen dimensions de rendiment tècnic. Els llindars predeterminats són alta `≥ 70%`, mitjana `≥ 35%`, baixa `> 0%` i sense evidència `0%`. Els nivells aporten respectivament `3`, `2`, `1` i `0` punts, de manera que `nota final = nota del producte × 0,7 + punts d'aula`.
 
-La data escrita dins d'un commit no decidix la classificació. La prova principal són els `SHA` capturats pel dashboard. Una fallada tècnica deixa el càlcul pendent i no genera penalització. Una excepció docent necessita una justificació i no elimina el resultat automàtic original.
+La data escrita dins d'un commit no decidix la classificació. La prova principal són els `SHA` capturats pel dashboard. Una fallada tècnica deixa el càlcul pendent i no genera penalització automàtica. Una excepció docent necessita una justificació i no elimina el resultat automàtic original.
 
 ## Informe per preparar la classe següent
 

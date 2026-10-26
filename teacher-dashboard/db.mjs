@@ -151,7 +151,7 @@ export function initDb(dbPath = DB_PATH) {
       status TEXT NOT NULL DEFAULT 'pending',
       automatic_level TEXT,
       automatic_ratio REAL,
-      automatic_cap REAL,
+      automatic_points REAL,
       automatic_reason TEXT,
       teacher_override_level TEXT,
       teacher_override_reason TEXT,
@@ -162,6 +162,11 @@ export function initDb(dbPath = DB_PATH) {
       UNIQUE(session_id, student_id)
     );
   `);
+
+  const classroomAssessmentColumns = db.prepare('PRAGMA table_info(classroom_work_assessments)').all().map(column => column.name);
+  if (!classroomAssessmentColumns.includes('automatic_points')) {
+    db.exec('ALTER TABLE classroom_work_assessments ADD COLUMN automatic_points REAL');
+  }
 
   const classroomSessionColumns = db.prepare('PRAGMA table_info(classroom_work_sessions)').all().map(column => column.name);
   const classroomSessionMigrations = [
@@ -530,13 +535,13 @@ export function upsertClassroomWorkAssessment(assessment) {
   db.prepare(`
     INSERT INTO classroom_work_assessments (
       session_id, student_id, challenge_id, status, automatic_level,
-      automatic_ratio, automatic_cap, automatic_reason, updated_at
+      automatic_ratio, automatic_points, automatic_reason, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(session_id, student_id) DO UPDATE SET
       status = excluded.status,
       automatic_level = excluded.automatic_level,
       automatic_ratio = excluded.automatic_ratio,
-      automatic_cap = excluded.automatic_cap,
+      automatic_points = excluded.automatic_points,
       automatic_reason = excluded.automatic_reason,
       updated_at = excluded.updated_at
   `).run(
@@ -546,7 +551,7 @@ export function upsertClassroomWorkAssessment(assessment) {
     assessment.status,
     assessment.automatic_level || null,
     assessment.classroom_ratio ?? null,
-    assessment.automatic_cap ?? null,
+    assessment.automatic_points ?? null,
     assessment.reason || '',
     now
   );

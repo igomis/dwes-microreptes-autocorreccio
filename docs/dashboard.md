@@ -115,8 +115,8 @@ El dashboard està separat en aquestes vistes:
 - Consultar els últims resultats locals guardats en `grades/latest-grades.json`, quan existisca.
 - Generar un **Informe classe** per a un grup i microrepte concret des de la vista `Resultats`.
 - Obrir un visor del resultat amb nota, confiança, revisió docent, dimensions, punts forts, millores i feedback complet.
-- Obrir i tancar una sessió de treball d'aula per capturar els `SHA` exactes de `main`; quan l'entrega és definitiva, una única correcció processa els checkpoints i l'entrega i aplica el topall de procés.
-- Consultar per separat la nota tècnica, el nivell de treball d'aula, el topall i la nota aplicable.
+- Obrir i tancar una sessió de treball d'aula per capturar els `SHA` exactes de `main`; quan l'entrega és definitiva, una única correcció processa els checkpoints i l'entrega i aplica la ponderació de procés.
+- Consultar per separat la nota del producte, el nivell i els punts de treball d'aula i la nota final.
 - Registrar una excepció docent justificada quan una branca no fusionada, una incidència o una defensa aporte evidència que el càlcul automàtic no havia pogut veure.
 - Afegir, editar, filtrar i eliminar alumnes. Si tenen resultats associats, el dashboard mostra un avís i, en confirmar, esborra també eixos resultats. L'esborrat del repositori GitHub és opcional, destructiu i exigeix escriure el nom exacte del repositori.
 - Importar alumnes des de `course/student-repositories.txt`.
@@ -136,20 +136,20 @@ El dashboard no substitueix el workflow. Només és una capa més còmoda damunt
 
 En `Temps a l’aula`, selecciona un grup concret i un microrepte. El selector es construïx directament des de totes les definicions de `microreptes/`, no des de les notes existents: mostra primer els que encara no tenen entrega corregida per a tot el grup i conserva després els ja corregits per consultar-ne l’historial. `Iniciar sessió` captura el `SHA` de `main` de cada repositori. `Tancar sessió` captura el segon `SHA` i només deixa els checkpoints guardats: encara no consumix cap correcció.
 
-Quan les entregues siguen definitives, `Corregir entregues definitives` llança una sola execució que corregix inici, final de classe i `main` definitiu. El servidor seguix eixa execució pel seu ID exacte, importa automàticament l'artifact quan acaba i calcula el topall. No cal prémer `Actualitzar resultats` en este flux automàtic. El botó està en `Correcció` per importar els workflows llançats manualment; `Recalcular evidència` queda dins de `Recuperació avançada` per a incidències.
+Quan les entregues siguen definitives, `Corregir entregues definitives` llança una sola execució que corregix inici, final de classe i `main` definitiu. El servidor seguix eixa execució pel seu ID exacte, importa automàticament l'artifact quan acaba i calcula la ponderació. No cal prémer `Actualitzar resultats` en este flux automàtic. El botó està en `Correcció` per importar els workflows llançats manualment; `Recalcular evidència` queda dins de `Recuperació avançada` per a incidències.
 
 Els estats normals són `Captura inicial → Esperant entrega → Corregint → Resultats disponibles`. El sistema calcula quina proporció del progrés tècnic observable s'ha produït entre els dos checkpoints:
 
-| Proporció tècnica a classe | Nivell | Topall |
+| Proporció tècnica a classe | Nivell | Punts d'aula |
 |---:|---|---:|
-| `70–100%` | Alta | `10` |
-| `35–69%` | Mitjana | `9` |
-| `1–34%` | Baixa | `7,5` |
-| `0%` | Sense evidència | `6` |
+| `70–100%` | Alta | `3` |
+| `35–69%` | Mitjana | `2` |
+| `1–34%` | Baixa | `1` |
+| `0%` | Sense evidència | `0` |
 
-Només entren en este càlcul les dimensions tècniques `functional_resolution`, `code_quality` i `file_handling` quan existix. `documentation`, `traceability`, `verification` i `ai_usage` no rebaixen la proporció per haver-se completat fora de classe. La nota aplicable és `mínim(nota global de l’entrega, topall)`; tant la nota global original com la puntuació tècnica usada per calcular la proporció sempre es conserven.
+Només entren en este càlcul les dimensions tècniques `functional_resolution`, `code_quality` i `file_handling` quan existix. `documentation`, `traceability`, `verification` i `ai_usage` no rebaixen la proporció per haver-se completat fora de classe. La nota final és `nota del producte × 0,7 + punts d'aula`; tant la nota original del producte com la puntuació tècnica usada per calcular la proporció sempre es conserven.
 
-Si falla GitHub, la captura o la correcció d'un checkpoint, el cas queda `Pendent` o `Error tècnic` i no s'aplica el topall de `6`. Passa igual si el professorat oblida iniciar o tancar la sessió: l’absència d’una captura docent no es convertix en «sense evidència» de l’alumne. El token de captura pot indicar-se en `GITHUB_STUDENT_READ_TOKEN`; si no existeix, el dashboard prova `GH_TOKEN` i `GITHUB_TOKEN`.
+Si falla GitHub, la captura o la correcció d'un checkpoint, el cas queda `Pendent` o `Error tècnic` i la ponderació no s'aplica automàticament. Passa igual si el professorat oblida iniciar o tancar la sessió: l’absència d’una captura docent no es convertix en «sense evidència» de l’alumne. El token de captura pot indicar-se en `GITHUB_STUDENT_READ_TOKEN`; si no existeix, el dashboard prova `GH_TOKEN` i `GITHUB_TOKEN`.
 
 La valoració automàtica és la regla ordinària. L'excepció docent permet seleccionar un altre nivell amb justificació obligatòria. Es conserven alhora el nivell automàtic, el nivell docent i el motiu. Si l'alumne havia treballat en una branca remota sense fusionar, el professorat pot comprovar eixe `SHA` i justificar la correcció; si la branca només existia en local, cal una comprovació o defensa perquè GitHub no pot acreditar-la.
 

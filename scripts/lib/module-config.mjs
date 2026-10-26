@@ -91,6 +91,7 @@ export function validateModuleConfig(config) {
   if (!Array.isArray(classroom?.technical_dimensions) || classroom.technical_dimensions.length === 0) {
     throw new Error(`${MODULE_CONFIG_PATH}: assessment.classroom_work.technical_dimensions ha de ser una llista no buida`);
   }
+  const productWeight = score(classroom.product_weight, 'assessment.classroom_work.product_weight', { max: 1 });
   const high = score(classroom.thresholds?.high, 'assessment.classroom_work.thresholds.high', { max: 1 });
   const medium = score(classroom.thresholds?.medium, 'assessment.classroom_work.thresholds.medium', { max: 1 });
   if (medium >= high) {
@@ -98,7 +99,14 @@ export function validateModuleConfig(config) {
   }
   for (const level of ['high', 'medium', 'low', 'no_evidence']) {
     requiredText(classroom.levels?.[level]?.label, `assessment.classroom_work.levels.${level}.label`);
-    score(classroom.levels?.[level]?.cap, `assessment.classroom_work.levels.${level}.cap`);
+    score(classroom.levels?.[level]?.points, `assessment.classroom_work.levels.${level}.points`, { max: 10 * (1 - productWeight) });
+  }
+  const classroomPoints = ['high', 'medium', 'low', 'no_evidence'].map((level) => Number(classroom.levels[level].points));
+  if (!classroomPoints.every((points, index) => index === 0 || classroomPoints[index - 1] > points)) {
+    throw new Error(`${MODULE_CONFIG_PATH}: els punts de treball d'aula han de baixar estrictament de high a no_evidence`);
+  }
+  if (Math.abs(classroomPoints[0] - 10 * (1 - productWeight)) > 1e-9) {
+    throw new Error(`${MODULE_CONFIG_PATH}: els punts de high han de completar la nota màxima segons product_weight`);
   }
 
   validRelativePath(config.autograding?.system_context_file, 'autograding.system_context_file');

@@ -60,6 +60,7 @@
       "maximum_check_weight": 0.1
     },
     "classroom_work": {
+      "product_weight": 0.7,
       "technical_dimensions": [
         "functional_resolution",
         "code_quality",
@@ -72,19 +73,19 @@
       "levels": {
         "high": {
           "label": "Alta",
-          "cap": 10
+          "points": 3
         },
         "medium": {
           "label": "Mitjana",
-          "cap": 9
+          "points": 2
         },
         "low": {
           "label": "Baixa",
-          "cap": 7.5
+          "points": 1
         },
         "no_evidence": {
           "label": "Sense evidència",
-          "cap": 6
+          "points": 0
         }
       }
     }

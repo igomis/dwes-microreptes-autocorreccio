@@ -69,7 +69,7 @@ test('SQLite conserva checkpoints, classificació automàtica i excepció docent
       challenge_id: 'r2-s05-test',
       status: 'classified',
       automatic_level: 'low',
-      automatic_cap: 7.5,
+      automatic_points: 1,
       classroom_ratio: 0.2,
       reason: '20% del progrés tècnic a classe.'
     });
@@ -80,7 +80,7 @@ test('SQLite conserva checkpoints, classificació automàtica i excepció docent
     assert.equal(overridden.automatic_level, 'low');
     assert.equal(overridden.teacher_override_level, 'high');
     assert.equal(overridden.teacher_override_reason, 'Branca de classe comprovada.');
-    assert.equal(getClassroomWorkAssessment(session.id, 1).automatic_cap, 7.5);
+    assert.equal(getClassroomWorkAssessment(session.id, 1).automatic_points, 1);
 
     const baseGrade = {
       student: 'org/alumne', repo: 'org/alumne', group: '2DAW-A', challenge_id: 'r2-s05-test',
@@ -115,6 +115,22 @@ test('SQLite migra sessions existents per seguir la correcció definitiva', () =
       );
       INSERT INTO classroom_work_sessions (group_name, challenge_id, status, started_at, ended_at)
       VALUES ('2DAW-A', 'r2-s05-test', 'closed', '2026-10-20T09:00:00Z', '2026-10-20T12:00:00Z');
+      CREATE TABLE classroom_work_assessments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id INTEGER NOT NULL,
+        student_id INTEGER NOT NULL,
+        challenge_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        automatic_level TEXT,
+        automatic_ratio REAL,
+        automatic_cap REAL,
+        automatic_reason TEXT,
+        teacher_override_level TEXT,
+        teacher_override_reason TEXT,
+        teacher_override_at TEXT,
+        updated_at TEXT NOT NULL,
+        UNIQUE(session_id, student_id)
+      );
     `);
     legacy.close();
 
@@ -123,6 +139,8 @@ test('SQLite migra sessions existents per seguir la correcció definitiva', () =
     assert.ok(columns.includes('workflow_run_id'));
     assert.ok(columns.includes('workflow_imported_at'));
     assert.equal(getDb().prepare('SELECT workflow_status FROM classroom_work_sessions').get().workflow_status, 'waiting_delivery');
+    const assessmentColumns = getDb().prepare('PRAGMA table_info(classroom_work_assessments)').all().map((column) => column.name);
+    assert.ok(assessmentColumns.includes('automatic_points'));
   } finally {
     closeDb();
     rmSync(dir, { recursive: true, force: true });
