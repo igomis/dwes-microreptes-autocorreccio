@@ -14,6 +14,9 @@ No és una ampliacio vàlida:
 - un canvi decoratiu;
 - una pantalla aïllada sense impacte en el flux;
 - una API externa sense valor real;
+- la classe mínima de `R2M8` presentada de nou com a ampliació;
+- classes buides o una reorganització només de noms i carpetes;
+- una migració completa a MVC o framework que avance el treball propi de `R3`;
 - codi avançat que l'alumne no pot explicar;
 - millora que intenta compensar que el nucli de `R2` no està complet.
 

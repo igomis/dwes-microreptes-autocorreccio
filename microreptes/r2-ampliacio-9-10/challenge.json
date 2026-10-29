@@ -10,7 +10,9 @@
     "R2M4",
     "R2M5",
     "R2M6",
-    "R2M7"
+    "R2M7",
+    "R2M8",
+    "R2M9"
   ],
   "title": "Ampliacio 9-10 del Repte 2",
   "summary": "Filtrar si una ampliacio integrada del Repte 2 pot optar a la franja 9-10 una vegada el nucli obligatori ja està complet, funcional i validat.",
@@ -48,6 +50,7 @@
     "El treball base de R2 no queda incomplet ni ocult per l'ampliacio",
     "L'ampliacio millora validacio, errors, autenticacio, autoritzacio, proves, dependències gestionades amb Composer o eines Python, llibreria externa o API amb sentit real",
     "Si l'ampliacio és R2S10, deixa un contracte d'autenticacio consumible per DWEC amb endpoints, headers, respostes, dades demo i prova creuada",
+    "Si l'ampliacio és una refactoritzacio amb POO, va més enllà de la classe mínima de R2M8: separa responsabilitats reals, usa autoload, aporta proves unitàries i conserva el flux web",
     "La millora afecta el flux del projecte i no només una pantalla decorativa",
     "Hi ha prova reproduïble o evidència tècnica concreta",
     "L'alumne pot explicar què aporta i què passaria si falla",

@@ -18,6 +18,8 @@ Després revisa l'ampliacio:
 
 Si l'ampliacio presentada és `R2S10`, comprova que no es presenta com a microrepte nou: ha de ser una sessio d'ampliacio intermodular amb contracte d'autenticacio consumible per `DWEC`, incloent endpoints, headers, respostes, dades demo i prova creuada o validacio equivalent.
 
+Si l'ampliacio presentada és una refactoritzacio amb POO, no valores de nou la classe mínima obligatòria de `R2M8`. La millora ha d'afectar una part significativa del flux, separar diverses responsabilitats reals en classes cohesionades, usar l'autoload del projecte, incloure proves unitàries i demostrar que el flux web no ha patit regressions. No premies classes buides, simples canvis de noms o carpetes ni una migracio completa a MVC o framework, perquè eixe canvi arquitectònic correspon a `R3`.
+
 No valores positivament una API externa, llibreria o codi avançat només perquè parega sofisticat. Ha d'aportar valor real i estar provat.
 
 Marca revisio docent si la candidatura sembla viable però cal confirmar defensa, autoria o qualitat de la integracio.

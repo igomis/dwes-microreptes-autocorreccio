@@ -47,6 +47,8 @@
     "Sense prova, demo o checklist reproduïble de l'ampliacio, la candidatura no hauria de superar la franja mínima de revisio.",
     "Una pantalla decorativa, canvi visual o codi lateral no integrat no compta com a ampliacio 9-10.",
     "R2S10 pot comptar com a ampliacio 9-10 si documenta un contracte d'autenticacio consumible per DWEC i inclou prova creuada o validacio equivalent.",
+    "Una refactoritzacio amb POO només compta si va més enllà de la classe mínima de R2M8, separa responsabilitats reals, usa autoload i queda coberta per proves unitàries i una comprovacio de no regressio.",
+    "Classes buides, canvis només de noms o carpetes i una migracio completa a MVC o framework no són l'objectiu de l'ampliacio POO de R2.",
     "Una API externa o llibreria només compta si aporta valor real al flux de R2 i està documentada i provada.",
     "L'AI log no acredita autoria per si sol; cal contrast amb codi, commits, proves i defensa.",
     "Esta autocorreccio no assigna directament la nota final: filtra candidatura i informa la revisio docent.",
