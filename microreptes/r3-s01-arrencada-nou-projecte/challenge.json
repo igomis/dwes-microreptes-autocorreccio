@@ -31,7 +31,7 @@
     "ai-log.md"
   ],
   "required_evidence": [
-    "Projecte base en Laravel, Symfony, NestJS, Express sobre Node.js o via autoritzada",
+    "Projecte base en Laravel, Symfony, Django, NestJS o via autoritzada",
     "Docker, compose o entorn equivalent documentat i arrancable",
     ".env.example o instruccions de configuracio sense secrets",
     "Ruta inicial, vista minima o healthcheck funcional",
