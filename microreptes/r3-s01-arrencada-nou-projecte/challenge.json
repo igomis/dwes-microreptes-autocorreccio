@@ -12,12 +12,17 @@
   "relevant_paths": [
     "README.md",
     "README.md",
+    "package.json",
+    "package-lock.json",
     "docs/",
     "evidence/",
     "docker-compose.yml",
     "compose.yaml",
     "Dockerfile",
     ".env.example",
+    "app.js",
+    "index.js",
+    "server.js",
     "src/",
     "app/",
     "routes/",
@@ -26,7 +31,7 @@
     "ai-log.md"
   ],
   "required_evidence": [
-    "Projecte base en Laravel, Symfony, NestJS o via autoritzada",
+    "Projecte base en Laravel, Symfony, NestJS, Express sobre Node.js o via autoritzada",
     "Docker, compose o entorn equivalent documentat i arrancable",
     ".env.example o instruccions de configuracio sense secrets",
     "Ruta inicial, vista minima o healthcheck funcional",
