@@ -137,6 +137,10 @@ export function initDb(dbPath = DB_PATH) {
       grade_id INTEGER,
       error_message TEXT,
       captured_at TEXT NOT NULL,
+      ref_name TEXT,
+      refs_json TEXT,
+      selection_reason TEXT,
+      integration_status TEXT,
       FOREIGN KEY (session_id) REFERENCES classroom_work_sessions(id),
       FOREIGN KEY (student_id) REFERENCES students(id),
       FOREIGN KEY (grade_id) REFERENCES grades(id),
@@ -162,6 +166,19 @@ export function initDb(dbPath = DB_PATH) {
       UNIQUE(session_id, student_id)
     );
   `);
+
+  const classroomCheckpointColumns = db.prepare('PRAGMA table_info(classroom_checkpoints)').all().map(column => column.name);
+  const classroomCheckpointMigrations = [
+    ['ref_name', 'TEXT'],
+    ['refs_json', 'TEXT'],
+    ['selection_reason', 'TEXT'],
+    ['integration_status', 'TEXT']
+  ];
+  for (const [column, definition] of classroomCheckpointMigrations) {
+    if (!classroomCheckpointColumns.includes(column)) {
+      db.exec(`ALTER TABLE classroom_checkpoints ADD COLUMN ${column} ${definition}`);
+    }
+  }
 
   const classroomAssessmentColumns = db.prepare('PRAGMA table_info(classroom_work_assessments)').all().map(column => column.name);
   if (!classroomAssessmentColumns.includes('automatic_points')) {
@@ -475,15 +492,20 @@ export function upsertClassroomCheckpoint(checkpoint) {
   db.prepare(`
     INSERT INTO classroom_checkpoints (
       session_id, student_id, phase, commit_hash, capture_status,
-      technical_score, grade_id, error_message, captured_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      technical_score, grade_id, error_message, captured_at,
+      ref_name, refs_json, selection_reason, integration_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(session_id, student_id, phase) DO UPDATE SET
       commit_hash = excluded.commit_hash,
       capture_status = excluded.capture_status,
       technical_score = excluded.technical_score,
       grade_id = excluded.grade_id,
       error_message = excluded.error_message,
-      captured_at = excluded.captured_at
+      captured_at = excluded.captured_at,
+      ref_name = excluded.ref_name,
+      refs_json = excluded.refs_json,
+      selection_reason = excluded.selection_reason,
+      integration_status = excluded.integration_status
   `).run(
     checkpoint.session_id,
     checkpoint.student_id,
@@ -493,7 +515,11 @@ export function upsertClassroomCheckpoint(checkpoint) {
     checkpoint.technical_score ?? null,
     checkpoint.grade_id || null,
     checkpoint.error_message || null,
-    checkpoint.captured_at
+    checkpoint.captured_at,
+    checkpoint.ref_name || null,
+    JSON.stringify(Array.isArray(checkpoint.refs) ? checkpoint.refs : []),
+    checkpoint.selection_reason || null,
+    checkpoint.integration_status || null
   );
   return db.prepare(`
     SELECT cp.*, s.repo, s.group_name
@@ -501,6 +527,23 @@ export function upsertClassroomCheckpoint(checkpoint) {
     JOIN students s ON s.id = cp.student_id
     WHERE cp.session_id = ? AND cp.student_id = ? AND cp.phase = ?
   `).get(checkpoint.session_id, checkpoint.student_id, checkpoint.phase);
+}
+
+export function updateClassroomCheckpointSelection(sessionId, studentId, phase, selection) {
+  getDb().prepare(`
+    UPDATE classroom_checkpoints
+    SET commit_hash = ?, ref_name = ?, selection_reason = ?, integration_status = ?,
+        technical_score = NULL, grade_id = NULL, capture_status = 'captured', error_message = NULL
+    WHERE session_id = ? AND student_id = ? AND phase = ?
+  `).run(
+    selection.commit_hash,
+    selection.ref_name || null,
+    selection.selection_reason || null,
+    selection.integration_status || null,
+    sessionId,
+    studentId,
+    phase
+  );
 }
 
 export function getClassroomCheckpoints(sessionId) {
@@ -567,7 +610,10 @@ export function getClassroomWorkAssessment(sessionId, studentId) {
       s.group_name,
       ws.session_code,
       ws.started_at,
-      ws.ended_at
+      ws.ended_at,
+      (SELECT cp.ref_name FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_ref_name,
+      (SELECT cp.selection_reason FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_selection_reason,
+      (SELECT cp.integration_status FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_integration_status
     FROM classroom_work_assessments wa
     JOIN students s ON s.id = wa.student_id
     JOIN classroom_work_sessions ws ON ws.id = wa.session_id
@@ -584,7 +630,10 @@ export function getLatestClassroomWorkAssessment(repo, challengeId) {
       s.group_name,
       ws.session_code,
       ws.started_at,
-      ws.ended_at
+      ws.ended_at,
+      (SELECT cp.ref_name FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_ref_name,
+      (SELECT cp.selection_reason FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_selection_reason,
+      (SELECT cp.integration_status FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_integration_status
     FROM classroom_work_assessments wa
     JOIN students s ON s.id = wa.student_id
     JOIN classroom_work_sessions ws ON ws.id = wa.session_id
@@ -603,7 +652,10 @@ export function getClassroomWorkAssessments(filters = {}) {
       s.group_name,
       ws.session_code,
       ws.started_at,
-      ws.ended_at
+      ws.ended_at,
+      (SELECT cp.ref_name FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_ref_name,
+      (SELECT cp.selection_reason FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_selection_reason,
+      (SELECT cp.integration_status FROM classroom_checkpoints cp WHERE cp.session_id = wa.session_id AND cp.student_id = wa.student_id AND cp.phase = 'end') AS end_integration_status
     FROM classroom_work_assessments wa
     JOIN students s ON s.id = wa.student_id
     JOIN classroom_work_sessions ws ON ws.id = wa.session_id

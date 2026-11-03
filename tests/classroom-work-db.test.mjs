@@ -16,6 +16,7 @@ import {
   initDb,
   migrateFromJson,
   saveClassroomWorkOverride,
+  updateClassroomCheckpointSelection,
   updateClassroomWorkSessionWorkflow,
   upsertClassroomCheckpoint,
   upsertClassroomWorkAssessment,
@@ -41,6 +42,8 @@ test('SQLite conserva checkpoints, classificació automàtica i excepció docent
       student_id: 1,
       phase: 'start',
       commit_hash: 'abcdef1',
+      ref_name: 'main',
+      refs: [{ name: 'main', sha: 'abcdef1' }],
       captured_at: '2026-10-20T09:00:00+02:00'
     });
     upsertClassroomCheckpoint({
@@ -48,9 +51,21 @@ test('SQLite conserva checkpoints, classificació automàtica i excepció docent
       student_id: 1,
       phase: 'end',
       commit_hash: 'abcdef2',
+      ref_name: 'R2M5',
+      refs: [{ name: 'main', sha: 'abcdef1' }, { name: 'R2M5', sha: 'abcdef2' }],
+      selection_reason: 'Branca remota del microrepte.',
       captured_at: '2026-10-20T12:00:00+02:00'
     });
     assert.equal(getClassroomCheckpoints(session.id).length, 2);
+    updateClassroomCheckpointSelection(session.id, 1, 'end', {
+      commit_hash: 'abcdef2',
+      ref_name: 'R2M5',
+      selection_reason: 'Integrada en main.',
+      integration_status: 'ancestor'
+    });
+    const endCheckpoint = getClassroomCheckpoints(session.id).find((checkpoint) => checkpoint.phase === 'end');
+    assert.equal(endCheckpoint.ref_name, 'R2M5');
+    assert.equal(endCheckpoint.integration_status, 'ancestor');
 
     const closed = closeClassroomWorkSession(session.id, '2026-10-20T12:00:00+02:00');
     assert.equal(closed.workflow_status, 'waiting_delivery');
@@ -141,6 +156,9 @@ test('SQLite migra sessions existents per seguir la correcció definitiva', () =
     assert.equal(getDb().prepare('SELECT workflow_status FROM classroom_work_sessions').get().workflow_status, 'waiting_delivery');
     const assessmentColumns = getDb().prepare('PRAGMA table_info(classroom_work_assessments)').all().map((column) => column.name);
     assert.ok(assessmentColumns.includes('automatic_points'));
+    const checkpointColumns = getDb().prepare('PRAGMA table_info(classroom_checkpoints)').all().map((column) => column.name);
+    assert.ok(checkpointColumns.includes('refs_json'));
+    assert.ok(checkpointColumns.includes('integration_status'));
   } finally {
     closeDb();
     rmSync(dir, { recursive: true, force: true });

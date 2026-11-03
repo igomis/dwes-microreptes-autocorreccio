@@ -6,6 +6,15 @@ import {
   classifyClassroomWork,
   resolveClassroomAssessment
 } from '../scripts/lib/classroom-work.mjs';
+import {
+  changedClassroomRefs,
+  chooseClassroomEndRef,
+  chooseIntegratedClassroomRef,
+  classroomRefTokens,
+  compareShowsAncestor,
+  compareShowsEquivalentChanges,
+  parseCapturedRefs
+} from '../scripts/lib/classroom-refs.mjs';
 import { loadModuleConfig, moduleDefaultGroup, moduleGroupFiles, teacherRepositoryParts } from '../scripts/lib/module-config.mjs';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
@@ -42,6 +51,7 @@ import {
   updateClassroomWorkSessionWorkflow,
   upsertClassroomCheckpoint,
   getClassroomCheckpoints,
+  updateClassroomCheckpointSelection,
   updateClassroomCheckpointScore,
   upsertClassroomWorkAssessment,
   getClassroomWorkAssessment,
@@ -1003,10 +1013,10 @@ function studentGithubToken() {
   return process.env.GITHUB_STUDENT_READ_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
 }
 
-async function readStudentHead(repo, ref = 'main') {
+async function readStudentGithubJson(repo, route) {
   const token = studentGithubToken();
   if (!token) throw new Error('Falta GITHUB_STUDENT_READ_TOKEN, GH_TOKEN o GITHUB_TOKEN per capturar els repositoris.');
-  const response = await fetch(`https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`, {
+  const response = await fetch(`https://api.github.com/repos/${repo}/${route}`, {
     headers: {
       accept: 'application/vnd.github+json',
       authorization: `Bearer ${token}`,
@@ -1015,24 +1025,56 @@ async function readStudentHead(repo, ref = 'main') {
   });
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`GitHub ${response.status} en ${repo}@${ref}: ${details}`);
+    throw new Error(`GitHub ${response.status} en ${repo}: ${details}`);
   }
-  const payload = await response.json();
+  return response.json();
+}
+
+async function readStudentHead(repo, ref = 'main') {
+  const payload = await readStudentGithubJson(repo, `commits/${encodeURIComponent(ref)}`);
   if (!/^[0-9a-f]{40}$/i.test(payload.sha || '')) throw new Error(`GitHub no ha retornat un SHA vàlid per a ${repo}@${ref}.`);
   return payload.sha;
 }
 
-async function captureClassroomHeads(session, phase) {
+async function readStudentRefs(repo) {
+  const refs = [];
+  for (let page = 1; page <= 10; page += 1) {
+    const branches = await readStudentGithubJson(repo, `branches?per_page=100&page=${page}`);
+    refs.push(...branches.map((branch) => ({ name: branch.name, sha: branch.commit?.sha })).filter((ref) => ref.name && ref.sha));
+    if (branches.length < 100) break;
+  }
+  return refs;
+}
+
+async function compareStudentCommits(repo, base, head) {
+  return readStudentGithubJson(repo, `compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`);
+}
+
+async function captureClassroomHeads(session, phase, microrepte) {
   const students = getStudents({ group_name: session.group_name });
   const capturedAt = new Date().toISOString();
+  const defaultRef = moduleConfig.github.default_ref;
+  const startCheckpoints = phase === 'end'
+    ? new Map(getClassroomCheckpoints(session.id).filter((item) => item.phase === 'start').map((item) => [item.student_id, item]))
+    : new Map();
+  const tokens = classroomRefTokens(session, microrepte || {});
   const results = await Promise.all(students.map(async (student) => {
     try {
-      const commitHash = await readStudentHead(student.repo, 'main');
+      const refs = await readStudentRefs(student.repo);
+      const defaultHead = refs.find((ref) => ref.name === defaultRef);
+      if (!defaultHead) throw new Error(`No s'ha trobat la branca ${defaultRef}.`);
+      const startCheckpoint = startCheckpoints.get(student.id);
+      const selected = phase === 'end'
+        ? chooseClassroomEndRef(parseCapturedRefs(startCheckpoint?.refs_json), refs, { defaultRef, tokens }) || defaultHead
+        : { ...defaultHead, reason: `Punt de partida capturat en ${defaultRef}.` };
       return upsertClassroomCheckpoint({
         session_id: session.id,
         student_id: student.id,
         phase,
-        commit_hash: commitHash,
+        commit_hash: selected.sha,
+        ref_name: selected.name,
+        refs,
+        selection_reason: selected.reason,
         capture_status: 'captured',
         captured_at: capturedAt
       });
@@ -1065,7 +1107,7 @@ async function startClassroomWorkSession(body) {
     session_code: microrepte.challenge?.session_code || '',
     started_at: new Date().toISOString()
   });
-  const checkpoints = await captureClassroomHeads(session, 'start');
+  const checkpoints = await captureClassroomHeads(session, 'start', microrepte);
   for (const checkpoint of checkpoints) {
     upsertClassroomWorkAssessment({
       session_id: session.id,
@@ -1103,10 +1145,87 @@ async function closeClassroomWorkSessionCapture(sessionId) {
   const session = getClassroomWorkSessionById(sessionId);
   if (!session) throw new Error('Sessió d’aula no trobada.');
   if (session.status !== 'open') throw new Error('La sessió d’aula ja està tancada.');
-  await captureClassroomHeads(session, 'end');
+  const microrepte = await readMicrorepteDetail(session.challenge_id);
+  await captureClassroomHeads(session, 'end', microrepte);
   const closed = closeClassroomWorkSession(session.id, new Date().toISOString());
   await recalculateClassroomWork({ session_id: session.id });
   return { session: closed, checkpoints: getClassroomCheckpoints(session.id) };
+}
+
+async function integrationForClassroomRef(repo, startMain, candidate, deliveryMain) {
+  if (candidate.sha === deliveryMain) return 'ancestor';
+  const ancestry = await compareStudentCommits(repo, candidate.sha, deliveryMain);
+  if (compareShowsAncestor(ancestry)) return 'ancestor';
+  if (!startMain || candidate.is_default) return 'not_integrated';
+
+  const [branchChanges, deliveryChanges] = await Promise.all([
+    compareStudentCommits(repo, startMain, candidate.sha),
+    compareStudentCommits(repo, startMain, deliveryMain)
+  ]);
+  return compareShowsEquivalentChanges(branchChanges, deliveryChanges)
+    ? 'equivalent_changes'
+    : 'not_integrated';
+}
+
+async function resolveClassroomEndRefs(session, microrepte) {
+  const checkpoints = getClassroomCheckpoints(session.id);
+  const byStudent = new Map();
+  for (const checkpoint of checkpoints) {
+    if (!byStudent.has(checkpoint.student_id)) byStudent.set(checkpoint.student_id, {});
+    byStudent.get(checkpoint.student_id)[checkpoint.phase] = checkpoint;
+  }
+  const defaultRef = moduleConfig.github.default_ref;
+  const tokens = classroomRefTokens(session, microrepte || {});
+
+  await Promise.all([...byStudent.entries()].map(async ([studentId, pair]) => {
+    if (!pair.start || !pair.end) return;
+    const startRefs = parseCapturedRefs(pair.start.refs_json);
+    const endRefs = parseCapturedRefs(pair.end.refs_json);
+    const startMain = startRefs.find((ref) => ref.name === defaultRef)?.sha || pair.start.commit_hash;
+    const endMain = endRefs.find((ref) => ref.name === defaultRef);
+    const deliveryMain = await readStudentHead(pair.end.repo, defaultRef);
+    const changed = changedClassroomRefs(startRefs, endRefs, { defaultRef, tokens });
+    const changedBranches = changed.filter((candidate) => !candidate.is_default);
+    const relevantBranches = changedBranches.filter((candidate) => candidate.relevance > 0);
+    const rawCandidates = relevantBranches.length > 0
+      ? [...relevantBranches]
+      : changedBranches.length === 1
+        ? [...changedBranches]
+        : [];
+    if (endMain && !rawCandidates.some((candidate) => candidate.sha === endMain.sha)) {
+      rawCandidates.push({ ...endMain, is_default: true, relevance: 0, changed: endMain.sha !== startMain });
+    }
+
+    const candidates = [];
+    for (const candidate of rawCandidates) {
+      let integrationStatus = 'verification_error';
+      try {
+        integrationStatus = await integrationForClassroomRef(pair.end.repo, startMain, candidate, deliveryMain);
+      } catch {
+        // Un error comprovant una branca no invalida main ni els altres snapshots.
+      }
+      candidates.push({ ...candidate, integration_status: integrationStatus });
+    }
+    const selected = chooseIntegratedClassroomRef(candidates, defaultRef);
+    if (!selected) {
+      updateClassroomCheckpointSelection(session.id, studentId, 'end', {
+        commit_hash: null,
+        ref_name: pair.end.ref_name || defaultRef,
+        selection_reason: 'No s’ha pogut acreditar que cap checkpoint final estiga integrat en l’entrega.',
+        integration_status: 'verification_error'
+      });
+      return;
+    }
+    const integrationLabel = selected.integration_status === 'ancestor'
+      ? 'integrada en l’historial de main'
+      : 'integrada mitjançant canvis equivalents (squash)';
+    updateClassroomCheckpointSelection(session.id, studentId, 'end', {
+      commit_hash: selected.sha,
+      ref_name: selected.name,
+      selection_reason: `Checkpoint de ${selected.name} ${integrationLabel}.`,
+      integration_status: selected.integration_status
+    });
+  }));
 }
 
 async function gradeClassroomWorkSession(sessionId) {
@@ -1116,6 +1235,8 @@ async function gradeClassroomWorkSession(sessionId) {
   if (['queued', 'in_progress'].includes(session.workflow_status)) {
     throw new Error('La correcció definitiva d’esta sessió ja està en curs.');
   }
+  const microrepte = await readMicrorepteDetail(session.challenge_id);
+  await resolveClassroomEndRefs(session, microrepte);
   const selection = classroomWorkflowSelection(session);
   if (selection.valid_students === 0) {
     throw new Error('No hi ha cap alumne amb els dos checkpoints capturats.');
@@ -2242,7 +2363,7 @@ function pageHtml() {
       </div>
       <h3>Valoracions automàtiques i excepcions</h3>
       <table>
-        <thead><tr><th>Repo</th><th>Sessió</th><th>Progrés a classe</th><th>Automàtica</th><th>Vigent</th><th>Excepció docent</th></tr></thead>
+        <thead><tr><th>Repo</th><th>Sessió</th><th>Checkpoint final</th><th>Progrés a classe</th><th>Automàtica</th><th>Vigent</th><th>Excepció docent</th></tr></thead>
         <tbody id="classroomWorkRows"></tbody>
       </table>
     </section>
@@ -3874,7 +3995,7 @@ function pageHtml() {
         document.querySelector('#startClassroomWork').disabled = true;
         document.querySelector('#closeClassroomWork').disabled = true;
         document.querySelector('#gradeClassroomDelivery').disabled = true;
-        document.querySelector('#classroomWorkRows').innerHTML = '<tr><td colspan="6">No hi ha cap microrepte disponible.</td></tr>';
+        document.querySelector('#classroomWorkRows').innerHTML = '<tr><td colspan="7">No hi ha cap microrepte disponible.</td></tr>';
         return;
       }
       const params = new URLSearchParams();
@@ -3936,6 +4057,7 @@ function pageHtml() {
         return '<tr>' +
           '<td>' + repositoryLink(assessment.repo || '') + '</td>' +
           '<td>' + escapeHtml(assessment.session_code || assessment.session_id) + '</td>' +
+          '<td><code>' + escapeHtml(assessment.end_ref_name || '—') + '</code><br><small>' + escapeHtml(assessment.end_selection_reason || 'Pendent de verificar amb l’entrega') + '</small></td>' +
           '<td>' + escapeHtml(ratio) + '</td>' +
           '<td>' + escapeHtml(classroomLevelLabel(assessment.automatic_level)) + (assessment.automatic_points == null ? '' : ' · ' + escapeHtml(assessment.automatic_points) + '/3') + '<br><small>' + escapeHtml(assessment.automatic_reason || '') + '</small></td>' +
           '<td><strong>' + escapeHtml(classroomLevelLabel(assessment.effective_level)) + '</strong>' + (assessment.effective_points == null ? '' : ' · ' + escapeHtml(assessment.effective_points) + '/3') + '</td>' +
@@ -3944,7 +4066,7 @@ function pageHtml() {
             '<button class="secondary" type="button" data-save-classroom-override data-session="' + escapeHtml(assessment.session_id) + '" data-student="' + escapeHtml(assessment.student_id) + '">Guardar</button></td>' +
         '</tr>';
       });
-      document.querySelector('#classroomWorkRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6">Encara no hi ha valoracions de treball d’aula.</td></tr>';
+      document.querySelector('#classroomWorkRows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7">Encara no hi ha valoracions de treball d’aula.</td></tr>';
       document.querySelectorAll('[data-save-classroom-override]').forEach((button) => {
         button.addEventListener('click', async () => {
           const row = button.closest('tr');
