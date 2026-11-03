@@ -1050,6 +1050,14 @@ async function compareStudentCommits(repo, base, head) {
   return readStudentGithubJson(repo, `compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`);
 }
 
+function checkpointRefs(checkpoint, defaultRef) {
+  const refs = parseCapturedRefs(checkpoint?.refs_json);
+  if (refs.length > 0) return refs;
+  return checkpoint?.commit_hash
+    ? [{ name: checkpoint.ref_name || defaultRef, sha: checkpoint.commit_hash }]
+    : [];
+}
+
 async function captureClassroomHeads(session, phase, microrepte) {
   const students = getStudents({ group_name: session.group_name });
   const capturedAt = new Date().toISOString();
@@ -1065,7 +1073,7 @@ async function captureClassroomHeads(session, phase, microrepte) {
       if (!defaultHead) throw new Error(`No s'ha trobat la branca ${defaultRef}.`);
       const startCheckpoint = startCheckpoints.get(student.id);
       const selected = phase === 'end'
-        ? chooseClassroomEndRef(parseCapturedRefs(startCheckpoint?.refs_json), refs, { defaultRef, tokens }) || defaultHead
+        ? chooseClassroomEndRef(checkpointRefs(startCheckpoint, defaultRef), refs, { defaultRef, tokens }) || defaultHead
         : { ...defaultHead, reason: `Punt de partida capturat en ${defaultRef}.` };
       return upsertClassroomCheckpoint({
         session_id: session.id,
@@ -1179,8 +1187,8 @@ async function resolveClassroomEndRefs(session, microrepte) {
 
   await Promise.all([...byStudent.entries()].map(async ([studentId, pair]) => {
     if (!pair.start || !pair.end) return;
-    const startRefs = parseCapturedRefs(pair.start.refs_json);
-    const endRefs = parseCapturedRefs(pair.end.refs_json);
+    const startRefs = checkpointRefs(pair.start, defaultRef);
+    const endRefs = checkpointRefs(pair.end, defaultRef);
     const startMain = startRefs.find((ref) => ref.name === defaultRef)?.sha || pair.start.commit_hash;
     const endMain = endRefs.find((ref) => ref.name === defaultRef);
     const deliveryMain = await readStudentHead(pair.end.repo, defaultRef);
