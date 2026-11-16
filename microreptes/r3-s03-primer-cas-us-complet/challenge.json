@@ -7,7 +7,7 @@
     "R3M3"
   ],
   "title": "Primer cas d'us complet",
-  "summary": "Migrar o reconstruir en el framework un primer flux real heretat de R2 amb ruta, controlador, dades reals, resposta visible, validacio i error minim.",
+  "summary": "Migrar o reconstruir en el framework un primer flux real heretat de R2 amb entrada processada, ruta, controlador, dades reals, resposta visible, validacio i error minim.",
   "pedagogical_goal": "Comprovar que l'alumne pot convertir la base de R3 en un flux end-to-end real, separant responsabilitats i usant persistencia.",
   "relevant_paths": [
     "README.md",
@@ -31,9 +31,10 @@
     "Vista, plantilla o resposta HTML generada",
     "Dades reals de BBDD",
     "Dades passades del controlador a la vista o resposta",
-    "Formulari, parametre o interaccio processada si aplica",
-    "Validacio minima i error controlat",
-    "Prova del cas positiu i de l'error",
+    "Formulari, parametre o interaccio real processada",
+    "Si el flux crea o modifica dades: formulari server-rendered, recorregut GET/POST, CSRF, valors previs, errors visibles i redireccio després de l'exit",
+    "Validacio real en servidor i error controlat",
+    "Prova del cas positiu amb canvi en BBDD i de l'entrada invalida sense efectes parcials",
     "Commits i registre de temps aproximat",
     "AI log si hi ha ús rellevant d'IA"
   ],
@@ -42,10 +43,11 @@
     "El flux ve de R2 i està acotat",
     "El recorregut funciona de punta a punta",
     "Les dades provenen de BBDD",
+    "Una entrada correcta provoca el canvi persistent esperat i una entrada invalida no modifica la BBDD",
     "Hi ha responsabilitats recognoscibles",
     "La resposta no és una pantalla estatica"
   ],
-  "recommended_test_strategy": "Executar el flux complet, identificar la ruta i el controlador, comprovar dades reals de BBDD, revisar vista/resposta, provar cas positiu i provocar un error controlat.",
+  "recommended_test_strategy": "Executar el flux complet, identificar entrada, ruta i controlador, comprovar dades reals de BBDD, revisar vista/resposta, provar el cas positiu amb canvi persistent i provocar una entrada invalida comprovant error i absencia d'efectes parcials. Si el flux escriu, revisar GET/POST, CSRF, valors previs i redireccio.",
   "source_alignment": [
     "Repte 3 R3M3",
     "Programacio d'aula R3S3",

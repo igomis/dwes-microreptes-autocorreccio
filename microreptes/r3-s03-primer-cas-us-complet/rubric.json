@@ -3,8 +3,8 @@
   "challenge_id": "r3-s03-primer-cas-us-complet",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "Hi ha un flux end-to-end heretat de R2 amb ruta, controlador, dades reals, resposta visible i validacio/error minim."},
-    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Inclou prova del cas positiu i d'almenys un error o validacio controlada."},
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "Hi ha un flux end-to-end heretat de R2 amb entrada processada, ruta, controlador, dades reals, resposta visible i validacio/error minim. Si escriu, inclou formulari server-rendered i recorregut GET/POST."},
+    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Inclou prova del cas positiu amb canvi en BBDD i d'una entrada invalida amb error i sense efectes parcials."},
     {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha commits útils o registre equivalent del flux, integracio de BBDD i prova, amb temps aproximat si s'ha demanat."},
     {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "Documenta quin flux ve de R2, com s'executa, quines dades usa i quin error es pot provar."},
     {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra pistes, ajuda real i comprovació pròpia del flux; no delega la implementació. La declaració de no ús és vàlida."},
@@ -15,6 +15,7 @@
     "Sense ruta funcional, la puntuacio maxima recomanada és 5.",
     "Sense dades reals de BBDD, la puntuacio maxima recomanada és 6.",
     "Sense resposta visible generada pel framework, la puntuacio maxima recomanada és 7.",
+    "Si el flux crea o modifica dades pero el formulari no es processa realment en servidor, cal penalitzar resolucio funcional.",
     "Sense prova de cas positiu, la puntuacio maxima recomanada és 8.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
