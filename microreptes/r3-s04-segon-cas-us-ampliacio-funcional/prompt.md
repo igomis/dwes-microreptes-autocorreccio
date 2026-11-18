@@ -2,7 +2,7 @@
 
 Avalua `r3-s04-segon-cas-us-ampliacio-funcional` només amb evidencies del repositori.
 
-Comprova que hi ha un component, parcial, macro, include o equivalent amb dades d'entrada explicites i almenys dos usos reals. El layout general preexistent no compta com a component nou i copiar el mateix HTML en dos llocs no és reutilitzacio.
+Comprova que hi ha un component, parcial, macro, include o equivalent amb dades d'entrada explicites i almenys dos usos reals. En Django accepta els `template partials` amb `partialdef`/`partial` de Django 6, `include ... with ... only` o un `inclusion_tag` quan cal preparar dades amb Python. No exigisques una biblioteca externa de components. El layout general preexistent no compta com a component nou i copiar el mateix HTML en dos llocs no és reutilitzacio.
 
 Comprova que un recurs existent es pot actualitzar amb `PUT/PATCH` i eliminar amb `DELETE`, o amb els equivalents server-rendered natius que el repositori documente. Accepta *method override* o la convencio pròpia del framework; no exigisques la mateixa sintaxi a Laravel, Symfony, Django i NestJS. Revisa que l'alumne diferencie actualitzacio parcial, substitucio completa i eliminacio, i que no canvie dades amb `GET`.
 

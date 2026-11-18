@@ -23,7 +23,7 @@
     "ai-log.md"
   ],
   "required_evidence": [
-    "Component, parcial, macro, include o equivalent amb entrada explicita i almenys dos usos reals",
+    "Component, parcial, macro, include o equivalent amb entrada explicita i almenys dos usos reals; en Django s'accepten template partials, include amb only o inclusion_tag",
     "Ruta i manejador PUT/PATCH o equivalent server-rendered documentat",
     "Ruta i manejador DELETE o equivalent server-rendered documentat",
     "Validacio en servidor, proteccio CSRF i control de recurs inexistent amb 404 o equivalent",

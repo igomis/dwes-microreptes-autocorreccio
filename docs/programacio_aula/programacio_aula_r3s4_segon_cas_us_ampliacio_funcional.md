@@ -46,7 +46,7 @@ Esta sessio fa evolucionar el primer flux de creacio d'R3M3 cap al manteniment d
 
 - Diferencia semantica entre `POST`, `PUT`, `PATCH` i `DELETE`.
 - Limitacio dels formularis HTML a `GET/POST` i mecanismes natius de *method override* o equivalents.
-- Components, parcials, macros, *includes* o equivalents amb dades d'entrada explícites.
+- Components, parcials, macros, *includes* o equivalents amb dades d'entrada explícites: Blade en Laravel, Twig en Symfony, *template partials* en Django 6, `include ... only` o `inclusion_tag` en Django anterior, i el mecanisme del motor de plantilles en NestJS.
 - Resolucio de recurs i `404` amb convencions del framework.
 - CSRF, validacio en servidor i errors de domini en actualitzacio i eliminacio.
 - Transaccio i `rollback` quan una operacio modifica diversos registres.
@@ -80,7 +80,7 @@ Tasques:
 
 El professorat mostra un exemple curt amb:
 
-- component de vista reutilitzat en llistat i formulari o detall;
+- component de vista reutilitzat en llistat i formulari o detall; en Django pot ser un *template partial*, un `include ... only` o un `inclusion_tag`;
 - ruta parametrizada amb recurs existent i cas `404`;
 - formulari d'edicio amb *method override* o equivalent;
 - eliminacio permesa i denegada;
