@@ -22,7 +22,7 @@ Els enllaços a rúbriques són relatius al destí de publicació `docs/04_mater
 - [R3M1. Arrencada del nou projecte](r3m1.md)
 - [R3M2. Persistencia minima amb migracions, fixtures/seeders o equivalent](r3m2.md)
 - [R3M3. Primer cas d'us complet](r3m3.md)
-- [R3M4. Segon cas d'us o ampliacio funcional](r3m4.md)
+- [R3M4. Components de vista i manteniment d'un recurs](r3m4.md)
 - [R3M5. Autenticacio, autoritzacio i middleware](r3m5.md)
 - [R3M6. Qualitat i estabilitzacio](r3m6.md)
 - [R3M7. Tancament tecnic](r3m7.md)

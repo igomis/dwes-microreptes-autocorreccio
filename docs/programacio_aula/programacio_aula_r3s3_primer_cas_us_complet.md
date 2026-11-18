@@ -201,7 +201,7 @@ La IA pot explicar responsabilitats i donar pistes sobre un intent propi, sense 
 
 ## Connexio amb el microrepte posterior
 
-`R3M4` afegira un segon flux o ampliacio funcional. El primer flux ha de quedar estable perquè el segon no siga una duplicacio buida ni trenque la base.
+`R3M4` reutilitzara una peça de vista i afegira actualitzacio `PUT/PATCH` i eliminacio `DELETE`, o equivalents server-rendered documentats. El primer flux ha de quedar estable per poder provar la regressio.
 
 ## Materials associats per a portar a l'aula
 

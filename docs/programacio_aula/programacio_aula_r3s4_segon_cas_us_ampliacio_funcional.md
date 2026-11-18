@@ -1,8 +1,8 @@
-# R3S4. Segon cas d'us o ampliacio funcional
+# R3S4. Components de vista i manteniment d'un recurs
 
 ## Finalitat de la sessio
 
-Esta sessio evita que `R3` quede reduït a un únic flux demostratiu. L'alumnat ha d'implementar un segon recorregut end-to-end o una ampliacio funcional xicoteta però útil, aprofitant la base en framework i la BBDD real.
+Esta sessio fa evolucionar el primer flux de creacio d'R3M3 cap al manteniment d'un recurs existent. L'alumnat ha de reutilitzar una peça de vista i implementar actualitzacio i eliminacio amb les convencions HTTP i server-rendered del framework, BBDD real i errors controlats.
 
 ## Encaix dins del Repte 3
 
@@ -10,44 +10,46 @@ Esta sessio evita que `R3` quede reduït a un únic flux demostratiu. L'alumnat 
 - **Microrepte**: `R3M4`
 - **Sessio**: `R3S4`
 - **Duracio orientativa**: `3 hores`
-- **Focus**: segon flux, canvi dinàmic, reutilitzacio d'estructura, BBDD i verificacio
-- **No entra encara**: API, integracio externa, rols complexos o funcionalitat massa gran
+- **Focus**: component de vista reutilitzable, `PUT/PATCH`, `DELETE`, CSRF, `404`, BBDD i regressio
+- **No entra encara**: API, autenticacio, integracio externa, rols complexos o CRUD complet
 
 ## Relacio amb RA i criteris de treball
 
 | Element | Concrecio en el microrepte |
 |---|---|
-| `RA5.e` | afegeix nova entrada al framework |
-| `RA5.f` | reutilitza estructura de responsabilitats |
+| `RA5.e` | usa les convencions del framework per a actualitzar i eliminar |
+| `RA5.f` | reutilitza estructura i presentacio amb un component de vista |
 | `RA5.g` | manté el codi explicable |
-| `RA5.h` | amplia sense duplicacio buida |
+| `RA5.h` | amplia sense duplicacio HTML ni responsabilitats barrejades |
 | `RA6.c`, `RA6.d`, `RA6.f` | usa i verifica dades persistents |
 | `RA8.f` | modifica resposta segons dades, parametres o interaccio |
-| Evidencia central | segon flux funcional que aporta valor real |
+| Evidencia central | recurs actualitzat i eliminat amb component reutilitzat i BBDD coherent |
 
 ## Producte esperat
 
-- Segon cas d'us migrat o ampliacio funcional.
-- Ruta i controlador o equivalents.
-- Interaccio amb BBDD real.
-- Canvi visible segons dades, parametre, estat, filtre o formulari.
-- Validacio o error minim.
-- Demo o prova del recorregut.
-- Prova que el primer flux continua funcionant.
+- Component, parcial, macro, *include* o equivalent amb entrada explícita i dos usos reals.
+- Actualitzacio amb `PUT/PATCH` o equivalent server-rendered documentat.
+- Eliminacio amb `DELETE` o equivalent server-rendered documentat.
+- Validacio en servidor, CSRF i `404` o resposta equivalent.
+- Interaccio amb BBDD real i resposta posterior basada en l'estat persistent.
+- Transaccio quan una operacio modifica diversos registres relacionats.
+- Prova d'actualitzacio, error, eliminacio i regressio d'R3M3.
 
 ## Preparacio previa del professorat
 
-- Preparar exemples de segons fluxos menuts.
-- Preparar criteris per detectar canvis cosmeticos.
-- Tindre pauta de regressio del primer flux.
-- Preparar exemple de filtre, detall, canvi d'estat o alta simple.
+- Preparar un exemple de component de vista reutilitzat en dos contextos.
+- Preparar equivalencies de `PUT/PATCH/DELETE` i *method override* en els frameworks del grup.
+- Preparar un recurs editable i un altre que no es puga eliminar per una regla del domini.
+- Tindre pauta de regressio del primer flux i exemple de `rollback` per a una operacio múltiple.
 
 ## Continguts a explicar
 
-- Diferencia entre ampliacio funcional i canvi visual.
-- Com reutilitzar rutes, serveis, models o plantilles sense copiar sense criteri.
-- Com provar dos fluxos sense convertir-ho en una suite extensa.
-- Com decidir abast per no obrir una funcionalitat massa gran.
+- Diferencia semantica entre `POST`, `PUT`, `PATCH` i `DELETE`.
+- Limitacio dels formularis HTML a `GET/POST` i mecanismes natius de *method override* o equivalents.
+- Components, parcials, macros, *includes* o equivalents amb dades d'entrada explícites.
+- Resolucio de recurs i `404` amb convencions del framework.
+- CSRF, validacio en servidor i errors de domini en actualitzacio i eliminacio.
+- Transaccio i `rollback` quan una operacio modifica diversos registres.
 
 ## Sequencia d'aula de 3 hores
 
@@ -65,60 +67,61 @@ Qui té un pendent aplica una correcció concreta i torna a provar-la amb ajuda.
 
 Demanar una execució, modificació o explicació curta de la peça necessària per al treball de hui. Si el bloqueig continua, acordar ajuda durant el treball guiat i comprovar la comprensió en l’obertura següent. És consolidació per continuar, no recuperació ni recorrecció del microrepte.
 
-### 0:35-0:55. Decisio del segon flux
+### 0:35-0:55. Disseny del manteniment
 
 Tasques:
 
-- decidir si és migracio o ampliacio;
-- escriure quin valor aporta;
-- comprovar que no duplica el primer flux;
-- identificar dades necessaries.
+- triar el recurs, els camps editables i la regla d'eliminacio;
+- identificar el fragment visual repetit que es convertira en component;
+- decidir si l'actualitzacio és parcial (`PATCH`) o completa (`PUT`);
+- comprovar si alguna operacio necessita transaccio.
 
 ### 0:55-1:15. Modelatge docent
 
-El professorat mostra un exemple curt de segon flux:
+El professorat mostra un exemple curt amb:
 
-- detall d'un registre;
-- filtre;
-- alta simple;
-- canvi d'estat;
-- validacio amb error visible.
+- component de vista reutilitzat en llistat i formulari o detall;
+- ruta parametrizada amb recurs existent i cas `404`;
+- formulari d'edicio amb *method override* o equivalent;
+- eliminacio permesa i denegada;
+- transaccio i `rollback` si hi ha diversos canvis.
 
 ### 1:15-1:55. Implementacio
 
 Tasques:
 
-- crear ruta;
-- crear controlador o equivalent;
-- recuperar o modificar dades;
-- preparar resposta dinàmica;
-- reutilitzar vista, servei o model quan tinga sentit.
+- extraure i reutilitzar el component de vista;
+- crear rutes i manejadors d'actualitzacio i eliminacio;
+- validar, recuperar i modificar dades reals;
+- protegir operacions insegures amb CSRF;
+- preparar resposta, redireccio i missatges visibles.
 
 ### 1:55-2:20. Validacio i regressio
 
 Tasques:
 
-- afegir validacio o error minim;
-- provar segon flux;
+- provar actualitzacio correcta i invàlida;
+- provar eliminacio correcta, denegada i identificador inexistent;
+- comprovar `rollback` si l'operacio és múltiple;
 - tornar a provar primer flux;
-- revisar duplicacions evidents.
+- revisar que el component evita duplicacio real.
 
 ### 2:20-2:45. Documentacio i commits
 
 Tasques:
 
-- descriure el segon flux;
-- justificar valor funcional;
-- registrar prova dels dos fluxos;
+- descriure el component, els verbs i l'equivalent server-rendered usat;
+- justificar `PUT` o `PATCH` i l'ús real de `DELETE`;
+- registrar proves de manteniment i regressio;
 - registrar commits i temps aproximat.
 
 ### 2:45-2:50. Checkpoint
 
 Cada equip mostra:
 
-- segon flux executat;
-- canvi dinàmic visible;
-- BBDD implicada;
+- component renderitzat en dos llocs;
+- actualitzacio i eliminacio executades;
+- BBDD coherent i error controlat;
 - primer flux encara funcional.
 
 ### 2:50-3:00. Diagnòstic individual i següent pas
@@ -127,71 +130,72 @@ Amb les evidències observades durant la sessió, comprovar què funciona i què
 
 ## Tasques concretes de l'alumnat
 
-- Decidir segon flux.
-- Implementar ruta/controlador.
-- Usar BBDD real.
-- Generar resposta dinàmica.
-- Afegir validacio o error.
-- Provar primer i segon flux.
-- Documentar valor i abast.
+- Crear i reutilitzar un component de vista.
+- Implementar `PUT/PATCH` i `DELETE` o equivalents documentats.
+- Validar en servidor, aplicar CSRF i controlar `404`.
+- Usar BBDD real i transaccio quan hi ha diversos canvis.
+- Provar actualitzacio, error, eliminacio i regressio.
+- Documentar semantica, mecanisme del framework i abast.
 
 ## Evidencies minimes
 
 | Evidencia | Minim acceptable |
 |---|---|
-| Segon flux | descrit i justificat |
-| Ruta/controlador | executables |
-| Dades | BBDD real implicada |
-| Dinamisme | resposta canvia segons dades o interaccio |
+| Component | peça amb entrada explícita reutilitzada almenys dues vegades |
+| Actualitzacio | `PUT/PATCH` o equivalent documentat amb validacio i BBDD |
+| Eliminacio | `DELETE` o equivalent documentat amb CSRF i regla de domini |
+| Errors | actualitzacio invàlida, eliminacio denegada i `404` o equivalent |
+| Atomicitat | transaccio si canvien diversos registres relacionats |
 | Regressio | primer flux continua funcionant |
 | Traçabilitat | commits i temps aproximat |
 
 ## Criteris d'exit
 
-- El segon flux és funcional.
-- No és una pantalla estatica.
-- Aprofita estructura del framework.
+- El component evita duplicacio de presentacio i rep dades explícites.
+- L'actualitzacio i l'eliminacio usen les convencions del framework.
+- Les operacions mantenen la BBDD coherent davant d'errors.
 - No trenca el primer flux.
-- L'alumnat pot explicar què aporta.
+- L'alumnat pot explicar els verbs HTTP i l'equivalent server-rendered aplicat.
 
 ## Que no és suficient
 
-- Afegir una vista sense dades.
-- Duplicar el primer flux canviant noms.
-- Obrir una funcionalitat que queda a mitges.
-- Fer només estils o navegacio.
+- Comptar el *layout* existent com a component nou.
+- Copiar HTML en lloc de reutilitzar una peça.
+- Canviar dades amb `GET`, sense CSRF o sense validacio en servidor.
+- Usar `DELETE` per a cancel·lar, completar o arxivar un estat.
+- Simular l'actualitzacio o l'eliminacio sense comprovar BBDD.
 - No provar regressio.
 
 ## Us de la IA
 
-La IA pot suggerir idees de segon flux i casos de prova. L'alumnat ha de justificar per què eixa opcio aporta valor al producte i verificar-la en el projecte real.
+La IA pot suggerir l'extraccio del component, les rutes i casos de prova. L'alumnat ha de justificar la semantica de cada metode, verificar el codi en el seu framework i registrar qualsevol adaptacio acceptada.
 
 ## Suport per a alumnat amb dificultats
 
-- Proposar detall o filtre com a segon flux.
-- Reduir a una sola entitat.
-- Donar plantilla de prova de regressio.
-- Revisar duplicacions amb parella de contrast.
+- Donar un fragment HTML repetit perquè l'alumnat l'extraga a component.
+- Proporcionar esquelet de rutes d'edicio i eliminacio del framework triat.
+- Reduir l'operacio a una sola entitat quan no calga transaccio.
+- Donar una taula de prova d'actualitzacio, eliminacio i regressio.
 
 ## Ampliacio per a alumnat avançat
 
-- Afegir relacio simple entre entitats.
-- Crear servei reutilitzable.
-- Afegir test funcional automatitzat.
+- Afegir variants o *slots* justificats al component.
+- Implementar *soft delete* quan el domini ho necessite.
+- Afegir prova de `rollback` o concurrencia.
 
 ## Checklist de tancament
 
-- [ ] Segon flux decidit.
-- [ ] Hi ha ruta i controlador.
-- [ ] Usa BBDD real.
-- [ ] Hi ha canvi dinàmic.
-- [ ] Hi ha validacio o error.
+- [ ] Component reutilitzat almenys dues vegades.
+- [ ] Actualitzacio `PUT/PATCH` o equivalent documentat.
+- [ ] Eliminacio `DELETE` o equivalent documentat.
+- [ ] CSRF, validacio i `404` o equivalent controlats.
+- [ ] BBDD coherent i transaccio quan cal.
 - [ ] Primer flux continua funcionant.
 - [ ] Hi ha commits i temps aproximat.
 
 ## Connexio amb el microrepte posterior
 
-`R3M5` protegira una accio significativa amb autenticacio, autoritzacio i middleware o equivalent. Per això el segon flux ha de quedar funcional i prou clar per poder decidir què té sentit protegir.
+`R3M5` protegira l'actualitzacio o l'eliminacio amb autenticacio, autoritzacio i middleware o equivalent. Per això les dues operacions han de quedar funcionals abans d'afegir identitat i permisos.
 
 ## Materials associats per a portar a l'aula
 
@@ -201,5 +205,5 @@ La IA pot suggerir idees de segon flux i casos de prova. L'alumnat ha de justifi
 ## Microtaller associat
 
 - **Microtaller**: `MT09. On pose la lògica`
-- **Moment recomanat**: quan el segon cas d'ús confirma si l'estructura aguanta noves regles sense duplicar codi.
-- **Evidència mínima**: una regla nova situada en la capa adequada i comparada amb el primer cas d'ús.
+- **Moment recomanat**: quan l'actualitzacio i l'eliminacio obliguen a separar presentacio, coordinacio, regla i persistencia.
+- **Evidència mínima**: component reutilitzat i regla de manteniment situada en la capa adequada.

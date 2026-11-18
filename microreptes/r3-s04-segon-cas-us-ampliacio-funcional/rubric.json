@@ -3,18 +3,22 @@
   "challenge_id": "r3-s04-segon-cas-us-ampliacio-funcional",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "Hi ha segon flux o ampliacio funcional executable amb ruta/controlador, BBDD real i canvi dinàmic."},
-    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Inclou prova del segon flux, validacio/error i regressio del primer flux."},
-    {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha commits útils o registre equivalent del segon flux, prova i regressio, amb temps aproximat si s'ha demanat."},
-    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "Documenta què aporta el segon flux, com provar-lo i com es comprova que el primer continua funcionant."},
+    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "Hi ha actualitzacio PUT/PATCH i eliminacio DELETE, o equivalents natius documentats, amb validacio, CSRF, BBDD real, resposta observable i control de recurs inexistent."},
+    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Inclou proves d'actualitzacio correcta i invalida, eliminacio correcta i denegada, 404 o equivalent, rollback si aplica i regressio del primer flux."},
+    {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha commits útils o registre equivalent del component, manteniment, proves i regressio, amb temps aproximat si s'ha demanat."},
+    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "Documenta el recurs, el component, la semantica PUT/PATCH/DELETE, l'equivalent server-rendered usat i els passos de prova."},
     {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA, registra idees o codi acceptat i verificacio pròpia."},
-    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "Reutilitza estructura del framework sense duplicar codi sense criteri ni obrir funcionalitat massa gran."}
+    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "Reutilitza un component de vista almenys dues vegades, separa responsabilitats i usa transaccio quan modifica diversos registres relacionats."}
   ],
   "hard_rules": [
-    "Si és només canvi visual o vista estatica, la puntuacio maxima recomanada és 5.",
+    "Sense actualitzacio funcional amb PUT/PATCH o equivalent documentat, la puntuacio maxima recomanada és 6.",
     "Sense BBDD real, la puntuacio maxima recomanada és 6.",
+    "Sense eliminacio amb DELETE o equivalent documentat, la puntuacio maxima recomanada és 8.",
+    "Sense component de vista reutilitzat almenys dues vegades, la puntuacio maxima recomanada és 8.",
     "Sense prova que el primer flux continua funcionant, la puntuacio maxima recomanada és 8.",
-    "Si duplica el primer flux canviant noms sense valor funcional, cal penalitzar qualitat.",
+    "Canviar dades amb GET, sense proteccio CSRF o sense validacio en servidor penalitza resolucio funcional.",
+    "No s'ha de penalitzar un equivalent server-rendered propi del framework si la correspondencia amb PUT/PATCH o DELETE està documentada i la peticio insegura està protegida.",
+    "Si duplica HTML en lloc de reutilitzar el component, cal penalitzar qualitat.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }

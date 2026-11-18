@@ -6,11 +6,10 @@
   "microreptes_covered": [
     "R3M4"
   ],
-  "title": "Segon cas d'us o ampliacio funcional",
-  "summary": "Afegir un segon flux end-to-end o ampliacio funcional útil que use framework, BBDD real i canvi dinàmic verificable.",
-  "pedagogical_goal": "Comprovar que la base de R3 pot créixer més enllà d'una demo única sense duplicacio buida ni canvi només visual.",
+  "title": "Components de vista i manteniment d'un recurs",
+  "summary": "Reutilitzar un component de vista i mantindre un recurs existent amb PUT/PATCH, DELETE, BBDD real i errors controlats.",
+  "pedagogical_goal": "Fer evolucionar el flux de creacio d'R3M3 cap a actualitzacio i eliminacio amb les convencions del framework, sense duplicar presentacio ni deixar la BBDD incoherent.",
   "relevant_paths": [
-    "README.md",
     "README.md",
     "docs/",
     "routes/",
@@ -24,26 +23,29 @@
     "ai-log.md"
   ],
   "required_evidence": [
-    "Descripcio del segon flux i justificacio del seu valor",
-    "Ruta i controlador o equivalents",
-    "Interaccio amb BBDD real",
-    "Resposta que canvia segons dades, parametre, estat, filtre o formulari",
-    "Vista, plantilla o resposta HTML si és el flux server-rendered",
-    "Validacio o error minim",
-    "Prova o demo end-to-end",
+    "Component, parcial, macro, include o equivalent amb entrada explicita i almenys dos usos reals",
+    "Ruta i manejador PUT/PATCH o equivalent server-rendered documentat",
+    "Ruta i manejador DELETE o equivalent server-rendered documentat",
+    "Validacio en servidor, proteccio CSRF i control de recurs inexistent amb 404 o equivalent",
+    "Interaccio amb BBDD real i resposta basada en l'estat persistent",
+    "Regla que impedix almenys una actualitzacio o eliminacio no valida",
+    "Transaccio o equivalent quan una operacio modifica diversos registres relacionats",
+    "Proves d'actualitzacio, error, eliminacio i regressio",
     "Comprovacio que el primer flux continua funcionant",
     "Commits i registre de temps aproximat",
     "AI log si hi ha ús rellevant d'IA"
   ],
   "ai_log_required": false,
   "expected_signals": [
-    "El segon flux és executable",
-    "No és només una vista nova o canvi d'estil",
-    "Aprofita estructura del framework",
-    "Usa BBDD real",
+    "El component rep dades i es renderitza almenys en dos llocs",
+    "L'actualitzacio usa PUT/PATCH o un equivalent natiu documentat",
+    "L'eliminacio usa DELETE o un equivalent natiu documentat",
+    "Les operacions insegures tenen CSRF i validacio en servidor",
+    "Un recurs inexistent genera 404 o resposta controlada equivalent",
+    "La BBDD queda coherent davant d'errors i operacions múltiples",
     "No trenca el primer flux"
   ],
-  "recommended_test_strategy": "Executar el segon flux, comprovar BBDD i canvi dinàmic, provar validacio o error, repetir el primer flux i revisar que no siga duplicacio cosmetica.",
+  "recommended_test_strategy": "Comprovar el component en dos renderitzats; provar actualitzacio correcta i invalida; provar eliminacio correcta, denegada i recurs inexistent; verificar rollback si hi ha diversos canvis; repetir R3M3.",
   "source_alignment": [
     "Repte 3 R3M4",
     "Programacio d'aula R3S4",
