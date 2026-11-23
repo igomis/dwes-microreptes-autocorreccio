@@ -82,6 +82,27 @@ La diferència pràctica és que `mock-autograde.mjs` és determinista i útil p
 
 Els fragments textuals recollits tenen un màxim aproximat de 8.000 caràcters per fitxer. Els fitxers curts i mitjans s'inclouen complets; en els fitxers llargs es combinen l'inici, el final i fragments distribuïts al voltant de les API citades entre cometes de codi en l'enunciat i la rúbrica. Això evita que un fitxer de rutes llarg oculte funcionalitats avaluables sense fer créixer sense límit el payload.
 
+### Directori del projecte
+
+El `README.md` de l'alumne pot declarar una única arrel corregible amb una fila
+de taula o una línia etiquetada:
+
+```md
+| Directori del projecte | `r3/` |
+```
+
+També s'accepten `Directorio del proyecto` i `Project directory`. El valor ha
+de ser un directori relatiu, versionat i interior al repositori; `.` representa
+l'arrel. No s'accepten rutes absolutes ni recorreguts amb `..`.
+
+El recollidor conserva les evidències de l'arrel i, al mateix temps, expandix
+els `relevant_paths` dins del directori declarat. També incorpora els fitxers de
+codi modificats pels commits candidats del microrepte, no sols els del commit
+final de documentació. Si no hi ha declaració vàlida, busca marcadors de
+framework com `artisan`, `manage.py`, `nest-cli.json`, `symfony.lock`, Gradle,
+Maven, Composer o npm. El payload publica l'arrel efectiva i la seua procedència
+en `evidence_scope.project_roots`.
+
 El validador d'autograding llig el resultat generat, comprova els camps obligatoris i els tipus bàsics definits en l'esquema, i ix amb codi `1` si detecta errors.
 
 Els scripts de notes provisionals treballen amb fitxers locals dins de `grades/`. `append-grade-result.mjs` i `import-autograde-result.mjs` mantenen un únic registre vigent per parella `repo + challenge_id`; si es torna a importar la mateixa parella, es substitueix la fila anterior. `list-grades.mjs` llig `grades/latest-grades.json` i mostra alumne, microrepte, nota, confiança, revisio docent requerida i marca temporal.

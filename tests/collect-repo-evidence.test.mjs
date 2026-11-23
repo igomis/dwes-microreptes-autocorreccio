@@ -77,6 +77,120 @@ test('inclou codi i configuració Java com a evidència inspeccionable', () => {
   assert.equal(summary.repository_manifest.find((item) => item.path === 'pom.xml').present, true);
 });
 
+test('usa el directori del projecte declarat en README sense exigir enllaços a cada fitxer', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-project-root-'));
+  for (const directory of [
+    'r3/app/Http/Controllers',
+    'r3/routes',
+    'r3/resources/views/components',
+    'r3/tests/Feature'
+  ]) {
+    mkdirSync(path.join(repoDir, directory), { recursive: true });
+  }
+  writeFileSync(path.join(repoDir, 'README.md'), [
+    '# R3M4',
+    '',
+    '| Camp | Valor |',
+    '|---|---|',
+    '| Microrepte | R3M4 |',
+    '| Directori del projecte | `r3/` |'
+  ].join('\n'));
+  writeFileSync(path.join(repoDir, 'r3', 'artisan'), '#!/usr/bin/env php\n');
+  writeFileSync(path.join(repoDir, 'r3', 'app', 'Http', 'Controllers', 'ReservaController.php'), '<?php class ReservaController { public function update() {} }\n');
+  writeFileSync(path.join(repoDir, 'r3', 'routes', 'web.php'), '<?php Route::patch("/reserves/{id}", fn () => null);\n');
+  writeFileSync(path.join(repoDir, 'r3', 'resources', 'views', 'components', 'estat.blade.php'), '<span>{{ $estat }}</span>\n');
+  writeFileSync(path.join(repoDir, 'r3', 'tests', 'Feature', 'ReservaTest.php'), '<?php // R3M4 PATCH i DELETE\n');
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R3M4 funcionalitat'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student-laravel',
+    '--commit', commit, '--challenge-id', 'r3-s04-segon-cas-us-ampliacio-funcional', '--microrepte-code', 'R3M4',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  const paths = summary.relevant_files.map((file) => file.path);
+  assert.deepEqual(summary.evidence_scope.project_roots.effective, ['r3']);
+  assert.equal(summary.evidence_scope.project_roots.source, 'readme');
+  assert.ok(paths.includes('r3/artisan'));
+  assert.ok(paths.includes('r3/app/Http/Controllers/ReservaController.php'));
+  assert.ok(paths.includes('r3/routes/web.php'));
+  assert.ok(paths.includes('r3/resources/views/components/estat.blade.php'));
+  assert.ok(paths.includes('r3/tests/Feature/ReservaTest.php'));
+  assert.equal(summary.repository_manifest.find((item) => item.path === 'r3/app').included, true);
+});
+
+test('detecta automàticament una arrel Django i prioritza canvis de commits actius anteriors', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-auto-project-root-'));
+  mkdirSync(path.join(repoDir, 'django_app', 'landing', 'templates'), { recursive: true });
+  writeFileSync(path.join(repoDir, 'README.md'), '# R3M3\n');
+  writeFileSync(path.join(repoDir, 'django_app', 'manage.py'), '# R3M3 Django\n');
+  writeFileSync(path.join(repoDir, 'django_app', 'landing', 'views.py'), 'class LlibreCreateView: pass\n');
+  writeFileSync(path.join(repoDir, 'django_app', 'landing', 'tests.py'), 'def test_r3m3(): pass\n');
+  writeFileSync(path.join(repoDir, 'django_app', 'landing', 'templates', 'llibre.html'), '<h1>Llibre</h1>\n');
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R3M3 implementació i proves'], { cwd: repoDir });
+  writeFileSync(path.join(repoDir, 'README.md'), '# R3M3\nDocumentació final\n');
+  execFileSync('git', ['add', 'README.md'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R3M3 documentació'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student-django',
+    '--commit', commit, '--challenge-id', 'r3-s03-primer-cas-us-complet', '--microrepte-code', 'R3M3',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  const paths = summary.relevant_files.map((file) => file.path);
+  assert.deepEqual(summary.evidence_scope.project_roots.effective, ['django_app']);
+  assert.equal(summary.evidence_scope.project_roots.source, 'framework_marker');
+  assert.ok(paths.includes('django_app/manage.py'));
+  assert.ok(paths.includes('django_app/landing/views.py'));
+  assert.ok(paths.includes('django_app/landing/tests.py'));
+  assert.ok(paths.includes('django_app/landing/templates/llibre.html'));
+  assert.ok(summary.commit_evidence.active_microrepte_changed_files.includes('django_app/landing/views.py'));
+});
+
+test('rebutja un directori declarat que ix del repositori i usa la detecció segura', () => {
+  const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-safe-project-root-'));
+  mkdirSync(path.join(repoDir, 'r3', 'routes'), { recursive: true });
+  writeFileSync(path.join(repoDir, 'README.md'), '# R3M4\n\nDirectori del projecte: `../projecte-extern/`\n');
+  writeFileSync(path.join(repoDir, 'r3', 'artisan'), '#!/usr/bin/env php\n');
+  writeFileSync(path.join(repoDir, 'r3', 'routes', 'web.php'), '<?php // R3M4\n');
+  execFileSync('git', ['init'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoDir });
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: repoDir });
+  execFileSync('git', ['add', '.'], { cwd: repoDir });
+  execFileSync('git', ['commit', '-m', 'R3M4'], { cwd: repoDir });
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoDir, encoding: 'utf8' }).trim();
+  const signalsPath = path.join(repoDir, 'signals.json');
+  const summaryPath = path.join(repoDir, 'summary.json');
+
+  execFileSync(process.execPath, [
+    'scripts/collect-repo-evidence.mjs', '--repo-dir', repoDir, '--repo', 'test/student-safe',
+    '--commit', commit, '--challenge-id', 'r3-s04-segon-cas-us-ampliacio-funcional', '--microrepte-code', 'R3M4',
+    '--repo-signals', signalsPath, '--evidence-summary', summaryPath
+  ], { cwd: rootDir });
+
+  const roots = JSON.parse(readFileSync(summaryPath, 'utf8')).evidence_scope.project_roots;
+  assert.equal(roots.declaration_valid, false);
+  assert.deepEqual(roots.effective, ['r3']);
+  assert.equal(roots.source, 'framework_marker');
+});
+
 test('localitza API avaluables dins d’un fitxer de rutes llarg', () => {
   const repoDir = mkdtempSync(path.join(tmpdir(), 'dwes-long-evidence-'));
   mkdirSync(path.join(repoDir, 'src'));

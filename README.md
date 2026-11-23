@@ -40,6 +40,14 @@ Per executar tot el procés pas a pas —repositori nou, plantilla d’alumnat, 
 7. Es genera feedback provisional i una nota inicial.
 8. El professorat revisa els casos marcats amb baixa confiança o flags.
 
+Si el projecte executable viu en una subcarpeta, l'alumnat només ha de declarar
+el directori en la taula del `README.md`, per exemple
+`| Directori del projecte | r3/ |`. El recollidor expandix dins d'eixa arrel els
+camins de codi, rutes, vistes, plantilles, configuració i tests definits pel
+microrepte. No cal enumerar cada fitxer. Si no hi ha declaració, es detecten
+automàticament arrels habituals mitjançant `artisan`, `manage.py`,
+`nest-cli.json`, `symfony.lock`, Gradle, Maven, Composer o npm.
+
 ## Autocorrecció activa centralitzada
 
 L'autocorrecció activa es resol des d'este repositori del professor. Primer es comprova si l'alumne té una assignació específica; si no, s'aplica l'assignació del grup.

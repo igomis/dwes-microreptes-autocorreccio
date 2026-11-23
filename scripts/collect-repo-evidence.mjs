@@ -31,6 +31,48 @@ const maxVisualEvidence = 5;
 const maxVisualEvidenceBytes = 4 * 1024 * 1024;
 const maxHistoryCommits = 50;
 const maxExcerptChars = 8000;
+const maxDetectedProjectRoots = 5;
+const projectRootLabels = new Set([
+  'directoridelprojecte',
+  'directoridelproyecto',
+  'projectdirectory'
+]);
+const strongProjectMarkers = new Set([
+  'artisan',
+  'manage.py',
+  'nest-cli.json',
+  'symfony.lock',
+  'gradlew',
+  'gradlew.bat'
+]);
+const fallbackProjectMarkers = new Set([
+  'composer.json',
+  'package.json',
+  'pom.xml',
+  'build.gradle',
+  'build.gradle.kts',
+  'settings.gradle',
+  'settings.gradle.kts'
+]);
+const frameworkRelevantFileNames = new Set([
+  'views.py',
+  'urls.py',
+  'models.py',
+  'forms.py',
+  'tests.py',
+  'settings.py',
+  'web.php',
+  'api.php',
+  'phpunit.xml',
+  'phpunit.xml.dist',
+  '.env.example'
+]);
+const ignoredProjectSegments = new Set([
+  '.git',
+  'autograde',
+  'node_modules',
+  'vendor'
+]);
 const structuralRootFiles = new Set([
   'README.md',
   'docker-compose.yml',
@@ -120,6 +162,128 @@ function resolveInRepo(repoDir, filePath) {
 
 function normalizeRepoPath(filePath) {
   return String(filePath || '').split(path.sep).join('/').replace(/^\.\//, '').replace(/\/$/, '');
+}
+
+function normalizeProjectRootValue(value) {
+  let candidate = String(value || '').trim();
+  candidate = candidate.replace(/^\*\*(.*?)\*\*$/, '$1').replace(/^`+(.*?)`+$/, '$1').trim();
+  if (!candidate || /^[a-z][a-z0-9+.-]*:/i.test(candidate) || candidate.startsWith('/')) {
+    return null;
+  }
+  if (candidate === '.' || candidate === './') {
+    return '';
+  }
+
+  const normalized = normalizeRepoPath(path.posix.normalize(candidate));
+  if (!normalized || normalized === '..' || normalized.startsWith('../') || normalized.includes('/../')) {
+    return null;
+  }
+  return normalized;
+}
+
+function declaredProjectRoot(readmeContent) {
+  for (const line of String(readmeContent || '').split('\n')) {
+    const tableRow = line.match(/^\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$/);
+    if (tableRow && projectRootLabels.has(normalizeToken(tableRow[1]))) {
+      return { raw: tableRow[2].trim(), root: normalizeProjectRootValue(tableRow[2]) };
+    }
+
+    const labelledLine = line.match(/^\s*(?:[-*]\s*)?(?:\*\*)?([^:*]+?)(?:\*\*)?\s*:\s*(.+?)\s*$/);
+    if (labelledLine && projectRootLabels.has(normalizeToken(labelledLine[1]))) {
+      return { raw: labelledLine[2].trim(), root: normalizeProjectRootValue(labelledLine[2]) };
+    }
+  }
+  return null;
+}
+
+function rootContainsTrackedFiles(root, trackedFiles) {
+  if (root === '') return trackedFiles.length > 0;
+  return trackedFiles.some((filePath) => filePath === root || filePath.startsWith(`${root}/`));
+}
+
+function rootsFromMarkers(trackedFiles, markers) {
+  const roots = new Set();
+  for (const filePath of trackedFiles) {
+    const parts = normalizeRepoPath(filePath).split('/');
+    const basename = parts.at(-1);
+    const rootParts = parts.slice(0, -1);
+    if (!markers.has(basename) || rootParts.length > 2 || rootParts.some((part) => ['vendor', 'node_modules'].includes(part))) {
+      continue;
+    }
+    roots.add(rootParts.join('/'));
+    if (roots.size >= maxDetectedProjectRoots) break;
+  }
+  return [...roots];
+}
+
+function resolveProjectRoots(readmeContent, trackedFiles) {
+  const declaration = declaredProjectRoot(readmeContent);
+  const declaredRootIsValid = declaration?.root !== null
+    && declaration?.root !== undefined
+    && rootContainsTrackedFiles(declaration.root, trackedFiles);
+  const strongRoots = rootsFromMarkers(trackedFiles, strongProjectMarkers);
+  const autodetected = strongRoots.length > 0
+    ? strongRoots
+    : rootsFromMarkers(trackedFiles, fallbackProjectMarkers);
+  const effective = declaredRootIsValid
+    ? [declaration.root]
+    : autodetected.length > 0 ? autodetected : [''];
+
+  return {
+    declared: declaration?.raw || null,
+    declared_normalized: declaredRootIsValid ? (declaration.root || '.') : null,
+    declaration_valid: declaration === null ? null : declaredRootIsValid,
+    autodetected: autodetected.map((root) => root || '.'),
+    effective: effective.map((root) => root || '.'),
+    source: declaredRootIsValid ? 'readme' : autodetected.length > 0 ? 'framework_marker' : 'repository_root'
+  };
+}
+
+function expandRelevantPaths(relevantPaths, projectRoots) {
+  const expanded = new Set(relevantPaths);
+  for (const displayRoot of projectRoots.effective) {
+    const root = displayRoot === '.' ? '' : displayRoot;
+    if (!root) continue;
+    for (const relevantPath of relevantPaths) {
+      expanded.add(normalizeRepoPath(path.posix.join(root, relevantPath)));
+    }
+  }
+  return [...expanded];
+}
+
+function projectStructuralFiles(trackedFiles, projectRoots) {
+  const markerNames = new Set([...strongProjectMarkers, ...fallbackProjectMarkers]);
+  const roots = new Set(projectRoots.effective.map((root) => root === '.' ? '' : root));
+  return trackedFiles.filter((filePath) => {
+    const normalized = normalizeRepoPath(filePath);
+    const dirname = path.posix.dirname(normalized) === '.' ? '' : path.posix.dirname(normalized);
+    return roots.has(dirname) && markerNames.has(path.posix.basename(normalized));
+  });
+}
+
+function relativeToProjectRoot(filePath, projectRoots) {
+  const normalized = normalizeRepoPath(filePath);
+  for (const displayRoot of projectRoots.effective) {
+    const root = displayRoot === '.' ? '' : displayRoot;
+    if (!root) return normalized;
+    if (normalized === root) return '';
+    if (normalized.startsWith(`${root}/`)) return normalized.slice(root.length + 1);
+  }
+  return null;
+}
+
+function matchesProjectLayout(filePath, configuredRelevantPaths, projectRoots, changedFiles) {
+  const relative = relativeToProjectRoot(filePath, projectRoots);
+  if (relative === null || !isTextFile(filePath)) return false;
+  const segments = relative.split('/');
+  if (segments.some((segment) => ignoredProjectSegments.has(segment))) return false;
+  if (changedFiles.has(filePath)) return true;
+  if (configuredRelevantPaths.some((relevantPath) => pathIsWithin(relative, relevantPath))) return true;
+
+  const relevantSegments = new Set(configuredRelevantPaths.map((item) => item.split('/')[0]));
+  if (segments.some((segment) => relevantSegments.has(segment))) return true;
+  if (relative.startsWith('resources/views/')) return true;
+  return frameworkRelevantFileNames.has(path.posix.basename(relative));
 }
 
 function pathIsWithin(candidate, declaredPath) {
@@ -259,6 +423,8 @@ async function listFiles(repoDir, dir, maxFiles = maxFilesPerSection) {
 
 function isTextFile(filePath) {
   return structuralRootFiles.has(normalizeRepoPath(filePath))
+    || strongProjectMarkers.has(path.posix.basename(normalizeRepoPath(filePath)))
+    || fallbackProjectMarkers.has(path.posix.basename(normalizeRepoPath(filePath)))
     || textExtensions.has(path.extname(filePath).toLowerCase());
 }
 
@@ -376,29 +542,39 @@ async function summarizeFiles(repoDir, files, evidenceTerms = []) {
   return summaries;
 }
 
-function selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles) {
+function selectRelevantTrackedFiles(
+  trackedFiles,
+  relevantPaths,
+  changedFiles,
+  projectFiles = [],
+  configuredRelevantPaths = [],
+  projectRoots = { effective: ['.'] }
+) {
   const changed = new Set(changedFiles);
+  const structural = new Set([...structuralRootFiles, ...projectFiles]);
   const candidates = trackedFiles.filter((filePath) =>
-    structuralRootFiles.has(filePath)
+    structural.has(filePath)
     || relevantPaths.some((relevantPath) => pathIsWithin(filePath, relevantPath))
+    || matchesProjectLayout(filePath, configuredRelevantPaths, projectRoots, changed)
   );
 
   return candidates.sort((left, right) => {
     const leftChanged = changed.has(left) ? 0 : 1;
     const rightChanged = changed.has(right) ? 0 : 1;
     if (leftChanged !== rightChanged) return leftChanged - rightChanged;
-    const leftRoot = structuralRootFiles.has(left) ? 0 : 1;
-    const rightRoot = structuralRootFiles.has(right) ? 0 : 1;
+    const leftRoot = structural.has(left) ? 0 : 1;
+    const rightRoot = structural.has(right) ? 0 : 1;
     if (leftRoot !== rightRoot) return leftRoot - rightRoot;
     return left.localeCompare(right);
   });
 }
 
-function buildRepositoryManifest(trackedFiles, includedFiles, relevantPaths) {
+function buildRepositoryManifest(trackedFiles, includedFiles, relevantPaths, projectFiles = []) {
   const tracked = new Set(trackedFiles);
   const included = new Set(includedFiles);
   const manifestPaths = new Set([
     ...structuralRootFiles,
+    ...projectFiles,
     ...relevantPaths.map(normalizeRepoPath),
     ...trackedFiles.filter((filePath) => relevantPaths.some((relevantPath) => pathIsWithin(filePath, relevantPath)))
   ]);
@@ -577,6 +753,10 @@ async function main() {
   const trackedFilesOutput = await git(repoDir, ['ls-files']);
   const trackedFiles = trackedFilesOutput ? trackedFilesOutput.split('\n').map(normalizeRepoPath) : [];
   const trackedFilesCount = trackedFiles.length;
+  const readmeContent = await isFile(resolveInRepo(repoDir, 'README.md'))
+    ? await readFile(resolveInRepo(repoDir, 'README.md'), 'utf8')
+    : '';
+  const projectRoots = resolveProjectRoots(readmeContent, trackedFiles);
   let changedFilesOutput = '';
   try {
     changedFilesOutput = await git(repoDir, ['show', '--pretty=format:', '--name-only', args.commit, '--']);
@@ -584,12 +764,22 @@ async function main() {
     // Some local/test callers use a descriptive commit label instead of a Git revision.
   }
   const changedFiles = changedFilesOutput ? [...new Set(changedFilesOutput.split('\n').filter(Boolean).map(normalizeRepoPath))] : [];
-  const relevantPaths = [...new Set((challengeConfig?.relevant_paths || []).map(normalizeRepoPath).filter(Boolean))];
-  const relevantTrackedFiles = selectRelevantTrackedFiles(trackedFiles, relevantPaths, changedFiles);
+  const configuredRelevantPaths = [...new Set((challengeConfig?.relevant_paths || []).map(normalizeRepoPath).filter(Boolean))];
+  const relevantPaths = expandRelevantPaths(configuredRelevantPaths, projectRoots);
+  const nestedStructuralFiles = projectStructuralFiles(trackedFiles, projectRoots);
+  const commitHistory = await collectCommitHistory(repoDir, activeTokens);
+  const activeChangedFiles = [...new Set(commitHistory.active_microrepte_candidates.flatMap((commit) => commit.files))];
+  const priorityChangedFiles = [...new Set([...changedFiles, ...activeChangedFiles])];
+  const relevantTrackedFiles = selectRelevantTrackedFiles(
+    trackedFiles,
+    relevantPaths,
+    priorityChangedFiles,
+    nestedStructuralFiles,
+    configuredRelevantPaths,
+    projectRoots
+  );
   const readmeReferencedPaths = await readmeReferencedFiles(repoDir, trackedFiles);
-  const readmeTargets = await isFile(resolveInRepo(repoDir, 'README.md'))
-    ? readmeLinkTargets(await readFile(resolveInRepo(repoDir, 'README.md'), 'utf8'))
-    : [];
+  const readmeTargets = readmeLinkTargets(readmeContent);
   const includedRelevantFiles = [...new Set([
     // The README is the delivery contract: its linked code, tests and text
     // evidence must survive the global cap.
@@ -598,7 +788,6 @@ async function main() {
   ])]
     .filter((filePath) => isTextFile(filePath))
     .slice(0, maxRelevantFiles);
-  const commitHistory = await collectCommitHistory(repoDir, activeTokens);
 
   const signals = {
     generated_at: new Date().toISOString(),
@@ -623,7 +812,8 @@ async function main() {
       test_files: await countFiles(resolveInRepo(repoDir, 'tests')),
       evidence_files: await countFiles(resolveInRepo(repoDir, 'evidence')),
       docs_files: await countFiles(resolveInRepo(repoDir, 'docs'))
-    }
+    },
+    project_roots: projectRoots
   };
 
   const summary = {
@@ -632,20 +822,23 @@ async function main() {
       challenge_id: args['challenge-id'] || null,
       microrepte_code: args['microrepte-code'] || null,
       active_tokens: activeTokens,
+      project_roots: projectRoots,
       rule: 'Els fitxers de docs, evidence, tests i src nomes es consideren evidencia directa si el path o el contingut referencia el microrepte actiu. Els fitxers de text enllacats localment des del README.md arrel s_inclouen sempre com a evidencia declarada.',
       delivery_contract: [
         'README.md de l_arrel es la fitxa de l_entrega actual i pot sobreescriure el microrepte anterior.',
+        'Si el projecte executable viu en una subcarpeta, README.md pot declarar una sola fila Directori del projecte; el recollidor expandix automaticament els camins rellevants dins d_eixa arrel.',
         'docs/README.md, evidence/README.md i tests/README.md son guies de carpeta, no evidencia puntuable.',
         'Els fitxers del microrepte han d_estar nomenats o enllacats amb el challenge_id o microrepte_code actiu.',
         'Els tests han de ser executables o, si encara no toca automatitzar, proves manuals reproduibles amb passos, dades i resultat esperat.',
         'Els fitxers llargs es presenten en fragments focals. L_absencia d_un element en un fragment retallat no demostra que falte al repositori.'
       ]
     },
-    repository_manifest: buildRepositoryManifest(trackedFiles, includedRelevantFiles, relevantPaths),
+    repository_manifest: buildRepositoryManifest(trackedFiles, includedRelevantFiles, relevantPaths, nestedStructuralFiles),
     commit_evidence: {
       sha: args.commit,
       changed_files: changedFiles,
       relevant_changed_files: changedFiles.filter((filePath) => relevantTrackedFiles.includes(filePath)),
+      active_microrepte_changed_files: activeChangedFiles,
       history: commitHistory.commits,
       active_microrepte_candidates: commitHistory.active_microrepte_candidates,
       temporal_summary: commitHistory.temporal_summary
