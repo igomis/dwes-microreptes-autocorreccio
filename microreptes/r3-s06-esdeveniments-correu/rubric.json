@@ -1,0 +1,49 @@
+{
+  "rubric_id": "rubric-r3-s06-esdeveniments-correu",
+  "challenge_id": "r3-s06-esdeveniments-correu",
+  "max_score": 10,
+  "dimensions": [
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.5,
+      "must_check": "Acció confirmada, esdeveniment i correu al destinatari demo."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.1,
+      "must_check": "Resultats reals d’èxit, error i accés denegat."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.05,
+      "must_check": "Commits que identifiquen el canvi."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.1,
+      "must_check": "Acció, destinatari, transport i passos de prova."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si s’ha usat IA, registre i verificació."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat tècnica",
+      "weight": 0.2,
+      "must_check": "Responsabilitats separades, enviament després de confirmar i configuració segura."
+    }
+  ],
+  "hard_rules": [
+    "Sense un esdeveniment connectat al listener, la puntuació màxima recomanada és 6.",
+    "Sense correu verificable al destinatari esperat, la puntuació màxima recomanada és 7.",
+    "Sense evidència dels casos negatius, la puntuació màxima recomanada és 8.",
+    "Avalua el mínim amb les eines del framework triat. Les ampliacions queden fora de la nota del microrepte."
+  ]
+}

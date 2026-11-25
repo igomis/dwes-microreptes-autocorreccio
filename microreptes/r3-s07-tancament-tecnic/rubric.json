@@ -3,12 +3,42 @@
   "challenge_id": "r3-s07-tancament-tecnic",
   "max_score": 10,
   "dimensions": [
-    {"id": "functional_resolution", "label": "Resolució funcional", "weight": 0.5, "must_check": "El tancament mostra projecte arrancable, BBDD reproduïble i dos fluxos demostrables."},
-    {"id": "verification", "label": "Verificació", "weight": 0.1, "must_check": "Les instruccions permeten arrancar, migrar, seedar i executar els fluxos o revisar proves."},
-    {"id": "traceability", "label": "Traçabilitat", "weight": 0.05, "must_check": "Hi ha commits finals, registre de temps, decisions i relacio amb el backlog."},
-    {"id": "documentation", "label": "Documentació", "weight": 0.1, "must_check": "README explica arrencada, BBDD, fluxos, proteccio d'accessos, decisions, demo, backlog i pas a R4."},
-    {"id": "ai_usage", "label": "Ús d'IA", "weight": 0.05, "must_check": "Si usa IA per documentar, verifica que el text correspon al projecte real."},
-    {"id": "code_quality", "label": "Qualitat tècnica", "weight": 0.2, "must_check": "El tancament és honest: no oculta mancances, diferencia migrat/ampliat/pendent i deixa base defensable."}
+    {
+      "id": "functional_resolution",
+      "label": "Resolució funcional",
+      "weight": 0.5,
+      "must_check": "El tancament mostra projecte arrancable, BBDD reproduïble i dos fluxos demostrables."
+    },
+    {
+      "id": "verification",
+      "label": "Verificació",
+      "weight": 0.1,
+      "must_check": "Des d’una còpia neta i amb una BBDD de prova, seguix el README, reconstruïx les dades i guarda l’eixida d’una suite o checklist executada. Verifica els dos fluxos i els seus errors, la protecció d’accés i el correu d’R3M6. Revisa les responsabilitats. Si detectes una incidència, documenta símptoma, causa, correcció i prova posterior. Si no en detectes, registra les comprovacions executades."
+    },
+    {
+      "id": "traceability",
+      "label": "Traçabilitat",
+      "weight": 0.05,
+      "must_check": "Hi ha commits finals, registre de temps, decisions i relacio amb el backlog."
+    },
+    {
+      "id": "documentation",
+      "label": "Documentació",
+      "weight": 0.1,
+      "must_check": "README explica arrencada, BBDD, fluxos, proteccio d'accessos, decisions, demo, backlog i pas a R4."
+    },
+    {
+      "id": "ai_usage",
+      "label": "Ús d'IA",
+      "weight": 0.05,
+      "must_check": "Si usa IA per documentar, verifica que el text correspon al projecte real."
+    },
+    {
+      "id": "code_quality",
+      "label": "Qualitat tècnica",
+      "weight": 0.2,
+      "must_check": "El tancament és honest: no oculta mancances, diferencia migrat/ampliat/pendent i deixa base defensable."
+    }
   ],
   "hard_rules": [
     "Sense README.md o instruccions d'arrencada, la puntuacio maxima recomanada és 6.",
@@ -17,6 +47,7 @@
     "Sense dos fluxos descrits o demostrables, la puntuacio maxima recomanada és 7.",
     "Sense backlog o mapa de continuïtat, la puntuacio maxima recomanada és 8.",
     "Si el README no coincideix amb el codi, cal revisio docent.",
+    "Sense execució verificable de regressió, la puntuació màxima recomanada és 7.",
     "Esta rúbrica avalua només el nucli obligatori del microrepte; les ampliacions no s'han d'exigir ni usar per compensar mancances del mínim."
   ]
 }

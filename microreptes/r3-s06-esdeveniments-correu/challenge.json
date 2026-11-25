@@ -1,0 +1,52 @@
+{
+  "challenge_id": "r3-s06-esdeveniments-correu",
+  "repte_id": "r3-framework-persistencia",
+  "session_code": "R3-S06",
+  "microrepte_code": "R3M6",
+  "microreptes_covered": [
+    "R3M6"
+  ],
+  "title": "Esdeveniments i correu",
+  "summary": "Connectar una acció protegida amb un esdeveniment i un correu de prova.",
+  "pedagogical_goal": "Separar l’operació confirmada de la reacció que avisa el destinatari.",
+  "relevant_paths": [
+    "README.md",
+    "README.md",
+    "docs/",
+    "tests/",
+    "evidence/",
+    "routes/",
+    "controllers/",
+    "src/",
+    "app/",
+    "database/",
+    "ai-log.md"
+  ],
+  "required_evidence": [
+    "Acció protegida existent, esdeveniment, listener o equivalent i correu amb transport local o simulat.",
+    "Resultats reals d’èxit amb un únic correu, error i denegació sense correu.",
+    "Instruccions de reproducció, commits i registre d’IA si correspon."
+  ],
+  "ai_log_required": false,
+  "expected_signals": [
+    "Esdeveniment després de confirmar l’operació.",
+    "Destinatari demo correcte.",
+    "Sense enviament en cas d’error o denegació."
+  ],
+  "recommended_test_strategy": "Comprovar els tres casos amb bústia local o proves del framework.",
+  "source_alignment": [
+    "Repte 3 R3M6",
+    "Programacio d'aula R3S6",
+    "Documentacio d'alumnat del Repte 3"
+  ],
+  "primary_ra": "RA5",
+  "assessed_ca": [
+    "RA5.g",
+    "RA5.h"
+  ],
+  "context_ra": [
+    "RA6.f",
+    "RA6.g"
+  ],
+  "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció."
+}

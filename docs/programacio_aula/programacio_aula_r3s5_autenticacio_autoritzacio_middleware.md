@@ -174,4 +174,4 @@ La IA pot ajudar a localitzar l'equivalent de middleware, guard, voter o policy 
 
 ## Connexio amb el microrepte posterior
 
-`R3M6` estabilitzara els fluxos, errors, proves i proteccio. Si `R3M5` no deixa clara la diferència entre autenticacio i autoritzacio, el tancament de `R3` quedarà feble.
+`R3M6` aprofitarà una acció protegida per emetre un esdeveniment i enviar un correu de prova.

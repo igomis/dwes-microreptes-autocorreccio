@@ -1,4 +1,8 @@
-# R3S7. Tancament tecnic
+# R3S7. Estabilització i tancament tècnic
+
+## Regressió i còpia neta
+
+Des d’una còpia neta i amb una BBDD de prova, seguix el README, reconstruïx les dades i guarda l’eixida d’una suite o checklist executada. Verifica els dos fluxos i els seus errors, la protecció d’accés i el correu d’R3M6. Revisa les responsabilitats. Si detectes una incidència, documenta símptoma, causa, correcció i prova posterior. Si no en detectes, registra les comprovacions executades.
 
 ## Finalitat de la sessio
 
@@ -19,6 +23,8 @@ Esta sessio tanca `R3` deixant el projecte en framework documentat, reproduïble
 |---|---|
 | `RA5.f` | documenta estructura i decisions de framework |
 | `RA5.g` | explica mantenibilitat i responsabilitats |
+| `RA5.h` | revisa responsabilitats i verifica la regressió després dels canvis |
+| `RA6.f` | verifica els fluxos amb dades reconstruïdes |
 | `RA6.g` | documenta persistencia, migracions o equivalent, càrrega inicial i dades |
 | Evidencia central | projecte reproduïble i defensable amb backlog cap a `R4` |
 
@@ -70,7 +76,7 @@ Tasques:
 
 - arrancar projecte des de zero o simular-ho;
 - revisar comandes de BBDD;
-- comprovar dos fluxos;
+- executar i registrar regressió dels dos fluxos, errors, permisos i correu;
 - detectar buits del README.
 
 ### 0:55-1:15. Modelatge de tancament

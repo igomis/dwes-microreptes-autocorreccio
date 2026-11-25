@@ -6,8 +6,8 @@
   "microreptes_covered": [
     "R3M7"
   ],
-  "title": "Tancament tecnic",
-  "summary": "Tancar R3 amb README.md reproduïble, documentacio de BBDD, dos fluxos, decisions, demo i backlog cap a R4.",
+  "title": "Estabilització i tancament tècnic",
+  "summary": "Estabilització i tancament tècnic de R3 amb regressió, README, demo i pas a R4.",
   "pedagogical_goal": "Comprovar que el projecte en framework és comprensible, reproduïble i defensable abans d'obrir API en R4.",
   "relevant_paths": [
     "README.md",
@@ -32,7 +32,8 @@
     "Backlog del que queda per migrar",
     "Identificacio de possible recurs o endpoint per a R4",
     "Commits i registre de temps aproximat",
-    "AI log si hi ha ús rellevant d'IA"
+    "AI log si hi ha ús rellevant d'IA",
+    "Des d’una còpia neta i amb una BBDD de prova, seguix el README, reconstruïx les dades i guarda l’eixida d’una suite o checklist executada. Verifica els dos fluxos i els seus errors, la protecció d’accés i el correu d’R3M6. Revisa les responsabilitats. Si detectes una incidència, documenta símptoma, causa, correcció i prova posterior. Si no en detectes, registra les comprovacions executades."
   ],
   "ai_log_required": false,
   "expected_signals": [
@@ -42,7 +43,7 @@
     "Queda clar què s'ha migrat i què queda fora",
     "El pas a R4 està justificat"
   ],
-  "recommended_test_strategy": "Seguir el README per arrancar, crear BBDD, carregar dades, executar dos fluxos, revisar decisions i backlog, i comprovar quin recurs podria passar a API en R4.",
+  "recommended_test_strategy": "Des d’una còpia neta i amb una BBDD de prova, seguix el README, reconstruïx les dades i guarda l’eixida d’una suite o checklist executada. Verifica els dos fluxos i els seus errors, la protecció d’accés i el correu d’R3M6. Revisa les responsabilitats. Si detectes una incidència, documenta símptoma, causa, correcció i prova posterior. Si no en detectes, registra les comprovacions executades.",
   "source_alignment": [
     "Repte 3 R3M7",
     "Programacio d'aula R3S7",
@@ -51,9 +52,11 @@
   "primary_ra": "RA5",
   "assessed_ca": [
     "RA5.f",
-    "RA5.g"
+    "RA5.g",
+    "RA5.h"
   ],
   "context_ra": [
+    "RA6.f",
     "RA6.g"
   ],
   "assessment_model": "Este microrepte genera nota només per al RA avaluat. Els RA de context poden aparéixer en el producte, però no es ponderen en esta autocorrecció.",
