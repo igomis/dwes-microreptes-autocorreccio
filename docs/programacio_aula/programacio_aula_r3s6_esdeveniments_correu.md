@@ -6,7 +6,10 @@ Ampliar una acció protegida amb una reacció del framework que envie un correu 
 
 ## Encaix dins del repte
 
-R3 · R3S6 · R3M6 · 3 hores
+- **Repte**: `R3`
+- **Microrepte**: `R3M6`
+- **Sessió**: `R3S6`
+- **Duració orientativa**: `3 hores`
 
 ## Relació amb RA, CA i criteris
 
