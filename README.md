@@ -101,7 +101,7 @@ Prova primer amb:
 npm run students:create-repos -- \
   --input alumnes.csv \
   --org batoi-dwes-2026 \
-  --template igomis/dwes-microreptes-alumnes \
+  --template igomis/dwes_microreptes_alumnes \
   --dry-run
 ```
 

@@ -10,7 +10,7 @@
     "teacher_repository": "igomis/dwes-microreptes-autocorreccio",
     "default_ref": "main",
     "classroom_organization": "batoi-dwes-2026",
-    "student_template": "igomis/dwes-microreptes-alumnes",
+    "student_template": "igomis/dwes_microreptes_alumnes",
     "student_template_local_dir": "../dwes-microreptes-alumnes",
     "student_repository_prefix": "microreptes-"
   },
